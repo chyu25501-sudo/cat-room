@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, Sparkles, Heart } from 'lucide-react';
+import { Volume2, Heart } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 
 export default function App() {
@@ -25,10 +25,6 @@ export default function App() {
     <main className="min-h-screen flex flex-col items-center justify-between p-6 bg-gradient-to-b from-amber-50 via-orange-50 to-amber-100 selection:bg-orange-200">
       {/* ヘッダーエリア */}
       <header className="w-full max-w-md pt-8 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-medium tracking-wide mb-3 shadow-xs">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>第1週プロトタイプ（音出し検証）</span>
-        </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-stone-800 tracking-tight">
           あつまれ！ねこのへや
         </h1>
@@ -95,9 +91,6 @@ export default function App() {
       {/* フッターエリア */}
       <footer className="w-full max-w-md pb-6 text-center text-xs text-stone-400">
         <p>※ 音が出ます。端末の音量を調整してご利用ください。</p>
-        <p className="mt-1 font-mono text-[11px] text-stone-400/80">
-          Cat Room Project - Week 1
-        </p>
       </footer>
     </main>
   );
