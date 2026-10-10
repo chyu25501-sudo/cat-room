@@ -57,23 +57,18 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         strokeWidth="2"
       />
 
-      {/* 後ろ足・お尻の丸みライン */}
+      {/* 前足（香箱座りのように胸元にきゅっとしまい込んだ前足） */}
       <path
-        d="M 158 100 C 185 100 205 115 204 135 C 202 148 182 150 162 146"
+        d="M 52 124 C 44 132 44 144 54 148 C 66 151 86 150 96 142 C 94 134 88 128 78 126"
         className="fill-white stroke-stone-300/90"
         strokeWidth="1.8"
       />
-
-      {/* 前足（前方にちょこんと伸ばしたリラックスポーズ） */}
+      {/* 手の折り込みの丸みディテール */}
       <path
-        d="M 70 134 L 40 140 C 34 141 32 148 38 150 C 44 152 66 152 80 148 Z"
-        className="fill-stone-50 stroke-stone-300/90"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M 80 128 L 52 134 C 46 135 44 142 50 144 C 56 146 76 146 88 142 Z"
-        className="fill-stone-50 stroke-stone-300/90"
-        strokeWidth="1.8"
+        d="M 72 132 C 70 140 72 147 78 149"
+        className="stroke-stone-300/90"
+        strokeWidth="1.5"
+        strokeLinecap="round"
       />
 
       {/* 頭部と耳（少し首をかしげてこちらを見上げる寝転がりポーズ） */}
