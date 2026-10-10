@@ -93,9 +93,9 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         strokeWidth="2"
       />
 
-      {/* 耳の内側（やさしいピンク） */}
-      <path d="M 25 48 L 33 58 L 27 57 Z" className="fill-rose-200/90" />
-      <path d="M 85 48 L 77 58 L 83 57 Z" className="fill-rose-200/90" />
+      {/* 耳の内側（やさしいピンク：耳に美しく収まる適度なサイズ） */}
+      <path d="M 23 44 L 35 60 L 25 58 Z" className="fill-rose-200/90" />
+      <path d="M 88 44 L 76 60 L 86 58 Z" className="fill-rose-200/90" />
 
       {/* ひげ */}
       <g
