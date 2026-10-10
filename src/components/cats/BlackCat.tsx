@@ -62,15 +62,17 @@ export const BlackCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         className="fill-stone-900"
       />
 
-      {/* 頭部と耳（尖った三角耳と丸い輪郭） */}
+      {/* 頭部と耳（短めで先端に丸みのある愛らしい耳） */}
       <path
         d="
           M 74 68
-          C 60 68 48 48 42 24
-          C 56 32 76 48 86 54
+          C 64 66 54 50 50 40
+          C 48 35 52 34 56 37
+          C 64 42 76 50 86 54
           C 92 52 118 52 124 54
-          C 134 48 154 32 168 24
-          C 162 48 150 68 136 68
+          C 134 50 146 42 154 37
+          C 158 34 162 35 160 40
+          C 156 50 146 66 136 68
           C 148 80 150 104 140 118
           C 130 130 80 130 70 118
           C 60 104 62 80 74 68
@@ -79,8 +81,8 @@ export const BlackCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
       />
 
       {/* 耳の内側のニュアンス */}
-      <path d="M 52 38 L 76 56 L 62 65 Z" className="fill-orange-900/30" />
-      <path d="M 158 38 L 134 56 L 148 65 Z" className="fill-orange-900/30" />
+      <path d="M 56 42 L 76 56 L 65 64 Z" className="fill-orange-900/30" />
+      <path d="M 154 42 L 134 56 L 145 64 Z" className="fill-orange-900/30" />
 
       {/* ひげ */}
       <g

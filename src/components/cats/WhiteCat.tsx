@@ -74,28 +74,28 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         fill="none"
       />
 
-      {/* 頭部と耳（0.75倍の長さ・少し丸みのある愛らしい耳） */}
+      {/* 頭部と耳（短めで少し丸みのある愛らしい耳） */}
       <path
         d="
           M 75 62
           C 68 58 50 58 42 62
-          C 34 52 26 40 22 32
-          C 20 28 17 29 16 33
-          C 15 38 20 52 26 66
+          C 36 56 30 48 26 42
+          C 24 38 20 38 19 42
+          C 18 47 22 56 26 66
           C 18 76 18 94 28 106
           C 38 118 72 120 84 108
           C 92 98 92 78 86 68
-          C 91 54 96 38 95 33
-          C 94 29 91 28 89 32
-          C 85 40 78 52 75 62
+          C 90 56 94 47 93 42
+          C 92 38 88 38 86 42
+          C 82 48 78 56 75 62
           Z"
         className="fill-white stroke-stone-300/90"
         strokeWidth="2"
       />
 
       {/* 耳の内側（やさしいピンク） */}
-      <path d="M 23 44 L 33 58 L 26 56 Z" className="fill-rose-200/90" />
-      <path d="M 87 44 L 77 58 L 84 56 Z" className="fill-rose-200/90" />
+      <path d="M 25 48 L 33 58 L 27 57 Z" className="fill-rose-200/90" />
+      <path d="M 85 48 L 77 58 L 83 57 Z" className="fill-rose-200/90" />
 
       {/* ひげ */}
       <g
