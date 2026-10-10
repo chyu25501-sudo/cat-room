@@ -74,26 +74,28 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         fill="none"
       />
 
-      {/* 頭部と耳（少し首をかしげてこちらを見上げる寝転がりポーズ） */}
+      {/* 頭部と耳（0.75倍の長さ・少し丸みのある愛らしい耳） */}
       <path
         d="
           M 75 62
           C 68 58 50 58 42 62
-          C 34 50 22 32 14 20
-          C 18 38 24 54 28 66
+          C 34 52 26 40 22 32
+          C 20 28 17 29 16 33
+          C 15 38 20 52 26 66
           C 18 76 18 94 28 106
           C 38 118 72 120 84 108
           C 92 98 92 78 86 68
-          C 90 56 96 38 100 20
-          C 92 30 78 50 75 62
+          C 91 54 96 38 95 33
+          C 94 29 91 28 89 32
+          C 85 40 78 52 75 62
           Z"
         className="fill-white stroke-stone-300/90"
         strokeWidth="2"
       />
 
       {/* 耳の内側（やさしいピンク） */}
-      <path d="M 24 38 L 36 64 L 26 59 Z" className="fill-rose-200/90" />
-      <path d="M 90 38 L 78 64 L 88 59 Z" className="fill-rose-200/90" />
+      <path d="M 23 44 L 33 58 L 26 56 Z" className="fill-rose-200/90" />
+      <path d="M 87 44 L 77 58 L 84 56 Z" className="fill-rose-200/90" />
 
       {/* ひげ */}
       <g
@@ -125,11 +127,11 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         </g>
       )}
 
-      {/* ほっぺのほんのり赤らみ（反応時） */}
+      {/* ほっぺのほんのり赤らみ（反応時：輪郭線の内側にきれいに収まる位置） */}
       {isReacting && (
         <g fill="#f43f5e" opacity="0.4">
-          <circle cx="32" cy="98" r="7" />
-          <circle cx="90" cy="98" r="7" />
+          <circle cx="34" cy="98" r="6" />
+          <circle cx="78" cy="98" r="6" />
         </g>
       )}
 
