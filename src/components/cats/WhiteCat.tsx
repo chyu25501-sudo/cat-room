@@ -43,32 +43,35 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         strokeWidth="2"
       />
 
-      {/* 胴体（床にごろんと寝転がったリラックスシルエット） */}
+      {/* 胴体と香箱座りの前足（一体化したシームレスな輪郭線） */}
       <path
         d="
           M 66 90
           C 60 72 85 64 125 64
           C 165 64 195 76 212 106
           C 220 122 215 142 196 148
-          C 168 155 98 155 74 148
-          C 54 142 50 118 66 90
+          C 168 152 90 152 62 150
+          C 48 149 44 138 46 128
+          C 48 116 56 104 66 90
           Z"
         className="fill-white stroke-stone-300/90"
         strokeWidth="2"
       />
 
-      {/* 前足（香箱座りのように胸元にきゅっとしまい込んだ前足） */}
+      {/* 香箱座りの前足の折り込みディテール（fill="none"で不要な黒塗りを防止） */}
       <path
-        d="M 52 124 C 44 132 44 144 54 148 C 66 151 86 150 96 142 C 94 134 88 128 78 126"
-        className="fill-white stroke-stone-300/90"
+        d="M 46 132 C 54 138 70 140 84 135"
+        className="stroke-stone-300/90"
         strokeWidth="1.8"
+        strokeLinecap="round"
+        fill="none"
       />
-      {/* 手の折り込みの丸みディテール */}
       <path
-        d="M 72 132 C 70 140 72 147 78 149"
+        d="M 64 136 C 64 142 66 148 70 150"
         className="stroke-stone-300/90"
         strokeWidth="1.5"
         strokeLinecap="round"
+        fill="none"
       />
 
       {/* 頭部と耳（少し首をかしげてこちらを見上げる寝転がりポーズ） */}
