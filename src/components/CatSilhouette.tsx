@@ -33,12 +33,12 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
 
   return (
     <div className={`relative flex flex-col items-center justify-center ${className}`}>
-      {/* クリック可能な猫シルエット本体 */}
+      {/* クリック可能な猫シルエット本体（猫種切り替え時にも上下位置がブレない固定サイズ） */}
       <button
         type="button"
         onClick={onClick}
         aria-label={`${preset.name}のシルエット（タップしてふれあう）`}
-        className="group relative flex flex-col items-center justify-center p-2 rounded-3xl cursor-pointer select-none transition-transform duration-200 focus:outline-hidden focus-visible:ring-4 focus-visible:ring-orange-300 active:scale-95 hover:scale-102"
+        className="group relative flex flex-col items-center justify-center p-2 rounded-3xl w-72 sm:w-80 h-[320px] sm:h-[352px] cursor-pointer select-none transition-transform duration-200 focus:outline-hidden focus-visible:ring-4 focus-visible:ring-orange-300 active:scale-95 hover:scale-102"
       >
         {/* 反応中のフローティング演出（ハート・きらきら） */}
         {isReacting && (
@@ -49,9 +49,9 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
           </div>
         )}
 
-        {/* 猫のSVGシルエット */}
+        {/* 猫のSVGシルエット表示エリア（猫種切り替え時にも高さが変わらない固定ステージ） */}
         <div
-          className={`relative transition-all duration-300 ${
+          className={`relative w-64 sm:w-72 h-64 sm:h-72 flex items-end justify-center transition-all duration-300 ${
             isReacting
               ? 'scale-105 -translate-y-1'
               : 'group-hover:-translate-y-0.5'
