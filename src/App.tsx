@@ -1,33 +1,39 @@
 import React, { useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, RefreshCw } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
+import { useCatSelection } from './hooks/useCatSelection.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
+import { calculateVariedPitch, getRandomMeowMessage } from './utils/catPreset.ts';
 
 export default function App() {
+  const { currentPreset, nextPreset, switchCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
   const [bubbleText, setBubbleText] = useState<string | null>(null);
 
   const handleInteractCat = () => {
-    // 鳴き声ピッチの自然な揺らぎ（0.95〜1.1倍）
-    const pitchVariations = [0.95, 1.0, 1.05, 1.1];
-    const pitch = pitchVariations[Math.floor(Math.random() * pitchVariations.length)];
+    // 選択中の猫の基本ピッチに自然な揺らぎを加えて鳴き声を再生
+    const pitch = calculateVariedPitch(currentPreset.defaultPitch);
     meow({ pitchMultiplier: pitch });
 
-    // 吹き出しメッセージを表示
-    const meowMessages = [
-      'ニャ〜ン♪',
-      'ゴロゴロ…♪',
-      'にゃあ〜♡',
-      'すりすり…',
-      'ミャオ！',
-    ];
-    const randomMsg = meowMessages[Math.floor(Math.random() * meowMessages.length)];
-    setBubbleText(randomMsg);
+    // 猫ごとの個性あるメッセージを吹き出しに表示
+    const msg = getRandomMeowMessage(currentPreset);
+    setBubbleText(msg);
 
     // 一定時間後に吹き出しをフェードアウト
     setTimeout(() => {
       setBubbleText(null);
     }, 1400);
+  };
+
+  const handleSwitchCat = () => {
+    // 単一ボタンによる猫の循環切り替え
+    switchCat();
+
+    // 切り替え時の吹き出しフィードバック
+    setBubbleText(`${nextPreset.name}にきりかえたよ♪`);
+    setTimeout(() => {
+      setBubbleText(null);
+    }, 1200);
   };
 
   return (
@@ -40,11 +46,29 @@ export default function App() {
         <p className="text-sm text-stone-500 mt-2">
           猫ちゃんをクリック（タップ）してふれあってみよう
         </p>
+
+        {/* 単一ボタンによる猫の見た目切り替えコントロール */}
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={handleSwitchCat}
+            aria-label="猫の見た目を切り替える"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 hover:text-stone-900 border border-orange-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 text-xs font-semibold cursor-pointer active:scale-95 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-300"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-orange-500" />
+            <span>ねこを切り替える</span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100/90 text-orange-800 text-[11px] font-medium">
+              <span>{currentPreset.label}</span>
+              <span className="text-orange-400">➔</span>
+              <span>{nextPreset.label}</span>
+            </span>
+          </button>
+        </div>
       </header>
 
       {/* メインアクションエリア */}
       <section className="flex flex-col items-center justify-center my-auto w-full max-w-sm">
-        {/* 鳴き声吹き出し */}
+        {/* 鳴き声・切り替え吹き出し */}
         <div className="h-14 flex items-center justify-center mb-2 transition-all duration-300">
           {bubbleText ? (
             <div className="animate-bounce bg-white px-4 py-2 rounded-2xl shadow-md border border-orange-200 text-orange-600 font-bold text-base flex items-center gap-1.5">
@@ -53,13 +77,14 @@ export default function App() {
             </div>
           ) : (
             <span className="text-xs text-stone-400 font-medium">
-              猫ちゃんを直接クリックしてふれあってみてね
+              {currentPreset.description}（タップしてね）
             </span>
           )}
         </div>
 
         {/* 猫のシルエット（直接クリックでふれあい） */}
         <CatSilhouette
+          preset={currentPreset}
           isReacting={isPlaying}
           onClick={handleInteractCat}
         />
