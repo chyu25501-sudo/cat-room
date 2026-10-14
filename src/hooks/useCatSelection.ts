@@ -11,8 +11,10 @@ export interface UseCatSelectionResult {
   currentPreset: CatPreset;
   /** 次に切り替えられる猫プリセット情報 */
   nextPreset: CatPreset;
-  /** 次の猫プリセットへ切り替える関数（単一ボタン操作用） */
+  /** 次の猫プリセットへ循環切り替えする関数 */
   switchCat: () => void;
+  /** 特定の猫プリセットを直接選択する関数（ラジオボタン用） */
+  selectCat: (id: CatId) => void;
 }
 
 /**
@@ -51,11 +53,22 @@ export function useCatSelection(): UseCatSelectionResult {
     });
   }, []);
 
+  const selectCat = useCallback((id: CatId) => {
+    setCurrentCatId(id);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(STORAGE_KEY, id);
+      }
+    } catch {
+      // フォールバック
+    }
+  }, []);
+
   return {
     currentCatId,
     currentPreset,
     nextPreset,
     switchCat,
+    selectCat,
   };
 }
-

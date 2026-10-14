@@ -18,9 +18,9 @@ describe('catPreset ユーティリティ', () => {
 
   it('getNextCatPreset: 3種類以上のプリセットが存在する場合も順番に循環すること', () => {
     const customPresets: CatPreset[] = [
-      { id: 'black', name: '黒', poseName: '座り', label: '黒', description: '', defaultPitch: 1, meowMessages: ['ニャ'] },
-      { id: 'white', name: '白', poseName: '寝転がり', label: '白', description: '', defaultPitch: 1.1, meowMessages: ['ミャ'] },
-      { id: 'black', name: '三毛', poseName: '伸び', label: '三毛', description: '', defaultPitch: 1.2, meowMessages: ['ニャー'] },
+      { id: 'black', name: '黒', poseName: '座り', label: '黒', description: '', defaultPitch: 1, meowMessages: ['ニャ'], swatch: { bgClass: 'bg-stone-800', borderClass: 'border-stone-700', dotClass: 'bg-white' } },
+      { id: 'white', name: '白', poseName: '寝転がり', label: '白', description: '', defaultPitch: 1.1, meowMessages: ['ミャ'], swatch: { bgClass: 'bg-white', borderClass: 'border-stone-300', dotClass: 'bg-stone-800' } },
+      { id: 'black', name: '三毛', poseName: '伸び', label: '三毛', description: '', defaultPitch: 1.2, meowMessages: ['ニャー'], swatch: { bgClass: 'bg-amber-500', borderClass: 'border-amber-600', dotClass: 'bg-white' } },
     ];
     const first = customPresets[0];
     const second = getNextCatPreset(first.id, customPresets);

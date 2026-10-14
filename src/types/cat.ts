@@ -1,5 +1,14 @@
 export type CatId = 'black' | 'white';
 
+export interface CatPresetSwatch {
+  /** 円形ラジオボタンの背景色Tailwindクラス */
+  bgClass: string;
+  /** 円形ラジオボタンの境界線Tailwindクラス */
+  borderClass: string;
+  /** 円形ラジオボタンのアクティブ時センタードット色Tailwindクラス */
+  dotClass: string;
+}
+
 export interface CatPreset {
   /** 一意識別子 */
   id: CatId;
@@ -15,6 +24,8 @@ export interface CatPreset {
   defaultPitch: number;
   /** この猫の鳴き声・リアクションメッセージ一覧 */
   meowMessages: readonly string[];
+  /** 円形セレクター（ラジオボタン風）のカラー表示設定 */
+  swatch: CatPresetSwatch;
 }
 
 export const CAT_PRESETS: readonly CatPreset[] = [
@@ -32,6 +43,11 @@ export const CAT_PRESETS: readonly CatPreset[] = [
       'すりすり…',
       'ミャオ！',
     ],
+    swatch: {
+      bgClass: 'bg-stone-800',
+      borderClass: 'border-stone-700',
+      dotClass: 'bg-white',
+    },
   },
   {
     id: 'white',
@@ -47,6 +63,10 @@ export const CAT_PRESETS: readonly CatPreset[] = [
       'すやぁ…',
       'ミャオ〜♡',
     ],
+    swatch: {
+      bgClass: 'bg-white',
+      borderClass: 'border-stone-300',
+      dotClass: 'bg-stone-800',
+    },
   },
 ] as const;
-

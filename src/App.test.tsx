@@ -7,21 +7,23 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     localStorage.clear();
   });
 
-  it('サイト名「ねこっぽい」と切り替えボタンが表示されること', () => {
+  it('サイト名「ねこっぽい」と切り替えマーク・円形ラジオボタンが表示されること', () => {
     render(<App />);
 
     expect(screen.getByText('ねこっぽい')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /猫の見た目を切り替える/ })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ })).toBeInTheDocument();
   });
 
-  it('初期状態で黒猫が表示され、切り替えボタンを押すと白猫（寝転がり）に切り替わること', () => {
+  it('切り替えマークを押すと白猫（寝転がり）と黒猫が循環切り替えされること', () => {
     render(<App />);
 
     // 初期状態: 黒猫
     expect(screen.getByTestId('black-cat-svg')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /くろねこのシルエット/ })).toBeInTheDocument();
 
-    // 切り替えボタンを押す
+    // 切り替えマークを押す
     const switchButton = screen.getByRole('button', { name: /猫の見た目を切り替える/ });
     fireEvent.click(switchButton);
 
@@ -34,6 +36,26 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     fireEvent.click(switchButton);
     expect(screen.getByTestId('black-cat-svg')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /くろねこのシルエット/ })).toBeInTheDocument();
+  });
+
+  it('円形ラジオボタンを直接クリックして猫を切り替えられること', () => {
+    render(<App />);
+
+    // 白の円形ラジオボタンをクリック
+    const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
+    fireEvent.click(whiteRadio);
+
+    // 白猫に切り替わる
+    expect(screen.getByTestId('white-cat-svg')).toBeInTheDocument();
+    expect(screen.getByText(/しろねこにきりかえたよ/)).toBeInTheDocument();
+
+    // 黒の円形ラジオボタンをクリック
+    const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });
+    fireEvent.click(blackRadio);
+
+    // 黒猫に戻る
+    expect(screen.getByTestId('black-cat-svg')).toBeInTheDocument();
+    expect(screen.getByText(/くろねこにきりかえたよ/)).toBeInTheDocument();
   });
 
   it('猫のシルエットをクリックすると直接ふれあえ、吹き出しメッセージが表示されること', () => {

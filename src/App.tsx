@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Heart, RefreshCw } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
-import { calculateVariedPitch, getRandomMeowMessage } from './utils/catPreset.ts';
+import { CatSelector } from './components/CatSelector.tsx';
+import { calculateVariedPitch, getRandomMeowMessage, getCatPresetById } from './utils/catPreset.ts';
+import { CatId } from './types/cat.ts';
 
 export default function App() {
-  const { currentPreset, nextPreset, switchCat } = useCatSelection();
+  const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
   const [bubbleText, setBubbleText] = useState<string | null>(null);
 
@@ -26,11 +28,18 @@ export default function App() {
   };
 
   const handleSwitchCat = () => {
-    // 単一ボタンによる猫の循環切り替え
     switchCat();
-
-    // 切り替え時の吹き出しフィードバック
     setBubbleText(`${nextPreset.name}にきりかえたよ♪`);
+    setTimeout(() => {
+      setBubbleText(null);
+    }, 1200);
+  };
+
+  const handleSelectCat = (id: CatId) => {
+    if (id === currentCatId) return;
+    selectCat(id);
+    const target = getCatPresetById(id);
+    setBubbleText(`${target.name}にきりかえたよ♪`);
     setTimeout(() => {
       setBubbleText(null);
     }, 1200);
@@ -47,22 +56,13 @@ export default function App() {
           猫ちゃんをクリック（タップ）してふれあってみよう
         </p>
 
-        {/* 単一ボタンによる猫の見た目切り替えコントロール */}
+        {/* シンプルな円形ラジオボタン風の猫切り替えコントロール */}
         <div className="mt-4 flex justify-center">
-          <button
-            type="button"
-            onClick={handleSwitchCat}
-            aria-label="猫の見た目を切り替える"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 hover:text-stone-900 border border-orange-200/90 shadow-2xs hover:shadow-xs transition-all duration-200 text-xs font-semibold cursor-pointer active:scale-95 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-300"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-orange-500" />
-            <span>ねこを切り替える</span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100/90 text-orange-800 text-[11px] font-medium">
-              <span>{currentPreset.label}</span>
-              <span className="text-orange-400">➔</span>
-              <span>{nextPreset.label}</span>
-            </span>
-          </button>
+          <CatSelector
+            currentCatId={currentCatId}
+            onSelectCat={handleSelectCat}
+            onSwitchNext={handleSwitchCat}
+          />
         </div>
       </header>
 
@@ -76,7 +76,7 @@ export default function App() {
               <span>{bubbleText}</span>
             </div>
           ) : (
-            <span className="text-xs text-stone-400 font-medium">
+            <span className="text-xs text-stone-400 font-medium text-center">
               {currentPreset.description}（タップしてね）
             </span>
           )}
