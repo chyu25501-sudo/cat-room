@@ -20,6 +20,10 @@ export interface CatSilhouetteProps {
   isReacting?: boolean;
   /** 猫をなでた（ドラッグストローク完了）ときのコールバック */
   onPet?: () => void;
+  /** なでたと判定する移動距離のしきい値（ピクセル） */
+  strokeThreshold?: number;
+  /** なでた後のクールダウン時間（ミリ秒） */
+  cooldownMs?: number;
   /** 後方互換用：クリック時のコールバック */
   onClick?: () => void;
   /** 追加クラス名 */
@@ -30,6 +34,8 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   preset = CAT_PRESETS[0],
   isReacting = false,
   onPet,
+  strokeThreshold,
+  cooldownMs,
   onClick,
   className = '',
 }) => {
@@ -37,10 +43,11 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
 
   const handlePetAction = onPet ?? onClick ?? (() => {});
 
-  // ドラッグ操作による「なでる」インタラクション
+  // ドラッグ操作による「なでる」インタラクション（クールダウンで長いストローク時の過剰反応を制御）
   const { isDragging, handlers } = useCatPetting({
     onPet: handlePetAction,
-    threshold: 50,
+    threshold: strokeThreshold,
+    cooldownMs,
   });
 
   return (

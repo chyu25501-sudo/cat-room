@@ -35,6 +35,12 @@ export function calculateStrokeDistance(points: readonly Point[]): number {
 export const DEFAULT_STROKE_THRESHOLD = 50;
 
 /**
+ * なでた反応（鳴き声など）の連続発火を防ぐデフォルトのクールダウン時間（ミリ秒）
+ * 長いストローク時や高速ドラッグ時でもうるさくならない落ち着いた頻度に制御
+ */
+export const DEFAULT_PET_COOLDOWN_MS = 1000;
+
+/**
  * ストローク距離がしきい値に到達したかを判定する純粋関数
  */
 export function isStrokeThresholdReached(
@@ -42,6 +48,33 @@ export function isStrokeThresholdReached(
   threshold: number = DEFAULT_STROKE_THRESHOLD
 ): boolean {
   return distance >= threshold;
+}
+
+/**
+ * 前回の発火からクールダウン時間が経過しているかを判定する純粋関数
+ */
+export function isCooldownElapsed(
+  lastTriggerTime: number,
+  now: number,
+  cooldownMs: number = DEFAULT_PET_COOLDOWN_MS
+): boolean {
+  return now - lastTriggerTime >= cooldownMs;
+}
+
+/**
+ * なでる判定が成立するかどうか（移動距離がしきい値以上、かつクールダウン経過済み）を判定する純粋関数
+ */
+export function canTriggerPet(
+  distance: number,
+  threshold: number,
+  lastTriggerTime: number,
+  now: number,
+  cooldownMs: number = DEFAULT_PET_COOLDOWN_MS
+): boolean {
+  return (
+    isStrokeThresholdReached(distance, threshold) &&
+    isCooldownElapsed(lastTriggerTime, now, cooldownMs)
+  );
 }
 
 /**
@@ -54,4 +87,5 @@ export function calculateStrokeProgress(
   if (threshold <= 0) return 1.0;
   return Math.min(1.0, Math.max(0.0, distance / threshold));
 }
+
 

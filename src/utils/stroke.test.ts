@@ -4,6 +4,8 @@ import {
   calculateStrokeDistance,
   isStrokeThresholdReached,
   calculateStrokeProgress,
+  isCooldownElapsed,
+  canTriggerPet,
   DEFAULT_STROKE_THRESHOLD,
 } from './stroke.ts';
 
@@ -53,5 +55,36 @@ describe('stroke ユーティリティ (純粋関数テスト)', () => {
     expect(calculateStrokeProgress(100, 100)).toBe(1.0);
     expect(calculateStrokeProgress(150, 100)).toBe(1.0); // 最大1.0
   });
+
+  it('isCooldownElapsed: クールダウン時間の経過判定が正しく行われること', () => {
+    // 1000msクールダウンの判定
+    expect(isCooldownElapsed(1000, 1500, 1000)).toBe(false); // 500ms経過（未到達）
+    expect(isCooldownElapsed(1000, 2000, 1000)).toBe(true); // 1000ms経過（到達）
+    expect(isCooldownElapsed(1000, 2500, 1000)).toBe(true); // 1500ms経過（超過）
+
+    // デフォルトクールダウン（1000ms）
+    expect(isCooldownElapsed(0, 999)).toBe(false);
+    expect(isCooldownElapsed(0, 1000)).toBe(true);
+  });
+
+  it('canTriggerPet: 距離しきい値とクールダウン双方が満たされたときのみtrueを返すこと', () => {
+    const threshold = 50;
+    const cooldownMs = 1000;
+    const lastTrigger = 0;
+
+    // 距離不足、クールダウン未経過
+    expect(canTriggerPet(30, threshold, lastTrigger, 500, cooldownMs)).toBe(false);
+
+    // 距離十分だが、クールダウン未経過（長いストロークの途中など）
+    expect(canTriggerPet(100, threshold, lastTrigger, 500, cooldownMs)).toBe(false);
+
+    // 距離不足だが、クールダウン経過済み
+    expect(canTriggerPet(30, threshold, lastTrigger, 1500, cooldownMs)).toBe(false);
+
+    // 距離十分かつクールダウン経過済み
+    expect(canTriggerPet(50, threshold, lastTrigger, 1000, cooldownMs)).toBe(true);
+    expect(canTriggerPet(80, threshold, lastTrigger, 1500, cooldownMs)).toBe(true);
+  });
 });
+
 
