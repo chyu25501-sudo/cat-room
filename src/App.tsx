@@ -53,7 +53,7 @@ export default function App() {
           ねこっぽい
         </h1>
         <p className="text-sm text-stone-500 mt-2">
-          猫ちゃんをクリック（タップ）してふれあってみよう
+          猫ちゃんをなでなで（ドラッグ）してふれあってみよう
         </p>
 
         {/* シンプルな円形ラジオボタン風の猫切り替えコントロール */}
@@ -77,16 +77,16 @@ export default function App() {
             </div>
           ) : (
             <span className="text-xs text-stone-400 font-medium text-center">
-              {currentPreset.description}（タップしてね）
+              {currentPreset.description}（なでてみてね）
             </span>
           )}
         </div>
 
-        {/* 猫のシルエット（直接クリックでふれあい） */}
+        {/* 猫のシルエット（ドラッグ操作でなでる） */}
         <CatSilhouette
           preset={currentPreset}
           isReacting={isPlaying}
-          onClick={handleInteractCat}
+          onPet={handleInteractCat}
         />
       </section>
 
