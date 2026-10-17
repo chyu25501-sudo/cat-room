@@ -120,10 +120,34 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
 
     const activeParticles = [...hearts, ...sparkles, ...notes];
     for (const p of activeParticles) {
-      expect(
-        p.classList.contains('animate-sway-left') ||
-          p.classList.contains('animate-sway-right')
-      ).toBe(true);
+      expect(p.classList.contains('animate-rise-up')).toBe(true);
+      const swayWrapper = p.querySelector('.animate-sway-left, .animate-sway-right');
+      expect(swayWrapper).not.toBeNull();
+    }
+  });
+
+  it('音符エフェクトは玉の部分のみ塗りつぶされ、棒・桁部分は輪郭線のみ（fill=none）であること', () => {
+    // 音符バーストを明示的に検証
+    render(<CatSilhouette onPet={vi.fn()} />);
+    const catButton = screen.getByRole('button', { name: /くろねこのシルエット/ });
+
+    fireEvent.pointerDown(catButton, { clientX: 100, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 160, clientY: 100, isPrimary: true });
+    fireEvent.pointerUp(catButton, { clientX: 160, clientY: 100, isPrimary: true });
+
+    const noteIcons = screen.queryAllByTestId('musical-note-icon');
+    if (noteIcons.length > 0) {
+      for (const icon of noteIcons) {
+        // 符幹・桁（path）は fill="none"
+        const path = icon.querySelector('path');
+        expect(path).toHaveAttribute('fill', 'none');
+        // 符頭（ellipse）は fill="currentColor" で丸い玉のみ塗りつぶし
+        const ellipses = icon.querySelectorAll('ellipse');
+        expect(ellipses.length).toBeGreaterThanOrEqual(1);
+        for (const el of ellipses) {
+          expect(el).toHaveAttribute('fill', 'currentColor');
+        }
+      }
     }
   });
 

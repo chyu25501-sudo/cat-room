@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Heart, Sparkles, Music, Music2 } from 'lucide-react';
+import { Heart, Sparkles } from 'lucide-react';
 import { CatPreset, CAT_PRESETS, CatId } from '../types/cat.ts';
 import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
 import { WhiteCat } from './cats/WhiteCat.tsx';
@@ -8,6 +8,7 @@ import {
   generatePetEffectBurst,
   type PetEffectBurst,
 } from '../utils/petEffects.ts';
+import { MusicalNoteIcon } from './effects/MusicalNoteIcon.tsx';
 
 /**
  * 将来的な猫の種類増加に対応した猫シルエットコンポーネントマップ
@@ -107,7 +108,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
             : 'cursor-grab hover:scale-102 active:scale-95'
         }`}
       >
-        {/* 撫でたときに画面中央付近から湧き上がって揺れ動くエフェクト演出（ハート・キラキラ・音符から一度に一種類） */}
+        {/* 撫でたときに画面中央より少し上から湧き上がって正弦曲線状に揺れ動くエフェクト演出 */}
         <div
           data-testid="pet-effects-container"
           className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible z-30"
@@ -116,13 +117,14 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
           {bursts.map((burst) =>
             burst.particles.map((particle) => {
               const isLeft = particle.swayDirection === 'left';
+              const isBeamedNote =
+                particle.id.endsWith('-0') || particle.id.endsWith('-2');
+
               return (
                 <div
                   key={particle.id}
                   data-testid={`effect-particle-${particle.type}`}
-                  className={`absolute pointer-events-none ${
-                    isLeft ? 'animate-sway-left' : 'animate-sway-right'
-                  }`}
+                  className="absolute pointer-events-none animate-rise-up"
                   style={{
                     left: `calc(50% + ${particle.offsetX}px)`,
                     top: `calc(50% + ${particle.offsetY}px)`,
@@ -130,25 +132,23 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
                     animationDuration: `${particle.durationMs}ms`,
                   }}
                 >
-                  {particle.type === 'heart' ? (
-                    <Heart
-                      style={{
-                        width: `${particle.size}px`,
-                        height: `${particle.size}px`,
-                      }}
-                      className={`${particle.colorClass} drop-shadow-md`}
-                    />
-                  ) : particle.type === 'sparkle' ? (
-                    <Sparkles
-                      style={{
-                        width: `${particle.size}px`,
-                        height: `${particle.size}px`,
-                      }}
-                      className={`${particle.colorClass} drop-shadow-md`}
-                    />
-                  ) : (
-                    particle.id.endsWith('-0') || particle.id.endsWith('-2') ? (
-                      <Music
+                  <div
+                    className={isLeft ? 'animate-sway-left' : 'animate-sway-right'}
+                    style={{
+                      animationDelay: `${particle.delayMs}ms`,
+                      animationDuration: `${particle.durationMs}ms`,
+                    }}
+                  >
+                    {particle.type === 'heart' ? (
+                      <Heart
+                        style={{
+                          width: `${particle.size}px`,
+                          height: `${particle.size}px`,
+                        }}
+                        className={`${particle.colorClass} drop-shadow-md`}
+                      />
+                    ) : particle.type === 'sparkle' ? (
+                      <Sparkles
                         style={{
                           width: `${particle.size}px`,
                           height: `${particle.size}px`,
@@ -156,15 +156,13 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
                         className={`${particle.colorClass} drop-shadow-md`}
                       />
                     ) : (
-                      <Music2
-                        style={{
-                          width: `${particle.size}px`,
-                          height: `${particle.size}px`,
-                        }}
+                      <MusicalNoteIcon
+                        size={particle.size}
+                        variant={isBeamedNote ? 'beamed' : 'single'}
                         className={`${particle.colorClass} drop-shadow-md`}
                       />
-                    )
-                  )}
+                    )}
+                  </div>
                 </div>
               );
             })

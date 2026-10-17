@@ -11,58 +11,65 @@
   }
 }
 
-/* なでた時のハート・キラキラが上部に揺れ動きながら昇りフェードアウトするアニメーション */
-@keyframes floatSwayLeft {
+/* なでた時のエフェクトが上部に揺れ動きながら昇りフェードアウトするアニメーション */
+
+/* 垂直方向のなめらかな上昇とフェードイン・アウト */
+@keyframes floatRiseUp {
   0% {
     opacity: 0;
-    transform: translate(0, 0) scale(0.6) rotate(0deg);
+    transform: translateY(0);
   }
   15% {
     opacity: 1;
-    transform: translate(-14px, -28px) scale(1.08) rotate(-8deg);
   }
-  45% {
-    opacity: 0.95;
-    transform: translate(16px, -68px) scale(1) rotate(6deg);
-  }
-  75% {
-    opacity: 0.7;
-    transform: translate(-10px, -108px) scale(0.92) rotate(-4deg);
+  70% {
+    opacity: 0.9;
   }
   100% {
     opacity: 0;
-    transform: translate(8px, -145px) scale(0.8) rotate(2deg);
+    transform: translateY(-145px);
   }
 }
 
-@keyframes floatSwayRight {
+/* 水平方向の正弦曲線（サイン波）に沿ったなめらかな揺れ動くアニメーション */
+@keyframes sineSwayLeft {
   0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.6) rotate(0deg);
+    transform: translateX(0) rotate(0deg) scale(0.7);
   }
-  15% {
-    opacity: 1;
-    transform: translate(14px, -28px) scale(1.08) rotate(8deg);
-  }
-  45% {
-    opacity: 0.95;
-    transform: translate(-16px, -68px) scale(1) rotate(-6deg);
+  25% {
+    transform: translateX(-18px) rotate(-10deg) scale(1.05);
   }
   75% {
-    opacity: 0.7;
-    transform: translate(10px, -108px) scale(0.92) rotate(4deg);
+    transform: translateX(18px) rotate(8deg) scale(0.96);
   }
   100% {
-    opacity: 0;
-    transform: translate(-8px, -145px) scale(0.8) rotate(-2deg);
+    transform: translateX(-4px) rotate(-2deg) scale(0.85);
   }
+}
+
+@keyframes sineSwayRight {
+  0% {
+    transform: translateX(0) rotate(0deg) scale(0.7);
+  }
+  25% {
+    transform: translateX(18px) rotate(10deg) scale(1.05);
+  }
+  75% {
+    transform: translateX(-18px) rotate(-8deg) scale(0.96);
+  }
+  100% {
+    transform: translateX(4px) rotate(2deg) scale(0.85);
+  }
+}
+
+.animate-rise-up {
+  animation: floatRiseUp 1.35s cubic-bezier(0.25, 1, 0.4, 1) forwards;
 }
 
 .animate-sway-left {
-  animation: floatSwayLeft 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: sineSwayLeft 1.35s ease-in-out forwards;
 }
 
 .animate-sway-right {
-  animation: floatSwayRight 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: sineSwayRight 1.35s ease-in-out forwards;
 }
-

@@ -5,6 +5,7 @@ import {
   pickRandomEffectType,
   MIN_PARTICLE_SIZE,
   MAX_PARTICLE_SIZE,
+  DEFAULT_BURST_BASE_OFFSET_Y,
   HEART_COLORS,
   SPARKLE_COLORS,
   NOTE_COLORS,
@@ -77,6 +78,15 @@ describe('petEffects ユーティリティ (純粋関数テスト)', () => {
     expect(pickRandomEffectType(() => 0.0)).toBe('heart');
     expect(pickRandomEffectType(() => 0.4)).toBe('sparkle');
     expect(pickRandomEffectType(() => 0.8)).toBe('note');
+  });
+
+  it('generatePetEffectBurst: 発生位置が中央より少し上（Y < 0）にずらして生成されること', () => {
+    const burst = generatePetEffectBurst({ type: 'heart', burstId: 'b-up' });
+    const avgY = burst.reduce((acc, p) => acc + p.offsetY, 0) / burst.length;
+
+    // 基準位置（-55px）付近の上側に配置されていること
+    expect(avgY).toBeLessThan(-20);
+    expect(DEFAULT_BURST_BASE_OFFSET_Y).toBeLessThan(0);
   });
 
   it('generatePetEffectBurst: 一度のバーストにつき「一種類だけ」のエフェクトがまとまって生成されること', () => {
