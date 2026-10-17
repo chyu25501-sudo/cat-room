@@ -92,7 +92,7 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
     expect(handlePet).toHaveBeenCalledTimes(1);
   });
 
-  it('撫でたときに画面中央付近からハートとキラキラのまとまり（従来の約2倍サイズ）が出現すること', () => {
+  it('撫でたときに画面中央付近からハート・キラキラ・音符の中から「一度に一種類だけ」が出現すること', () => {
     const handlePet = vi.fn();
     render(<CatSilhouette onPet={handlePet} />);
 
@@ -101,33 +101,51 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
     // 初期状態ではエフェクト粒子が存在しない
     expect(screen.queryAllByTestId('effect-particle-heart')).toHaveLength(0);
     expect(screen.queryAllByTestId('effect-particle-sparkle')).toHaveLength(0);
+    expect(screen.queryAllByTestId('effect-particle-note')).toHaveLength(0);
 
     // ドラッグ操作で撫でる
     fireEvent.pointerDown(catButton, { clientX: 100, clientY: 100, isPrimary: true });
     fireEvent.pointerMove(catButton, { clientX: 160, clientY: 100, isPrimary: true });
     fireEvent.pointerUp(catButton, { clientX: 160, clientY: 100, isPrimary: true });
 
-    // なでなで成立後にハートとキラキラのまとまりが出現
-    const hearts = screen.getAllByTestId('effect-particle-heart');
-    const sparkles = screen.getAllByTestId('effect-particle-sparkle');
+    // なでなで成立後にエフェクト粒子群が出現
+    const hearts = screen.queryAllByTestId('effect-particle-heart');
+    const sparkles = screen.queryAllByTestId('effect-particle-sparkle');
+    const notes = screen.queryAllByTestId('effect-particle-note');
 
-    expect(hearts.length).toBeGreaterThanOrEqual(3);
-    expect(sparkles.length).toBeGreaterThanOrEqual(3);
+    // ハート、キラキラ、音符のうち、いずれか「1種類だけ」が出現すること
+    const nonZeroCounts = [hearts.length, sparkles.length, notes.length].filter((c) => c > 0);
+    expect(nonZeroCounts).toHaveLength(1);
+    expect(nonZeroCounts[0]).toBeGreaterThanOrEqual(3);
 
-    // 各要素が揺れ動くアニメーションクラスを持っていること
-    for (const heart of hearts) {
+    const activeParticles = [...hearts, ...sparkles, ...notes];
+    for (const p of activeParticles) {
       expect(
-        heart.classList.contains('animate-sway-left') ||
-          heart.classList.contains('animate-sway-right')
+        p.classList.contains('animate-sway-left') ||
+          p.classList.contains('animate-sway-right')
       ).toBe(true);
     }
+  });
 
-    for (const sparkle of sparkles) {
-      expect(
-        sparkle.classList.contains('animate-sway-left') ||
-          sparkle.classList.contains('animate-sway-right')
-      ).toBe(true);
-    }
+  it('音の再生（isReacting変化）とエフェクトの発生タイミングが重複せず1:1で同期すること', () => {
+    const handlePet = vi.fn();
+    const { rerender } = render(<CatSilhouette onPet={handlePet} isReacting={false} />);
+
+    const catButton = screen.getByRole('button', { name: /くろねこのシルエット/ });
+
+    // なでなでを実行
+    fireEvent.pointerDown(catButton, { clientX: 100, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 160, clientY: 100, isPrimary: true });
+    fireEvent.pointerUp(catButton, { clientX: 160, clientY: 100, isPrimary: true });
+
+    const initialContainer = screen.getByTestId('pet-effects-container');
+    const particleCount1 = initialContainer.children.length;
+    expect(particleCount1).toBeGreaterThanOrEqual(3);
+
+    // 音声再生に伴い isReacting が true に変化しても、過剰な重複二重発火が起きないこと
+    rerender(<CatSilhouette onPet={handlePet} isReacting={true} />);
+    const particleCount2 = initialContainer.children.length;
+    expect(particleCount2).toBe(particleCount1);
   });
 });
 

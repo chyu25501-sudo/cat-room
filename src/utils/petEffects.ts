@@ -1,8 +1,10 @@
 /**
- * 猫をなでた時のハート・キラキラエフェクトの計算ロジック（純粋関数）
+ * 猫をなでた時のハート・キラキラ・音符エフェクトの計算ロジック（純粋関数）
  */
 
-export type EffectType = 'heart' | 'sparkle';
+export type EffectType = 'heart' | 'sparkle' | 'note';
+
+export const EFFECT_TYPES: readonly EffectType[] = ['heart', 'sparkle', 'note'];
 
 export interface PetEffectParticle {
   id: string;
@@ -24,6 +26,7 @@ export interface PetEffectParticle {
 
 export interface PetEffectBurst {
   id: string;
+  type: EffectType;
   particles: PetEffectParticle[];
 }
 
@@ -31,7 +34,7 @@ export interface PetEffectBurst {
 export const MIN_PARTICLE_SIZE = 36;
 export const MAX_PARTICLE_SIZE = 44;
 
-/** ハート用のカラーパレット */
+/** ハート用のカラーパレット（暖色系ピンク・ローズ・レッド） */
 export const HEART_COLORS: readonly string[] = [
   'text-rose-500 fill-rose-400',
   'text-pink-500 fill-pink-400',
@@ -39,13 +42,41 @@ export const HEART_COLORS: readonly string[] = [
   'text-red-400 fill-rose-400',
 ];
 
-/** キラキラ用のカラーパレット */
+/** キラキラ用のカラーパレット（ゴールド・アンバー・イエロー） */
 export const SPARKLE_COLORS: readonly string[] = [
   'text-amber-400 fill-amber-300',
   'text-yellow-400 fill-yellow-300',
   'text-amber-300 fill-amber-200',
   'text-orange-400 fill-amber-300',
 ];
+
+/** 音符用のカラーパレット（カラフルなスカイブルー・バイオレット・エメラルド・ピンク・アンバー） */
+export const NOTE_COLORS: readonly string[] = [
+  'text-sky-500 fill-sky-400',
+  'text-violet-500 fill-violet-400',
+  'text-emerald-500 fill-emerald-400',
+  'text-pink-500 fill-pink-400',
+  'text-amber-500 fill-amber-400',
+];
+
+export function getColorsForType(type: EffectType): readonly string[] {
+  switch (type) {
+    case 'heart':
+      return HEART_COLORS;
+    case 'sparkle':
+      return SPARKLE_COLORS;
+    case 'note':
+      return NOTE_COLORS;
+  }
+}
+
+/**
+ * ハート・キラキラ・音符からランダムに1種類を選択する純粋関数
+ */
+export function pickRandomEffectType(randomFn: () => number = Math.random): EffectType {
+  const index = Math.floor(randomFn() * EFFECT_TYPES.length);
+  return EFFECT_TYPES[Math.min(index, EFFECT_TYPES.length - 1)];
+}
 
 export interface GenerateClusterOptions {
   type: EffectType;
@@ -61,19 +92,18 @@ export interface GenerateClusterOptions {
 
 /**
  * 同種のエフェクト粒子がまとまって湧き出る「クラスター」を生成する純粋関数
- * （ハートはハート、キラキラはキラキラでまとまって配置）
  */
 export function generateParticleCluster({
   type,
   count,
   clusterCenterX,
   clusterCenterY,
-  spreadRadius = 24,
+  spreadRadius = 30,
   idPrefix = 'particle',
   randomFn = Math.random,
 }: GenerateClusterOptions): PetEffectParticle[] {
   const particles: PetEffectParticle[] = [];
-  const colors = type === 'heart' ? HEART_COLORS : SPARKLE_COLORS;
+  const colors = getColorsForType(type);
 
   for (let i = 0; i < count; i++) {
     // クラスター中心の周りにまとまって配置（ある程度のランダム性を持たせる）
@@ -117,51 +147,37 @@ export function generateParticleCluster({
 
 export interface GenerateBurstOptions {
   burstId?: string;
+  /** 特定の種類を明示する場合（未指定時はハート・キラキラ・音符からランダムに1種類） */
+  type?: EffectType;
   randomFn?: () => number;
 }
 
 /**
  * 撫でたときに画面中央付近から出現するエフェクト一式を生成する純粋関数
- * ハートのまとまり（左寄り〜中央）とキラキラのまとまり（右寄り〜中央）をそれぞれ集約して生成します
+ * ハート・キラキラ・音符の中から「一度に一種類だけ」が選ばれ、
+ * まとまり（3〜4個）として生成されます
  */
 export function generatePetEffectBurst({
   burstId = `burst-${Date.now()}`,
+  type,
   randomFn = Math.random,
 }: GenerateBurstOptions = {}): PetEffectParticle[] {
-  // 画面中央付近のランダムな基準位置（中心オフセット -20〜+20px）
-  const centerJitterX = (randomFn() - 0.5) * 40;
+  // 一度に一種類だけを選択（指定がなければランダムで1種類決定）
+  const selectedType: EffectType = type ?? pickRandomEffectType(randomFn);
+
+  // 画面中央付近のランダムな基準位置（中心オフセット -25〜+25px）
+  const centerJitterX = (randomFn() - 0.5) * 50;
   const centerJitterY = (randomFn() - 0.5) * 30;
 
-  // ハートのまとまり（ハートはハートでまとまって配置: 3〜4個）
-  const heartClusterCenterX = -45 + centerJitterX;
-  const heartClusterCenterY = 5 + centerJitterY;
-  const heartCount = 3 + Math.floor(randomFn() * 2); // 3〜4個
+  const count = 3 + Math.floor(randomFn() * 2); // 3〜4個
 
-  const heartParticles = generateParticleCluster({
-    type: 'heart',
-    count: heartCount,
-    clusterCenterX: heartClusterCenterX,
-    clusterCenterY: heartClusterCenterY,
-    spreadRadius: 28,
+  return generateParticleCluster({
+    type: selectedType,
+    count,
+    clusterCenterX: centerJitterX,
+    clusterCenterY: centerJitterY,
+    spreadRadius: 32,
     idPrefix: burstId,
     randomFn,
   });
-
-  // キラキラのまとまり（キラキラはキラキラでまとまって配置: 3個）
-  const sparkleClusterCenterX = 45 + centerJitterX;
-  const sparkleClusterCenterY = -15 + centerJitterY;
-  const sparkleCount = 3;
-
-  const sparkleParticles = generateParticleCluster({
-    type: 'sparkle',
-    count: sparkleCount,
-    clusterCenterX: sparkleClusterCenterX,
-    clusterCenterY: sparkleClusterCenterY,
-    spreadRadius: 26,
-    idPrefix: burstId,
-    randomFn,
-  });
-
-  return [...heartParticles, ...sparkleParticles];
 }
-

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { Heart, Sparkles } from 'lucide-react';
+import { Heart, Sparkles, Music, Music2 } from 'lucide-react';
 import { CatPreset, CAT_PRESETS, CatId } from '../types/cat.ts';
 import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
 import { WhiteCat } from './cats/WhiteCat.tsx';
@@ -47,9 +47,18 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
 
   // 画面中央から湧き上がるエフェクトバーストのリスト
   const [bursts, setBursts] = useState<PetEffectBurst[]>([]);
+  const lastEffectTimeRef = useRef<number>(0);
 
+  // 音の発生タイミング・頻度と完全に同期させてエフェクトを発生
   const triggerPetEffect = useCallback(() => {
-    const burstId = `burst-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const now = Date.now();
+    // 800ms以内の連続・重複呼び出しを抑制し、音の再生頻度と1:1で同期
+    if (now - lastEffectTimeRef.current < 800) {
+      return;
+    }
+    lastEffectTimeRef.current = now;
+
+    const burstId = `burst-${now}-${Math.random().toString(36).slice(2, 7)}`;
     const particles = generatePetEffectBurst({ burstId });
     setBursts((prev) => [...prev, { id: burstId, particles }]);
 
@@ -68,7 +77,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
     }
   }, [onPet, onClick, triggerPetEffect]);
 
-  // isReacting が外部から true に変化した場合（キーボード操作等）もエフェクトを発生
+  // isReacting が外部から true に変化した場合（キーボード操作等）も同期してエフェクトを発生
   const prevIsReactingRef = useRef<boolean>(false);
   useEffect(() => {
     if (isReacting && !prevIsReactingRef.current) {
@@ -98,7 +107,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
             : 'cursor-grab hover:scale-102 active:scale-95'
         }`}
       >
-        {/* 撫でたときに画面中央付近から湧き上がって揺れ動くハート＆キラキラ演出 */}
+        {/* 撫でたときに画面中央付近から湧き上がって揺れ動くエフェクト演出（ハート・キラキラ・音符から一度に一種類） */}
         <div
           data-testid="pet-effects-container"
           className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible z-30"
@@ -129,7 +138,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
                       }}
                       className={`${particle.colorClass} drop-shadow-md`}
                     />
-                  ) : (
+                  ) : particle.type === 'sparkle' ? (
                     <Sparkles
                       style={{
                         width: `${particle.size}px`,
@@ -137,6 +146,24 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
                       }}
                       className={`${particle.colorClass} drop-shadow-md`}
                     />
+                  ) : (
+                    particle.id.endsWith('-0') || particle.id.endsWith('-2') ? (
+                      <Music
+                        style={{
+                          width: `${particle.size}px`,
+                          height: `${particle.size}px`,
+                        }}
+                        className={`${particle.colorClass} drop-shadow-md`}
+                      />
+                    ) : (
+                      <Music2
+                        style={{
+                          width: `${particle.size}px`,
+                          height: `${particle.size}px`,
+                        }}
+                        className={`${particle.colorClass} drop-shadow-md`}
+                      />
+                    )
                   )}
                 </div>
               );

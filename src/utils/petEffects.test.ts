@@ -2,20 +2,24 @@ import { describe, it, expect } from 'vitest';
 import {
   generateParticleCluster,
   generatePetEffectBurst,
+  pickRandomEffectType,
   MIN_PARTICLE_SIZE,
   MAX_PARTICLE_SIZE,
   HEART_COLORS,
   SPARKLE_COLORS,
+  NOTE_COLORS,
+  EFFECT_TYPES,
+  type EffectType,
 } from './petEffects.ts';
 
 describe('petEffects ユーティリティ (純粋関数テスト)', () => {
-  it('generateParticleCluster: 指定された種類・個数の粒子をまとまりとして生成すること', () => {
+  it('generateParticleCluster: ハート用の粒子群が指定カラー・サイズで生成されること', () => {
     const fixedRandom = () => 0.5;
     const cluster = generateParticleCluster({
       type: 'heart',
       count: 3,
-      clusterCenterX: -40,
-      clusterCenterY: 10,
+      clusterCenterX: 0,
+      clusterCenterY: 0,
       spreadRadius: 20,
       idPrefix: 'test',
       randomFn: fixedRandom,
@@ -37,8 +41,8 @@ describe('petEffects ユーティリティ (純粋関数テスト)', () => {
     const cluster = generateParticleCluster({
       type: 'sparkle',
       count: 4,
-      clusterCenterX: 40,
-      clusterCenterY: -10,
+      clusterCenterX: 0,
+      clusterCenterY: 0,
       spreadRadius: 20,
     });
 
@@ -51,39 +55,59 @@ describe('petEffects ユーティリティ (純粋関数テスト)', () => {
     }
   });
 
-  it('generatePetEffectBurst: ハートのまとまりとキラキラのまとまりがそれぞれ分離して生成されること', () => {
-    // 擬似乱数ジェネレータ（決定論的テスト）
-    let seed = 0.1;
-    const pseudoRandom = () => {
-      seed = (seed + 0.15) % 1;
-      return seed;
-    };
-
-    const burst = generatePetEffectBurst({
-      burstId: 'burst-1',
-      randomFn: pseudoRandom,
+  it('generateParticleCluster: 音符用クラスター（カラフルな色つき音符）が生成されること', () => {
+    const cluster = generateParticleCluster({
+      type: 'note',
+      count: 4,
+      clusterCenterX: 0,
+      clusterCenterY: 0,
+      spreadRadius: 20,
     });
 
-    const heartParticles = burst.filter((p) => p.type === 'heart');
-    const sparkleParticles = burst.filter((p) => p.type === 'sparkle');
+    expect(cluster).toHaveLength(4);
+    for (const particle of cluster) {
+      expect(particle.type).toBe('note');
+      expect(particle.size).toBeGreaterThanOrEqual(MIN_PARTICLE_SIZE);
+      expect(particle.size).toBeLessThanOrEqual(MAX_PARTICLE_SIZE);
+      expect(NOTE_COLORS).toContain(particle.colorClass);
+    }
+  });
 
-    expect(heartParticles.length).toBeGreaterThanOrEqual(3);
-    expect(sparkleParticles.length).toBeGreaterThanOrEqual(3);
+  it('pickRandomEffectType: heart, sparkle, note の中から正しく選択されること', () => {
+    expect(pickRandomEffectType(() => 0.0)).toBe('heart');
+    expect(pickRandomEffectType(() => 0.4)).toBe('sparkle');
+    expect(pickRandomEffectType(() => 0.8)).toBe('note');
+  });
 
-    // ハートは左寄りクラスター（x座標が負）、キラキラは右寄りクラスター（x座標が正）にまとまっていること
-    const avgHeartX =
-      heartParticles.reduce((acc, p) => acc + p.offsetX, 0) / heartParticles.length;
-    const avgSparkleX =
-      sparkleParticles.reduce((acc, p) => acc + p.offsetX, 0) / sparkleParticles.length;
+  it('generatePetEffectBurst: 一度のバーストにつき「一種類だけ」のエフェクトがまとまって生成されること', () => {
+    // ハート指定時: すべてハート
+    const heartBurst = generatePetEffectBurst({ type: 'heart', burstId: 'b-heart' });
+    expect(heartBurst.length).toBeGreaterThanOrEqual(3);
+    expect(heartBurst.every((p) => p.type === 'heart')).toBe(true);
 
-    expect(avgHeartX).toBeLessThan(0);
-    expect(avgSparkleX).toBeGreaterThan(0);
+    // キラキラ指定時: すべてキラキラ
+    const sparkleBurst = generatePetEffectBurst({ type: 'sparkle', burstId: 'b-sparkle' });
+    expect(sparkleBurst.length).toBeGreaterThanOrEqual(3);
+    expect(sparkleBurst.every((p) => p.type === 'sparkle')).toBe(true);
 
-    // すべての粒子サイズが従来の約2倍（36〜44px）であること
-    for (const p of burst) {
-      expect(p.size).toBeGreaterThanOrEqual(MIN_PARTICLE_SIZE);
-      expect(p.size).toBeLessThanOrEqual(MAX_PARTICLE_SIZE);
+    // 音符指定時: すべて音符
+    const noteBurst = generatePetEffectBurst({ type: 'note', burstId: 'b-note' });
+    expect(noteBurst.length).toBeGreaterThanOrEqual(3);
+    expect(noteBurst.every((p) => p.type === 'note')).toBe(true);
+
+    // ランダム生成時も混ざらず、必ず単一種類のみで構成されること
+    for (let i = 0; i < 15; i++) {
+      const burst = generatePetEffectBurst();
+      const distinctTypes = new Set(burst.map((p) => p.type));
+      expect(distinctTypes.size).toBe(1);
+      const [type] = distinctTypes;
+      expect(EFFECT_TYPES).toContain(type as EffectType);
+
+      // すべてサイズが約2倍（36〜44px）であること
+      for (const p of burst) {
+        expect(p.size).toBeGreaterThanOrEqual(MIN_PARTICLE_SIZE);
+        expect(p.size).toBeLessThanOrEqual(MAX_PARTICLE_SIZE);
+      }
     }
   });
 });
-
