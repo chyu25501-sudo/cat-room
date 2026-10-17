@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Heart, Sparkles } from 'lucide-react';
 import { CatPreset, CAT_PRESETS, CatId } from '../types/cat.ts';
 import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
 import { WhiteCat } from './cats/WhiteCat.tsx';
 import { useCatPetting } from '../hooks/useCatPetting.ts';
+import {
+  generatePetEffectBurst,
+  type PetEffectBurst,
+} from '../utils/petEffects.ts';
 
 /**
  * 将来的な猫の種類増加に対応した猫シルエットコンポーネントマップ
@@ -41,7 +45,37 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
 }) => {
   const ActiveCatComponent = CAT_COMPONENTS[preset.id] ?? BlackCat;
 
-  const handlePetAction = onPet ?? onClick ?? (() => {});
+  // 画面中央から湧き上がるエフェクトバーストのリスト
+  const [bursts, setBursts] = useState<PetEffectBurst[]>([]);
+
+  const triggerPetEffect = useCallback(() => {
+    const burstId = `burst-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const particles = generatePetEffectBurst({ burstId });
+    setBursts((prev) => [...prev, { id: burstId, particles }]);
+
+    // アニメーション完了（約1.5秒）後に古いバーストを消去
+    setTimeout(() => {
+      setBursts((prev) => prev.filter((b) => b.id !== burstId));
+    }, 1500);
+  }, []);
+
+  const handlePetAction = useCallback(() => {
+    triggerPetEffect();
+    if (onPet) {
+      onPet();
+    } else if (onClick) {
+      onClick();
+    }
+  }, [onPet, onClick, triggerPetEffect]);
+
+  // isReacting が外部から true に変化した場合（キーボード操作等）もエフェクトを発生
+  const prevIsReactingRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (isReacting && !prevIsReactingRef.current) {
+      triggerPetEffect();
+    }
+    prevIsReactingRef.current = isReacting;
+  }, [isReacting, triggerPetEffect]);
 
   // ドラッグ操作による「なでる」インタラクション（クールダウンで長いストローク時の過剰反応を制御）
   const { isDragging, handlers } = useCatPetting({
@@ -64,14 +98,51 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
             : 'cursor-grab hover:scale-102 active:scale-95'
         }`}
       >
-        {/* 反応中またはドラッグ中のフローティング演出（ハート・きらきら） */}
-        {(isReacting || isDragging) && (
-          <div className="absolute -top-6 inset-x-0 flex justify-around pointer-events-none z-20">
-            <Heart className="w-5 h-5 text-rose-400 fill-rose-400 animate-bounce transition-all duration-300" />
-            <Sparkles className="w-5 h-5 text-amber-400 animate-pulse transition-all duration-300" />
-            <Heart className="w-4 h-4 text-pink-400 fill-pink-400 animate-bounce delay-100 transition-all duration-300" />
-          </div>
-        )}
+        {/* 撫でたときに画面中央付近から湧き上がって揺れ動くハート＆キラキラ演出 */}
+        <div
+          data-testid="pet-effects-container"
+          className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible z-30"
+          aria-hidden="true"
+        >
+          {bursts.map((burst) =>
+            burst.particles.map((particle) => {
+              const isLeft = particle.swayDirection === 'left';
+              return (
+                <div
+                  key={particle.id}
+                  data-testid={`effect-particle-${particle.type}`}
+                  className={`absolute pointer-events-none ${
+                    isLeft ? 'animate-sway-left' : 'animate-sway-right'
+                  }`}
+                  style={{
+                    left: `calc(50% + ${particle.offsetX}px)`,
+                    top: `calc(50% + ${particle.offsetY}px)`,
+                    animationDelay: `${particle.delayMs}ms`,
+                    animationDuration: `${particle.durationMs}ms`,
+                  }}
+                >
+                  {particle.type === 'heart' ? (
+                    <Heart
+                      style={{
+                        width: `${particle.size}px`,
+                        height: `${particle.size}px`,
+                      }}
+                      className={`${particle.colorClass} drop-shadow-md`}
+                    />
+                  ) : (
+                    <Sparkles
+                      style={{
+                        width: `${particle.size}px`,
+                        height: `${particle.size}px`,
+                      }}
+                      className={`${particle.colorClass} drop-shadow-md`}
+                    />
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
 
         {/* 猫のSVGシルエット表示エリア（猫種切り替え時にも高さが変わらない固定ステージ） */}
         <div

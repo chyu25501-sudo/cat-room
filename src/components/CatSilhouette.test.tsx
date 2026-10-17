@@ -91,5 +91,44 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
 
     expect(handlePet).toHaveBeenCalledTimes(1);
   });
+
+  it('撫でたときに画面中央付近からハートとキラキラのまとまり（従来の約2倍サイズ）が出現すること', () => {
+    const handlePet = vi.fn();
+    render(<CatSilhouette onPet={handlePet} />);
+
+    const catButton = screen.getByRole('button', { name: /くろねこのシルエット/ });
+
+    // 初期状態ではエフェクト粒子が存在しない
+    expect(screen.queryAllByTestId('effect-particle-heart')).toHaveLength(0);
+    expect(screen.queryAllByTestId('effect-particle-sparkle')).toHaveLength(0);
+
+    // ドラッグ操作で撫でる
+    fireEvent.pointerDown(catButton, { clientX: 100, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 160, clientY: 100, isPrimary: true });
+    fireEvent.pointerUp(catButton, { clientX: 160, clientY: 100, isPrimary: true });
+
+    // なでなで成立後にハートとキラキラのまとまりが出現
+    const hearts = screen.getAllByTestId('effect-particle-heart');
+    const sparkles = screen.getAllByTestId('effect-particle-sparkle');
+
+    expect(hearts.length).toBeGreaterThanOrEqual(3);
+    expect(sparkles.length).toBeGreaterThanOrEqual(3);
+
+    // 各要素が揺れ動くアニメーションクラスを持っていること
+    for (const heart of hearts) {
+      expect(
+        heart.classList.contains('animate-sway-left') ||
+          heart.classList.contains('animate-sway-right')
+      ).toBe(true);
+    }
+
+    for (const sparkle of sparkles) {
+      expect(
+        sparkle.classList.contains('animate-sway-left') ||
+          sparkle.classList.contains('animate-sway-right')
+      ).toBe(true);
+    }
+  });
 });
+
 

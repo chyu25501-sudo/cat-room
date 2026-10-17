@@ -10,3 +10,59 @@
     -webkit-user-select: none;
   }
 }
+
+/* なでた時のハート・キラキラが上部に揺れ動きながら昇りフェードアウトするアニメーション */
+@keyframes floatSwayLeft {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6) rotate(0deg);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-14px, -28px) scale(1.08) rotate(-8deg);
+  }
+  45% {
+    opacity: 0.95;
+    transform: translate(16px, -68px) scale(1) rotate(6deg);
+  }
+  75% {
+    opacity: 0.7;
+    transform: translate(-10px, -108px) scale(0.92) rotate(-4deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(8px, -145px) scale(0.8) rotate(2deg);
+  }
+}
+
+@keyframes floatSwayRight {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6) rotate(0deg);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(14px, -28px) scale(1.08) rotate(8deg);
+  }
+  45% {
+    opacity: 0.95;
+    transform: translate(-16px, -68px) scale(1) rotate(-6deg);
+  }
+  75% {
+    opacity: 0.7;
+    transform: translate(10px, -108px) scale(0.92) rotate(4deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-8px, -145px) scale(0.8) rotate(-2deg);
+  }
+}
+
+.animate-sway-left {
+  animation: floatSwayLeft 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-sway-right {
+  animation: floatSwayRight 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
