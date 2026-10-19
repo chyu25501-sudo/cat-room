@@ -1,8 +1,6 @@
-/**
- * 猫をなでた時のハート・キラキラ・音符エフェクトの計算ロジック（純粋関数）
- */
-
 import type { Point } from './stroke.ts';
+import type { CatMoodLevel } from '../types/mood.ts';
+import { getParticleCountForMood } from './catMood.ts';
 
 export type EffectType = 'heart' | 'sparkle' | 'note';
 
@@ -160,13 +158,15 @@ export interface GenerateBurstOptions {
   baseOffsetX?: number;
   /** なでたマウスカーソルの位置（親要素中心を原点(0, 0)とする相対オフセット座標） */
   origin?: Point;
+  /** 猫の現在の機嫌レベル（機嫌に応じて出現数や演出がスケール） */
+  moodLevel?: CatMoodLevel;
   randomFn?: () => number;
 }
 
 /**
  * 撫でたときにマウスカーソル位置（または画面中央付近）から出現するエフェクト一式を生成する純粋関数
  * ハート・キラキラ・音符の中から「一度に一種類だけ」が選ばれ、
- * まとまり（3〜4個）として生成されます
+ * まとまり（機嫌に応じて3〜5個）として生成されます
  */
 export function generatePetEffectBurst({
   burstId = `burst-${Date.now()}`,
@@ -174,10 +174,19 @@ export function generatePetEffectBurst({
   baseOffsetY = DEFAULT_BURST_BASE_OFFSET_Y,
   baseOffsetX = 0,
   origin,
+  moodLevel = 'normal',
   randomFn = Math.random,
 }: GenerateBurstOptions = {}): PetEffectParticle[] {
-  // 一度に一種類だけを選択（指定がなければランダムで1種類決定）
-  const selectedType: EffectType = type ?? pickRandomEffectType(randomFn);
+  // 機嫌MAXのときはハートの出現率をアップ（愛を表現）
+  let selectedType: EffectType;
+  if (type) {
+    selectedType = type;
+  } else if (moodLevel === 'ecstatic') {
+    const r = randomFn();
+    selectedType = r < 0.6 ? 'heart' : r < 0.8 ? 'sparkle' : 'note';
+  } else {
+    selectedType = pickRandomEffectType(randomFn);
+  }
 
   // マウスカーソル位置（origin）が指定された場合はその位置の周辺、
   // 未指定（キーボード操作等）の場合は画面中央より少し上（猫の胸・頭付近）を基準位置とする
@@ -189,14 +198,15 @@ export function generatePetEffectBurst({
   const centerJitterX = originX + (randomFn() - 0.5) * jitterRadius;
   const centerJitterY = originY + (randomFn() - 0.5) * jitterRadius;
 
-  const count = 3 + Math.floor(randomFn() * 2); // 3〜4個
+  // 機嫌レベルに応じて出現粒子数をスケーリング（3〜5個）
+  const count = getParticleCountForMood(moodLevel, randomFn);
 
   return generateParticleCluster({
     type: selectedType,
     count,
     clusterCenterX: centerJitterX,
     clusterCenterY: centerJitterY,
-    spreadRadius: 28,
+    spreadRadius: moodLevel === 'ecstatic' ? 34 : 28,
     idPrefix: burstId,
     randomFn,
   });

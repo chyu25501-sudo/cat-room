@@ -5,6 +5,7 @@ import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
 import { WhiteCat } from './cats/WhiteCat.tsx';
 import { useCatPetting, type PetEventDetail } from '../hooks/useCatPetting.ts';
 import { DEFAULT_PET_COOLDOWN_MS, type Point } from '../utils/stroke.ts';
+import { CatMoodLevel } from '../types/mood.ts';
 import {
   generatePetEffectBurst,
   type PetEffectBurst,
@@ -24,6 +25,8 @@ export interface CatSilhouetteProps {
   preset?: CatPreset;
   /** 猫が反応中（鳴き声再生中・なでなで直後）かどうか */
   isReacting?: boolean;
+  /** 猫の現在の機嫌レベル（機嫌に応じて反応・エフェクトが変化） */
+  moodLevel?: CatMoodLevel;
   /** 猫をなでた（ドラッグストローク完了）ときのコールバック */
   onPet?: (detail?: PetEventDetail) => void;
   /** なでたと判定する移動距離のしきい値（ピクセル） */
@@ -39,6 +42,7 @@ export interface CatSilhouetteProps {
 export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   preset = CAT_PRESETS[0],
   isReacting = false,
+  moodLevel = 'normal',
   onPet,
   strokeThreshold,
   cooldownMs,
@@ -53,7 +57,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   const [bursts, setBursts] = useState<PetEffectBurst[]>([]);
   const lastEffectTimeRef = useRef<number>(0);
 
-  // なでたカーソル位置（origin）の周辺から湧き上がるエフェクトを発生
+  // なでたカーソル位置（origin）の周辺から湧き上がるエフェクトを発生（機嫌が良いほど華やか）
   const triggerPetEffect = useCallback(
     (origin?: Point) => {
       const now = Date.now();
@@ -64,8 +68,8 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
       lastEffectTimeRef.current = now;
 
       const burstId = `burst-${now}-${Math.random().toString(36).slice(2, 7)}`;
-      // なでたカーソル位置（または中央付近）から湧き上がるエフェクト粒子群を生成
-      const particles = generatePetEffectBurst({ burstId, origin });
+      // なでたカーソル位置および機嫌レベルに応じたエフェクト粒子群を生成
+      const particles = generatePetEffectBurst({ burstId, origin, moodLevel });
       // 常に最新のバースト1組のみを表示（古いバーストと重なって二重発生に見えるのを防止）
       setBursts([{ id: burstId, particles }]);
 
@@ -74,7 +78,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
         setBursts((prev) => prev.filter((b) => b.id !== burstId));
       }, 1500);
     },
-    [effectiveCooldownMs]
+    [effectiveCooldownMs, moodLevel]
   );
 
   const handlePetAction = useCallback(
@@ -179,12 +183,21 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
               : 'group-hover:-translate-y-0.5'
           }`}
         >
-          <ActiveCatComponent isReacting={isReacting || isDragging} />
+          <ActiveCatComponent
+            isReacting={isReacting || isDragging}
+            moodLevel={moodLevel}
+          />
         </div>
 
-        {/* 足元のインタラクションガイドバッジ */}
+        {/* 足元のインタラクションガイドバッジ（機嫌に応じたメッセージ変化） */}
         <div className="mt-3 px-3 py-1 rounded-full bg-orange-100/80 border border-orange-200/60 text-stone-600 text-xs font-medium tracking-wide flex items-center gap-1.5 shadow-2xs group-hover:bg-orange-200/80 group-hover:text-orange-900 transition-colors">
-          <span>なでなで（ドラッグ）してふれあう</span>
+          <span>
+            {moodLevel === 'ecstatic'
+              ? 'ゴロゴロ…♡（ごきげんMAX）'
+              : moodLevel === 'happy'
+              ? 'うれしそうになでられています♪'
+              : 'なでなで（ドラッグ）してふれあう'}
+          </span>
         </div>
       </button>
     </div>

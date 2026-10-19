@@ -2,23 +2,37 @@ import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
+import { useCatMood } from './hooks/useCatMood.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
-import { calculateVariedPitch, getRandomMeowMessage, getCatPresetById } from './utils/catPreset.ts';
+import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
+import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
+import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
 import { CatId } from './types/cat.ts';
 
 export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
+  const { getMoodScore, getMoodLevelForCat, petCat } = useCatMood();
   const [bubbleText, setBubbleText] = useState<string | null>(null);
 
-  const handleInteractCat = () => {
-    // 選択中の猫の基本ピッチに自然な揺らぎを加えて鳴き声を再生
-    const pitch = calculateVariedPitch(currentPreset.defaultPitch);
-    meow({ pitchMultiplier: pitch });
+  const currentMoodScore = getMoodScore(currentCatId);
+  const currentMoodLevel = getMoodLevelForCat(currentCatId);
 
-    // 猫ごとの個性あるメッセージを吹き出しに表示
-    const msg = getRandomMeowMessage(currentPreset);
+  const handleInteractCat = () => {
+    // 撫でることで選択中の猫の機嫌を上昇
+    const { nextLevel } = petCat(currentCatId);
+
+    // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生
+    const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
+    const pitch = calculateVariedPitch(basePitch);
+    meow({
+      pitchMultiplier: pitch,
+      duration: nextLevel === 'ecstatic' ? 0.75 : 0.65,
+    });
+
+    // 猫ごと・機嫌レベルに応じた個性あるメッセージを吹き出しに表示
+    const msg = getMeowMessageForMood(currentPreset, nextLevel);
     setBubbleText(msg);
 
     // 一定時間後に吹き出しをフェードアウト
@@ -68,6 +82,15 @@ export default function App() {
 
       {/* メインアクションエリア */}
       <section className="flex flex-col items-center justify-center my-auto w-full max-w-sm">
+        {/* ごきげんインジケーター（機嫌ゲージ＆ステータスバッジ） */}
+        <div className="w-full max-w-xs mb-2">
+          <CatMoodIndicator
+            moodScore={currentMoodScore}
+            moodLevel={currentMoodLevel}
+            catName={currentPreset.name}
+          />
+        </div>
+
         {/* 鳴き声・切り替え吹き出し */}
         <div className="h-14 flex items-center justify-center mb-2 transition-all duration-300">
           {bubbleText ? (
@@ -86,6 +109,7 @@ export default function App() {
         <CatSilhouette
           preset={currentPreset}
           isReacting={isPlaying}
+          moodLevel={currentMoodLevel}
           onPet={handleInteractCat}
         />
       </section>

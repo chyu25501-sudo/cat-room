@@ -256,6 +256,17 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
       expect(Math.abs(offsetY - (-60))).toBeLessThan(65);
     }
   });
+
+  it('moodLevel に応じて足元のバッジメッセージが変化すること (第4週)', () => {
+    const { rerender } = render(<CatSilhouette moodLevel="normal" />);
+    expect(screen.getByText('なでなで（ドラッグ）してふれあう')).toBeInTheDocument();
+
+    rerender(<CatSilhouette moodLevel="happy" />);
+    expect(screen.getByText('うれしそうになでられています♪')).toBeInTheDocument();
+
+    rerender(<CatSilhouette moodLevel="ecstatic" />);
+    expect(screen.getByText('ゴロゴロ…♡（ごきげんMAX）')).toBeInTheDocument();
+  });
 });
 
 

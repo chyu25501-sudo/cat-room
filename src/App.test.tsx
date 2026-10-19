@@ -70,4 +70,38 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     const bubbleElement = screen.getByText(/ニャ〜ン♪|ゴロゴロ…♪|にゃあ〜♡|すりすり…|ミャオ！/);
     expect(bubbleElement).toBeInTheDocument();
   });
+
+  it('撫でるとごきげんゲージが上昇し、猫ごとに機嫌が独立して管理されること (第4週)', () => {
+    render(<App />);
+
+    // 初期状態: 黒猫のごきげん度は初期20%（おだやか）
+    expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
+    expect(screen.getByText('20%')).toBeInTheDocument();
+    expect(screen.getByText('おだやか')).toBeInTheDocument();
+
+    const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+
+    // 1回撫でる (20 + 15 = 35%)
+    fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+    fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+
+    expect(screen.getByText('35%')).toBeInTheDocument();
+
+    // 白猫に切り替える
+    const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
+    fireEvent.click(whiteRadio);
+
+    // 白猫はまだ撫でられていないため初期20%（猫ごとの独立管理）
+    expect(screen.getByText('しろねこのごきげん')).toBeInTheDocument();
+    expect(screen.getByText('20%')).toBeInTheDocument();
+
+    // 黒猫に戻す
+    const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });
+    fireEvent.click(blackRadio);
+
+    // 黒猫の機嫌35%が保持されていること
+    expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
+    expect(screen.getByText('35%')).toBeInTheDocument();
+  });
 });

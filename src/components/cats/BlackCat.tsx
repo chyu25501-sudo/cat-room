@@ -1,10 +1,18 @@
 import React from 'react';
+import { CatMoodLevel } from '../../types/mood.ts';
 
 export interface CatShapeProps {
   isReacting?: boolean;
+  moodLevel?: CatMoodLevel;
 }
 
-export const BlackCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
+export const BlackCat: React.FC<CatShapeProps> = ({
+  isReacting = false,
+  moodLevel = 'normal',
+}) => {
+  const isEcstatic = moodLevel === 'ecstatic';
+  const isHappy = moodLevel === 'happy';
+
   return (
     <svg
       viewBox="0 0 210 240"
@@ -38,7 +46,7 @@ export const BlackCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
       <path
         d="M 135 195 C 172 200 198 178 194 136 C 190 108 170 114 176 130 C 182 154 165 174 130 180 Z"
         className={`fill-stone-800 transition-transform duration-300 origin-[135px_195px] ${
-          isReacting ? 'rotate-6' : 'group-hover:rotate-3'
+          isReacting ? 'rotate-6' : isEcstatic ? 'rotate-4' : 'group-hover:rotate-3'
         }`}
       />
 
@@ -99,11 +107,16 @@ export const BlackCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         <line x1="148" y1="108" x2="182" y2="116" />
       </g>
 
-      {/* 目（通常時は穏やかな糸目、反応時はにっこり目 ^ ^） */}
-      {isReacting ? (
-        <g stroke="#fbbf24" strokeWidth="2.8" strokeLinecap="round" fill="none">
+      {/* 目（反応時またはごきげんMAX時はにっこり目 ^ ^） */}
+      {isReacting || isEcstatic ? (
+        <g stroke={isEcstatic ? '#f59e0b' : '#fbbf24'} strokeWidth="2.8" strokeLinecap="round" fill="none">
           <path d="M 80 94 Q 89 84 98 94" />
           <path d="M 112 94 Q 121 84 130 94" />
+        </g>
+      ) : isHappy ? (
+        <g stroke="#d6d3d1" strokeWidth="2.4" strokeLinecap="round" fill="none">
+          <path d="M 81 93 Q 89 88 97 93" />
+          <path d="M 113 93 Q 121 88 129 93" />
         </g>
       ) : (
         <g stroke="#a8a29e" strokeWidth="2.2" strokeLinecap="round" fill="none">
@@ -112,11 +125,11 @@ export const BlackCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         </g>
       )}
 
-      {/* ほっぺのほんのり赤らみ（反応時） */}
-      {isReacting && (
-        <g fill="#f43f5e" opacity="0.35">
-          <circle cx="72" cy="104" r="7" />
-          <circle cx="138" cy="104" r="7" />
+      {/* ほっぺのほんのり赤らみ（反応時またはごきげん時） */}
+      {(isReacting || isEcstatic || isHappy) && (
+        <g fill="#f43f5e" opacity={isReacting ? 0.45 : isEcstatic ? 0.35 : 0.2}>
+          <circle cx="72" cy="104" r={isEcstatic ? 8 : 7} />
+          <circle cx="138" cy="104" r={isEcstatic ? 8 : 7} />
         </g>
       )}
 

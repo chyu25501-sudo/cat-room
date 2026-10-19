@@ -1,3 +1,5 @@
+import { CatMoodLevel } from './mood.ts';
+
 export type CatId = 'black' | 'white';
 
 export interface CatPresetSwatch {
@@ -22,8 +24,10 @@ export interface CatPreset {
   description: string;
   /** 基本の鳴き声ピッチ倍率 */
   defaultPitch: number;
-  /** この猫の鳴き声・リアクションメッセージ一覧 */
+  /** この猫の鳴き声・リアクションメッセージ一覧（後方互換用） */
   meowMessages: readonly string[];
+  /** 機嫌レベル別の鳴き声・リアクションメッセージ一覧 */
+  moodMessages?: Record<CatMoodLevel, readonly string[]>;
   /** 円形セレクター（ラジオボタン風）のカラー表示設定 */
   swatch: CatPresetSwatch;
 }
@@ -43,6 +47,11 @@ export const CAT_PRESETS: readonly CatPreset[] = [
       'すりすり…',
       'ミャオ！',
     ],
+    moodMessages: {
+      normal: ['ニャ〜ン♪', 'すりすり…', 'ミャオ！'],
+      happy: ['ゴロゴロ…♪', 'にゃあ〜♡', 'もっと撫でてニャ♪', 'すりすり…ゴロゴロ'],
+      ecstatic: ['ゴロゴロゴロ…♡', 'だ〜いすき♡', 'ずっと撫でててニャ！', 'ミャオ〜〜♡'],
+    },
     swatch: {
       bgClass: 'bg-stone-800',
       borderClass: 'border-stone-700',
@@ -63,6 +72,11 @@ export const CAT_PRESETS: readonly CatPreset[] = [
       'すやぁ…',
       'ミャオ〜♡',
     ],
+    moodMessages: {
+      normal: ['ふにゃあ…', 'すやぁ…', 'にゃ〜ん♪'],
+      happy: ['ゴロゴロ…♪', 'きもちいいニャ〜♡', 'ふにゃあ…♡', 'もっとすりすり…'],
+      ecstatic: ['ふにゃあぁ〜〜♡', 'ゴロゴロが止まらないニャ♡', 'しあわせだニャ…♡', 'メロメロだニャ〜♡'],
+    },
     swatch: {
       bgClass: 'bg-white',
       borderClass: 'border-stone-300',

@@ -1,10 +1,17 @@
 import React from 'react';
+import { CatMoodLevel } from '../../types/mood.ts';
 
 export interface CatShapeProps {
   isReacting?: boolean;
+  moodLevel?: CatMoodLevel;
 }
 
-export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
+export const WhiteCat: React.FC<CatShapeProps> = ({
+  isReacting = false,
+  moodLevel = 'normal',
+}) => {
+  const isEcstatic = moodLevel === 'ecstatic';
+  const isHappy = moodLevel === 'happy';
   return (
     <svg
       viewBox="0 0 250 180"
@@ -114,11 +121,16 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         <line x1="84" y1="98" x2="106" y2="103" />
       </g>
 
-      {/* 目（通常時は心地よくうとうとする糸目、反応時はにっこり目 ^ ^） */}
-      {isReacting ? (
-        <g stroke="#fbbf24" strokeWidth="2.8" strokeLinecap="round" fill="none">
+      {/* 目（反応時またはごきげんMAX時はにっこり目 ^ ^） */}
+      {isReacting || isEcstatic ? (
+        <g stroke={isEcstatic ? '#f59e0b' : '#fbbf24'} strokeWidth="2.8" strokeLinecap="round" fill="none">
           <path d="M 38 88 Q 47 78 56 88" />
           <path d="M 66 88 Q 75 78 84 88" />
+        </g>
+      ) : isHappy ? (
+        <g stroke="#78716c" strokeWidth="2.4" strokeLinecap="round" fill="none">
+          <path d="M 38 87 Q 46 82 54 87" />
+          <path d="M 64 87 Q 72 82 80 87" />
         </g>
       ) : (
         <g stroke="#57534e" strokeWidth="2.2" strokeLinecap="round" fill="none">
@@ -127,11 +139,11 @@ export const WhiteCat: React.FC<CatShapeProps> = ({ isReacting = false }) => {
         </g>
       )}
 
-      {/* ほっぺのほんのり赤らみ（反応時：輪郭線の内側にきれいに収まる位置） */}
-      {isReacting && (
-        <g fill="#f43f5e" opacity="0.4">
-          <circle cx="34" cy="98" r="6" />
-          <circle cx="78" cy="98" r="6" />
+      {/* ほっぺのほんのり赤らみ（反応時またはごきげん時） */}
+      {(isReacting || isEcstatic || isHappy) && (
+        <g fill="#f43f5e" opacity={isReacting ? 0.45 : isEcstatic ? 0.35 : 0.2}>
+          <circle cx="34" cy="98" r={isEcstatic ? 7 : 6} />
+          <circle cx="78" cy="98" r={isEcstatic ? 7 : 6} />
         </g>
       )}
 
