@@ -171,6 +171,35 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
     const particleCount2 = initialContainer.children.length;
     expect(particleCount2).toBe(particleCount1);
   });
+
+  it('ゆっくりと撫で続けている最中にもエフェクトが2連続で間隔をあけずに重複発生しないこと', () => {
+    const handlePet = vi.fn();
+    render(<CatSilhouette onPet={handlePet} cooldownMs={1000} />);
+
+    const catButton = screen.getByRole('button', { name: /くろねこのシルエット/ });
+    const container = screen.getByTestId('pet-effects-container');
+
+    // なで始め（1回目のしきい値50px到達）
+    fireEvent.pointerDown(catButton, { clientX: 100, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 160, clientY: 100, isPrimary: true });
+
+    expect(handlePet).toHaveBeenCalledTimes(1);
+    const firstBurstCount = container.children.length;
+    expect(firstBurstCount).toBeGreaterThanOrEqual(3);
+    expect(firstBurstCount).toBeLessThanOrEqual(4);
+
+    // ゆっくり撫で続ける（クールダウン1000ms以内の細かな移動）
+    fireEvent.pointerMove(catButton, { clientX: 180, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 200, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 230, clientY: 100, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 260, clientY: 100, isPrimary: true });
+
+    // クールダウン中は2連続でエフェクトが重なって増殖しない
+    expect(handlePet).toHaveBeenCalledTimes(1);
+    expect(container.children.length).toBe(firstBurstCount);
+
+    fireEvent.pointerUp(catButton, { clientX: 260, clientY: 100, isPrimary: true });
+  });
 });
 
 

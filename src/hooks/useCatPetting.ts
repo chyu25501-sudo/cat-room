@@ -102,11 +102,11 @@ export function useCatPetting({
 
         // しきい値到達で「なでた」と判定
         if (isStrokeThresholdReached(currentDistance, threshold)) {
-          onPet();
           lastTriggerTimeRef.current = now;
           // 継続してなでられるよう、しきい値分を消費してリセット
           accumulatedDistanceRef.current = 0;
           setStrokeProgress(0);
+          onPet();
         }
       } catch {
         // フォールバック
@@ -137,8 +137,8 @@ export function useCatPetting({
         e.preventDefault();
         const now = Date.now();
         if (isCooldownElapsed(lastTriggerTimeRef.current, now, cooldownMs)) {
-          onPet();
           lastTriggerTimeRef.current = now;
+          onPet();
         }
       }
     },

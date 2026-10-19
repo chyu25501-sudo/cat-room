@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Heart, Sparkles } from 'lucide-react';
 import { CatPreset, CAT_PRESETS, CatId } from '../types/cat.ts';
 import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
 import { WhiteCat } from './cats/WhiteCat.tsx';
 import { useCatPetting } from '../hooks/useCatPetting.ts';
+import { DEFAULT_PET_COOLDOWN_MS } from '../utils/stroke.ts';
 import {
   generatePetEffectBurst,
   type PetEffectBurst,
@@ -46,28 +47,31 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
 }) => {
   const ActiveCatComponent = CAT_COMPONENTS[preset.id] ?? BlackCat;
 
-  // 画面中央から湧き上がるエフェクトバーストのリスト
+  const effectiveCooldownMs = cooldownMs ?? DEFAULT_PET_COOLDOWN_MS;
+
+  // 画面中央から湧き上がるエフェクトバーストのリスト（常に最新の1バーストのみを保持）
   const [bursts, setBursts] = useState<PetEffectBurst[]>([]);
   const lastEffectTimeRef = useRef<number>(0);
 
   // 音の発生タイミング・頻度と完全に同期させてエフェクトを発生
   const triggerPetEffect = useCallback(() => {
     const now = Date.now();
-    // 800ms以内の連続・重複呼び出しを抑制し、音の再生頻度と1:1で同期
-    if (now - lastEffectTimeRef.current < 800) {
+    // クールダウン以内の連続・重複呼び出しを抑制し、音の再生頻度と1:1で同期
+    if (now - lastEffectTimeRef.current < effectiveCooldownMs) {
       return;
     }
     lastEffectTimeRef.current = now;
 
     const burstId = `burst-${now}-${Math.random().toString(36).slice(2, 7)}`;
     const particles = generatePetEffectBurst({ burstId });
-    setBursts((prev) => [...prev, { id: burstId, particles }]);
+    // 常に最新のバースト1組のみを表示（古いバーストと重なって二重発生に見えるのを防止）
+    setBursts([{ id: burstId, particles }]);
 
     // アニメーション完了（約1.5秒）後に古いバーストを消去
     setTimeout(() => {
       setBursts((prev) => prev.filter((b) => b.id !== burstId));
     }, 1500);
-  }, []);
+  }, [effectiveCooldownMs]);
 
   const handlePetAction = useCallback(() => {
     triggerPetEffect();
@@ -78,20 +82,11 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
     }
   }, [onPet, onClick, triggerPetEffect]);
 
-  // isReacting が外部から true に変化した場合（キーボード操作等）も同期してエフェクトを発生
-  const prevIsReactingRef = useRef<boolean>(false);
-  useEffect(() => {
-    if (isReacting && !prevIsReactingRef.current) {
-      triggerPetEffect();
-    }
-    prevIsReactingRef.current = isReacting;
-  }, [isReacting, triggerPetEffect]);
-
   // ドラッグ操作による「なでる」インタラクション（クールダウンで長いストローク時の過剰反応を制御）
   const { isDragging, handlers } = useCatPetting({
     onPet: handlePetAction,
     threshold: strokeThreshold,
-    cooldownMs,
+    cooldownMs: effectiveCooldownMs,
   });
 
   return (
