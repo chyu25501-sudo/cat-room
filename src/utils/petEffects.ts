@@ -2,6 +2,8 @@
  * 猫をなでた時のハート・キラキラ・音符エフェクトの計算ロジック（純粋関数）
  */
 
+import type { Point } from './stroke.ts';
+
 export type EffectType = 'heart' | 'sparkle' | 'note';
 
 export const EFFECT_TYPES: readonly EffectType[] = ['heart', 'sparkle', 'note'];
@@ -154,11 +156,15 @@ export interface GenerateBurstOptions {
   type?: EffectType;
   /** 基準Y座標（未指定時は少し上の DEFAULT_BURST_BASE_OFFSET_Y） */
   baseOffsetY?: number;
+  /** 基準X座標（中心からのオフセットpx。未指定時は0） */
+  baseOffsetX?: number;
+  /** なでたマウスカーソルの位置（親要素中心を原点(0, 0)とする相対オフセット座標） */
+  origin?: Point;
   randomFn?: () => number;
 }
 
 /**
- * 撫でたときに画面中央付近（少し上側）から出現するエフェクト一式を生成する純粋関数
+ * 撫でたときにマウスカーソル位置（または画面中央付近）から出現するエフェクト一式を生成する純粋関数
  * ハート・キラキラ・音符の中から「一度に一種類だけ」が選ばれ、
  * まとまり（3〜4個）として生成されます
  */
@@ -166,14 +172,22 @@ export function generatePetEffectBurst({
   burstId = `burst-${Date.now()}`,
   type,
   baseOffsetY = DEFAULT_BURST_BASE_OFFSET_Y,
+  baseOffsetX = 0,
+  origin,
   randomFn = Math.random,
 }: GenerateBurstOptions = {}): PetEffectParticle[] {
   // 一度に一種類だけを選択（指定がなければランダムで1種類決定）
   const selectedType: EffectType = type ?? pickRandomEffectType(randomFn);
 
-  // 画面中央より少し上側（猫の胸・頭付近）を基準位置とする
-  const centerJitterX = (randomFn() - 0.5) * 50;
-  const centerJitterY = baseOffsetY + (randomFn() - 0.5) * 24;
+  // マウスカーソル位置（origin）が指定された場合はその位置の周辺、
+  // 未指定（キーボード操作等）の場合は画面中央より少し上（猫の胸・頭付近）を基準位置とする
+  const originX = origin ? origin.x : baseOffsetX;
+  const originY = origin ? origin.y : baseOffsetY;
+
+  // カーソル位置周辺に自然に湧き出るようジッターを設定
+  const jitterRadius = origin ? 20 : 25;
+  const centerJitterX = originX + (randomFn() - 0.5) * jitterRadius;
+  const centerJitterY = originY + (randomFn() - 0.5) * jitterRadius;
 
   const count = 3 + Math.floor(randomFn() * 2); // 3〜4個
 
@@ -182,7 +196,7 @@ export function generatePetEffectBurst({
     count,
     clusterCenterX: centerJitterX,
     clusterCenterY: centerJitterY,
-    spreadRadius: 30,
+    spreadRadius: 28,
     idPrefix: burstId,
     randomFn,
   });

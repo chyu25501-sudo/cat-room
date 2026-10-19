@@ -3,8 +3,8 @@ import { Heart, Sparkles } from 'lucide-react';
 import { CatPreset, CAT_PRESETS, CatId } from '../types/cat.ts';
 import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
 import { WhiteCat } from './cats/WhiteCat.tsx';
-import { useCatPetting } from '../hooks/useCatPetting.ts';
-import { DEFAULT_PET_COOLDOWN_MS } from '../utils/stroke.ts';
+import { useCatPetting, type PetEventDetail } from '../hooks/useCatPetting.ts';
+import { DEFAULT_PET_COOLDOWN_MS, type Point } from '../utils/stroke.ts';
 import {
   generatePetEffectBurst,
   type PetEffectBurst,
@@ -25,7 +25,7 @@ export interface CatSilhouetteProps {
   /** 猫が反応中（鳴き声再生中・なでなで直後）かどうか */
   isReacting?: boolean;
   /** 猫をなでた（ドラッグストローク完了）ときのコールバック */
-  onPet?: () => void;
+  onPet?: (detail?: PetEventDetail) => void;
   /** なでたと判定する移動距離のしきい値（ピクセル） */
   strokeThreshold?: number;
   /** なでた後のクールダウン時間（ミリ秒） */
@@ -53,34 +53,41 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   const [bursts, setBursts] = useState<PetEffectBurst[]>([]);
   const lastEffectTimeRef = useRef<number>(0);
 
-  // 音の発生タイミング・頻度と完全に同期させてエフェクトを発生
-  const triggerPetEffect = useCallback(() => {
-    const now = Date.now();
-    // クールダウン以内の連続・重複呼び出しを抑制し、音の再生頻度と1:1で同期
-    if (now - lastEffectTimeRef.current < effectiveCooldownMs) {
-      return;
-    }
-    lastEffectTimeRef.current = now;
+  // なでたカーソル位置（origin）の周辺から湧き上がるエフェクトを発生
+  const triggerPetEffect = useCallback(
+    (origin?: Point) => {
+      const now = Date.now();
+      // クールダウン以内の連続・重複呼び出しを抑制し、音の再生頻度と1:1で同期
+      if (now - lastEffectTimeRef.current < effectiveCooldownMs) {
+        return;
+      }
+      lastEffectTimeRef.current = now;
 
-    const burstId = `burst-${now}-${Math.random().toString(36).slice(2, 7)}`;
-    const particles = generatePetEffectBurst({ burstId });
-    // 常に最新のバースト1組のみを表示（古いバーストと重なって二重発生に見えるのを防止）
-    setBursts([{ id: burstId, particles }]);
+      const burstId = `burst-${now}-${Math.random().toString(36).slice(2, 7)}`;
+      // なでたカーソル位置（または中央付近）から湧き上がるエフェクト粒子群を生成
+      const particles = generatePetEffectBurst({ burstId, origin });
+      // 常に最新のバースト1組のみを表示（古いバーストと重なって二重発生に見えるのを防止）
+      setBursts([{ id: burstId, particles }]);
 
-    // アニメーション完了（約1.5秒）後に古いバーストを消去
-    setTimeout(() => {
-      setBursts((prev) => prev.filter((b) => b.id !== burstId));
-    }, 1500);
-  }, [effectiveCooldownMs]);
+      // アニメーション完了（約1.5秒）後に古いバーストを消去
+      setTimeout(() => {
+        setBursts((prev) => prev.filter((b) => b.id !== burstId));
+      }, 1500);
+    },
+    [effectiveCooldownMs]
+  );
 
-  const handlePetAction = useCallback(() => {
-    triggerPetEffect();
-    if (onPet) {
-      onPet();
-    } else if (onClick) {
-      onClick();
-    }
-  }, [onPet, onClick, triggerPetEffect]);
+  const handlePetAction = useCallback(
+    (detail?: PetEventDetail) => {
+      triggerPetEffect(detail?.relativeOffset);
+      if (onPet) {
+        onPet(detail);
+      } else if (onClick) {
+        onClick();
+      }
+    },
+    [onPet, onClick, triggerPetEffect]
+  );
 
   // ドラッグ操作による「なでる」インタラクション（クールダウンで長いストローク時の過剰反応を制御）
   const { isDragging, handlers } = useCatPetting({

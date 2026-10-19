@@ -7,11 +7,19 @@ import {
   isStrokeThresholdReached,
   calculateStrokeProgress,
   isCooldownElapsed,
+  calculateRelativeCenterOffset,
 } from '../utils/stroke.ts';
+
+export interface PetEventDetail {
+  /** なでた瞬間のカーソル絶対座標（クライアント座標） */
+  point?: Point;
+  /** 要素中心を原点(0, 0)とする相対オフセット座標 */
+  relativeOffset?: Point;
+}
 
 export interface UseCatPettingOptions {
   /** なでた（ストローク成立）時に発火するコールバック */
-  onPet: () => void;
+  onPet: (detail?: PetEventDetail) => void;
   /** なでたと判定する移動距離のしきい値（ピクセル） */
   threshold?: number;
   /** なでた後のクールダウン時間（ミリ秒、長大なストロークや高速ドラッグ時の過剰な連続反応を防止） */
@@ -106,7 +114,28 @@ export function useCatPetting({
           // 継続してなでられるよう、しきい値分を消費してリセット
           accumulatedDistanceRef.current = 0;
           setStrokeProgress(0);
-          onPet();
+
+          let detail: PetEventDetail | undefined;
+          try {
+            if (
+              e.currentTarget &&
+              typeof e.currentTarget.getBoundingClientRect === 'function'
+            ) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const relativeOffset = calculateRelativeCenterOffset(
+                currentPoint,
+                rect
+              );
+              detail = {
+                point: currentPoint,
+                relativeOffset,
+              };
+            }
+          } catch {
+            // フォールバック
+          }
+
+          onPet(detail);
         }
       } catch {
         // フォールバック

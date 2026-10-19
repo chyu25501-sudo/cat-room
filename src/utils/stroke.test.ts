@@ -7,6 +7,8 @@ import {
   isCooldownElapsed,
   canTriggerPet,
   DEFAULT_STROKE_THRESHOLD,
+  calculateRelativeCenterOffset,
+  clampOffset,
 } from './stroke.ts';
 
 describe('stroke ユーティリティ (純粋関数テスト)', () => {
@@ -84,6 +86,32 @@ describe('stroke ユーティリティ (純粋関数テスト)', () => {
     // 距離十分かつクールダウン経過済み
     expect(canTriggerPet(50, threshold, lastTrigger, 1000, cooldownMs)).toBe(true);
     expect(canTriggerPet(80, threshold, lastTrigger, 1500, cooldownMs)).toBe(true);
+  });
+
+  it('calculateRelativeCenterOffset: 要素中心を基準とした相対オフセットを算出できること', () => {
+    // 要素: left=100, top=100, width=200, height=300 -> 中心は(200, 250)
+    const rect = { left: 100, top: 100, width: 200, height: 300 };
+
+    // 中心と同一位置
+    const offsetCenter = calculateRelativeCenterOffset({ x: 200, y: 250 }, rect);
+    expect(offsetCenter).toEqual({ x: 0, y: 0 });
+
+    // 中心より右上に位置 (x: 250, y: 150) -> x: +50, y: -100
+    const offsetTopRight = calculateRelativeCenterOffset({ x: 250, y: 150 }, rect);
+    expect(offsetTopRight).toEqual({ x: 50, y: -100 });
+
+    // 中心より左下に位置 (x: 140, y: 320) -> x: -60, y: +70
+    const offsetBottomLeft = calculateRelativeCenterOffset({ x: 140, y: 320 }, rect);
+    expect(offsetBottomLeft).toEqual({ x: -60, y: 70 });
+
+    // 境界外（要素の範囲外までドラッグした場合）は境界でクランプされること
+    const offsetOver = calculateRelativeCenterOffset({ x: 500, y: 600 }, rect);
+    expect(offsetOver).toEqual({ x: 100, y: 150 });
+  });
+
+  it('clampOffset: オフセットが最大許容範囲内に収まること', () => {
+    expect(clampOffset({ x: 200, y: -300 }, 150, 160)).toEqual({ x: 150, y: -160 });
+    expect(clampOffset({ x: -50, y: 80 }, 150, 160)).toEqual({ x: -50, y: 80 });
   });
 });
 

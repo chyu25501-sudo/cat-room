@@ -88,4 +88,47 @@ export function calculateStrokeProgress(
   return Math.min(1.0, Math.max(0.0, distance / threshold));
 }
 
+export interface ElementRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * オフセット座標を指定の境界範囲内に収める（クランプする）純粋関数
+ */
+export function clampOffset(
+  offset: Point,
+  maxAbsX: number = 150,
+  maxAbsY: number = 160
+): Point {
+  return {
+    x: Math.max(-maxAbsX, Math.min(maxAbsX, offset.x)),
+    y: Math.max(-maxAbsY, Math.min(maxAbsY, offset.y)),
+  };
+}
+
+/**
+ * マウスカーソル等の絶対座標から要素中心を原点(0, 0)とする相対オフセット座標を計算する純粋関数
+ */
+export function calculateRelativeCenterOffset(
+  point: Point,
+  rect: ElementRect,
+  clamp: boolean = true
+): Point {
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const rawOffset = {
+    x: Math.round(point.x - centerX),
+    y: Math.round(point.y - centerY),
+  };
+  if (!clamp || rect.width <= 0 || rect.height <= 0) {
+    return rawOffset;
+  }
+  const maxAbsX = Math.round(rect.width / 2);
+  const maxAbsY = Math.round(rect.height / 2);
+  return clampOffset(rawOffset, maxAbsX, maxAbsY);
+}
+
 

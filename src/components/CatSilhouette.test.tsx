@@ -200,6 +200,62 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
 
     fireEvent.pointerUp(catButton, { clientX: 260, clientY: 100, isPrimary: true });
   });
+
+  it('猫をなでた時のマウスカーソル位置のあたりからエフェクトが発生すること', () => {
+    const handlePet = vi.fn();
+    render(<CatSilhouette onPet={handlePet} />);
+
+    const catButton = screen.getByRole('button', { name: /くろねこのシルエット/ });
+
+    // 猫ボタンのgetBoundingClientRectをモック (中心が x=200, y=200)
+    vi.spyOn(catButton, 'getBoundingClientRect').mockReturnValue({
+      left: 100,
+      top: 100,
+      width: 200,
+      height: 200,
+      right: 300,
+      bottom: 300,
+      x: 100,
+      y: 100,
+      toJSON: () => {},
+    });
+
+    // 右上（x=260, y=140）でなで完了（中心(200, 200)からの相対オフセットは x=+60, y=-60）
+    fireEvent.pointerDown(catButton, { clientX: 200, clientY: 140, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 260, clientY: 140, isPrimary: true }); // +60pxでしきい値達成
+
+    expect(handlePet).toHaveBeenCalledTimes(1);
+    const detail = handlePet.mock.calls[0][0];
+    expect(detail).toBeDefined();
+    expect(detail.relativeOffset).toEqual({ x: 60, y: -60 });
+
+    // 描画されたエフェクト粒子のstyleがカーソル位置周辺（calc(50% + Xpx), calc(50% + Ypx)）に配置されていること
+    const container = screen.getByTestId('pet-effects-container');
+    expect(container.children.length).toBeGreaterThanOrEqual(3);
+
+    for (const child of Array.from(container.children) as HTMLElement[]) {
+      const leftStyle = child.style.left;
+      const topStyle = child.style.top;
+
+      const parseCalcOffset = (styleStr: string): number => {
+        const match = styleStr.match(/calc\(50%\s*([+-])\s*(-?\d+)px\)/);
+        if (!match) return NaN;
+        const sign = match[1] === '-' ? -1 : 1;
+        const val = parseInt(match[2], 10);
+        return sign * val;
+      };
+
+      const offsetX = parseCalcOffset(leftStyle);
+      const offsetY = parseCalcOffset(topStyle);
+
+      expect(Number.isNaN(offsetX)).toBe(false);
+      expect(Number.isNaN(offsetY)).toBe(false);
+
+      // 相対オフセット(+60, -60)の周辺（ジッター・拡散半径を含め±65px以内）にあること
+      expect(Math.abs(offsetX - 60)).toBeLessThan(65);
+      expect(Math.abs(offsetY - (-60))).toBeLessThan(65);
+    }
+  });
 });
 
 

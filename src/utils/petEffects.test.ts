@@ -89,6 +89,18 @@ describe('petEffects ユーティリティ (純粋関数テスト)', () => {
     expect(DEFAULT_BURST_BASE_OFFSET_Y).toBeLessThan(0);
   });
 
+  it('generatePetEffectBurst: なでたマウスカーソル位置（origin）が指定された場合、その周辺に生成されること', () => {
+    // 右上（x: +60, y: -70）でなでた場合
+    const origin = { x: 60, y: -70 };
+    const burst = generatePetEffectBurst({ origin, burstId: 'b-cursor' });
+    const avgX = burst.reduce((acc, p) => acc + p.offsetX, 0) / burst.length;
+    const avgY = burst.reduce((acc, p) => acc + p.offsetY, 0) / burst.length;
+
+    // 指定カーソル位置周辺（±35px以内）に集まっていること
+    expect(Math.abs(avgX - origin.x)).toBeLessThan(35);
+    expect(Math.abs(avgY - origin.y)).toBeLessThan(35);
+  });
+
   it('generatePetEffectBurst: 一度のバーストにつき「一種類だけ」のエフェクトがまとまって生成されること', () => {
     // ハート指定時: すべてハート
     const heartBurst = generatePetEffectBurst({ type: 'heart', burstId: 'b-heart' });
