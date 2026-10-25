@@ -124,18 +124,18 @@ export const WhiteCat: React.FC<CatShapeProps> = ({
       {/* 目（反応時またはごきげんMAX時はにっこり目 ^ ^） */}
       {isReacting || isEcstatic ? (
         <g stroke={isEcstatic ? '#f59e0b' : '#fbbf24'} strokeWidth="2.8" strokeLinecap="round" fill="none">
-          <path d="M 38 88 Q 47 78 56 88" />
-          <path d="M 66 88 Q 75 78 84 88" />
+          <path d="M 35 88 Q 44 78 53 88" />
+          <path d="M 62 88 Q 71 78 80 88" />
         </g>
       ) : isHappy ? (
         <g stroke="#78716c" strokeWidth="2.4" strokeLinecap="round" fill="none">
-          <path d="M 38 87 Q 46 82 54 87" />
-          <path d="M 64 87 Q 72 82 80 87" />
+          <path d="M 35 87 Q 43 82 51 87" />
+          <path d="M 61 87 Q 69 82 77 87" />
         </g>
       ) : (
         <g stroke="#57534e" strokeWidth="2.2" strokeLinecap="round" fill="none">
-          <path d="M 38 86 Q 46 92 54 86" />
-          <path d="M 64 86 Q 72 92 80 86" />
+          <path d="M 35 86 Q 43 92 51 86" />
+          <path d="M 61 86 Q 69 92 77 86" />
         </g>
       )}
 
@@ -148,7 +148,7 @@ export const WhiteCat: React.FC<CatShapeProps> = ({
       )}
 
       {/* 鼻 */}
-      <polygon points="60,98 56,93 64,93" className="fill-rose-400" />
+      <polygon points="57,98 53,93 61,93" className="fill-rose-400" />
     </svg>
   );
 };
