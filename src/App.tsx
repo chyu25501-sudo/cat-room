@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Heart } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
 import { useCatMood } from './hooks/useCatMood.ts';
+import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
@@ -14,7 +15,7 @@ export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
   const { getMoodScore, getMoodLevelForCat, petCat } = useCatMood();
-  const [bubbleText, setBubbleText] = useState<string | null>(null);
+  const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
   const currentMoodScore = getMoodScore(currentCatId);
   const currentMoodLevel = getMoodLevelForCat(currentCatId);
@@ -22,6 +23,7 @@ export default function App() {
   const handleInteractCat = () => {
     // 撫でることで選択中の猫の機嫌を上昇
     const { nextLevel } = petCat(currentCatId);
+    const isMoodUpgraded = nextLevel !== currentMoodLevel;
 
     // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生
     const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
@@ -31,32 +33,21 @@ export default function App() {
       duration: nextLevel === 'ecstatic' ? 0.75 : 0.65,
     });
 
-    // 猫ごと・機嫌レベルに応じた個性あるメッセージを吹き出しに表示
+    // 猫ごと・機嫌レベルに応じた個性あるメッセージを吹き出しに表示（機嫌レベル上昇時は即時反映）
     const msg = getMeowMessageForMood(currentPreset, nextLevel);
-    setBubbleText(msg);
-
-    // 一定時間後に吹き出しをフェードアウト
-    setTimeout(() => {
-      setBubbleText(null);
-    }, 1400);
+    showBubble(msg, { force: isMoodUpgraded });
   };
 
   const handleSwitchCat = () => {
     switchCat();
-    setBubbleText(`${nextPreset.name}にきりかえたよ♪`);
-    setTimeout(() => {
-      setBubbleText(null);
-    }, 1200);
+    showBubble(`${nextPreset.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
   };
 
   const handleSelectCat = (id: CatId) => {
     if (id === currentCatId) return;
     selectCat(id);
     const target = getCatPresetById(id);
-    setBubbleText(`${target.name}にきりかえたよ♪`);
-    setTimeout(() => {
-      setBubbleText(null);
-    }, 1200);
+    showBubble(`${target.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
   };
 
   return (
