@@ -10,6 +10,9 @@ export const DEFAULT_INITIAL_MOOD_SCORE = 20;
 /** 1回のなでなでで上昇する機嫌スコア */
 export const DEFAULT_PET_MOOD_INCREMENT = 15;
 
+/** 1分あたりの自然減衰スコア（15秒で約1点減衰） */
+export const DEFAULT_DECAY_PER_MINUTE = 4;
+
 /**
  * 機嫌レベルのしきい値定義
  * - normal: 0 〜 39
@@ -88,7 +91,7 @@ export function calculateNextMood(
 export function calculateDecayedMood(
   currentScore: number,
   elapsedMs: number,
-  decayPerMinute: number = 2,
+  decayPerMinute: number = DEFAULT_DECAY_PER_MINUTE,
   minBaseline: number = DEFAULT_INITIAL_MOOD_SCORE
 ): number {
   if (elapsedMs <= 0 || currentScore <= minBaseline) {

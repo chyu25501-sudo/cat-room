@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { CatId, CAT_PRESETS } from '../types/cat.ts';
 import { CatMoodLevel, CatMoodInfo, CatsMoodMap, CatMoodState } from '../types/mood.ts';
 import {
   DEFAULT_INITIAL_MOOD_SCORE,
   DEFAULT_PET_MOOD_INCREMENT,
+  DEFAULT_DECAY_PER_MINUTE,
   getMoodLevel,
   getMoodInfo,
   calculateNextMood,
@@ -12,11 +13,18 @@ import {
 
 const STORAGE_KEY = 'nekoppoi_cats_mood';
 
+/** リアルタイム機嫌減衰チェックの間隔（ミリ秒）: 2秒おき */
+export const DEFAULT_DECAY_CHECK_INTERVAL_MS = 2000;
+
 export interface UseCatMoodOptions {
   /** なでたときの機嫌スコア上昇量 */
   petIncrement?: number;
   /** 自然減衰の有効化（未指定時はtrue） */
   enableDecay?: boolean;
+  /** 自然減衰の定期チェック間隔ミリ秒（未指定時は2000ms） */
+  decayCheckIntervalMs?: number;
+  /** 1分あたりの自然減衰量（未指定時は4点） */
+  decayPerMinute?: number;
 }
 
 export interface UseCatMoodResult {
@@ -39,6 +47,7 @@ function createDefaultMoods(): CatsMoodMap {
   return CAT_PRESETS.reduce<CatsMoodMap>((acc, preset) => {
     acc[preset.id] = {
       score: DEFAULT_INITIAL_MOOD_SCORE,
+      baseScore: DEFAULT_INITIAL_MOOD_SCORE,
       lastPetAt: now,
     };
     return acc;
@@ -47,10 +56,15 @@ function createDefaultMoods(): CatsMoodMap {
 
 /**
  * 猫ごとの機嫌（ご機嫌度）を管理するカスタムフック
- * localStorageへの安全な永続化と、時間経過による自然減衰を提供します
+ * localStorageへの安全な永続化と、時間経過によるリアルタイム自然減衰を提供します
  */
 export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
-  const { petIncrement = DEFAULT_PET_MOOD_INCREMENT, enableDecay = true } = options;
+  const {
+    petIncrement = DEFAULT_PET_MOOD_INCREMENT,
+    enableDecay = true,
+    decayCheckIntervalMs = DEFAULT_DECAY_CHECK_INTERVAL_MS,
+    decayPerMinute = DEFAULT_DECAY_PER_MINUTE,
+  } = options;
 
   const [moods, setMoods] = useState<CatsMoodMap>(() => {
     const defaults = createDefaultMoods();
@@ -66,13 +80,15 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
             const item = parsed[preset.id];
             if (item && typeof item.score === 'number') {
               const lastPetAt = typeof item.lastPetAt === 'number' ? item.lastPetAt : now;
+              const baseScore = typeof item.baseScore === 'number' ? item.baseScore : item.score;
               const elapsed = now - lastPetAt;
               const decayedScore = enableDecay
-                ? calculateDecayedMood(item.score, elapsed)
+                ? calculateDecayedMood(baseScore, elapsed, decayPerMinute)
                 : item.score;
 
               restored[preset.id] = {
                 score: decayedScore,
+                baseScore,
                 lastPetAt,
               };
             }
@@ -95,6 +111,49 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
       // フォールバック
     }
   };
+
+  // 一定時間経過した際に、ページ再読み込みを行わなくてもリアルタイムに機嫌減衰を反映するループ
+  useEffect(() => {
+    if (!enableDecay || typeof window === 'undefined') {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      const now = Date.now();
+      setMoods((prev) => {
+        let hasChanged = false;
+        const nextMap: CatsMoodMap = { ...prev };
+
+        for (const preset of CAT_PRESETS) {
+          const item = prev[preset.id];
+          if (!item) continue;
+
+          const baseScore = item.baseScore ?? item.score;
+          const elapsed = now - item.lastPetAt;
+          const decayed = calculateDecayedMood(baseScore, elapsed, decayPerMinute);
+
+          if (decayed !== item.score) {
+            hasChanged = true;
+            nextMap[preset.id] = {
+              ...item,
+              score: decayed,
+            };
+          }
+        }
+
+        if (!hasChanged) {
+          return prev;
+        }
+
+        saveToStorage(nextMap);
+        return nextMap;
+      });
+    }, decayCheckIntervalMs);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [enableDecay, decayCheckIntervalMs, decayPerMinute]);
 
   const getMoodScore = useCallback(
     (catId: CatId): number => {
@@ -126,8 +185,18 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
       const now = Date.now();
 
       setMoods((prev) => {
-        const currentScore = prev[catId]?.score ?? DEFAULT_INITIAL_MOOD_SCORE;
-        const nextScore = calculateNextMood(currentScore, petIncrement);
+        const current = prev[catId] ?? {
+          score: DEFAULT_INITIAL_MOOD_SCORE,
+          baseScore: DEFAULT_INITIAL_MOOD_SCORE,
+          lastPetAt: now,
+        };
+
+        const effectiveBase = current.baseScore ?? current.score;
+        const currentDecayed = enableDecay
+          ? calculateDecayedMood(effectiveBase, now - current.lastPetAt, decayPerMinute)
+          : current.score;
+
+        const nextScore = calculateNextMood(currentDecayed, petIncrement);
         const nextLevel = getMoodLevel(nextScore);
         resultScore = nextScore;
         resultLevel = nextLevel;
@@ -136,6 +205,7 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
           ...prev,
           [catId]: {
             score: nextScore,
+            baseScore: nextScore,
             lastPetAt: now,
           },
         };
@@ -145,16 +215,18 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
 
       return { nextScore: resultScore, nextLevel: resultLevel };
     },
-    [petIncrement]
+    [petIncrement, enableDecay, decayPerMinute]
   );
 
   const resetMood = useCallback((catId: CatId) => {
+    const now = Date.now();
     setMoods((prev) => {
       const nextMap: CatsMoodMap = {
         ...prev,
         [catId]: {
           score: DEFAULT_INITIAL_MOOD_SCORE,
-          lastPetAt: Date.now(),
+          baseScore: DEFAULT_INITIAL_MOOD_SCORE,
+          lastPetAt: now,
         },
       };
       saveToStorage(nextMap);

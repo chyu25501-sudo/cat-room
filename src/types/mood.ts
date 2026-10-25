@@ -27,6 +27,8 @@ export interface CatMoodState {
   score: number;
   /** 最後に撫でられたタイムスタンプ（ミリ秒） */
   lastPetAt: number;
+  /** 最後に撫でられた時点のスコア（減衰計算基準値） */
+  baseScore?: number;
 }
 
 /**
