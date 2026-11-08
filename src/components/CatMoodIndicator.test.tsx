@@ -14,6 +14,7 @@ describe('CatMoodIndicator コンポーネント (第4週: ごきげん視覚表
 
     expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
     expect(screen.getByText('おだやか')).toBeInTheDocument();
+    expect(screen.queryByText('😌')).not.toBeInTheDocument();
     expect(screen.getByText('20%')).toBeInTheDocument();
     expect(screen.getByText('まったり落ち着いているよ')).toBeInTheDocument();
 

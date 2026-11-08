@@ -51,14 +51,11 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
           )}
         </div>
 
-        {/* 機嫌ステータスバッジ */}
+        {/* 機嫌ステータスバッジ（絵文字のないシンプルなテキストバッジ） */}
         <div
           data-testid="mood-status-badge"
-          className={`px-2 py-0.5 rounded-full border text-xs font-bold flex items-center gap-1 tracking-wide shadow-2xs transition-colors duration-300 ${info.badgeClass}`}
+          className={`px-2.5 py-0.5 rounded-full border text-xs font-bold tracking-wide shadow-2xs transition-colors duration-300 ${info.badgeClass}`}
         >
-          <span className="text-xs" aria-hidden="true">
-            {info.emoji}
-          </span>
           <span>{info.label}</span>
         </div>
       </div>
