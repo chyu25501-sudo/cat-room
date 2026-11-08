@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import App from './App.tsx';
 
 describe('App コンポーネント (猫切り替え機能)', () => {
@@ -103,5 +103,34 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     // 黒猫の機嫌35%が保持されていること
     expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
     expect(screen.getByText('35%')).toBeInTheDocument();
+  });
+
+  it('短時間に何度も過剰に撫ですぎると愛撫誘発性攻撃行動が発生し、不機嫌（ごきげんななめ）になること (第5週)', () => {
+    vi.useFakeTimers();
+    try {
+      render(<App />);
+
+      const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+      let currentTime = Date.now();
+
+      // クールダウン（DEFAULT_PET_COOLDOWN_MS = 1000ms）を挟みつつ、過剰刺激監視ウィンドウ（7000ms）内に6回連続で撫でる
+      for (let i = 0; i < 6; i++) {
+        act(() => {
+          currentTime += 1050;
+          vi.setSystemTime(currentTime);
+          vi.advanceTimersByTime(1050);
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+      }
+
+      // 不機嫌（ごきげんななめ）バッジと威嚇セリフが表示されること
+      expect(screen.getByText('ごきげんななめ')).toBeInTheDocument();
+      expect(screen.getByText('5%')).toBeInTheDocument();
+      expect(screen.getByText(/シャーッ！|フシャーッ！|ウーッ…|カッ…！/)).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

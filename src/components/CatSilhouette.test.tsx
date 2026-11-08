@@ -266,6 +266,9 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
 
     rerender(<CatSilhouette moodLevel="ecstatic" />);
     expect(screen.getByText('ゴロゴロ…♡（ごきげんMAX）')).toBeInTheDocument();
+
+    rerender(<CatSilhouette moodLevel="annoyed" />);
+    expect(screen.getByText('なですぎ注意！少し休ませてあげよう')).toBeInTheDocument();
   });
 });
 

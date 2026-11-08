@@ -57,9 +57,15 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   const [bursts, setBursts] = useState<PetEffectBurst[]>([]);
   const lastEffectTimeRef = useRef<number>(0);
 
-  // なでたカーソル位置（origin）の周辺から湧き上がるエフェクトを発生（機嫌が良いほど華やか）
+  // なでたカーソル位置（origin）の周辺から湧き上がるエフェクトを発生（機嫌が良いほど華やか、不機嫌時は抑止）
   const triggerPetEffect = useCallback(
     (origin?: Point) => {
+      // 不機嫌（愛撫誘発性攻撃行動中）は好意的なエフェクトを発生させない
+      if (moodLevel === 'annoyed') {
+        setBursts([]);
+        return;
+      }
+
       const now = Date.now();
       // クールダウン以内の連続・重複呼び出しを抑制し、音の再生頻度と1:1で同期
       if (now - lastEffectTimeRef.current < effectiveCooldownMs) {
@@ -190,9 +196,17 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
         </div>
 
         {/* 足元のインタラクションガイドバッジ（機嫌に応じたメッセージ変化） */}
-        <div className="mt-3 px-3 py-1 rounded-full bg-orange-100/80 border border-orange-200/60 text-stone-600 text-xs font-medium tracking-wide flex items-center gap-1.5 shadow-2xs group-hover:bg-orange-200/80 group-hover:text-orange-900 transition-colors">
+        <div
+          className={`mt-3 px-3 py-1 rounded-full border text-xs font-medium tracking-wide flex items-center gap-1.5 shadow-2xs transition-colors ${
+            moodLevel === 'annoyed'
+              ? 'bg-rose-100/90 border-rose-200 text-rose-700'
+              : 'bg-orange-100/80 border-orange-200/60 text-stone-600 group-hover:bg-orange-200/80 group-hover:text-orange-900'
+          }`}
+        >
           <span>
-            {moodLevel === 'ecstatic'
+            {moodLevel === 'annoyed'
+              ? 'なですぎ注意！少し休ませてあげよう'
+              : moodLevel === 'ecstatic'
               ? 'ゴロゴロ…♡（ごきげんMAX）'
               : moodLevel === 'happy'
               ? 'うれしそうになでられています♪'

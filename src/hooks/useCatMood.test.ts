@@ -227,4 +227,135 @@ describe('useCatMood フック (第4週: 猫ごとの機嫌管理)', () => {
       clearIntervalSpy.mockRestore();
     });
   });
+
+  describe('愛撫誘発性攻撃行動 (第5週: 短時間の撫ですぎによる不機嫌化とツンデレ回復)', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('短時間に連続して過剰に撫ですぎると愛撫誘発性攻撃行動が発生し、猫が不機嫌（annoyed）になること', () => {
+      const { result } = renderHook(() =>
+        useCatMood({
+          petIncrement: 10,
+          overstimulationWindowMs: 7000,
+          overstimulationThresholdCount: 6,
+          annoyedDurationMs: 5000,
+        })
+      );
+
+      // 5回撫でる（まだ過剰刺激しきい値未満）
+      for (let i = 0; i < 5; i++) {
+        act(() => {
+          result.current.petCat('black');
+          vi.advanceTimersByTime(500); // 0.5秒おき
+        });
+      }
+
+      // 5回撫でた時点では機嫌が良い (20 + 50 = 70: happy)
+      expect(result.current.getMoodLevelForCat('black')).toBe('happy');
+      expect(result.current.getMoodScore('black')).toBe(70);
+
+      // 6回目のなでなで（7秒間に6回目のストローク -> 過剰刺激発生！）
+      act(() => {
+        result.current.petCat('black');
+      });
+
+      // 愛撫誘発性攻撃行動が発動して不機嫌（annoyed）になる
+      expect(result.current.getMoodLevelForCat('black')).toBe('annoyed');
+      expect(result.current.getMoodScore('black')).toBe(5);
+      expect(result.current.getMoodInfoForCat('black').label).toBe('ごきげんななめ');
+    });
+
+    it('不機嫌（annoyed）状態中にさらに撫でても機嫌は上がらず不機嫌が継続すること（ツン状態）', () => {
+      const { result } = renderHook(() =>
+        useCatMood({
+          overstimulationThresholdCount: 3,
+          overstimulationWindowMs: 5000,
+          annoyedDurationMs: 4000,
+        })
+      );
+
+      // 3回連続撫でで不機嫌にする
+      for (let i = 0; i < 3; i++) {
+        act(() => {
+          result.current.petCat('black');
+          vi.advanceTimersByTime(200);
+        });
+      }
+      expect(result.current.getMoodLevelForCat('black')).toBe('annoyed');
+
+      // 不機嫌中に追加で撫でる
+      act(() => {
+        const petRes = result.current.petCat('black');
+        expect(petRes.nextLevel).toBe('annoyed');
+        expect(petRes.nextScore).toBe(5);
+      });
+
+      expect(result.current.getMoodLevelForCat('black')).toBe('annoyed');
+      expect(result.current.getMoodScore('black')).toBe(5);
+    });
+
+    it('不機嫌になった後、撫でずにそっとしておくと自動的に不機嫌が解けて平常状態（おだやか）に戻ること', () => {
+      const { result } = renderHook(() =>
+        useCatMood({
+          overstimulationThresholdCount: 3,
+          overstimulationWindowMs: 5000,
+          annoyedDurationMs: 4000,
+          decayCheckIntervalMs: 1000,
+        })
+      );
+
+      // 3回連続撫でで不機嫌にする
+      for (let i = 0; i < 3; i++) {
+        act(() => {
+          result.current.petCat('black');
+          vi.advanceTimersByTime(100);
+        });
+      }
+      expect(result.current.getMoodLevelForCat('black')).toBe('annoyed');
+
+      // 3秒経過時点（まだ継続時間4秒以内）
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+      expect(result.current.getMoodLevelForCat('black')).toBe('annoyed');
+
+      // さらに2秒経過（合計5秒経過 -> 4秒の期限を過ぎてインターバルが検知）
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      // 不機嫌が解けて平常（20点・おだやか）に自動回復
+      expect(result.current.getMoodLevelForCat('black')).toBe('normal');
+      expect(result.current.getMoodScore('black')).toBe(20);
+      expect(result.current.getMoodInfoForCat('black').label).toBe('おだやか');
+    });
+
+    it('ゆったりと間隔を空けて撫でた場合は過剰刺激にならず、機嫌がMAXまで上昇すること', () => {
+      const { result } = renderHook(() =>
+        useCatMood({
+          petIncrement: 20,
+          overstimulationThresholdCount: 4,
+          overstimulationWindowMs: 4000, // 4秒ウィンドウ
+          enableDecay: false,
+        })
+      );
+
+      // 3秒以上の十分な間隔を空けて撫でる
+      for (let i = 0; i < 5; i++) {
+        act(() => {
+          result.current.petCat('black');
+          vi.advanceTimersByTime(3500); // 3.5秒間隔
+        });
+      }
+
+      // ウィンドウ内に溜まらないため不機嫌にならず、ecstatic（100%）に達する
+      expect(result.current.getMoodLevelForCat('black')).toBe('ecstatic');
+      expect(result.current.getMoodScore('black')).toBe(100);
+    });
+  });
 });

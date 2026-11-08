@@ -48,6 +48,7 @@ export const CAT_PRESETS: readonly CatPreset[] = [
       'ミャオ！',
     ],
     moodMessages: {
+      annoyed: ['シャーッ！', 'フシャーッ！', 'ウーッ…', 'カッ…！'],
       normal: ['ニャ〜ン♪', 'すりすり…', 'ミャオ！'],
       happy: ['ゴロゴロ…♪', 'にゃあ〜♡', 'すりすり…ゴロゴロ', 'ニャ〜ン♡'],
       ecstatic: ['ゴロゴロゴロ…♡', 'にゃあぁ〜〜♡', 'ンニャ〜〜♡', 'ミャオ〜〜♡'],
@@ -73,6 +74,7 @@ export const CAT_PRESETS: readonly CatPreset[] = [
       'ミャオ〜♡',
     ],
     moodMessages: {
+      annoyed: ['ウニャッ！', 'シャーッ！', 'フシューッ！', 'ウーッ…'],
       normal: ['ふにゃあ…', 'すやぁ…', 'にゃ〜ん♪'],
       happy: ['ゴロゴロ…♪', 'ふにゃあ…♡', 'すりすり…♡', 'ぷるる…♪'],
       ecstatic: ['ふにゃあぁ〜〜♡', 'ゴロゴロゴロ…♡', 'ぐるぐる…♡', 'みゃぁ〜〜ん♡'],

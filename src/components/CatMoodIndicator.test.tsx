@@ -58,5 +58,23 @@ describe('CatMoodIndicator コンポーネント (第4週: ごきげん視覚表
     const fill = screen.getByTestId('mood-gauge-fill');
     expect(fill.style.width).toBe('100%');
   });
+
+  it('ごきげんななめ（annoyed: 撫ですぎ不機嫌）状態のバッジとゲージが正しく表示されること (第5週)', () => {
+    render(
+      <CatMoodIndicator
+        moodScore={5}
+        moodLevel="annoyed"
+        catName="くろねこ"
+      />
+    );
+
+    expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
+    expect(screen.getByText('ごきげんななめ')).toBeInTheDocument();
+    expect(screen.getByText('5%')).toBeInTheDocument();
+    expect(screen.getByText('なですぎてイライラしているよ…！')).toBeInTheDocument();
+
+    const fill = screen.getByTestId('mood-gauge-fill');
+    expect(fill.style.width).toBe('5%');
+  });
 });
 

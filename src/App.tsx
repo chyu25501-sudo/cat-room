@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
 import { useCatMood } from './hooks/useCatMood.ts';
@@ -21,21 +21,22 @@ export default function App() {
   const currentMoodLevel = getMoodLevelForCat(currentCatId);
 
   const handleInteractCat = () => {
-    // 撫でることで選択中の猫の機嫌を上昇
+    // 撫でることで選択中の猫の機嫌を更新（過剰撫で時は愛撫誘発性攻撃により不機嫌になる）
     const { nextLevel } = petCat(currentCatId);
-    const isMoodUpgraded = nextLevel !== currentMoodLevel;
+    const isMoodChanged = nextLevel !== currentMoodLevel;
+    const isAnnoyed = nextLevel === 'annoyed';
 
-    // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生
+    // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生（不機嫌時は低く鋭い威嚇音）
     const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
     const pitch = calculateVariedPitch(basePitch);
     meow({
       pitchMultiplier: pitch,
-      duration: nextLevel === 'ecstatic' ? 0.75 : 0.65,
+      duration: isAnnoyed ? 0.45 : nextLevel === 'ecstatic' ? 0.75 : 0.65,
     });
 
-    // 猫ごと・機嫌レベルに応じた個性あるメッセージを吹き出しに表示（機嫌レベル上昇時は即時反映）
+    // 猫ごと・機嫌レベルに応じた個性あるメッセージを吹き出しに表示（不機嫌突入時・機嫌変化時は即時反映）
     const msg = getMeowMessageForMood(currentPreset, nextLevel);
-    showBubble(msg, { force: isMoodUpgraded });
+    showBubble(msg, { force: isMoodChanged || isAnnoyed });
   };
 
   const handleSwitchCat = () => {
@@ -85,8 +86,18 @@ export default function App() {
         {/* 鳴き声・切り替え吹き出し */}
         <div className="h-14 flex items-center justify-center mb-2 transition-all duration-300">
           {bubbleText ? (
-            <div className="animate-bounce bg-white px-4 py-2 rounded-2xl shadow-md border border-orange-200 text-orange-600 font-bold text-base flex items-center gap-1.5">
-              <Heart className="w-4 h-4 fill-orange-400 text-orange-400" />
+            <div
+              className={`animate-bounce bg-white px-4 py-2 rounded-2xl shadow-md border font-bold text-base flex items-center gap-1.5 ${
+                currentMoodLevel === 'annoyed'
+                  ? 'border-rose-300 text-rose-700'
+                  : 'border-orange-200 text-orange-600'
+              }`}
+            >
+              {currentMoodLevel === 'annoyed' ? (
+                <Zap className="w-4 h-4 fill-rose-500 text-rose-500" />
+              ) : (
+                <Heart className="w-4 h-4 fill-orange-400 text-orange-400" />
+              )}
               <span>{bubbleText}</span>
             </div>
           ) : (

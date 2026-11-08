@@ -7,11 +7,23 @@ export const MAX_MOOD_SCORE = 100;
 /** なでていないときのベースライン機嫌スコア（おだやか） */
 export const DEFAULT_INITIAL_MOOD_SCORE = 20;
 
+/** 不機嫌（愛撫誘発性攻撃行動）時の機嫌スコア */
+export const ANNOYED_MOOD_SCORE = 5;
+
 /** 1回のなでなでで上昇する機嫌スコア */
 export const DEFAULT_PET_MOOD_INCREMENT = 15;
 
 /** 1分あたりの自然減衰スコア（15秒で約1点減衰） */
 export const DEFAULT_DECAY_PER_MINUTE = 4;
+
+/** 過剰刺激（愛撫誘発性攻撃行動）の判定ウィンドウ（ミリ秒）: 7秒間 */
+export const DEFAULT_OVERSTIMULATION_WINDOW_MS = 7000;
+
+/** ウィンドウ内での過剰撫で回数しきい値: 6回 */
+export const DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT = 6;
+
+/** 不機嫌状態の継続時間（ミリ秒）: 5秒間 */
+export const DEFAULT_ANNOYED_DURATION_MS = 5000;
 
 /**
  * 機嫌レベルのしきい値定義
@@ -25,6 +37,14 @@ export const MOOD_THRESHOLDS = {
 } as const;
 
 export const MOOD_INFO_MAP: Record<CatMoodLevel, CatMoodInfo> = {
+  annoyed: {
+    level: 'annoyed',
+    label: 'ごきげんななめ',
+    emoji: '😾',
+    description: 'なですぎてイライラしているよ…！',
+    colorClass: 'text-rose-700',
+    badgeClass: 'bg-rose-100 text-rose-800 border-rose-300',
+  },
   normal: {
     level: 'normal',
     label: 'おだやか',
@@ -52,9 +72,38 @@ export const MOOD_INFO_MAP: Record<CatMoodLevel, CatMoodInfo> = {
 };
 
 /**
- * 機嫌スコア（0〜100）から機嫌レベル（normal / happy / ecstatic）を判定する純粋関数
+ * 現在の時刻と不機嫌期限タイムスタンプから、不機嫌中かどうか判定する純粋関数
  */
-export function getMoodLevel(score: number): CatMoodLevel {
+export function isCatAnnoyed(annoyedUntil: number | undefined, now: number): boolean {
+  if (typeof annoyedUntil !== 'number') {
+    return false;
+  }
+  return now < annoyedUntil;
+}
+
+/**
+ * 直近の撫でタイムスタンプ履歴から過剰刺激（愛撫誘発性攻撃行動）が発生しているか判定する純粋関数
+ */
+export function checkOverstimulation(
+  recentPetTimes: readonly number[],
+  now: number,
+  windowMs: number = DEFAULT_OVERSTIMULATION_WINDOW_MS,
+  thresholdCount: number = DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT
+): boolean {
+  if (!recentPetTimes || recentPetTimes.length < thresholdCount) {
+    return false;
+  }
+  const inWindow = recentPetTimes.filter((t) => now - t >= 0 && now - t <= windowMs);
+  return inWindow.length >= thresholdCount;
+}
+
+/**
+ * 機嫌スコア（0〜100）および不機嫌フラグから機嫌レベルを判定する純粋関数
+ */
+export function getMoodLevel(score: number, isAnnoyed: boolean = false): CatMoodLevel {
+  if (isAnnoyed) {
+    return 'annoyed';
+  }
   if (score >= MOOD_THRESHOLDS.ecstatic) {
     return 'ecstatic';
   }
@@ -118,6 +167,8 @@ export function calculatePitchForMood(
       return Math.round(basePitch * 1.18 * 100) / 100;
     case 'happy':
       return Math.round(basePitch * 1.08 * 100) / 100;
+    case 'annoyed':
+      return Math.round(basePitch * 0.82 * 100) / 100;
     case 'normal':
     default:
       return basePitch;
@@ -154,6 +205,8 @@ export function getParticleCountForMood(
       return 4 + Math.floor(randomFn() * 2); // 4〜5個
     case 'happy':
       return 3 + Math.floor(randomFn() * 2); // 3〜4個
+    case 'annoyed':
+      return 1 + Math.floor(randomFn() * 2); // 1〜2個（怒り・イライラ粒子）
     case 'normal':
     default:
       return 3;

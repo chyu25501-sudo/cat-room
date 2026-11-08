@@ -12,6 +12,7 @@ export const BlackCat: React.FC<CatShapeProps> = ({
 }) => {
   const isEcstatic = moodLevel === 'ecstatic';
   const isHappy = moodLevel === 'happy';
+  const isAnnoyed = moodLevel === 'annoyed';
 
   return (
     <svg
@@ -107,8 +108,17 @@ export const BlackCat: React.FC<CatShapeProps> = ({
         <line x1="148" y1="108" x2="182" y2="116" />
       </g>
 
-      {/* 目（反応時またはごきげんMAX時はにっこり目 ^ ^） */}
-      {isReacting || isEcstatic ? (
+      {/* 目（不機嫌時は吊り目・ジト目、反応時・ごきげんMAX時はにっこり目 ^ ^） */}
+      {isAnnoyed ? (
+        <g stroke="#f87171" strokeWidth="2.6" strokeLinecap="round" fill="none">
+          {/* 左目：吊り上がった鋭いジト目 */}
+          <path d="M 80 96 Q 88 90 96 93" />
+          <path d="M 82 96 L 94 94" />
+          {/* 右目：吊り上がった鋭いジト目 */}
+          <path d="M 114 93 Q 122 90 130 96" />
+          <path d="M 116 94 L 128 96" />
+        </g>
+      ) : isReacting || isEcstatic ? (
         <g stroke={isEcstatic ? '#f59e0b' : '#fbbf24'} strokeWidth="2.8" strokeLinecap="round" fill="none">
           <path d="M 80 94 Q 89 84 98 94" />
           <path d="M 112 94 Q 121 84 130 94" />
@@ -125,8 +135,8 @@ export const BlackCat: React.FC<CatShapeProps> = ({
         </g>
       )}
 
-      {/* ほっぺのほんのり赤らみ（反応時またはごきげん時） */}
-      {(isReacting || isEcstatic || isHappy) && (
+      {/* ほっぺのほんのり赤らみ（平常〜ごきげん時のみ表示、不機嫌時は非表示） */}
+      {!isAnnoyed && (isReacting || isEcstatic || isHappy) && (
         <g fill="#f43f5e" opacity={isReacting ? 0.45 : isEcstatic ? 0.35 : 0.2}>
           <circle cx="72" cy="104" r={isEcstatic ? 8 : 7} />
           <circle cx="138" cy="104" r={isEcstatic ? 8 : 7} />

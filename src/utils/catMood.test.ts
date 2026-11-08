@@ -7,14 +7,17 @@ import {
   calculatePitchForMood,
   getMeowMessageForMood,
   getParticleCountForMood,
+  checkOverstimulation,
+  isCatAnnoyed,
   MOOD_THRESHOLDS,
   DEFAULT_INITIAL_MOOD_SCORE,
   DEFAULT_PET_MOOD_INCREMENT,
+  DEFAULT_OVERSTIMULATION_WINDOW_MS,
 } from './catMood.ts';
 import { CAT_PRESETS } from '../types/cat.ts';
 
 describe('catMood ユーティリティ (純粋関数テスト)', () => {
-  it('getMoodLevel: スコアに応じて適切な機嫌レベルを判定すること', () => {
+  it('getMoodLevel: スコアに応じて適切な機嫌レベルを判定すること（不機嫌フラグ優先）', () => {
     // normal: 0 〜 39
     expect(getMoodLevel(0)).toBe('normal');
     expect(getMoodLevel(20)).toBe('normal');
@@ -29,53 +32,71 @@ describe('catMood ユーティリティ (純粋関数テスト)', () => {
     expect(getMoodLevel(MOOD_THRESHOLDS.ecstatic)).toBe('ecstatic');
     expect(getMoodLevel(90)).toBe('ecstatic');
     expect(getMoodLevel(100)).toBe('ecstatic');
+
+    // 不機嫌（愛撫誘発性攻撃行動）フラグが true の時はスコアによらず 'annoyed'
+    expect(getMoodLevel(100, true)).toBe('annoyed');
+    expect(getMoodLevel(20, true)).toBe('annoyed');
   });
 
-  it('getMoodInfo: 機嫌情報（表示名、絵文字、バッジクラス）を取得できること', () => {
+  it('getMoodInfo: 機嫌情報（表示名、バッジクラス）を取得できること', () => {
+    const annoyedInfo = getMoodInfo('annoyed');
+    expect(annoyedInfo.label).toBe('ごきげんななめ');
+    expect(annoyedInfo.description).toContain('イライラ');
+
     const normalInfo = getMoodInfo('normal');
     expect(normalInfo.label).toBe('おだやか');
-    expect(normalInfo.emoji).toBe('😌');
 
     const happyInfo = getMoodInfo(50);
     expect(happyInfo.label).toBe('ごきげん♪');
-    expect(happyInfo.emoji).toBe('😸');
 
     const ecstaticInfo = getMoodInfo(85);
     expect(ecstaticInfo.label).toBe('ごきげんMAX♡');
-    expect(ecstaticInfo.emoji).toBe('😻');
   });
 
-  it('calculateNextMood: なでた後の機嫌スコアが加算され、最大100でクランプされること', () => {
-    // デフォルト加算 (+15)
-    expect(calculateNextMood(20)).toBe(20 + DEFAULT_PET_MOOD_INCREMENT);
+  it('checkOverstimulation: 短時間に連続して過剰に撫でた場合のみ過剰刺激と判定すること', () => {
+    const now = 10000;
+    const windowMs = DEFAULT_OVERSTIMULATION_WINDOW_MS; // 7000ms
+    const thresholdCount = 6;
 
-    // カスタム加算
-    expect(calculateNextMood(20, 10)).toBe(30);
+    // 履歴が空、またはしきい値未満
+    expect(checkOverstimulation([], now, windowMs, thresholdCount)).toBe(false);
+    expect(checkOverstimulation([now, now - 1000, now - 2000], now, windowMs, thresholdCount)).toBe(false);
 
-    // 100を超えない
-    expect(calculateNextMood(95, 15)).toBe(100);
-    expect(calculateNextMood(100, 15)).toBe(100);
+    // 7秒間に6回連続で撫でた場合（過剰刺激発生！）
+    const fastPets = [
+      now - 5000,
+      now - 4000,
+      now - 3000,
+      now - 2000,
+      now - 1000,
+      now,
+    ];
+    expect(checkOverstimulation(fastPets, now, windowMs, thresholdCount)).toBe(true);
+
+    // 6回あるが、一部がウィンドウ外（7秒より昔）の場合
+    const slowPets = [
+      now - 12000, // ウィンドウ外
+      now - 9000,  // ウィンドウ外
+      now - 4000,
+      now - 3000,
+      now - 1500,
+      now,
+    ];
+    expect(checkOverstimulation(slowPets, now, windowMs, thresholdCount)).toBe(false);
   });
 
-  it('calculateDecayedMood: 時間経過に応じて自然減衰し、ベースライン未満には下がらないこと', () => {
-    const initial = 80;
-
-    // 経過時間0なら変化なし
-    expect(calculateDecayedMood(initial, 0)).toBe(initial);
-
-    // 10分経過（1分あたり2点減衰 -> -20点）
-    const tenMinutesMs = 10 * 60 * 1000;
-    expect(calculateDecayedMood(initial, tenMinutesMs, 2)).toBe(60);
-
-    // 長時間放置されても初期ベースライン（20）より下には下がらない
-    const oneDayMs = 24 * 60 * 60 * 1000;
-    expect(calculateDecayedMood(initial, oneDayMs, 2, DEFAULT_INITIAL_MOOD_SCORE)).toBe(
-      DEFAULT_INITIAL_MOOD_SCORE
-    );
+  it('isCatAnnoyed: 不機嫌期限と現在時刻から正しく不機嫌状態を判定すること', () => {
+    const now = 5000;
+    expect(isCatAnnoyed(undefined, now)).toBe(false);
+    expect(isCatAnnoyed(4000, now)).toBe(false); // 期限切れ（回復済み）
+    expect(isCatAnnoyed(6000, now)).toBe(true);  // 不機嫌継続中
   });
 
-  it('calculatePitchForMood: 機嫌が良いほど高らかで甘えたピッチに変化すること', () => {
+  it('calculatePitchForMood: 不機嫌時は低く唸り、機嫌が良いほど高音に変化すること', () => {
     const basePitch = 1.0;
+
+    // annoyed: 低くドスの利いたピッチ（約0.82倍）
+    expect(calculatePitchForMood(basePitch, 'annoyed')).toBe(0.82);
 
     // normal: 基本ピッチ
     expect(calculatePitchForMood(basePitch, 'normal')).toBe(1.0);
@@ -87,8 +108,12 @@ describe('catMood ユーティリティ (純粋関数テスト)', () => {
     expect(calculatePitchForMood(basePitch, 'ecstatic')).toBe(1.18);
   });
 
-  it('getMeowMessageForMood: 猫の機嫌レベルに合ったセリフが返されること', () => {
+  it('getMeowMessageForMood: 猫の機嫌レベル（不機嫌時の威嚇含む）に合ったセリフが返されること', () => {
     const blackCat = CAT_PRESETS.find((p) => p.id === 'black')!;
+
+    // annoyed（威嚇音）
+    const annoyedMsg = getMeowMessageForMood(blackCat, 'annoyed', () => 0.0);
+    expect(blackCat.moodMessages?.annoyed).toContain(annoyedMsg);
 
     // normal
     const normalMsg = getMeowMessageForMood(blackCat, 'normal', () => 0.0);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Sparkles } from 'lucide-react';
+import { Heart, Sparkles, Zap } from 'lucide-react';
 import { CatMoodLevel } from '../types/mood.ts';
 import { getMoodInfo } from '../utils/catMood.ts';
 
@@ -24,9 +24,11 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
 }) => {
   const info = getMoodInfo(moodLevel);
 
-  // ゲージバーのグラデーションカラー（機嫌が上がるにつれてオレンジ〜ローズ〜ピンクに変化）
+  // ゲージバーのグラデーションカラー（機嫌が上がるにつれてオレンジ〜ローズ〜ピンク、不機嫌時はローズレッド）
   const gaugeGradientClass =
-    moodLevel === 'ecstatic'
+    moodLevel === 'annoyed'
+      ? 'from-rose-500 via-red-500 to-rose-600'
+      : moodLevel === 'ecstatic'
       ? 'from-rose-400 via-pink-400 to-rose-500'
       : moodLevel === 'happy'
       ? 'from-amber-400 via-orange-400 to-amber-500'
@@ -43,6 +45,9 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
           <span className="text-xs font-bold text-stone-700 truncate">
             {catName}のごきげん
           </span>
+          {moodLevel === 'annoyed' && (
+            <Zap className="w-3.5 h-3.5 fill-rose-500 text-rose-500 animate-bounce shrink-0" />
+          )}
           {moodLevel === 'ecstatic' && (
             <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500 animate-pulse shrink-0" />
           )}
