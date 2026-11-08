@@ -16,11 +16,11 @@ export const DEFAULT_PET_MOOD_INCREMENT = 15;
 /** 1分あたりの自然減衰スコア（15秒で約1点減衰） */
 export const DEFAULT_DECAY_PER_MINUTE = 4;
 
-/** 過剰刺激（愛撫誘発性攻撃行動）の判定ウィンドウ（ミリ秒）: 7秒間 */
-export const DEFAULT_OVERSTIMULATION_WINDOW_MS = 7000;
+/** 過剰刺激（愛撫誘発性攻撃行動）の判定ウィンドウ（ミリ秒）: 12秒間 */
+export const DEFAULT_OVERSTIMULATION_WINDOW_MS = 12000;
 
-/** ウィンドウ内での過剰撫で回数しきい値: 6回 */
-export const DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT = 6;
+/** ウィンドウ内での過剰撫で回数しきい値（ごきげんMAXを満喫後、しつこく連続して撫で続けたときに不機嫌になる回数）: 10回 */
+export const DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT = 10;
 
 /** 不機嫌状態の継続時間（ミリ秒）: 5秒間 */
 export const DEFAULT_ANNOYED_DURATION_MS = 5000;

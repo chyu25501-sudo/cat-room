@@ -113,8 +113,8 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
       let currentTime = Date.now();
 
-      // クールダウン（DEFAULT_PET_COOLDOWN_MS = 1000ms）を挟みつつ、過剰刺激監視ウィンドウ（7000ms）内に6回連続で撫でる
-      for (let i = 0; i < 6; i++) {
+      // クールダウン（DEFAULT_PET_COOLDOWN_MS = 1000ms）を挟みつつ、過剰刺激監視ウィンドウ（12000ms）内に10回連続で撫でる
+      for (let i = 0; i < 10; i++) {
         act(() => {
           currentTime += 1050;
           vi.setSystemTime(currentTime);

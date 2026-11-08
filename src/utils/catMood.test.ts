@@ -13,6 +13,7 @@ import {
   DEFAULT_INITIAL_MOOD_SCORE,
   DEFAULT_PET_MOOD_INCREMENT,
   DEFAULT_OVERSTIMULATION_WINDOW_MS,
+  DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT,
 } from './catMood.ts';
 import { CAT_PRESETS } from '../types/cat.ts';
 
@@ -54,16 +55,20 @@ describe('catMood ユーティリティ (純粋関数テスト)', () => {
   });
 
   it('checkOverstimulation: 短時間に連続して過剰に撫でた場合のみ過剰刺激と判定すること', () => {
-    const now = 10000;
-    const windowMs = DEFAULT_OVERSTIMULATION_WINDOW_MS; // 7000ms
-    const thresholdCount = 6;
+    const now = 20000;
+    const windowMs = DEFAULT_OVERSTIMULATION_WINDOW_MS; // 12000ms
+    const thresholdCount = DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT; // 10回
 
     // 履歴が空、またはしきい値未満
     expect(checkOverstimulation([], now, windowMs, thresholdCount)).toBe(false);
     expect(checkOverstimulation([now, now - 1000, now - 2000], now, windowMs, thresholdCount)).toBe(false);
 
-    // 7秒間に6回連続で撫でた場合（過剰刺激発生！）
+    // 12秒間に10回連続で撫でた場合（過剰刺激発生！）
     const fastPets = [
+      now - 9000,
+      now - 8000,
+      now - 7000,
+      now - 6000,
       now - 5000,
       now - 4000,
       now - 3000,
@@ -73,13 +78,17 @@ describe('catMood ユーティリティ (純粋関数テスト)', () => {
     ];
     expect(checkOverstimulation(fastPets, now, windowMs, thresholdCount)).toBe(true);
 
-    // 6回あるが、一部がウィンドウ外（7秒より昔）の場合
+    // 10回あるが、一部がウィンドウ外（12秒より昔）の場合
     const slowPets = [
-      now - 12000, // ウィンドウ外
-      now - 9000,  // ウィンドウ外
+      now - 16000, // ウィンドウ外
+      now - 14000, // ウィンドウ外
+      now - 7000,
+      now - 6000,
+      now - 5000,
       now - 4000,
       now - 3000,
-      now - 1500,
+      now - 2000,
+      now - 1000,
       now,
     ];
     expect(checkOverstimulation(slowPets, now, windowMs, thresholdCount)).toBe(false);
