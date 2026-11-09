@@ -14,6 +14,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     iconType: 'bowl',
     icon: '🥣',
     moodBoost: 18,
+    fullnessBoost: 25,
     eatingMessages: {
       black: ['カリカリ…ニャムニャム♪', 'サクサク…ミャオ！', 'カリッ…カリッ…ゴロゴロ…'],
       white: ['サクサク…ふにゃあ♪', 'カリカリ…クニャ〜♪', 'カリッ…ふにゃ〜ん…'],
@@ -27,6 +28,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     iconType: 'can',
     icon: '🐟',
     moodBoost: 28,
+    fullnessBoost: 35,
     eatingMessages: {
       black: ['ペロペロ…ミャオ〜〜♡', 'ハフハフ…ゴロゴロ…♡', 'ニャムニャム…ンニャ〜♡'],
       white: ['ペロペロ…ふにゃ〜ん♡', 'クニャ〜…ゴロゴロ…♡', 'ニャム…ふにゃぁ〜♡'],
@@ -40,6 +42,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     iconType: 'treat',
     icon: '🍦',
     moodBoost: 38,
+    fullnessBoost: 15,
     eatingMessages: {
       black: ['ペロペロ…！ゴロゴロゴロ…♡', 'ンニャ〜〜…ペロペロ♡', 'ミャ〜〜♡ ゴロゴロ…！'],
       white: ['ペロペロ…ふにゃあぁ〜♡', 'ふにゃ〜〜…ゴロゴロゴロ…', 'クニャ〜ン…ペロペロ…♡'],

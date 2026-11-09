@@ -63,6 +63,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(screen.queryByTestId('food-name-icon-kibble')).not.toBeInTheDocument();
     expect(screen.getByText('定番の総合栄養食')).toBeInTheDocument();
     expect(screen.getByText('+18%')).toBeInTheDocument();
+    expect(screen.getByTestId('food-fullness-boost-kibble')).toHaveTextContent('+25%');
 
     // ねこ缶
     expect(screen.getByText('ねこ缶（まぐろ）')).toBeInTheDocument();
@@ -70,6 +71,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(screen.queryByTestId('food-name-icon-canned')).not.toBeInTheDocument();
     expect(screen.getByText('ジューシーなごちそう')).toBeInTheDocument();
     expect(screen.getByText('+28%')).toBeInTheDocument();
+    expect(screen.getByTestId('food-fullness-boost-canned')).toHaveTextContent('+35%');
 
     // おやつピューレ
     expect(screen.getByText('おやつピューレ')).toBeInTheDocument();
@@ -77,6 +79,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(screen.queryByTestId('food-name-icon-treat')).not.toBeInTheDocument();
     expect(screen.getByText('大好物のとろとろおやつ')).toBeInTheDocument();
     expect(screen.getByText('+38%')).toBeInTheDocument();
+    expect(screen.getByTestId('food-fullness-boost-treat')).toHaveTextContent('+15%');
   });
 
   it('ごはんの「あげる」ボタンをクリックすると、選択したごはんアイテムを引数にonFeedが呼ばれ、サイドバーが閉じること', () => {

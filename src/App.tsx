@@ -3,6 +3,7 @@ import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
 import { useCatMood } from './hooks/useCatMood.ts';
+import { useCatFullness } from './hooks/useCatFullness.ts';
 import { useCatFeeding } from './hooks/useCatFeeding.ts';
 import { useCatPlay } from './hooks/useCatPlay.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
@@ -20,6 +21,7 @@ export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood();
+  const { getFullnessScore, getFullnessLevelForCat, feedCatFullness } = useCatFullness();
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding({ durationMs: 3200 });
   const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
@@ -29,6 +31,8 @@ export default function App() {
 
   const currentMoodScore = getMoodScore(currentCatId);
   const currentMoodLevel = getMoodLevelForCat(currentCatId);
+  const currentFullnessScore = getFullnessScore(currentCatId);
+  const currentFullnessLevel = getFullnessLevelForCat(currentCatId);
 
   const handleInteractCat = () => {
     setLastAction('pet');
@@ -62,6 +66,9 @@ export default function App() {
 
     // ごはんを与えて機嫌を大きく上昇させ、不機嫌も即時解消
     const { nextLevel } = feedCat(currentCatId, food.moodBoost);
+
+    // ごはんを与えてまんぷく度を上昇
+    feedCatFullness(currentCatId, food.fullnessBoost);
 
     // 猫の足元にごはん皿イラストを描画し、お食事中アニメーションを開始
     startFeeding(food);
@@ -149,11 +156,13 @@ export default function App() {
 
       {/* メインアクションエリア */}
       <section className="flex flex-col items-center justify-center my-auto w-full max-w-sm">
-        {/* ごきげんインジケーター（機嫌ゲージ＆ステータスバッジ） */}
+        {/* ごきげん＆まんぷくインジケーター（機嫌・満腹ゲージ＆ステータスバッジ） */}
         <div className="w-full max-w-xs mb-2">
           <CatMoodIndicator
             moodScore={currentMoodScore}
             moodLevel={currentMoodLevel}
+            fullnessScore={currentFullnessScore}
+            fullnessLevel={currentFullnessLevel}
             lastAction={lastAction}
             catName={currentPreset.name}
           />

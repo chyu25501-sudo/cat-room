@@ -113,5 +113,45 @@ describe('CatMoodIndicator コンポーネント (第4週: ごきげん視覚表
     );
     expect(screen.getByText('なでられて嬉しそうにしているよ♪')).toBeInTheDocument();
   });
+
+  it('fullnessScore が渡されたとき、ごきげん度と並んでまんぷく度の数値・ゲージ・バッジが表示されること', () => {
+    render(
+      <CatMoodIndicator
+        moodScore={60}
+        moodLevel="happy"
+        fullnessScore={85}
+        fullnessLevel="full"
+        catName="くろねこ"
+      />
+    );
+
+    // まんぷく度セクションが表示されていること
+    expect(screen.getByTestId('cat-fullness-section')).toBeInTheDocument();
+    expect(screen.getByText('くろねこのまんぷく度')).toBeInTheDocument();
+
+    // 数値とバッジが表示されること
+    expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('85%');
+    expect(screen.getByTestId('fullness-status-badge')).toHaveTextContent('まんぷく♡');
+
+    // ゲージが表示されること
+    const fullnessGauge = screen.getByTestId('fullness-gauge-fill');
+    expect(fullnessGauge.style.width).toBe('85%');
+
+    // ごきげん度も同時に表示されていること
+    expect(screen.getByTestId('mood-score-percentage')).toHaveTextContent('60%');
+    expect(screen.getByTestId('mood-status-badge')).toHaveTextContent('ごきげん♪');
+  });
+
+  it('fullnessScore が未指定のときは、まんぷく度セクションが表示されないこと（後方互換性）', () => {
+    render(
+      <CatMoodIndicator
+        moodScore={50}
+        moodLevel="happy"
+        catName="くろねこ"
+      />
+    );
+
+    expect(screen.queryByTestId('cat-fullness-section')).not.toBeInTheDocument();
+  });
 });
 

@@ -342,5 +342,43 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('画面上にまんぷく度が表示され、ごはんを与えると上昇し、時間経過でごきげん度よりゆっくり減少すること', () => {
+      vi.useFakeTimers();
+      try {
+        localStorage.clear();
+        let currentTime = 1000000;
+        vi.setSystemTime(currentTime);
+
+        render(<App />);
+
+        // 1. 初期状態でまんぷく度が表示されていること
+        expect(screen.getByTestId('cat-fullness-section')).toBeInTheDocument();
+        expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('50%');
+        expect(screen.getByTestId('fullness-status-badge')).toHaveTextContent('ほどよい');
+
+        // 2. カリカリ（満腹度+25%）を与える
+        const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+        fireEvent.click(careButton);
+        const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+        act(() => {
+          fireEvent.click(feedKibbleBtn);
+        });
+
+        // まんぷく度が 50 + 25 = 75% に上昇すること
+        expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('75%');
+
+        // 3. 時間経過によるゆるやかな減少（ごきげん度よりもかなりゆっくり）
+        // 5分（300,000ms）経過:
+        // まんぷく度は 1分に1点減衰 -> 5点減衰して 75 - 5 = 70%
+        act(() => {
+          vi.advanceTimersByTime(300000);
+        });
+
+        expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('70%');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });

@@ -211,11 +211,22 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                         </div>
                       </div>
 
-                      {/* 機嫌上昇バッジ */}
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
-                        <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
-                        +{food.moodBoost}%
-                      </span>
+                      {/* 上昇バッジ群（ごきげん度・まんぷく度） */}
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        {/* 機嫌上昇バッジ */}
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
+                          <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
+                          +{food.moodBoost}%
+                        </span>
+                        {/* まんぷく度上昇バッジ */}
+                        <span
+                          data-testid={`food-fullness-boost-${food.id}`}
+                          className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap"
+                        >
+                          <Utensils className="w-2.5 h-2.5 text-emerald-600" />
+                          +{food.fullnessBoost}%
+                        </span>
+                      </div>
                     </div>
 
                     {/* あげるボタン（食事中・遊び中は無効化） */}

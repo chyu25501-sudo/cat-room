@@ -15,6 +15,8 @@ export interface FoodItem {
   icon: string;
   /** 与えた時のごきげん度上昇値（パーセント） */
   moodBoost: number;
+  /** 与えた時のまんぷく度上昇値（パーセント） */
+  fullnessBoost: number;
   /** 猫の種類ごとのもぐもぐセリフ・鳴き声 */
   eatingMessages: Record<CatId, readonly string[]>;
   /** アイコン背景・バッジ用カラー（Tailwindクラス） */
