@@ -136,7 +136,7 @@ const BallToySvg: React.FC<{ isPlaying?: boolean }> = ({ isPlaying }) => (
 const LaserToySvg: React.FC<{ isPlaying?: boolean }> = ({ isPlaying }) => (
   <svg
     viewBox="0 0 130 70"
-    className="w-28 sm:w-32 h-auto drop-shadow-md select-none"
+    className="w-28 sm:w-32 h-auto drop-shadow-md select-none overflow-visible"
     aria-hidden="true"
     data-testid="laser-toy-svg"
   >
@@ -144,40 +144,76 @@ const LaserToySvg: React.FC<{ isPlaying?: boolean }> = ({ isPlaying }) => (
     <ellipse cx="40" cy="62" rx="20" ry="5" className="fill-stone-400/30" />
     <ellipse cx="102" cy="58" rx="22" ry="4" className="fill-stone-400/20" />
 
-    {/* 赤いレーザー光点（床の上に輝く赤いスポット） */}
-    <g transform="translate(38, 52)">
-      {/* 光の拡散オーラ */}
-      <circle
-        cx="0"
-        cy="0"
-        r={isPlaying ? '16' : '12'}
-        className="fill-rose-500/25 animate-ping"
+    {/* レーザー照射機構全体（手元 95px 35px を軸に左右に光を振る） */}
+    <g
+      className={isPlaying ? 'animate-laser-sweep' : ''}
+      style={{ transformOrigin: '95px 35px' }}
+      data-testid="laser-aim-group"
+    >
+      {/* ポインターからの赤い光線ガイドライン（照射ビーム） */}
+      <line
+        x1="79"
+        y1="39"
+        x2="38"
+        y2="52"
+        className="stroke-rose-500/25 stroke-[2.5]"
       />
-      <circle cx="0" cy="0" r="10" className="fill-rose-500/40" />
-      {/* 核心の鮮やかな赤い光点 */}
-      <circle cx="0" cy="0" r="5" className="fill-rose-600" />
-      <circle cx="0" cy="0" r="2.5" className="fill-white" />
-    </g>
+      <line
+        x1="79"
+        y1="39"
+        x2="38"
+        y2="52"
+        className={`stroke-rose-400/70 stroke-[1.5] stroke-dasharray-[3,3] ${
+          isPlaying ? 'animate-laser-beam' : ''
+        }`}
+      />
 
-    {/* ポインターからの赤い光線ガイドライン */}
-    <line
-      x1="88"
-      y1="34"
-      x2="42"
-      y2="51"
-      className="stroke-rose-400/60 stroke-[1.5] stroke-dasharray-[3,3]"
-    />
+      {/* 赤いレーザー光点（床の上に輝く赤いスポット） */}
+      <g
+        transform="translate(38, 52)"
+        className={isPlaying ? 'animate-laser-dot-pulse' : ''}
+        data-testid="laser-dot-group"
+      >
+        {/* 光の拡散オーラ */}
+        <circle
+          cx="0"
+          cy="0"
+          r={isPlaying ? '16' : '12'}
+          className="fill-rose-500/25 animate-ping"
+        />
+        <circle cx="0" cy="0" r="10" className="fill-rose-500/40" />
+        {/* 核心の鮮やかな赤い光点 */}
+        <circle cx="0" cy="0" r="5" className="fill-rose-600" />
+        <circle cx="0" cy="0" r="2.5" className="fill-white" />
+      </g>
 
-    {/* レーザーポインター本体（シルバー＆ブラックのペン型） */}
-    <g transform="rotate(-20 95 35)">
-      {/* メタリックボディ */}
-      <rect x="80" y="28" width="38" height="10" rx="3" className="fill-slate-700 stroke-slate-800" strokeWidth="1" />
-      {/* メタリックキャップ */}
-      <rect x="76" y="29" width="6" height="8" rx="1.5" className="fill-slate-300 stroke-slate-500" strokeWidth="0.8" />
-      {/* ボタン（赤い照射ボタン） */}
-      <rect x="92" y="26" width="6" height="3" rx="1" className="fill-rose-500 animate-pulse" />
-      {/* クリップ */}
-      <rect x="106" y="27" width="10" height="2" className="fill-slate-400" />
+      {/* レーザーポインター本体（シルバー＆ブラックのペン型） */}
+      <g transform="rotate(-20 95 35)">
+        {/* メタリックボディ */}
+        <rect
+          x="80"
+          y="28"
+          width="38"
+          height="10"
+          rx="3"
+          className="fill-slate-700 stroke-slate-800"
+          strokeWidth="1"
+        />
+        {/* メタリックキャップ */}
+        <rect
+          x="76"
+          y="29"
+          width="6"
+          height="8"
+          rx="1.5"
+          className="fill-slate-300 stroke-slate-500"
+          strokeWidth="0.8"
+        />
+        {/* ボタン（赤い照射ボタン） */}
+        <rect x="92" y="26" width="6" height="3" rx="1" className="fill-rose-500 animate-pulse" />
+        {/* クリップ */}
+        <rect x="106" y="27" width="10" height="2" className="fill-slate-400" />
+      </g>
     </g>
   </svg>
 );

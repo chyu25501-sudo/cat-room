@@ -138,3 +138,76 @@
 .animate-teaser-feather {
   animation: teaserFeatherFlutter 0.85s ease-in-out infinite;
 }
+
+/* レーザーポインターの照射器と光を左右に振るスイープアニメーション（手元軸） */
+@keyframes laserSweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  15% {
+    transform: rotate(-16deg);
+  }
+  28% {
+    transform: rotate(-18deg);
+  }
+  38% {
+    transform: rotate(-12deg);
+  }
+  55% {
+    transform: rotate(14deg);
+  }
+  70% {
+    transform: rotate(18deg);
+  }
+  82% {
+    transform: rotate(8deg);
+  }
+  92% {
+    transform: rotate(-4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* レーザー光点の床上のきらめき・パルス */
+@keyframes laserDotPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  25% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.9);
+    opacity: 0.85;
+  }
+  75% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+/* レーザー光線の微かな明滅 */
+@keyframes laserBeamFlicker {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-laser-sweep {
+  animation: laserSweep 1.6s ease-in-out infinite;
+}
+
+.animate-laser-dot-pulse {
+  animation: laserDotPulse 0.4s ease-in-out infinite;
+}
+
+.animate-laser-beam {
+  animation: laserBeamFlicker 0.25s linear infinite;
+}
