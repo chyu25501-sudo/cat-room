@@ -43,4 +43,19 @@ describe('ToyItemView コンポーネント (おもちゃイラスト描画)', (
     expect(screen.queryByTestId('playing-particles')).not.toBeInTheDocument();
     expect(screen.queryByText('あそび中…♪')).not.toBeInTheDocument();
   });
+
+  it('ねこじゃらしで遊び中のとき、スティックの持ち手軸スイングと先端羽根のパタパタ振りアニメーションが付与されること', () => {
+    const { rerender } = render(<ToyItemView toy={TOY_ITEMS[0]} isPlaying={true} />);
+
+    const stick = screen.getByTestId('teaser-stick-group');
+    const feather = screen.getByTestId('teaser-feather-group');
+
+    expect(stick).toHaveClass('animate-teaser-stick');
+    expect(feather).toHaveClass('animate-teaser-feather');
+
+    // 遊び終了時はアニメーションが外れること
+    rerender(<ToyItemView toy={TOY_ITEMS[0]} isPlaying={false} />);
+    expect(stick).not.toHaveClass('animate-teaser-stick');
+    expect(feather).not.toHaveClass('animate-teaser-feather');
+  });
 });

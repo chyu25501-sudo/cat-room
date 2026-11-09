@@ -86,3 +86,55 @@
 .animate-eating-sway-right {
   animation: sineSwayRight 1.6s ease-in-out infinite;
 }
+
+/* ねこじゃらし全体の素早いスイング振り（根元軸） */
+@keyframes teaserStickWave {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-14deg);
+  }
+  40% {
+    transform: rotate(6deg);
+  }
+  60% {
+    transform: rotate(-10deg);
+  }
+  80% {
+    transform: rotate(4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* ねこじゃらし先端（羽根・鈴）のパタパタ・しなり振動 */
+@keyframes teaserFeatherFlutter {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  15% {
+    transform: rotate(-24deg) scale(1.08);
+  }
+  35% {
+    transform: rotate(20deg) scale(0.95);
+  }
+  55% {
+    transform: rotate(-18deg) scale(1.06);
+  }
+  75% {
+    transform: rotate(14deg) scale(0.97);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.animate-teaser-stick {
+  animation: teaserStickWave 0.85s ease-in-out infinite;
+}
+
+.animate-teaser-feather {
+  animation: teaserFeatherFlutter 0.85s ease-in-out infinite;
+}

@@ -17,51 +17,63 @@ export interface ToyItemViewProps {
 const TeaserToySvg: React.FC<{ isPlaying?: boolean }> = ({ isPlaying }) => (
   <svg
     viewBox="0 0 120 80"
-    className={`w-28 sm:w-32 h-auto drop-shadow-md select-none origin-bottom-right transition-transform duration-300 ${
-      isPlaying ? 'animate-bounce-subtle' : ''
-    }`}
+    className="w-28 sm:w-32 h-auto drop-shadow-md select-none overflow-visible"
     aria-hidden="true"
     data-testid="teaser-toy-svg"
   >
     {/* 床の影 */}
     <ellipse cx="60" cy="72" rx="42" ry="5" className="fill-stone-400/25" />
 
-    {/* スティックの棒（しなやかなプラスチックの柄） */}
-    <path
-      d="M 110 70 Q 75 45 42 28"
-      className="fill-none stroke-amber-600 stroke-[3]"
-      strokeLinecap="round"
-    />
-    <path
-      d="M 110 70 L 100 64"
-      className="fill-none stroke-stone-700 stroke-[4.5]"
-      strokeLinecap="round"
-    />
+    {/* ねこじゃらし本体：持ち手根元（105px 68px）を軸に振る */}
+    <g
+      className={isPlaying ? 'animate-teaser-stick' : ''}
+      style={{ transformOrigin: '105px 68px' }}
+      data-testid="teaser-stick-group"
+    >
+      {/* スティックの棒（しなやかなプラスチックの柄） */}
+      <path
+        d="M 110 70 Q 75 45 42 28"
+        className="fill-none stroke-amber-600 stroke-[3]"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 110 70 L 100 64"
+        className="fill-none stroke-stone-700 stroke-[4.5]"
+        strokeLinecap="round"
+      />
 
-    {/* 接続部の鈴 */}
-    <circle cx="40" cy="27" r="3.5" className="fill-amber-400 stroke-amber-600" strokeWidth="1" />
+      {/* ねこじゃらしの先端（羽根・鈴）：スティックの先端（40px 27px）を軸にパタパタ振る */}
+      <g
+        className={isPlaying ? 'animate-teaser-feather' : ''}
+        style={{ transformOrigin: '40px 27px' }}
+        data-testid="teaser-feather-group"
+      >
+        {/* 接続部の鈴 */}
+        <circle cx="40" cy="27" r="3.5" className="fill-amber-400 stroke-amber-600" strokeWidth="1" />
 
-    {/* ふわふわの羽根群（3色で華やか） */}
-    {/* 中央のピンクの羽根 */}
-    <path
-      d="M 40 27 C 30 18 10 16 6 22 C 16 28 32 30 40 27 Z"
-      className="fill-rose-400 stroke-rose-500"
-      strokeWidth="1"
-    />
-    {/* 上向きのイエローの羽根 */}
-    <path
-      d="M 40 27 C 32 12 18 6 12 10 C 18 20 30 25 40 27 Z"
-      className="fill-amber-300 stroke-amber-400"
-      strokeWidth="1"
-    />
-    {/* 下向きのミントグリーンの羽根 */}
-    <path
-      d="M 40 27 C 28 26 12 34 10 40 C 22 38 34 32 40 27 Z"
-      className="fill-emerald-400 stroke-emerald-500"
-      strokeWidth="1"
-    />
-    {/* ふわふわの毛並みテクスチャ */}
-    <path d="M 22 21 L 28 24 M 20 27 L 27 28 M 24 16 L 30 21" className="stroke-white/70 stroke-[1]" />
+        {/* ふわふわの羽根群（3色で華やか） */}
+        {/* 中央のピンクの羽根 */}
+        <path
+          d="M 40 27 C 30 18 10 16 6 22 C 16 28 32 30 40 27 Z"
+          className="fill-rose-400 stroke-rose-500"
+          strokeWidth="1"
+        />
+        {/* 上向きのイエローの羽根 */}
+        <path
+          d="M 40 27 C 32 12 18 6 12 10 C 18 20 30 25 40 27 Z"
+          className="fill-amber-300 stroke-amber-400"
+          strokeWidth="1"
+        />
+        {/* 下向きのミントグリーンの羽根 */}
+        <path
+          d="M 40 27 C 28 26 12 34 10 40 C 22 38 34 32 40 27 Z"
+          className="fill-emerald-400 stroke-emerald-500"
+          strokeWidth="1"
+        />
+        {/* ふわふわの毛並みテクスチャ */}
+        <path d="M 22 21 L 28 24 M 20 27 L 27 28 M 24 16 L 30 21" className="stroke-white/70 stroke-[1]" />
+      </g>
+    </g>
   </svg>
 );
 
