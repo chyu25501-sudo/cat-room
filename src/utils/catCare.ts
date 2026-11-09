@@ -1,5 +1,6 @@
-import { FoodId, FoodItem, ToyId, ToyItem } from '../types/care.ts';
+import { FoodId, FoodItem, ToyId, ToyItem, LastCareAction } from '../types/care.ts';
 import { CatId } from '../types/cat.ts';
+import { CatMoodLevel } from '../types/mood.ts';
 import { MIN_MOOD_SCORE, MAX_MOOD_SCORE } from './catMood.ts';
 
 /**
@@ -152,5 +153,69 @@ export function getPlayMessage(
  */
 export function calculatePlayedMood(currentScore: number, boost: number): number {
   return Math.max(MIN_MOOD_SCORE, Math.min(MAX_MOOD_SCORE, currentScore + boost));
+}
+
+export interface FootBadgeParams {
+  moodLevel: CatMoodLevel;
+  isEating?: boolean;
+  activeFood?: FoodItem | null;
+  isPlayingToy?: boolean;
+  activeToy?: ToyItem | null;
+  lastAction?: LastCareAction | null;
+}
+
+/**
+ * 猫の足元に表示するインタラクションガイドバッジのメッセージを決定する純粋関数
+ * 直前の動作（ごはん・おもちゃ・なでる）や食事・遊び中ステータスに応じて最適なテキストを生成
+ */
+export function getFootBadgeMessage(params: FootBadgeParams): string {
+  const { moodLevel, isEating, activeFood, isPlayingToy, activeToy, lastAction } = params;
+
+  if (isEating && activeFood) {
+    return `モグモグ…♪（${activeFood.name}をお食事中）`;
+  }
+
+  if (isPlayingToy && activeToy) {
+    return `ワクワク…♪（${activeToy.name}であそび中）`;
+  }
+
+  if (moodLevel === 'annoyed') {
+    return 'なですぎ注意！少し休ませてあげよう';
+  }
+
+  if (lastAction === 'feed') {
+    switch (moodLevel) {
+      case 'ecstatic':
+        return 'お腹いっぱいで大満足…♡（ごきげんMAX）';
+      case 'happy':
+        return '美味しくて満足そうにしています♪';
+      case 'normal':
+      default:
+        return '美味しかったニャ〜（なでてみてね）';
+    }
+  }
+
+  if (lastAction === 'play') {
+    switch (moodLevel) {
+      case 'ecstatic':
+        return '夢中で遊んで大満足…♡（ごきげんMAX）';
+      case 'happy':
+        return '楽しく遊んで満足そうにしています♪';
+      case 'normal':
+      default:
+        return '楽しかったニャ〜（なでてみてね）';
+    }
+  }
+
+  // なでなで（pet）、または未指定（デフォルト）
+  switch (moodLevel) {
+    case 'ecstatic':
+      return 'ゴロゴロ…♡（ごきげんMAX）';
+    case 'happy':
+      return 'うれしそうになでられています♪';
+    case 'normal':
+    default:
+      return 'なでなで（ドラッグ）してふれあう';
+  }
 }
 

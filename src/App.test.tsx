@@ -208,6 +208,10 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByText('43%')).toBeInTheDocument();
         expect(screen.getByText('ごきげん♪')).toBeInTheDocument();
 
+        // ごはんを与えた直後なので「なでられて嬉しそう」ではなく「ごはんを食べて嬉しそうにしているよ♪」が表示されること
+        expect(screen.getByText('ごはんを食べて嬉しそうにしているよ♪')).toBeInTheDocument();
+        expect(screen.queryByText('なでられて嬉しそうにしているよ♪')).not.toBeInTheDocument();
+
         // おやつピューレのイラストが描画されること
         expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
         expect(screen.getByTestId('treat-dish-svg')).toBeInTheDocument();

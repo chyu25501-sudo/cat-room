@@ -8,6 +8,7 @@ import {
   getPlayMessage,
   calculateFedMood,
   calculatePlayedMood,
+  getFootBadgeMessage,
 } from './catCare.ts';
 
 describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関数テスト)', () => {
@@ -156,6 +157,45 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
       expect(calculatePlayedMood(20, 16)).toBe(36);
       expect(calculatePlayedMood(80, 26)).toBe(100);
       expect(calculatePlayedMood(100, 36)).toBe(100);
+    });
+
+    it('getFootBadgeMessage: 食事中・遊び中・直前のアクションに応じて適切な足元メッセージを返すこと', () => {
+      // 1. 食事中
+      expect(
+        getFootBadgeMessage({ moodLevel: 'happy', isEating: true, activeFood: FOOD_ITEMS[0] })
+      ).toBe('モグモグ…♪（カリカリをお食事中）');
+
+      // 2. 遊び中
+      expect(
+        getFootBadgeMessage({ moodLevel: 'happy', isPlayingToy: true, activeToy: TOY_ITEMS[0] })
+      ).toBe('ワクワク…♪（ねこじゃらしであそび中）');
+
+      // 3. 不機嫌中
+      expect(getFootBadgeMessage({ moodLevel: 'annoyed', lastAction: 'feed' })).toBe(
+        'なですぎ注意！少し休ませてあげよう'
+      );
+
+      // 4. ごはん後（feed）
+      expect(getFootBadgeMessage({ moodLevel: 'happy', lastAction: 'feed' })).toBe(
+        '美味しくて満足そうにしています♪'
+      );
+      expect(getFootBadgeMessage({ moodLevel: 'ecstatic', lastAction: 'feed' })).toBe(
+        'お腹いっぱいで大満足…♡（ごきげんMAX）'
+      );
+
+      // 5. おもちゃ後（play）
+      expect(getFootBadgeMessage({ moodLevel: 'happy', lastAction: 'play' })).toBe(
+        '楽しく遊んで満足そうにしています♪'
+      );
+      expect(getFootBadgeMessage({ moodLevel: 'ecstatic', lastAction: 'play' })).toBe(
+        '夢中で遊んで大満足…♡（ごきげんMAX）'
+      );
+
+      // 6. なでなで後（pet）またはデフォルト
+      expect(getFootBadgeMessage({ moodLevel: 'happy', lastAction: 'pet' })).toBe(
+        'うれしそうになでられています♪'
+      );
+      expect(getFootBadgeMessage({ moodLevel: 'normal' })).toBe('なでなで（ドラッグ）してふれあう');
     });
   });
 });

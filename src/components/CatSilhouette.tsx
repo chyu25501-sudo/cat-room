@@ -6,9 +6,10 @@ import { WhiteCat } from './cats/WhiteCat.tsx';
 import { useCatPetting, type PetEventDetail } from '../hooks/useCatPetting.ts';
 import { DEFAULT_PET_COOLDOWN_MS, type Point } from '../utils/stroke.ts';
 import { CatMoodLevel } from '../types/mood.ts';
-import { FoodItem, ToyItem } from '../types/care.ts';
+import { FoodItem, ToyItem, LastCareAction } from '../types/care.ts';
 import { FoodDish } from './care/FoodDish.tsx';
 import { ToyItemView } from './care/ToyItemView.tsx';
+import { getFootBadgeMessage } from '../utils/catCare.ts';
 import {
   generatePetEffectBurst,
   type PetEffectBurst,
@@ -38,6 +39,8 @@ export interface CatSilhouetteProps {
   activeToy?: ToyItem | null;
   /** おもちゃ遊び中アニメーション中かどうか */
   isPlayingToy?: boolean;
+  /** 直前のアクション（なでる・ごはん・おもちゃ） */
+  lastAction?: LastCareAction | null;
   /** 猫をなでた（ドラッグストローク完了）ときのコールバック */
   onPet?: (detail?: PetEventDetail) => void;
   /** なでたと判定する移動距離のしきい値（ピクセル） */
@@ -58,6 +61,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   isEating = false,
   activeToy = null,
   isPlayingToy = false,
+  lastAction = null,
   onPet,
   strokeThreshold,
   cooldownMs,
@@ -236,7 +240,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
           )}
         </div>
 
-        {/* 足元のインタラクションガイドバッジ（機嫌に応じたメッセージ変化） */}
+        {/* 足元のインタラクションガイドバッジ（直前のアクションや機嫌に応じたメッセージ変化） */}
         <div
           className={`mt-3 px-3 py-1 rounded-full border text-xs font-medium tracking-wide flex items-center gap-1.5 shadow-2xs transition-colors ${
             isEating || isPlayingToy
@@ -247,17 +251,14 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
           }`}
         >
           <span>
-            {isEating && activeFood
-              ? `モグモグ…♪（${activeFood.name}をお食事中）`
-              : isPlayingToy && activeToy
-              ? `ワクワク…♪（${activeToy.name}であそび中）`
-              : moodLevel === 'annoyed'
-              ? 'なですぎ注意！少し休ませてあげよう'
-              : moodLevel === 'ecstatic'
-              ? 'ゴロゴロ…♡（ごきげんMAX）'
-              : moodLevel === 'happy'
-              ? 'うれしそうになでられています♪'
-              : 'なでなで（ドラッグ）してふれあう'}
+            {getFootBadgeMessage({
+              moodLevel,
+              isEating,
+              activeFood,
+              isPlayingToy,
+              activeToy,
+              lastAction,
+            })}
           </span>
         </div>
       </button>

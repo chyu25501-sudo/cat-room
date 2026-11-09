@@ -1,13 +1,16 @@
 import React from 'react';
 import { Heart, Sparkles, Zap } from 'lucide-react';
 import { CatMoodLevel } from '../types/mood.ts';
-import { getMoodInfo } from '../utils/catMood.ts';
+import { LastCareAction } from '../types/care.ts';
+import { getMoodInfo, getMoodDescription } from '../utils/catMood.ts';
 
 export interface CatMoodIndicatorProps {
   /** 現在のごきげんスコア（0 〜 100） */
   moodScore: number;
   /** 現在のごきげんレベル */
   moodLevel: CatMoodLevel;
+  /** 直前のアクション（なでる・ごはん・おもちゃ） */
+  lastAction?: LastCareAction | null;
   /** 対象の猫の名称（表示用） */
   catName?: string;
   className?: string;
@@ -19,10 +22,12 @@ export interface CatMoodIndicatorProps {
 export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
   moodScore,
   moodLevel,
+  lastAction = null,
   catName = 'ねこ',
   className = '',
 }) => {
   const info = getMoodInfo(moodLevel);
+  const description = getMoodDescription(moodLevel, lastAction);
 
   // ゲージバーのグラデーションカラー（機嫌が上がるにつれてオレンジ〜ローズ〜ピンク、不機嫌時はローズレッド）
   const gaugeGradientClass =
@@ -85,7 +90,7 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
 
       {/* 下段：現在の状態説明テキスト */}
       <div className="mt-1 flex items-center justify-between text-[11px] text-stone-500">
-        <span className="truncate">{info.description}</span>
+        <span className="truncate">{description}</span>
         <span
           data-testid="mood-score-percentage"
           className="font-semibold text-stone-600 shrink-0 ml-2"

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getMoodLevel,
   getMoodInfo,
+  getMoodDescription,
   calculateNextMood,
   calculateVariedMoodIncrement,
   calculateDecayedMood,
@@ -174,6 +175,27 @@ describe('catMood ユーティリティ (純粋関数テスト)', () => {
     const ecstaticCountMax = getParticleCountForMood('ecstatic', () => 0.9);
     expect(ecstaticCountMin).toBe(4);
     expect(ecstaticCountMax).toBe(5);
+  });
+
+  it('getMoodDescription: 直前のアクション（なでる・ごはん・おもちゃ）に応じて自然な説明文を返すこと', () => {
+    // 1. なでなで後（またはデフォルト）
+    expect(getMoodDescription('happy', 'pet')).toBe('なでられて嬉しそうにしているよ♪');
+    expect(getMoodDescription('ecstatic', 'pet')).toBe('なでなでが大好きで幸せいっぱい♡');
+    expect(getMoodDescription('normal', 'pet')).toBe('まったり落ち着いているよ');
+
+    // 2. ごはん後（feed）
+    expect(getMoodDescription('happy', 'feed')).toBe('ごはんを食べて嬉しそうにしているよ♪');
+    expect(getMoodDescription('ecstatic', 'feed')).toBe('美味しいごはんで幸せいっぱい♡');
+    expect(getMoodDescription('normal', 'feed')).toBe('お腹が落ち着いてまったりしているよ');
+
+    // 3. おもちゃ後（play）
+    expect(getMoodDescription('happy', 'play')).toBe('おもちゃで遊んで嬉しそうにしているよ♪');
+    expect(getMoodDescription('ecstatic', 'play')).toBe('いっぱい遊んで大興奮で幸せいっぱい♡');
+    expect(getMoodDescription('normal', 'play')).toBe('遊んだあとでまったりしているよ');
+
+    // 4. 不機嫌時はアクションによらずイライラ
+    expect(getMoodDescription('annoyed', 'feed')).toBe('なですぎてイライラしているよ…！');
+    expect(getMoodDescription('annoyed', 'play')).toBe('なですぎてイライラしているよ…！');
   });
 });
 

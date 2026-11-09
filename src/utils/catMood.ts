@@ -1,5 +1,6 @@
 import { CatMoodLevel, CatMoodInfo } from '../types/mood.ts';
 import { CatPreset } from '../types/cat.ts';
+import { LastCareAction } from '../types/care.ts';
 
 export const MIN_MOOD_SCORE = 0;
 export const MAX_MOOD_SCORE = 100;
@@ -126,6 +127,53 @@ export function getMoodInfo(scoreOrLevel: number | CatMoodLevel): CatMoodInfo {
   const level: CatMoodLevel =
     typeof scoreOrLevel === 'number' ? getMoodLevel(scoreOrLevel) : scoreOrLevel;
   return MOOD_INFO_MAP[level];
+}
+
+/**
+ * 直前のアクション（なでる・ごはん・おもちゃ）および機嫌レベルに応じた自然な説明文を取得する純粋関数
+ */
+export function getMoodDescription(
+  level: CatMoodLevel,
+  lastAction?: LastCareAction | null
+): string {
+  if (level === 'annoyed') {
+    return 'なですぎてイライラしているよ…！';
+  }
+
+  if (lastAction === 'feed') {
+    switch (level) {
+      case 'ecstatic':
+        return '美味しいごはんで幸せいっぱい♡';
+      case 'happy':
+        return 'ごはんを食べて嬉しそうにしているよ♪';
+      case 'normal':
+      default:
+        return 'お腹が落ち着いてまったりしているよ';
+    }
+  }
+
+  if (lastAction === 'play') {
+    switch (level) {
+      case 'ecstatic':
+        return 'いっぱい遊んで大興奮で幸せいっぱい♡';
+      case 'happy':
+        return 'おもちゃで遊んで嬉しそうにしているよ♪';
+      case 'normal':
+      default:
+        return '遊んだあとでまったりしているよ';
+    }
+  }
+
+  // なでなで（pet）、または未指定（デフォルト）
+  switch (level) {
+    case 'ecstatic':
+      return 'なでなでが大好きで幸せいっぱい♡';
+    case 'happy':
+      return 'なでられて嬉しそうにしているよ♪';
+    case 'normal':
+    default:
+      return 'まったり落ち着いているよ';
+  }
 }
 
 /**

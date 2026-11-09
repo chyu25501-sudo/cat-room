@@ -76,5 +76,42 @@ describe('CatMoodIndicator コンポーネント (第4週: ごきげん視覚表
     const fill = screen.getByTestId('mood-gauge-fill');
     expect(fill.style.width).toBe('5%');
   });
+
+  it('lastAction に応じて下段の説明テキストが自然に変化すること（ごはん後・おもちゃ後）', () => {
+    // 1. ごはん後（happy）: 「なでられて〜」ではなく「ごはんを食べて嬉しそうにしているよ♪」
+    const { rerender } = render(
+      <CatMoodIndicator
+        moodScore={60}
+        moodLevel="happy"
+        catName="くろねこ"
+        lastAction="feed"
+      />
+    );
+    expect(screen.getByText('ごはんを食べて嬉しそうにしているよ♪')).toBeInTheDocument();
+    expect(screen.queryByText('なでられて嬉しそうにしているよ♪')).not.toBeInTheDocument();
+
+    // 2. おもちゃ後（happy）: 「おもちゃで遊んで嬉しそうにしているよ♪」
+    rerender(
+      <CatMoodIndicator
+        moodScore={60}
+        moodLevel="happy"
+        catName="くろねこ"
+        lastAction="play"
+      />
+    );
+    expect(screen.getByText('おもちゃで遊んで嬉しそうにしているよ♪')).toBeInTheDocument();
+    expect(screen.queryByText('なでられて嬉しそうにしているよ♪')).not.toBeInTheDocument();
+
+    // 3. なでなで後（happy）: 「なでられて嬉しそうにしているよ♪」
+    rerender(
+      <CatMoodIndicator
+        moodScore={60}
+        moodLevel="happy"
+        catName="くろねこ"
+        lastAction="pet"
+      />
+    );
+    expect(screen.getByText('なでられて嬉しそうにしているよ♪')).toBeInTheDocument();
+  });
 });
 

@@ -44,3 +44,11 @@ export interface ToyItem {
 
 /** お世話メニューのカテゴリ（第6週: ごはん・おもちゃ） */
 export type CareCategory = 'food' | 'toy';
+
+/**
+ * 直前に行ったお世話・ふれあいのアクション種別
+ * - pet: なでる（ドラッグ）
+ * - feed: ごはんをあげる
+ * - play: おもちゃであそぶ
+ */
+export type LastCareAction = 'pet' | 'feed' | 'play';

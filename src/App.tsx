@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
@@ -14,7 +14,7 @@ import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
 import { getEatingMessage, getPlayMessage } from './utils/catCare.ts';
 import { CatId } from './types/cat.ts';
-import { FoodItem, ToyItem } from './types/care.ts';
+import { FoodItem, ToyItem, LastCareAction } from './types/care.ts';
 
 export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
@@ -24,10 +24,14 @@ export default function App() {
   const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
+  // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
+  const [lastAction, setLastAction] = useState<LastCareAction | null>(null);
+
   const currentMoodScore = getMoodScore(currentCatId);
   const currentMoodLevel = getMoodLevelForCat(currentCatId);
 
   const handleInteractCat = () => {
+    setLastAction('pet');
     // 撫でることで選択中の猫の機嫌を更新（過剰撫で時は愛撫誘発性攻撃により不機嫌になる）
     const { nextLevel } = petCat(currentCatId);
     const isMoodChanged = nextLevel !== currentMoodLevel;
@@ -49,6 +53,9 @@ export default function App() {
   const handleFeed = (food: FoodItem) => {
     // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
     if (isEating || isPlayingToy) return;
+
+    // 直前アクションをごはんに設定
+    setLastAction('feed');
 
     // もし遊んでいる途中なら遊び演出を停止
     stopPlaying();
@@ -76,6 +83,9 @@ export default function App() {
     // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
     if (isEating || isPlayingToy) return;
 
+    // 直前アクションをおもちゃに設定
+    setLastAction('play');
+
     // もし食事中なら食事演出を停止
     stopFeeding();
 
@@ -101,6 +111,7 @@ export default function App() {
   const handleSwitchCat = () => {
     stopFeeding();
     stopPlaying();
+    setLastAction(null);
     switchCat();
     showBubble(`${nextPreset.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
   };
@@ -109,6 +120,7 @@ export default function App() {
     if (id === currentCatId) return;
     stopFeeding();
     stopPlaying();
+    setLastAction(null);
     selectCat(id);
     const target = getCatPresetById(id);
     showBubble(`${target.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
@@ -142,6 +154,7 @@ export default function App() {
           <CatMoodIndicator
             moodScore={currentMoodScore}
             moodLevel={currentMoodLevel}
+            lastAction={lastAction}
             catName={currentPreset.name}
           />
         </div>
@@ -179,6 +192,7 @@ export default function App() {
           isEating={isEating}
           activeToy={activeToy}
           isPlayingToy={isPlayingToy}
+          lastAction={lastAction}
           onPet={handleInteractCat}
         />
       </section>

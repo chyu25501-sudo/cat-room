@@ -270,6 +270,16 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
 
     rerender(<CatSilhouette moodLevel="annoyed" />);
     expect(screen.getByText('なですぎ注意！少し休ませてあげよう')).toBeInTheDocument();
+
+    // 直前アクションがごはん（feed）の場合: 「うれしそうになでられて〜」ではなく「美味しくて満足そうにしています♪」
+    rerender(<CatSilhouette moodLevel="happy" lastAction="feed" />);
+    expect(screen.getByText('美味しくて満足そうにしています♪')).toBeInTheDocument();
+    expect(screen.queryByText('うれしそうになでられています♪')).not.toBeInTheDocument();
+
+    // 直前アクションがおもちゃ（play）の場合: 「楽しく遊んで満足そうにしています♪」
+    rerender(<CatSilhouette moodLevel="happy" lastAction="play" />);
+    expect(screen.getByText('楽しく遊んで満足そうにしています♪')).toBeInTheDocument();
+    expect(screen.queryByText('うれしそうになでられています♪')).not.toBeInTheDocument();
   });
 
   it('activeFood が渡されたとき、猫の足元手前にごはん皿が描画されお食事中メッセージが表示されること (第6週)', () => {
