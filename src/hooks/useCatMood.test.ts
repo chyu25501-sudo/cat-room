@@ -357,5 +357,21 @@ describe('useCatMood フック (第4週: 猫ごとの機嫌管理)', () => {
       expect(result.current.getMoodLevelForCat('black')).toBe('ecstatic');
       expect(result.current.getMoodScore('black')).toBe(100);
     });
+
+    it('デフォルト設定では1回の撫でによる機嫌上昇量が基準値15から±1〜5%ランダムに変動すること', () => {
+      const { result } = renderHook(() => useCatMood({ enableDecay: false }));
+
+      let petRes: { nextScore: number; nextLevel: string; increment: number };
+      act(() => {
+        petRes = result.current.petCat('black');
+      });
+
+      // increment は 10 〜 20 の間
+      expect(petRes!.increment).toBeGreaterThanOrEqual(10);
+      expect(petRes!.increment).toBeLessThanOrEqual(20);
+      // スコアは初期20 + increment (30 〜 40)
+      expect(petRes!.nextScore).toBe(20 + petRes!.increment);
+      expect(result.current.getMoodScore('black')).toBe(petRes!.nextScore);
+    });
   });
 });

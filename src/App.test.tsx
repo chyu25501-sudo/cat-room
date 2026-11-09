@@ -81,12 +81,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
     const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
 
-    // 1回撫でる (20 + 15 = 35%)
+    // 1回撫でる (20 + (10〜20)% = 30〜40% に上昇)
     fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
     fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
     fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
 
-    expect(screen.getByText('35%')).toBeInTheDocument();
+    const updatedScoreElement = screen.getByText(/3[0-9]%|40%/);
+    expect(updatedScoreElement).toBeInTheDocument();
+    const updatedScoreText = updatedScoreElement.textContent!;
 
     // 白猫に切り替える
     const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
@@ -100,9 +102,9 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });
     fireEvent.click(blackRadio);
 
-    // 黒猫の機嫌35%が保持されていること
+    // 黒猫の機嫌スコアが保持されていること
     expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
-    expect(screen.getByText('35%')).toBeInTheDocument();
+    expect(screen.getByText(updatedScoreText)).toBeInTheDocument();
   });
 
   it('短時間に何度も過剰に撫ですぎると愛撫誘発性攻撃行動が発生し、不機嫌（ごきげんななめ）になること (第5週)', () => {

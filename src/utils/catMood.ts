@@ -13,6 +13,12 @@ export const ANNOYED_MOOD_SCORE = 5;
 /** 1回のなでなでで上昇する機嫌スコア */
 export const DEFAULT_PET_MOOD_INCREMENT = 15;
 
+/** 機嫌上昇量のデフォルト変動最小値（-5%） */
+export const DEFAULT_MIN_MOOD_VARIATION = -5;
+
+/** 機嫌上昇量のデフォルト変動最大値（+5%） */
+export const DEFAULT_MAX_MOOD_VARIATION = 5;
+
 /** 1分あたりの自然減衰スコア（15秒で約1点減衰） */
 export const DEFAULT_DECAY_PER_MINUTE = 4;
 
@@ -120,6 +126,25 @@ export function getMoodInfo(scoreOrLevel: number | CatMoodLevel): CatMoodInfo {
   const level: CatMoodLevel =
     typeof scoreOrLevel === 'number' ? getMoodLevel(scoreOrLevel) : scoreOrLevel;
   return MOOD_INFO_MAP[level];
+}
+
+/**
+ * 1回なでたときの機嫌スコア上昇量（基準値15に±1〜5%のランダムな揺らぎを加えた値: 10〜20%）を計算する純粋関数
+ * @param baseIncrement 基準の上昇値（デフォルト: 15）
+ * @param randomFn 乱数生成関数（テスト用注入可能、デフォルト: Math.random）
+ * @param minVariation 変動最小値（デフォルト: -5）
+ * @param maxVariation 変動最大値（デフォルト: 5）
+ * @returns 揺らぎ後の上昇値（最小10 〜 最大20）
+ */
+export function calculateVariedMoodIncrement(
+  baseIncrement: number = DEFAULT_PET_MOOD_INCREMENT,
+  randomFn: () => number = Math.random,
+  minVariation: number = DEFAULT_MIN_MOOD_VARIATION,
+  maxVariation: number = DEFAULT_MAX_MOOD_VARIATION
+): number {
+  const deltaRange = maxVariation - minVariation + 1;
+  const delta = Math.floor(randomFn() * deltaRange) + minVariation;
+  return Math.max(1, baseIncrement + delta);
 }
 
 /**

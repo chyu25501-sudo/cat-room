@@ -12,6 +12,7 @@ import {
   getMoodLevel,
   getMoodInfo,
   calculateNextMood,
+  calculateVariedMoodIncrement,
   calculateDecayedMood,
   checkOverstimulation,
   isCatAnnoyed,
@@ -23,17 +24,19 @@ const STORAGE_KEY = 'nekoppoi_cats_mood';
 export const DEFAULT_DECAY_CHECK_INTERVAL_MS = 2000;
 
 export interface UseCatMoodOptions {
-  /** なでたときの機嫌スコア上昇量 */
+  /** なでたときの機嫌スコア上昇量（基準値、デフォルト: 15） */
   petIncrement?: number;
+  /** なでた際の上昇値に±1〜5%のランダムな揺らぎ（10〜20%）を適用するか（デフォルト: petIncrement未指定時はtrue） */
+  enableVariation?: boolean;
   /** 自然減衰の有効化（未指定時はtrue） */
   enableDecay?: boolean;
   /** 自然減衰の定期チェック間隔ミリ秒（未指定時は2000ms） */
   decayCheckIntervalMs?: number;
   /** 1分あたりの自然減衰量（未指定時は4点） */
   decayPerMinute?: number;
-  /** 愛撫誘発性攻撃（過剰刺激）の監視ウィンドウミリ秒（未指定時は7000ms） */
+  /** 愛撫誘発性攻撃（過剰刺激）の監視ウィンドウミリ秒（未指定時は12000ms） */
   overstimulationWindowMs?: number;
-  /** ウィンドウ内での過剰撫で回数しきい値（未指定時は6回） */
+  /** ウィンドウ内での過剰撫で回数しきい値（未指定時は10回） */
   overstimulationThresholdCount?: number;
   /** 不機嫌状態の継続時間ミリ秒（未指定時は5000ms） */
   annoyedDurationMs?: number;
@@ -49,7 +52,7 @@ export interface UseCatMoodResult {
   /** 指定した猫の機嫌表示情報を取得 */
   getMoodInfoForCat: (catId: CatId) => CatMoodInfo;
   /** 猫をなでて機嫌を上昇させる（撫ですぎ時は愛撫誘発性攻撃により不機嫌になる）関数 */
-  petCat: (catId: CatId) => { nextScore: number; nextLevel: CatMoodLevel };
+  petCat: (catId: CatId) => { nextScore: number; nextLevel: CatMoodLevel; increment: number };
   /** 猫の機嫌を初期状態にリセットする関数 */
   resetMood: (catId: CatId) => void;
 }
@@ -75,6 +78,7 @@ function createDefaultMoods(): CatsMoodMap {
 export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
   const {
     petIncrement = DEFAULT_PET_MOOD_INCREMENT,
+    enableVariation = options.petIncrement === undefined,
     enableDecay = true,
     decayCheckIntervalMs = DEFAULT_DECAY_CHECK_INTERVAL_MS,
     decayPerMinute = DEFAULT_DECAY_PER_MINUTE,
@@ -263,20 +267,27 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
       let nextScore: number;
       let nextLevel: CatMoodLevel;
       let nextAnnoyedUntil: number;
+      let actualIncrement = 0;
 
       // 愛撫誘発性攻撃行動：現在不機嫌中、または短時間の過剰撫で回数がしきい値に達した場合
       if (currentlyAnnoyed || overstimulated) {
         nextScore = ANNOYED_MOOD_SCORE;
         nextLevel = 'annoyed';
         nextAnnoyedUntil = now + annoyedDurationMs;
+        actualIncrement = 0;
       } else {
-        // 通常の機嫌上昇
+        // 通常の機嫌上昇（enableVariation が true の場合は基準値に±1〜5%のランダムな揺らぎを加算）
         const effectiveBase = current.baseScore ?? current.score;
         const currentDecayed = enableDecay
           ? calculateDecayedMood(effectiveBase, now - current.lastPetAt, decayPerMinute)
           : current.score;
 
-        nextScore = calculateNextMood(currentDecayed, petIncrement);
+        const incrementToApply = enableVariation
+          ? calculateVariedMoodIncrement(petIncrement)
+          : petIncrement;
+        actualIncrement = incrementToApply;
+
+        nextScore = calculateNextMood(currentDecayed, incrementToApply);
         nextLevel = getMoodLevel(nextScore, false);
         nextAnnoyedUntil = 0;
       }
@@ -298,10 +309,11 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
       saveToStorage(nextMap);
       setMoods(nextMap);
 
-      return { nextScore, nextLevel };
+      return { nextScore, nextLevel, increment: actualIncrement };
     },
     [
       petIncrement,
+      enableVariation,
       enableDecay,
       decayPerMinute,
       overstimulationWindowMs,

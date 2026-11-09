@@ -3,6 +3,7 @@ import {
   getMoodLevel,
   getMoodInfo,
   calculateNextMood,
+  calculateVariedMoodIncrement,
   calculateDecayedMood,
   calculatePitchForMood,
   getMeowMessageForMood,
@@ -14,6 +15,8 @@ import {
   DEFAULT_PET_MOOD_INCREMENT,
   DEFAULT_OVERSTIMULATION_WINDOW_MS,
   DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT,
+  DEFAULT_MIN_MOOD_VARIATION,
+  DEFAULT_MAX_MOOD_VARIATION,
 } from './catMood.ts';
 import { CAT_PRESETS } from '../types/cat.ts';
 
@@ -135,6 +138,25 @@ describe('catMood ユーティリティ (純粋関数テスト)', () => {
     // ecstatic
     const ecstaticMsg = getMeowMessageForMood(blackCat, 'ecstatic', () => 0.0);
     expect(blackCat.moodMessages?.ecstatic).toContain(ecstaticMsg);
+  });
+
+  it('calculateVariedMoodIncrement: 基準値15から±1〜5%の範囲（10〜20）でランダムに変動すること', () => {
+    // 最小境界（randomFnが0.0のとき: 15 - 5 = 10）
+    expect(calculateVariedMoodIncrement(15, () => 0.0)).toBe(10);
+
+    // 中央値（randomFnが中央付近のとき: 15 + 0 = 15）
+    // range: 11 values (-5 to +5). index 5 is 0. 5/11 ≈ 0.455 ~ 0.545
+    expect(calculateVariedMoodIncrement(15, () => 0.5)).toBe(15);
+
+    // 最大境界（randomFnが0.999のとき: 15 + 5 = 20）
+    expect(calculateVariedMoodIncrement(15, () => 0.999)).toBe(20);
+
+    // デフォルト（Math.random）で実行した場合も常に10〜20の範囲に収まること
+    for (let i = 0; i < 50; i++) {
+      const increment = calculateVariedMoodIncrement();
+      expect(increment).toBeGreaterThanOrEqual(10);
+      expect(increment).toBeLessThanOrEqual(20);
+    }
   });
 
   it('getParticleCountForMood: 機嫌が良いほどエフェクト出現数が増加すること', () => {
