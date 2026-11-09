@@ -54,16 +54,25 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(screen.getByTestId('food-submenu')).toBeInTheDocument();
   });
 
-  it('ごはんの3つの選択肢が表示され、それぞれのごきげん度上昇値が表示されていること', () => {
+  it('ごはんの3つの選択肢が表示され、名前の横のアイコンと説明文、ごきげん度上昇値が表示されていること', () => {
     render(<CareSidebar currentCatName="しろねこ" onFeed={vi.fn()} isOpen={true} />);
 
+    // カリカリ
     expect(screen.getByText('カリカリ')).toBeInTheDocument();
+    expect(screen.getByTestId('food-name-icon-kibble')).toHaveTextContent('🥣');
+    expect(screen.getByText('定番の総合栄養食')).toBeInTheDocument();
     expect(screen.getByText('+18%')).toBeInTheDocument();
 
+    // ねこ缶
     expect(screen.getByText('ねこ缶（まぐろ）')).toBeInTheDocument();
+    expect(screen.getByTestId('food-name-icon-canned')).toHaveTextContent('🐟');
+    expect(screen.getByText('ジューシーなごちそう')).toBeInTheDocument();
     expect(screen.getByText('+28%')).toBeInTheDocument();
 
+    // おやつピューレ
     expect(screen.getByText('おやつピューレ')).toBeInTheDocument();
+    expect(screen.getByTestId('food-name-icon-treat')).toHaveTextContent('🍦');
+    expect(screen.getByText('大好物のとろとろおやつ')).toBeInTheDocument();
     expect(screen.getByText('+38%')).toBeInTheDocument();
   });
 

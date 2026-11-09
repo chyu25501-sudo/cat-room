@@ -11,6 +11,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     name: 'カリカリ',
     subtitle: '定番の総合栄養食',
     iconType: 'bowl',
+    icon: '🥣',
     moodBoost: 18,
     eatingMessages: {
       black: ['カリカリ…ニャムニャム♪', 'サクサク…ミャオ！', 'カリッ…カリッ…ゴロゴロ…'],
@@ -23,6 +24,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     name: 'ねこ缶（まぐろ）',
     subtitle: 'ジューシーなごちそう',
     iconType: 'can',
+    icon: '🐟',
     moodBoost: 28,
     eatingMessages: {
       black: ['ペロペロ…ミャオ〜〜♡', 'ハフハフ…ゴロゴロ…♡', 'ニャムニャム…ンニャ〜♡'],
@@ -35,6 +37,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     name: 'おやつピューレ',
     subtitle: '大好物のとろとろおやつ',
     iconType: 'treat',
+    icon: '🍦',
     moodBoost: 38,
     eatingMessages: {
       black: ['ペロペロ…！ゴロゴロゴロ…♡', 'ンニャ〜〜…ペロペロ♡', 'ミャ〜〜♡ ゴロゴロ…！'],

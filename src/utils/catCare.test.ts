@@ -16,6 +16,11 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
     expect(FOOD_ITEMS[0].moodBoost).toBe(18); // カリカリ
     expect(FOOD_ITEMS[1].moodBoost).toBe(28); // ねこ缶
     expect(FOOD_ITEMS[2].moodBoost).toBe(38); // おやつピューレ
+
+    // それぞれアイコンが設定されていること
+    expect(FOOD_ITEMS[0].icon).toBe('🥣');
+    expect(FOOD_ITEMS[1].icon).toBe('🐟');
+    expect(FOOD_ITEMS[2].icon).toBe('🍦');
   });
 
   it('getFoodById: 指定したIDのごはん情報を正しく取得できること', () => {

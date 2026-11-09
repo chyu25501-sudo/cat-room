@@ -144,16 +144,28 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                     className="relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white hover:border-orange-300 hover:shadow-sm transition-all duration-200"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl" role="img" aria-label={food.name}>
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-amber-50 border border-amber-200 shadow-2xs select-none shrink-0"
+                          role="img"
+                          aria-label={food.name}
+                        >
                           {food.icon}
                         </span>
                         <div>
-                          <h3 className="font-bold text-stone-800 text-sm leading-tight">
-                            {food.name}
+                          <h3 className="font-bold text-stone-800 text-sm leading-tight flex items-center gap-1.5">
+                            <span>{food.name}</span>
+                            <span
+                              data-testid={`food-name-icon-${food.id}`}
+                              className="text-base select-none"
+                              role="img"
+                              aria-hidden="true"
+                            >
+                              {food.icon}
+                            </span>
                           </h3>
                           <p className="text-xs text-stone-500 mt-0.5">
-                            {food.description}
+                            {food.subtitle}
                           </p>
                         </div>
                       </div>

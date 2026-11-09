@@ -11,6 +11,8 @@ export interface FoodItem {
   subtitle: string;
   /** アイコンの種類 */
   iconType: 'bowl' | 'can' | 'treat';
+  /** 表示用絵文字アイコン（例: "🥣", "🐟", "🍦"） */
+  icon: string;
   /** 与えた時のごきげん度上昇値（パーセント） */
   moodBoost: number;
   /** 猫の種類ごとのもぐもぐセリフ・鳴き声 */
