@@ -6,8 +6,9 @@ import { WhiteCat } from './cats/WhiteCat.tsx';
 import { useCatPetting, type PetEventDetail } from '../hooks/useCatPetting.ts';
 import { DEFAULT_PET_COOLDOWN_MS, type Point } from '../utils/stroke.ts';
 import { CatMoodLevel } from '../types/mood.ts';
-import { FoodItem } from '../types/care.ts';
+import { FoodItem, ToyItem } from '../types/care.ts';
 import { FoodDish } from './care/FoodDish.tsx';
+import { ToyItemView } from './care/ToyItemView.tsx';
 import {
   generatePetEffectBurst,
   type PetEffectBurst,
@@ -33,6 +34,10 @@ export interface CatSilhouetteProps {
   activeFood?: FoodItem | null;
   /** 食事中アニメーション中かどうか */
   isEating?: boolean;
+  /** 現在猫が遊んでいるおもちゃ（遊んでいない時はnullまたは未指定） */
+  activeToy?: ToyItem | null;
+  /** おもちゃ遊び中アニメーション中かどうか */
+  isPlayingToy?: boolean;
   /** 猫をなでた（ドラッグストローク完了）ときのコールバック */
   onPet?: (detail?: PetEventDetail) => void;
   /** なでたと判定する移動距離のしきい値（ピクセル） */
@@ -51,6 +56,8 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   moodLevel = 'normal',
   activeFood = null,
   isEating = false,
+  activeToy = null,
+  isPlayingToy = false,
   onPet,
   strokeThreshold,
   cooldownMs,
@@ -192,7 +199,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
         {/* 猫のSVGシルエット表示エリア（猫種切り替え時にも高さが変わらない固定ステージ） */}
         <div
           className={`relative w-64 sm:w-72 h-64 sm:h-72 flex items-end justify-center transition-all duration-300 ${
-            isEating
+            isEating || isPlayingToy
               ? 'scale-105 -translate-y-1'
               : isReacting || isDragging
               ? 'scale-105 -translate-y-1'
@@ -200,7 +207,7 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
           }`}
         >
           <ActiveCatComponent
-            isReacting={isReacting || isDragging || isEating}
+            isReacting={isReacting || isDragging || isEating || isPlayingToy}
             moodLevel={moodLevel}
           />
 
@@ -213,12 +220,22 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
               <FoodDish food={activeFood} isEating={isEating} />
             </div>
           )}
+
+          {/* 遊び中のおもちゃイラスト（猫の足元手前に描画） */}
+          {activeToy && (
+            <div
+              data-testid="active-toy-item"
+              className="absolute -bottom-2 z-20 pointer-events-none drop-shadow-lg"
+            >
+              <ToyItemView toy={activeToy} isPlaying={isPlayingToy} />
+            </div>
+          )}
         </div>
 
         {/* 足元のインタラクションガイドバッジ（機嫌に応じたメッセージ変化） */}
         <div
           className={`mt-3 px-3 py-1 rounded-full border text-xs font-medium tracking-wide flex items-center gap-1.5 shadow-2xs transition-colors ${
-            isEating
+            isEating || isPlayingToy
               ? 'bg-amber-100/90 border-amber-300 text-amber-900'
               : moodLevel === 'annoyed'
               ? 'bg-rose-100/90 border-rose-200 text-rose-700'
@@ -228,6 +245,8 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
           <span>
             {isEating && activeFood
               ? `モグモグ…♪（${activeFood.name}をお食事中）`
+              : isPlayingToy && activeToy
+              ? `ワクワク…♪（${activeToy.name}であそび中）`
               : moodLevel === 'annoyed'
               ? 'なですぎ注意！少し休ませてあげよう'
               : moodLevel === 'ecstatic'

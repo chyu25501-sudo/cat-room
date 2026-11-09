@@ -1,4 +1,4 @@
-import { FoodId, FoodItem } from '../types/care.ts';
+import { FoodId, FoodItem, ToyId, ToyItem } from '../types/care.ts';
 import { CatId } from '../types/cat.ts';
 import { MIN_MOOD_SCORE, MAX_MOOD_SCORE } from './catMood.ts';
 
@@ -77,3 +77,80 @@ export function getEatingMessage(
 export function calculateFedMood(currentScore: number, boost: number): number {
   return Math.max(MIN_MOOD_SCORE, Math.min(MAX_MOOD_SCORE, currentScore + boost));
 }
+
+/**
+ * 選択可能なおもちゃアイテム一覧（3種類）
+ */
+export const TOY_ITEMS: readonly ToyItem[] = [
+  {
+    id: 'teaser',
+    name: 'ねこじゃらし',
+    subtitle: 'ふわふわ羽根で狩猟本能刺激',
+    iconType: 'teaser',
+    icon: '🪶',
+    moodBoost: 16,
+    playMessages: {
+      black: ['カシャカシャ…ニャッ！', 'パシッ！…ミャオ！', 'ウニャ〜！…ササッ！'],
+      white: ['チョイチョイ…ふにゃ♪', 'パシパシ…クニャ！', 'フニャッ！…ゴロゴロ…'],
+    },
+    themeClass: 'from-amber-400 to-yellow-500 text-amber-700 bg-amber-50 border-amber-200',
+  },
+  {
+    id: 'ball',
+    name: '毛糸ボール',
+    subtitle: 'コロコロ転がしてケリケリ',
+    iconType: 'ball',
+    icon: '🧶',
+    moodBoost: 26,
+    playMessages: {
+      black: ['コロコロ…ダダダッ！', 'ケリケリ…ミャオ〜！', 'ガシッ…！ンニャ〜！'],
+      white: ['コロコロ…スチャッ！', 'ケリケリ…ふにゃ〜ん♪', 'トテトテ…クニャ〜♪'],
+    },
+    themeClass: 'from-emerald-400 to-teal-500 text-emerald-700 bg-emerald-50 border-emerald-200',
+  },
+  {
+    id: 'laser',
+    name: 'レーザーポインター',
+    subtitle: 'すばやい光を俊敏に追跡',
+    iconType: 'laser',
+    icon: '🔴',
+    moodBoost: 36,
+    playMessages: {
+      black: ['カカカッ…！', 'シュバッ…！ミャッ！', 'ダダダッ…ンニャ〜〜！'],
+      white: ['ピョンッ！…ふにゃあ！', 'カカッ…クニャ〜ン！', 'バシッ！…ふにゃあぁ！'],
+    },
+    themeClass: 'from-rose-400 to-red-500 text-rose-700 bg-rose-50 border-rose-200',
+  },
+] as const;
+
+/**
+ * IDからおもちゃアイテムを取得する純粋関数
+ */
+export function getToyById(id: ToyId): ToyItem {
+  const item = TOY_ITEMS.find((t) => t.id === id);
+  return item ?? TOY_ITEMS[0];
+}
+
+/**
+ * おもちゃで遊んだときの猫のメッセージを取得する純粋関数
+ */
+export function getPlayMessage(
+  toy: ToyItem,
+  catId: CatId,
+  randomFn: () => number = Math.random
+): string {
+  const list = toy.playMessages[catId] ?? toy.playMessages.black;
+  if (!list || list.length === 0) {
+    return 'ニャッ…！ダダダッ！';
+  }
+  const index = Math.floor(randomFn() * list.length);
+  return list[Math.min(index, list.length - 1)];
+}
+
+/**
+ * おもちゃで遊んだ後の新しい機嫌スコアを計算する純粋関数（0〜100でクランプ）
+ */
+export function calculatePlayedMood(currentScore: number, boost: number): number {
+  return Math.max(MIN_MOOD_SCORE, Math.min(MAX_MOOD_SCORE, currentScore + boost));
+}
+

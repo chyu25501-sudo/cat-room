@@ -437,4 +437,56 @@ describe('useCatMood フック (第4週: 猫ごとの機嫌管理)', () => {
       vi.useRealTimers();
     });
   });
+
+  describe('第6週: おもちゃで遊ぶ機能（playCat）', () => {
+    it('おもちゃで遊ぶと指定したブースト値分機嫌スコアが上昇すること', () => {
+      const { result } = renderHook(() => useCatMood({ enableDecay: false }));
+
+      expect(result.current.getMoodScore('black')).toBe(20);
+
+      act(() => {
+        const playRes = result.current.playCat('black', 26); // 毛糸ボール +26
+        expect(playRes.nextScore).toBe(46);
+        expect(playRes.nextLevel).toBe('happy');
+      });
+
+      expect(result.current.getMoodScore('black')).toBe(46);
+      expect(result.current.getMoodLevelForCat('black')).toBe('happy');
+    });
+
+    it('不機嫌（annoyed）状態でも、おもちゃで遊んであげることで即座に不機嫌が解消されること', () => {
+      vi.useFakeTimers();
+      const { result } = renderHook(() =>
+        useCatMood({
+          overstimulationThresholdCount: 3,
+          overstimulationWindowMs: 5000,
+          annoyedDurationMs: 8000,
+          enableDecay: false,
+        })
+      );
+
+      // 3回素早く撫でて不機嫌にする
+      for (let i = 0; i < 3; i++) {
+        act(() => {
+          result.current.petCat('black');
+        });
+      }
+
+      expect(result.current.getMoodLevelForCat('black')).toBe('annoyed');
+      expect(result.current.getMoodScore('black')).toBe(5);
+
+      // おもちゃ（レーザーポインター: +36）で遊ぶ
+      act(() => {
+        const playRes = result.current.playCat('black', 36);
+        // 5 + 36 = 41 (happy)
+        expect(playRes.nextScore).toBe(41);
+        expect(playRes.nextLevel).toBe('happy');
+      });
+
+      expect(result.current.getMoodLevelForCat('black')).toBe('happy');
+      expect(result.current.getMoodScore('black')).toBe(41);
+
+      vi.useRealTimers();
+    });
+  });
 });

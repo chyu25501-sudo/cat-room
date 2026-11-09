@@ -18,7 +18,7 @@ import {
   checkOverstimulation,
   isCatAnnoyed,
 } from '../utils/catMood.ts';
-import { calculateFedMood } from '../utils/catCare.ts';
+import { calculateFedMood, calculatePlayedMood } from '../utils/catCare.ts';
 
 const STORAGE_KEY = 'nekoppoi_cats_mood';
 
@@ -57,6 +57,8 @@ export interface UseCatMoodResult {
   petCat: (catId: CatId) => { nextScore: number; nextLevel: CatMoodLevel; increment: number };
   /** ごはんを与えて機嫌を大きく上昇させ、不機嫌（愛撫誘発性攻撃行動）を即時解消する関数 */
   feedCat: (catId: CatId, moodBoost: number) => { nextScore: number; nextLevel: CatMoodLevel };
+  /** おもちゃで遊んで機嫌を大きく上昇させ、不機嫌（愛撫誘発性攻撃行動）を即時解消する関数 */
+  playCat: (catId: CatId, moodBoost: number) => { nextScore: number; nextLevel: CatMoodLevel };
   /** 猫の機嫌を初期状態にリセットする関数 */
   resetMood: (catId: CatId) => void;
 }
@@ -373,6 +375,53 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
     [enableDecay, decayPerMinute]
   );
 
+  const playCat = useCallback(
+    (catId: CatId, moodBoost: number) => {
+      const now = Date.now();
+      const current = moodsRef.current[catId] ?? {
+        score: DEFAULT_INITIAL_MOOD_SCORE,
+        baseScore: DEFAULT_INITIAL_MOOD_SCORE,
+        lastPetAt: now,
+        annoyedUntil: 0,
+        recentPetTimes: [],
+      };
+
+      const isAnnoyedNow = isCatAnnoyed(current.annoyedUntil, now);
+      const effectiveBase = isAnnoyedNow
+        ? ANNOYED_MOOD_SCORE
+        : (current.baseScore ?? current.score);
+
+      const currentScore = isAnnoyedNow
+        ? ANNOYED_MOOD_SCORE
+        : (enableDecay
+            ? calculateDecayedMood(effectiveBase, now - current.lastPetAt, decayPerMinute)
+            : current.score);
+
+      const nextScore = calculatePlayedMood(currentScore, moodBoost);
+      const nextLevel = getMoodLevel(nextScore, false);
+
+      const nextItem: CatMoodState = {
+        score: nextScore,
+        baseScore: nextScore,
+        lastPetAt: now,
+        annoyedUntil: 0,
+        recentPetTimes: [],
+      };
+
+      const nextMap: CatsMoodMap = {
+        ...moodsRef.current,
+        [catId]: nextItem,
+      };
+
+      moodsRef.current = nextMap;
+      saveToStorage(nextMap);
+      setMoods(nextMap);
+
+      return { nextScore, nextLevel };
+    },
+    [enableDecay, decayPerMinute]
+  );
+
   const resetMood = useCallback((catId: CatId) => {
     const now = Date.now();
     const nextItem: CatMoodState = {
@@ -398,6 +447,7 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
     getMoodInfoForCat,
     petCat,
     feedCat,
+    playCat,
     resetMood,
   };
 }

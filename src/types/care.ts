@@ -21,5 +21,26 @@ export interface FoodItem {
   themeClass: string;
 }
 
-/** お世話メニューのカテゴリ（第6週: まずはごはん、将来のおもちゃ等にも拡張可能） */
-export type CareCategory = 'food';
+export type ToyId = 'teaser' | 'ball' | 'laser';
+
+export interface ToyItem {
+  /** おもちゃの一意識別子 */
+  id: ToyId;
+  /** おもちゃの名称（例: "ねこじゃらし", "毛糸ボール", "レーザーポインター"） */
+  name: string;
+  /** 簡単な説明やサブタイトル（例: "ふわふわ羽根で狩猟本能刺激"） */
+  subtitle: string;
+  /** アイコンの種類 */
+  iconType: 'teaser' | 'ball' | 'laser';
+  /** 表示用絵文字アイコン（例: "🪶", "🧶", "🔴"） */
+  icon: string;
+  /** 遊んだ時のごきげん度上昇値（パーセント） */
+  moodBoost: number;
+  /** 猫の種類ごとの遊んだときのセリフ・鳴き声・興奮音 */
+  playMessages: Record<CatId, readonly string[]>;
+  /** アイコン背景・バッジ用カラー（Tailwindクラス） */
+  themeClass: string;
+}
+
+/** お世話メニューのカテゴリ（第6週: ごはん・おもちゃ） */
+export type CareCategory = 'food' | 'toy';

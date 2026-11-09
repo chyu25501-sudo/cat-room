@@ -215,5 +215,83 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('お世話ボタンからおもちゃ（ねこじゃらし）を選んで遊ばせると、ごきげん度が上昇し遊びセリフとおもちゃイラストが描画されること', () => {
+      render(<App />);
+
+      const indicator = screen.getByTestId('cat-mood-indicator');
+      expect(within(indicator).getByText('20%')).toBeInTheDocument();
+
+      // お世話ボタンをクリック
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careButton);
+
+      // ねこじゃらし（+16%）であそぶ
+      const playTeaserBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
+      fireEvent.click(playTeaserBtn);
+
+      // サイドバーが即座に閉じる
+      const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
+      expect(sidebar).toHaveClass('translate-x-full');
+
+      // スコアが 20 + 16 = 36% に上昇
+      expect(within(indicator).getByText('36%')).toBeInTheDocument();
+
+      // 猫の手前におもちゃイラストが描画されること
+      expect(screen.getByTestId('active-toy-item')).toBeInTheDocument();
+      expect(screen.getByTestId('teaser-toy-svg')).toBeInTheDocument();
+      expect(screen.getByText('ワクワク…♪（ねこじゃらしであそび中）')).toBeInTheDocument();
+
+      // 吹き出しに黒猫の遊びセリフが表示される
+      expect(
+        screen.getByText(/カシャカシャ…ニャッ！|パシッ！…ミャオ！|ウニャ〜！…ササッ！/)
+      ).toBeInTheDocument();
+    });
+
+    it('撫ですぎで不機嫌になった猫に、おもちゃ（毛糸ボール）で遊んであげると不機嫌が即座に解消されること', () => {
+      vi.useFakeTimers();
+      try {
+        render(<App />);
+
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        let currentTime = Date.now();
+
+        // 10回連続で撫でて不機嫌状態にする
+        for (let i = 0; i < 10; i++) {
+          act(() => {
+            currentTime += 1050;
+            vi.setSystemTime(currentTime);
+            vi.advanceTimersByTime(1050);
+            fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+            fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+            fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          });
+        }
+
+        expect(screen.getByText('ごきげんななめ')).toBeInTheDocument();
+        expect(screen.getByText('5%')).toBeInTheDocument();
+
+        // お世話ボタンを開く
+        const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+        fireEvent.click(careButton);
+
+        // 毛糸ボール（+26%）であそぶ
+        const playBallBtn = screen.getByRole('button', { name: '毛糸ボールであそぶ' });
+        act(() => {
+          fireEvent.click(playBallBtn);
+        });
+
+        // 不機嫌（5%）から 5 + 26 = 31% に回復
+        expect(screen.queryByText('ごきげんななめ')).not.toBeInTheDocument();
+        expect(screen.getByText('31%')).toBeInTheDocument();
+        expect(screen.getByText('おだやか')).toBeInTheDocument();
+
+        // 毛糸ボールのイラストが描画されること
+        expect(screen.getByTestId('active-toy-item')).toBeInTheDocument();
+        expect(screen.getByTestId('ball-toy-svg')).toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });

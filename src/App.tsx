@@ -4,6 +4,7 @@ import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
 import { useCatMood } from './hooks/useCatMood.ts';
 import { useCatFeeding } from './hooks/useCatFeeding.ts';
+import { useCatPlay } from './hooks/useCatPlay.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
@@ -11,15 +12,16 @@ import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
 import { CareSidebar } from './components/care/CareSidebar.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
-import { getEatingMessage } from './utils/catCare.ts';
+import { getEatingMessage, getPlayMessage } from './utils/catCare.ts';
 import { CatId } from './types/cat.ts';
-import { FoodItem } from './types/care.ts';
+import { FoodItem, ToyItem } from './types/care.ts';
 
 export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
-  const { getMoodScore, getMoodLevelForCat, petCat, feedCat } = useCatMood();
+  const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood();
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding({ durationMs: 3200 });
+  const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
   const currentMoodScore = getMoodScore(currentCatId);
@@ -45,6 +47,9 @@ export default function App() {
   };
 
   const handleFeed = (food: FoodItem) => {
+    // もし遊んでいる途中なら遊び演出を停止
+    stopPlaying();
+
     // ごはんを与えて機嫌を大きく上昇させ、不機嫌も即時解消
     const { nextLevel } = feedCat(currentCatId, food.moodBoost);
 
@@ -64,8 +69,32 @@ export default function App() {
     showBubble(msg, { force: true, durationMs: 2600 });
   };
 
+  const handlePlay = (toy: ToyItem) => {
+    // もし食事中なら食事演出を停止
+    stopFeeding();
+
+    // おもちゃで遊んで機嫌を大きく上昇させ、不機嫌も即時解消
+    const { nextLevel } = playCat(currentCatId, toy.moodBoost);
+
+    // 猫の手前におもちゃイラストを描画し、遊び中アニメーションを開始
+    startPlaying(toy);
+
+    // おもちゃに夢中になって興奮した高めの明るい鳴き声
+    const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
+    const pitch = calculateVariedPitch(basePitch * 1.15);
+    meow({
+      pitchMultiplier: pitch,
+      duration: 0.6,
+    });
+
+    // おもちゃの種類と猫種に応じた遊びメッセージを吹き出しに表示
+    const msg = getPlayMessage(toy, currentCatId);
+    showBubble(msg, { force: true, durationMs: 2600 });
+  };
+
   const handleSwitchCat = () => {
     stopFeeding();
+    stopPlaying();
     switchCat();
     showBubble(`${nextPreset.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
   };
@@ -73,6 +102,7 @@ export default function App() {
   const handleSelectCat = (id: CatId) => {
     if (id === currentCatId) return;
     stopFeeding();
+    stopPlaying();
     selectCat(id);
     const target = getCatPresetById(id);
     showBubble(`${target.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
@@ -134,13 +164,15 @@ export default function App() {
           )}
         </div>
 
-        {/* 猫のシルエット（ドラッグ操作でなでる・ごはんのお食事） */}
+        {/* 猫のシルエット（ドラッグ操作でなでる・ごはんのお食事・おもちゃ遊び） */}
         <CatSilhouette
           preset={currentPreset}
           isReacting={isPlaying}
           moodLevel={currentMoodLevel}
           activeFood={activeFood}
           isEating={isEating}
+          activeToy={activeToy}
+          isPlayingToy={isPlayingToy}
           onPet={handleInteractCat}
         />
       </section>
@@ -150,10 +182,11 @@ export default function App() {
         <p>※ 音が出ます。端末の音量を調整してご利用ください。</p>
       </footer>
 
-      {/* お世話サイドバー（画面端のお世話ボタン・ごはんサブメニュー） */}
+      {/* お世話サイドバー（画面端のお世話ボタン・ごはん・おもちゃサブメニュー） */}
       <CareSidebar
         currentCatName={currentPreset.name}
         onFeed={handleFeed}
+        onPlay={handlePlay}
       />
     </main>
   );

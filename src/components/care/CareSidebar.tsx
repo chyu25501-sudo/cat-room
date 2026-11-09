@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2 } from 'lucide-react';
-import { FoodItem } from '../../types/care.ts';
-import { FOOD_ITEMS } from '../../utils/catCare.ts';
+import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2, Sparkles } from 'lucide-react';
+import { FoodItem, ToyItem } from '../../types/care.ts';
+import { FOOD_ITEMS, TOY_ITEMS } from '../../utils/catCare.ts';
 
 export interface CareSidebarProps {
   /** 現在選択されている猫の名前（例: 「くろねこ」） */
   currentCatName: string;
   /** ごはんを選んで与えたときのコールバック */
   onFeed: (food: FoodItem) => void;
+  /** おもちゃを選んで遊ばせたときのコールバック */
+  onPlay: (toy: ToyItem) => void;
   /** サイドバーの開閉状態（制御プロパティ、未指定時は内部ステート） */
   isOpen?: boolean;
   /** 開閉状態が変更されたときのコールバック */
@@ -17,11 +19,13 @@ export interface CareSidebarProps {
 export const CareSidebar: React.FC<CareSidebarProps> = ({
   currentCatName,
   onFeed,
+  onPlay,
   isOpen: controlledIsOpen,
   onToggleOpen,
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [isFoodSubmenuOpen, setIsFoodSubmenuOpen] = useState(true);
+  const [isToySubmenuOpen, setIsToySubmenuOpen] = useState(true);
 
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
 
@@ -36,6 +40,12 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   const handleFeedClick = (food: FoodItem) => {
     onFeed(food);
     // ごはんをあげた直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
+    handleSetOpen(false);
+  };
+
+  const handlePlayClick = (toy: ToyItem) => {
+    onPlay(toy);
+    // おもちゃで遊んだ直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
   };
 
@@ -85,7 +95,7 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                 お世話メニュー
               </h2>
               <p className="text-xs text-stone-500">
-                {currentCatName}にごはんをあげよう
+                {currentCatName}のお世話（ごはん・あそび）
               </p>
             </div>
           </div>
@@ -186,32 +196,95 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
             )}
           </section>
 
-          {/* 今後実装予定のカテゴリ（おもちゃ・予告プレースホルダー） */}
-          <section className="bg-stone-50/60 border border-stone-200/80 rounded-2xl p-3.5 opacity-60">
-            <div className="flex items-center justify-between">
+          {/* お世話カテゴリ: おもちゃ（あそぶ） */}
+          <section className="bg-stone-50 border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
+            {/* カテゴリ開閉トグルボタン */}
+            <button
+              type="button"
+              onClick={() => setIsToySubmenuOpen((prev) => !prev)}
+              aria-expanded={isToySubmenuOpen}
+              className="w-full flex items-center justify-between p-3.5 bg-white hover:bg-amber-50/50 transition-colors text-left cursor-pointer border-b border-stone-100"
+            >
               <div className="flex items-center gap-2.5">
-                <span className="p-1.5 bg-stone-200 text-stone-500 rounded-lg">
-                  <Gamepad2 className="w-4 h-4" />
+                <span className="text-xl" role="img" aria-label="おもちゃ">
+                  🎾
                 </span>
                 <div>
-                  <span className="font-bold text-stone-600 text-sm block">
+                  <span className="font-bold text-stone-800 text-sm block">
                     おもちゃであそぶ
                   </span>
                   <span className="text-xs text-stone-400">
-                    じゃらし・ボール（準備中）
+                    選んでごきげん度アップ
                   </span>
                 </div>
               </div>
-              <span className="text-xs px-2 py-0.5 bg-stone-200 text-stone-600 rounded-full font-medium">
-                Soon
+              <span className="text-stone-400">
+                {isToySubmenuOpen ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
+                  <ChevronDown className="w-5 h-5" />
+                )}
               </span>
-            </div>
+            </button>
+
+            {/* おもちゃサブメニュー（選択肢一覧） */}
+            {isToySubmenuOpen && (
+              <div
+                data-testid="toy-submenu"
+                className="p-3 space-y-2.5 bg-gradient-to-b from-stone-50 to-amber-50/30"
+              >
+                {TOY_ITEMS.map((toy) => (
+                  <div
+                    key={toy.id}
+                    className="relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white hover:border-amber-300 hover:shadow-sm transition-all duration-200"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          data-testid={`toy-badge-icon-${toy.id}`}
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-amber-50 border border-amber-200 shadow-2xs select-none shrink-0"
+                          role="img"
+                          aria-label={toy.name}
+                        >
+                          {toy.icon}
+                        </span>
+                        <div>
+                          <h3 className="font-bold text-stone-800 text-sm leading-tight">
+                            {toy.name}
+                          </h3>
+                          <p className="text-xs text-stone-500 mt-0.5">
+                            {toy.subtitle}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 機嫌上昇バッジ */}
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
+                        <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
+                        +{toy.moodBoost}%
+                      </span>
+                    </div>
+
+                    {/* あそぶボタン */}
+                    <button
+                      type="button"
+                      onClick={() => handlePlayClick(toy)}
+                      aria-label={`${toy.name}であそぶ`}
+                      className="mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white active:scale-98 shadow-xs"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>あそぶ</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </div>
 
         {/* サイドバーフッター */}
         <div className="p-3 border-t border-stone-200 bg-stone-50 text-center text-xs text-stone-400">
-          💡 ごはんをあげると不機嫌もなおります♪
+          💡 ごはんやおもちゃでごきげん度アップ＆不機嫌もなおります♪
         </div>
       </aside>
     </>

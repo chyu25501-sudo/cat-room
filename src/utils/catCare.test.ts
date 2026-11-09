@@ -1,9 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import {
   FOOD_ITEMS,
+  TOY_ITEMS,
   getFoodById,
+  getToyById,
   getEatingMessage,
+  getPlayMessage,
   calculateFedMood,
+  calculatePlayedMood,
 } from './catCare.ts';
 
 describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関数テスト)', () => {
@@ -84,5 +88,74 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
 
     // 100 + 28 = 100
     expect(calculateFedMood(100, 28)).toBe(100);
+  });
+
+  describe('おもちゃ純粋関数テスト', () => {
+    it('TOY_ITEMS に3種類のおもちゃ（ねこじゃらし、毛糸ボール、レーザーポインター）が定義されていること', () => {
+      expect(TOY_ITEMS).toHaveLength(3);
+      const ids = TOY_ITEMS.map((t) => t.id);
+      expect(ids).toEqual(['teaser', 'ball', 'laser']);
+
+      // ブースト値
+      expect(TOY_ITEMS[0].moodBoost).toBe(16);
+      expect(TOY_ITEMS[1].moodBoost).toBe(26);
+      expect(TOY_ITEMS[2].moodBoost).toBe(36);
+
+      // アイコン
+      expect(TOY_ITEMS[0].icon).toBe('🪶');
+      expect(TOY_ITEMS[1].icon).toBe('🧶');
+      expect(TOY_ITEMS[2].icon).toBe('🔴');
+    });
+
+    it('getToyById: 指定したIDのおもちゃ情報を正しく取得できること', () => {
+      const teaser = getToyById('teaser');
+      expect(teaser.name).toBe('ねこじゃらし');
+
+      const ball = getToyById('ball');
+      expect(ball.name).toBe('毛糸ボール');
+
+      const laser = getToyById('laser');
+      expect(laser.name).toBe('レーザーポインター');
+
+      // @ts-expect-error テスト用不正ID
+      const fallback = getToyById('unknown');
+      expect(fallback.id).toBe('teaser');
+    });
+
+    it('getPlayMessage: 猫の種類に応じた遊びメッセージが返されること', () => {
+      const teaser = getToyById('teaser');
+
+      const blackMsg = getPlayMessage(teaser, 'black', () => 0.0);
+      expect(teaser.playMessages.black).toContain(blackMsg);
+
+      const whiteMsg = getPlayMessage(teaser, 'white', () => 0.0);
+      expect(teaser.playMessages.white).toContain(whiteMsg);
+    });
+
+    it('すべてのおもちゃメッセージが人間の言語（たのしい等）を含まず、猫の鳴き声・擬音・狩猟音であること', () => {
+      const forbiddenPhrases = [
+        'たのしい',
+        'うれしい',
+        'おもしろい',
+        '遊んで',
+        'もっと',
+      ];
+
+      for (const toy of TOY_ITEMS) {
+        for (const catId of ['black', 'white'] as const) {
+          for (const msg of toy.playMessages[catId]) {
+            for (const phrase of forbiddenPhrases) {
+              expect(msg).not.toContain(phrase);
+            }
+          }
+        }
+      }
+    });
+
+    it('calculatePlayedMood: 遊んだ際にごきげん度が加算され、上限100でクランプされること', () => {
+      expect(calculatePlayedMood(20, 16)).toBe(36);
+      expect(calculatePlayedMood(80, 26)).toBe(100);
+      expect(calculatePlayedMood(100, 36)).toBe(100);
+    });
   });
 });

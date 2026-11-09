@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { CatSilhouette } from './CatSilhouette.tsx';
 import { CAT_PRESETS } from '../types/cat.ts';
-import { FOOD_ITEMS } from '../utils/catCare.ts';
+import { FOOD_ITEMS, TOY_ITEMS } from '../utils/catCare.ts';
 
 describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操作)', () => {
   it('デフォルトで黒猫のシルエットが表示され、ドラッグ操作でなでられること', () => {
@@ -279,6 +279,15 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
     expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
     expect(screen.getByTestId('kibble-dish-svg')).toBeInTheDocument();
     expect(screen.getByText('モグモグ…♪（カリカリをお食事中）')).toBeInTheDocument();
+  });
+
+  it('activeToy が渡されたとき、猫の足元手前におもちゃが描画されあそび中メッセージが表示されること (第6週)', () => {
+    const teaser = TOY_ITEMS[0];
+    render(<CatSilhouette activeToy={teaser} isPlayingToy={true} />);
+
+    expect(screen.getByTestId('active-toy-item')).toBeInTheDocument();
+    expect(screen.getByTestId('teaser-toy-svg')).toBeInTheDocument();
+    expect(screen.getByText('ワクワク…♪（ねこじゃらしであそび中）')).toBeInTheDocument();
   });
 });
 

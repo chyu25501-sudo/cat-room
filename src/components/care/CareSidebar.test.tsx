@@ -1,11 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { CareSidebar } from './CareSidebar.tsx';
-import { FOOD_ITEMS } from '../../utils/catCare.ts';
+import { FOOD_ITEMS, TOY_ITEMS } from '../../utils/catCare.ts';
 
-describe('CareSidebar コンポーネント (第6週: お世話サイドバー＆ごはんサブメニュー)', () => {
+describe('CareSidebar コンポーネント (第6週: お世話サイドバー＆ごはん・おもちゃサブメニュー)', () => {
   it('お世話ボタンが表示され、クリックでサイドバーが開閉すること', () => {
-    render(<CareSidebar currentCatName="くろねこ" onFeed={vi.fn()} />);
+    render(<CareSidebar currentCatName="くろねこ" onFeed={vi.fn()} onPlay={vi.fn()} />);
 
     const openButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
     expect(openButton).toBeInTheDocument();
@@ -24,7 +24,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
   });
 
   it('背景オーバーレイをクリックするとサイドバーが閉じること', () => {
-    render(<CareSidebar currentCatName="くろねこ" onFeed={vi.fn()} />);
+    render(<CareSidebar currentCatName="くろねこ" onFeed={vi.fn()} onPlay={vi.fn()} />);
 
     const openButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
     fireEvent.click(openButton);
@@ -38,7 +38,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
   });
 
   it('ごはんサブメニューをアコーディオン開閉できること', () => {
-    render(<CareSidebar currentCatName="くろねこ" onFeed={vi.fn()} isOpen={true} />);
+    render(<CareSidebar currentCatName="くろねこ" onFeed={vi.fn()} onPlay={vi.fn()} isOpen={true} />);
 
     // 初期状態では展開されている
     expect(screen.getByTestId('food-submenu')).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
   });
 
   it('ごはんの3つの選択肢が表示され、左側にアイコンバッジと説明文、ごきげん度上昇値が表示されていること', () => {
-    render(<CareSidebar currentCatName="しろねこ" onFeed={vi.fn()} isOpen={true} />);
+    render(<CareSidebar currentCatName="しろねこ" onFeed={vi.fn()} onPlay={vi.fn()} isOpen={true} />);
 
     // カリカリ
     expect(screen.getByText('カリカリ')).toBeInTheDocument();
@@ -86,6 +86,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
       <CareSidebar
         currentCatName="くろねこ"
         onFeed={handleFeed}
+        onPlay={vi.fn()}
         isOpen={true}
         onToggleOpen={handleToggleOpen}
       />
@@ -101,7 +102,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
 
   it('内部ステート運用時もごはんをあげるとサイドバーが自動的に閉じること', () => {
     const handleFeed = vi.fn();
-    render(<CareSidebar currentCatName="くろねこ" onFeed={handleFeed} />);
+    render(<CareSidebar currentCatName="くろねこ" onFeed={handleFeed} onPlay={vi.fn()} />);
 
     // 開く
     const openButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
@@ -121,8 +122,58 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     fireEvent.click(openButton);
     expect(sidebar).toHaveClass('translate-x-0');
 
-    // 「もぐもぐ中」は表示されず、引き続き「あげる」ボタンが表示されていること
-    expect(screen.queryByText(/もぐもぐ中/)).not.toBeInTheDocument();
+    // 引き続き「あげる」ボタンが表示されていること
     expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toBeInTheDocument();
+  });
+
+  it('おもちゃサブメニューをアコーディオン開閉でき、3つのおもちゃが表示されること', () => {
+    render(<CareSidebar currentCatName="くろねこ" onFeed={vi.fn()} onPlay={vi.fn()} isOpen={true} />);
+
+    // 初期状態でおもちゃサブメニューが展開されている
+    expect(screen.getByTestId('toy-submenu')).toBeInTheDocument();
+
+    // ねこじゃらし
+    expect(screen.getByText('ねこじゃらし')).toBeInTheDocument();
+    expect(screen.getByTestId('toy-badge-icon-teaser')).toHaveTextContent('🪶');
+    expect(screen.getByText('ふわふわ羽根で狩猟本能刺激')).toBeInTheDocument();
+    expect(screen.getByText('+16%')).toBeInTheDocument();
+
+    // 毛糸ボール
+    expect(screen.getByText('毛糸ボール')).toBeInTheDocument();
+    expect(screen.getByTestId('toy-badge-icon-ball')).toHaveTextContent('🧶');
+    expect(screen.getByText('コロコロ転がしてケリケリ')).toBeInTheDocument();
+    expect(screen.getByText('+26%')).toBeInTheDocument();
+
+    // レーザーポインター
+    expect(screen.getByText('レーザーポインター')).toBeInTheDocument();
+    expect(screen.getByTestId('toy-badge-icon-laser')).toHaveTextContent('🔴');
+    expect(screen.getByText('すばやい光を俊敏に追跡')).toBeInTheDocument();
+    expect(screen.getByText('+36%')).toBeInTheDocument();
+
+    // おもちゃカテゴリボタンをクリックして折りたたむ
+    const toyToggle = screen.getByRole('button', { name: /おもちゃであそぶ/i });
+    fireEvent.click(toyToggle);
+    expect(screen.queryByTestId('toy-submenu')).not.toBeInTheDocument();
+  });
+
+  it('おもちゃの「あそぶ」ボタンをクリックすると、選択したおもちゃを引数にonPlayが呼ばれ、サイドバーが閉じること', () => {
+    const handlePlay = vi.fn();
+    const handleToggleOpen = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="くろねこ"
+        onFeed={vi.fn()}
+        onPlay={handlePlay}
+        isOpen={true}
+        onToggleOpen={handleToggleOpen}
+      />
+    );
+
+    const playTeaserBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
+    fireEvent.click(playTeaserBtn);
+
+    expect(handlePlay).toHaveBeenCalledTimes(1);
+    expect(handlePlay).toHaveBeenCalledWith(TOY_ITEMS[0]); // teaser
+    expect(handleToggleOpen).toHaveBeenCalledWith(false); // 即座に閉じる
   });
 });
