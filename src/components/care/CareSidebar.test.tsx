@@ -104,5 +104,13 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
 
     // 即座に閉じる
     expect(sidebar).toHaveClass('translate-x-full');
+
+    // 再度サイドバーを開く
+    fireEvent.click(openButton);
+    expect(sidebar).toHaveClass('translate-x-0');
+
+    // 「もぐもぐ中」は表示されず、引き続き「あげる」ボタンが表示されていること
+    expect(screen.queryByText(/もぐもぐ中/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toBeInTheDocument();
   });
 });

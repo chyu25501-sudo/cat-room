@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Utensils, X, ChevronDown, ChevronUp, Sparkles, Heart, Gamepad2 } from 'lucide-react';
+import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2 } from 'lucide-react';
 import { FoodItem } from '../../types/care.ts';
 import { FOOD_ITEMS } from '../../utils/catCare.ts';
 
@@ -22,7 +22,6 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [isFoodSubmenuOpen, setIsFoodSubmenuOpen] = useState(true);
-  const [lastFedFoodId, setLastFedFoodId] = useState<string | null>(null);
 
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
 
@@ -35,7 +34,6 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   };
 
   const handleFeedClick = (food: FoodItem) => {
-    setLastFedFoodId(food.id);
     onFeed(food);
     // ごはんをあげた直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
@@ -140,65 +138,45 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                 data-testid="food-submenu"
                 className="p-3 space-y-2.5 bg-gradient-to-b from-stone-50 to-amber-50/30"
               >
-                {FOOD_ITEMS.map((food) => {
-                  const isJustFed = lastFedFoodId === food.id;
-                  return (
-                    <div
-                      key={food.id}
-                      className={`relative flex flex-col p-3 rounded-xl border bg-white transition-all duration-200 ${
-                        isJustFed
-                          ? 'border-emerald-400 ring-2 ring-emerald-300 shadow-md scale-[1.02]'
-                          : 'border-stone-200 hover:border-orange-300 hover:shadow-sm'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl" role="img" aria-label={food.name}>
-                            {food.icon}
-                          </span>
-                          <div>
-                            <h3 className="font-bold text-stone-800 text-sm leading-tight">
-                              {food.name}
-                            </h3>
-                            <p className="text-xs text-stone-500 mt-0.5">
-                              {food.description}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* 機嫌上昇バッジ */}
-                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
-                          <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
-                          +{food.moodBoost}%
+                {FOOD_ITEMS.map((food) => (
+                  <div
+                    key={food.id}
+                    className="relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white hover:border-orange-300 hover:shadow-sm transition-all duration-200"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl" role="img" aria-label={food.name}>
+                          {food.icon}
                         </span>
+                        <div>
+                          <h3 className="font-bold text-stone-800 text-sm leading-tight">
+                            {food.name}
+                          </h3>
+                          <p className="text-xs text-stone-500 mt-0.5">
+                            {food.description}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* あげるボタン */}
-                      <button
-                        type="button"
-                        onClick={() => handleFeedClick(food)}
-                        aria-label={`${food.name}をあげる`}
-                        className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer ${
-                          isJustFed
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs'
-                        }`}
-                      >
-                        {isJustFed ? (
-                          <>
-                            <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                            <span>もぐもぐ中…♪</span>
-                          </>
-                        ) : (
-                          <>
-                            <Utensils className="w-3.5 h-3.5" />
-                            <span>あげる</span>
-                          </>
-                        )}
-                      </button>
+                      {/* 機嫌上昇バッジ */}
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
+                        <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
+                        +{food.moodBoost}%
+                      </span>
                     </div>
-                  );
-                })}
+
+                    {/* あげるボタン */}
+                    <button
+                      type="button"
+                      onClick={() => handleFeedClick(food)}
+                      aria-label={`${food.name}をあげる`}
+                      className="mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs"
+                    >
+                      <Utensils className="w-3.5 h-3.5" />
+                      <span>あげる</span>
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </section>
