@@ -10,6 +10,12 @@ export interface CareSidebarProps {
   onFeed: (food: FoodItem) => void;
   /** おもちゃを選んで遊ばせたときのコールバック */
   onPlay: (toy: ToyItem) => void;
+  /** 食事中アニメーション中かどうか */
+  isEating?: boolean;
+  /** おもちゃ遊び中アニメーション中かどうか */
+  isPlayingToy?: boolean;
+  /** 食事中または遊び中など、お世話アクションが実行不可かどうか（未指定時は isEating || isPlayingToy） */
+  isBusy?: boolean;
   /** サイドバーの開閉状態（制御プロパティ、未指定時は内部ステート） */
   isOpen?: boolean;
   /** 開閉状態が変更されたときのコールバック */
@@ -20,6 +26,9 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   currentCatName,
   onFeed,
   onPlay,
+  isEating = false,
+  isPlayingToy = false,
+  isBusy: controlledIsBusy,
   isOpen: controlledIsOpen,
   onToggleOpen,
 }) => {
@@ -28,6 +37,7 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   const [isToySubmenuOpen, setIsToySubmenuOpen] = useState(true);
 
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+  const isBusy = controlledIsBusy !== undefined ? controlledIsBusy : (isEating || isPlayingToy);
 
   const handleSetOpen = (open: boolean) => {
     if (onToggleOpen) {
@@ -38,12 +48,16 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   };
 
   const handleFeedClick = (food: FoodItem) => {
+    // 食事中または遊び中は選択不可
+    if (isBusy) return;
     onFeed(food);
     // ごはんをあげた直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
   };
 
   const handlePlayClick = (toy: ToyItem) => {
+    // 食事中または遊び中は選択不可
+    if (isBusy) return;
     onPlay(toy);
     // おもちゃで遊んだ直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
@@ -111,6 +125,28 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
 
         {/* サイドバーメインコンテンツ（スクロール可能） */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* 食事中または遊び中の案内バナー（現在はお世話アクションを受け付けない状態であることを明示） */}
+          {isBusy && (
+            <div
+              data-testid="care-busy-banner"
+              className="p-3 rounded-xl bg-amber-100/90 border border-amber-300 text-amber-900 text-xs font-bold flex items-center gap-2.5 animate-in fade-in shadow-2xs"
+            >
+              <span className="text-xl select-none shrink-0" role="img" aria-label={isEating ? '食事中' : 'あそび中'}>
+                {isEating ? '🥣' : '🎾'}
+              </span>
+              <div className="leading-tight">
+                <p className="font-bold">
+                  {isEating
+                    ? `${currentCatName}がお食事中です♪`
+                    : `${currentCatName}がおもちゃであそび中です♪`}
+                </p>
+                <p className="text-[11px] text-amber-800/80 font-normal mt-0.5">
+                  食べ終わる／遊び終わるまでお待ちください
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* お世話カテゴリ: ごはん（食事） */}
           <section className="bg-stone-50 border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
             {/* カテゴリ開閉トグルボタン */}
@@ -151,7 +187,9 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                 {FOOD_ITEMS.map((food) => (
                   <div
                     key={food.id}
-                    className="relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white hover:border-orange-300 hover:shadow-sm transition-all duration-200"
+                    className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
+                      isBusy ? 'opacity-80' : 'hover:border-orange-300 hover:shadow-sm'
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
@@ -180,15 +218,20 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                       </span>
                     </div>
 
-                    {/* あげるボタン */}
+                    {/* あげるボタン（食事中・遊び中は無効化） */}
                     <button
                       type="button"
+                      disabled={isBusy}
                       onClick={() => handleFeedClick(food)}
                       aria-label={`${food.name}をあげる`}
-                      className="mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs"
+                      className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
+                        isBusy
+                          ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
+                          : 'cursor-pointer bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs'
+                      }`}
                     >
                       <Utensils className="w-3.5 h-3.5" />
-                      <span>あげる</span>
+                      <span>{isBusy ? (isEating ? 'お食事中…' : 'あそび中…') : 'あげる'}</span>
                     </button>
                   </div>
                 ))}
@@ -236,7 +279,9 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                 {TOY_ITEMS.map((toy) => (
                   <div
                     key={toy.id}
-                    className="relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white hover:border-amber-300 hover:shadow-sm transition-all duration-200"
+                    className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
+                      isBusy ? 'opacity-80' : 'hover:border-amber-300 hover:shadow-sm'
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5">
@@ -265,15 +310,20 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                       </span>
                     </div>
 
-                    {/* あそぶボタン */}
+                    {/* あそぶボタン（食事中・遊び中は無効化） */}
                     <button
                       type="button"
+                      disabled={isBusy}
                       onClick={() => handlePlayClick(toy)}
                       aria-label={`${toy.name}であそぶ`}
-                      className="mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white active:scale-98 shadow-xs"
+                      className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
+                        isBusy
+                          ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
+                          : 'cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white active:scale-98 shadow-xs'
+                      }`}
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>あそぶ</span>
+                      <span>{isBusy ? (isPlayingToy ? 'あそび中…' : 'お食事中…') : 'あそぶ'}</span>
                     </button>
                   </div>
                 ))}

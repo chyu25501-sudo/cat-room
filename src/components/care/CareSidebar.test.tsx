@@ -176,4 +176,76 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(handlePlay).toHaveBeenCalledWith(TOY_ITEMS[0]); // teaser
     expect(handleToggleOpen).toHaveBeenCalledWith(false); // 即座に閉じる
   });
+
+  it('猫がお食事中のとき、サイドバー内のごはん・おもちゃボタンがすべて非活性（disabled）になり選択できないこと', () => {
+    const handleFeed = vi.fn();
+    const handlePlay = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="くろねこ"
+        onFeed={handleFeed}
+        onPlay={handlePlay}
+        isOpen={true}
+        isEating={true}
+      />
+    );
+
+    // お食事中バナーが表示されていること
+    expect(screen.getByTestId('care-busy-banner')).toHaveTextContent('くろねこがお食事中です♪');
+
+    // ごはんボタンがdisabledになっていること
+    const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+    expect(feedButtons).toHaveLength(3);
+    for (const btn of feedButtons) {
+      expect(btn).toBeDisabled();
+      expect(btn).toHaveTextContent('お食事中…');
+      fireEvent.click(btn);
+    }
+    expect(handleFeed).not.toHaveBeenCalled();
+
+    // おもちゃボタンもdisabledになっていること
+    const playButtons = screen.getAllByRole('button', { name: /であそぶ$/ });
+    expect(playButtons).toHaveLength(3);
+    for (const btn of playButtons) {
+      expect(btn).toBeDisabled();
+      expect(btn).toHaveTextContent('お食事中…');
+      fireEvent.click(btn);
+    }
+    expect(handlePlay).not.toHaveBeenCalled();
+  });
+
+  it('猫がおもちゃで遊び中のとき、サイドバー内のごはん・おもちゃボタンがすべて非活性（disabled）になり選択できないこと', () => {
+    const handleFeed = vi.fn();
+    const handlePlay = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="しろねこ"
+        onFeed={handleFeed}
+        onPlay={handlePlay}
+        isOpen={true}
+        isPlayingToy={true}
+      />
+    );
+
+    // あそび中バナーが表示されていること
+    expect(screen.getByTestId('care-busy-banner')).toHaveTextContent('しろねこがおもちゃであそび中です♪');
+
+    // ごはんボタンがdisabledになっていること
+    const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+    for (const btn of feedButtons) {
+      expect(btn).toBeDisabled();
+      expect(btn).toHaveTextContent('あそび中…');
+      fireEvent.click(btn);
+    }
+    expect(handleFeed).not.toHaveBeenCalled();
+
+    // おもちゃボタンもdisabledになっていること
+    const playButtons = screen.getAllByRole('button', { name: /であそぶ$/ });
+    for (const btn of playButtons) {
+      expect(btn).toBeDisabled();
+      expect(btn).toHaveTextContent('あそび中…');
+      fireEvent.click(btn);
+    }
+    expect(handlePlay).not.toHaveBeenCalled();
+  });
 });

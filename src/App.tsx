@@ -47,6 +47,9 @@ export default function App() {
   };
 
   const handleFeed = (food: FoodItem) => {
+    // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
+    if (isEating || isPlayingToy) return;
+
     // もし遊んでいる途中なら遊び演出を停止
     stopPlaying();
 
@@ -70,6 +73,9 @@ export default function App() {
   };
 
   const handlePlay = (toy: ToyItem) => {
+    // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
+    if (isEating || isPlayingToy) return;
+
     // もし食事中なら食事演出を停止
     stopFeeding();
 
@@ -185,6 +191,8 @@ export default function App() {
       {/* お世話サイドバー（画面端のお世話ボタン・ごはん・おもちゃサブメニュー） */}
       <CareSidebar
         currentCatName={currentPreset.name}
+        isEating={isEating}
+        isPlayingToy={isPlayingToy}
         onFeed={handleFeed}
         onPlay={handlePlay}
       />

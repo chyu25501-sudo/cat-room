@@ -293,5 +293,50 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('猫が食事中または遊び中の間、サイドバーから新しいごはんやおもちゃを選択できず、終了後に再び選択可能になること', () => {
+      vi.useFakeTimers();
+      try {
+        render(<App />);
+
+        const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+
+        // 1. カリカリを与える
+        fireEvent.click(careButton);
+        const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+        act(() => {
+          fireEvent.click(feedKibbleBtn);
+        });
+
+        // 猫がお食事中になる
+        expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
+
+        // お食事中にサイドバーを再度開く
+        fireEvent.click(careButton);
+
+        // お食事中バナーが表示され、ごはん・おもちゃボタンが非活性になっていること
+        expect(screen.getByTestId('care-busy-banner')).toHaveTextContent('お食事中です♪');
+        const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+        for (const btn of feedButtons) {
+          expect(btn).toBeDisabled();
+        }
+        const playButtons = screen.getAllByRole('button', { name: /であそぶ$/ });
+        for (const btn of playButtons) {
+          expect(btn).toBeDisabled();
+        }
+
+        // 食事時間（DEFAULT_EATING_DURATION_MS = 6000ms）を経過させる
+        act(() => {
+          vi.advanceTimersByTime(6500);
+        });
+
+        // 食事が完了すると、ボタンが再び有効化されること
+        expect(screen.queryByTestId('care-busy-banner')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'ねこじゃらしであそぶ' })).toBeEnabled();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });
