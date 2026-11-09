@@ -374,4 +374,67 @@ describe('useCatMood フック (第4週: 猫ごとの機嫌管理)', () => {
       expect(result.current.getMoodScore('black')).toBe(petRes!.nextScore);
     });
   });
+
+  describe('第6週: お世話機能（feedCat）', () => {
+    it('ごはんを与えると指定したブースト値分機嫌スコアが上昇すること', () => {
+      const { result } = renderHook(() => useCatMood({ enableDecay: false }));
+
+      expect(result.current.getMoodScore('black')).toBe(20);
+
+      act(() => {
+        const feedRes = result.current.feedCat('black', 28);
+        expect(feedRes.nextScore).toBe(48);
+        expect(feedRes.nextLevel).toBe('happy');
+      });
+
+      expect(result.current.getMoodScore('black')).toBe(48);
+      expect(result.current.getMoodLevelForCat('black')).toBe('happy');
+    });
+
+    it('ごはんを与えてもスコアが100を超えないこと', () => {
+      const { result } = renderHook(() => useCatMood({ enableDecay: false }));
+
+      act(() => {
+        result.current.feedCat('black', 90);
+      });
+
+      expect(result.current.getMoodScore('black')).toBe(100);
+      expect(result.current.getMoodLevelForCat('black')).toBe('ecstatic');
+    });
+
+    it('不機嫌（annoyed）状態でも、ごはんを与えることで即座に不機嫌が解消され機嫌が回復すること', () => {
+      vi.useFakeTimers();
+      const { result } = renderHook(() =>
+        useCatMood({
+          overstimulationThresholdCount: 3,
+          overstimulationWindowMs: 5000,
+          annoyedDurationMs: 8000,
+          enableDecay: false,
+        })
+      );
+
+      // 3回素早く撫でて不機嫌にする
+      for (let i = 0; i < 3; i++) {
+        act(() => {
+          result.current.petCat('black');
+        });
+      }
+
+      expect(result.current.getMoodLevelForCat('black')).toBe('annoyed');
+      expect(result.current.getMoodScore('black')).toBe(5);
+
+      // ごはん（おやつ: +38）を与える
+      act(() => {
+        const feedRes = result.current.feedCat('black', 38);
+        // 5 + 38 = 43 (happy)
+        expect(feedRes.nextScore).toBe(43);
+        expect(feedRes.nextLevel).toBe('happy');
+      });
+
+      expect(result.current.getMoodLevelForCat('black')).toBe('happy');
+      expect(result.current.getMoodScore('black')).toBe(43);
+
+      vi.useRealTimers();
+    });
+  });
 });

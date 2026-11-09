@@ -86,7 +86,10 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
       {/* 下段：現在の状態説明テキスト */}
       <div className="mt-1 flex items-center justify-between text-[11px] text-stone-500">
         <span className="truncate">{info.description}</span>
-        <span className="font-semibold text-stone-600 shrink-0 ml-2">
+        <span
+          data-testid="mood-score-percentage"
+          className="font-semibold text-stone-600 shrink-0 ml-2"
+        >
           {moodScore}%
         </span>
       </div>

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import App from './App.tsx';
 
@@ -76,8 +76,9 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
     // 初期状態: 黒猫のごきげん度は初期20%（おだやか）
     expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
-    expect(screen.getByText('20%')).toBeInTheDocument();
-    expect(screen.getByText('おだやか')).toBeInTheDocument();
+    const indicator = screen.getByTestId('cat-mood-indicator');
+    expect(within(indicator).getByText('20%')).toBeInTheDocument();
+    expect(within(indicator).getByText('おだやか')).toBeInTheDocument();
 
     const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
 
@@ -86,7 +87,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
     fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
 
-    const updatedScoreElement = screen.getByText(/3[0-9]%|40%/);
+    const updatedScoreElement = within(indicator).getByText(/3[0-9]%|40%/);
     expect(updatedScoreElement).toBeInTheDocument();
     const updatedScoreText = updatedScoreElement.textContent!;
 
@@ -95,16 +96,16 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     fireEvent.click(whiteRadio);
 
     // 白猫はまだ撫でられていないため初期20%（猫ごとの独立管理）
-    expect(screen.getByText('しろねこのごきげん')).toBeInTheDocument();
-    expect(screen.getByText('20%')).toBeInTheDocument();
+    expect(within(indicator).getByText('しろねこのごきげん')).toBeInTheDocument();
+    expect(within(indicator).getByText('20%')).toBeInTheDocument();
 
     // 黒猫に戻す
     const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });
     fireEvent.click(blackRadio);
 
     // 黒猫の機嫌スコアが保持されていること
-    expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
-    expect(screen.getByText(updatedScoreText)).toBeInTheDocument();
+    expect(within(indicator).getByText('くろねこのごきげん')).toBeInTheDocument();
+    expect(within(indicator).getByText(updatedScoreText)).toBeInTheDocument();
   });
 
   it('短時間に何度も過剰に撫ですぎると愛撫誘発性攻撃行動が発生し、不機嫌（ごきげんななめ）になること (第5週)', () => {
@@ -134,5 +135,72 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  describe('第6週: お世話機能（サイドバー＆ごはん給餌）', () => {
+    it('お世話ボタンを押してサイドバーを開き、カリカリを与えるとごきげん度が上昇してもぐもぐメッセージが表示されること', () => {
+      render(<App />);
+
+      const indicator = screen.getByTestId('cat-mood-indicator');
+      expect(within(indicator).getByText('20%')).toBeInTheDocument();
+
+      // お世話ボタンをクリック
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careButton);
+
+      // ごはんのカリカリ（+18%）を与える
+      const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+      fireEvent.click(feedKibbleBtn);
+
+      // スコアが 20 + 18 = 38% に上昇
+      expect(within(indicator).getByText('38%')).toBeInTheDocument();
+
+      // 吹き出しに黒猫のもぐもぐセリフが表示される
+      expect(
+        screen.getByText(/カリカリ…ニャムニャム♪|サクサク…ミャオ！|カリッ…カリッ…♪/)
+      ).toBeInTheDocument();
+    });
+
+    it('撫ですぎで不機嫌（ごきげんななめ）になった猫に、ごはんを与えると即座に不機嫌が解消され機嫌が回復すること', () => {
+      vi.useFakeTimers();
+      try {
+        render(<App />);
+
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        let currentTime = Date.now();
+
+        // 10回連続で撫でて不機嫌状態にする
+        for (let i = 0; i < 10; i++) {
+          act(() => {
+            currentTime += 1050;
+            vi.setSystemTime(currentTime);
+            vi.advanceTimersByTime(1050);
+            fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+            fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+            fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          });
+        }
+
+        expect(screen.getByText('ごきげんななめ')).toBeInTheDocument();
+        expect(screen.getByText('5%')).toBeInTheDocument();
+
+        // お世話ボタンを開く
+        const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+        fireEvent.click(careButton);
+
+        // おやつピューレ（+38%）をあげる
+        const feedTreatBtn = screen.getByRole('button', { name: 'おやつピューレをあげる' });
+        act(() => {
+          fireEvent.click(feedTreatBtn);
+        });
+
+        // 不機嫌（5%）から 5 + 38 = 43% に回復し、「ごきげん♪」に転じる
+        expect(screen.queryByText('ごきげんななめ')).not.toBeInTheDocument();
+        expect(screen.getByText('43%')).toBeInTheDocument();
+        expect(screen.getByText('ごきげん♪')).toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });

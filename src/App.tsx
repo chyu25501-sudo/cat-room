@@ -7,14 +7,17 @@ import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
+import { CareSidebar } from './components/care/CareSidebar.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
+import { getEatingMessage } from './utils/catCare.ts';
 import { CatId } from './types/cat.ts';
+import { FoodItem } from './types/care.ts';
 
 export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
-  const { getMoodScore, getMoodLevelForCat, petCat } = useCatMood();
+  const { getMoodScore, getMoodLevelForCat, petCat, feedCat } = useCatMood();
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
   const currentMoodScore = getMoodScore(currentCatId);
@@ -37,6 +40,23 @@ export default function App() {
     // 猫ごと・機嫌レベルに応じた個性あるメッセージを吹き出しに表示（不機嫌突入時・機嫌変化時は即時反映）
     const msg = getMeowMessageForMood(currentPreset, nextLevel);
     showBubble(msg, { force: isMoodChanged || isAnnoyed });
+  };
+
+  const handleFeed = (food: FoodItem) => {
+    // ごはんを与えて機嫌を大きく上昇させ、不機嫌も即時解消
+    const { nextLevel } = feedCat(currentCatId, food.moodBoost);
+
+    // 美味しいごはんを食べた満足感を表現する明るい鳴き声
+    const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
+    const pitch = calculateVariedPitch(basePitch * 1.08);
+    meow({
+      pitchMultiplier: pitch,
+      duration: 0.65,
+    });
+
+    // ごはんの種類と猫種に応じたもぐもぐメッセージを吹き出しに表示
+    const msg = getEatingMessage(food, currentCatId);
+    showBubble(msg, { force: true, durationMs: 2600 });
   };
 
   const handleSwitchCat = () => {
@@ -120,6 +140,12 @@ export default function App() {
       <footer className="w-full max-w-md pb-6 text-center text-xs text-stone-400">
         <p>※ 音が出ます。端末の音量を調整してご利用ください。</p>
       </footer>
+
+      {/* お世話サイドバー（画面端のお世話ボタン・ごはんサブメニュー） */}
+      <CareSidebar
+        currentCatName={currentPreset.name}
+        onFeed={handleFeed}
+      />
     </main>
   );
 }
