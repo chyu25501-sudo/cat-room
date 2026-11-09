@@ -139,53 +139,80 @@
   animation: teaserFeatherFlutter 0.85s ease-in-out infinite;
 }
 
-/* レーザーポインターの照射器と光を左右に振るスイープアニメーション（手元軸） */
-@keyframes laserSweep {
+/* レーザー光線と光点を床の水平線上で左右に振る（ビームが伸び縮みする）アニメーション */
+@keyframes laserBeamSweep {
+  0% {
+    transform: skewX(0deg);
+  }
+  18% {
+    transform: skewX(-42deg); /* 左へサッと光を伸ばす（ビームが長く伸びる） */
+  }
+  30% {
+    transform: skewX(-46deg); /* 左端で小刻みに震える */
+  }
+  40% {
+    transform: skewX(-38deg);
+  }
+  58% {
+    transform: skewX(32deg);  /* 一気に右へスイープ（ビームが短く縮む） */
+  }
+  72% {
+    transform: skewX(36deg);  /* 右端で小刻みに震える */
+  }
+  84% {
+    transform: skewX(12deg);
+  }
+  92% {
+    transform: skewX(-8deg);
+  }
+  100% {
+    transform: skewX(0deg);
+  }
+}
+
+/* ポインター本体の照射口がビームの左右の振りに連動する微小回転（先端軸 77px 40px） */
+@keyframes laserPointerTilt {
   0% {
     transform: rotate(0deg);
   }
-  15% {
-    transform: rotate(-16deg);
+  18% {
+    transform: rotate(6deg);  /* ビームが左に伸びるのに合わせて左下を向く */
   }
-  28% {
-    transform: rotate(-18deg);
+  30% {
+    transform: rotate(7deg);
   }
-  38% {
-    transform: rotate(-12deg);
+  40% {
+    transform: rotate(5deg);
   }
-  55% {
-    transform: rotate(14deg);
+  58% {
+    transform: rotate(-5deg); /* ビームが右に縮むのに合わせて手前を向く */
   }
-  70% {
-    transform: rotate(18deg);
+  72% {
+    transform: rotate(-6deg);
   }
-  82% {
-    transform: rotate(8deg);
+  84% {
+    transform: rotate(-2deg);
   }
   92% {
-    transform: rotate(-4deg);
+    transform: rotate(1deg);
   }
   100% {
     transform: rotate(0deg);
   }
 }
 
-/* レーザー光点の床上のきらめき・パルス */
-@keyframes laserDotPulse {
+/* レーザー光点の床上のきらめき・フリッカー（位置の飛びを防ぐため透明度のみパルス） */
+@keyframes laserDotGlow {
   0%, 100% {
-    transform: scale(1);
-    opacity: 0.95;
+    opacity: 0.9;
   }
   25% {
-    transform: scale(1.18);
     opacity: 1;
   }
   50% {
-    transform: scale(0.9);
-    opacity: 0.85;
+    opacity: 0.75;
   }
   75% {
-    transform: scale(1.12);
     opacity: 1;
   }
 }
@@ -200,12 +227,16 @@
   }
 }
 
-.animate-laser-sweep {
-  animation: laserSweep 1.6s ease-in-out infinite;
+.animate-laser-beam-sweep {
+  animation: laserBeamSweep 1.6s ease-in-out infinite;
 }
 
-.animate-laser-dot-pulse {
-  animation: laserDotPulse 0.4s ease-in-out infinite;
+.animate-laser-pointer-tilt {
+  animation: laserPointerTilt 1.6s ease-in-out infinite;
+}
+
+.animate-laser-dot-glow {
+  animation: laserDotGlow 0.4s ease-in-out infinite;
 }
 
 .animate-laser-beam {

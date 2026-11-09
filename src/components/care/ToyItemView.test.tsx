@@ -59,18 +59,21 @@ describe('ToyItemView コンポーネント (おもちゃイラスト描画)', (
     expect(feather).not.toHaveClass('animate-teaser-feather');
   });
 
-  it('レーザーポインターで遊び中のとき、左右に光を振るスイープと光点パルスのアニメーションが付与されること', () => {
+  it('レーザーポインターで遊び中のとき、左右のビーム伸縮スイープ・ポインター首振り・光点パルスのアニメーションが付与されること', () => {
     const { rerender } = render(<ToyItemView toy={TOY_ITEMS[2]} isPlaying={true} />);
 
     const aimGroup = screen.getByTestId('laser-aim-group');
+    const pointerGroup = screen.getByTestId('laser-pointer-group');
     const dotGroup = screen.getByTestId('laser-dot-group');
 
-    expect(aimGroup).toHaveClass('animate-laser-sweep');
-    expect(dotGroup).toHaveClass('animate-laser-dot-pulse');
+    expect(aimGroup).toHaveClass('animate-laser-beam-sweep');
+    expect(pointerGroup).toHaveClass('animate-laser-pointer-tilt');
+    expect(dotGroup).toHaveClass('animate-laser-dot-glow');
 
     // 遊び終了時はアニメーションが外れること
     rerender(<ToyItemView toy={TOY_ITEMS[2]} isPlaying={false} />);
-    expect(aimGroup).not.toHaveClass('animate-laser-sweep');
-    expect(dotGroup).not.toHaveClass('animate-laser-dot-pulse');
+    expect(aimGroup).not.toHaveClass('animate-laser-beam-sweep');
+    expect(pointerGroup).not.toHaveClass('animate-laser-pointer-tilt');
+    expect(dotGroup).not.toHaveClass('animate-laser-dot-glow');
   });
 });

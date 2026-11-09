@@ -141,53 +141,54 @@ const LaserToySvg: React.FC<{ isPlaying?: boolean }> = ({ isPlaying }) => (
     data-testid="laser-toy-svg"
   >
     {/* 床の影 */}
-    <ellipse cx="40" cy="62" rx="20" ry="5" className="fill-stone-400/30" />
+    <ellipse cx="40" cy="62" rx="22" ry="5" className="fill-stone-400/30" />
     <ellipse cx="102" cy="58" rx="22" ry="4" className="fill-stone-400/20" />
 
-    {/* レーザー照射機構全体（手元 95px 35px を軸に左右に光を振る） */}
+    {/* レーザー光線と床の光点グループ（照射口 77px 40px を軸に水平に左右スイープ・ビーム伸縮） */}
     <g
-      className={isPlaying ? 'animate-laser-sweep' : ''}
-      style={{ transformOrigin: '95px 35px' }}
+      className={isPlaying ? 'animate-laser-beam-sweep' : ''}
+      style={{ transformOrigin: '77px 40px' }}
       data-testid="laser-aim-group"
     >
-      {/* ポインターからの赤い光線ガイドライン（照射ビーム） */}
+      {/* ポインター照射口から床の光点への赤い光線（照射ビーム） */}
       <line
-        x1="79"
-        y1="39"
+        x1="77"
+        y1="40"
         x2="38"
-        y2="52"
-        className="stroke-rose-500/25 stroke-[2.5]"
+        y2="54"
+        className="stroke-rose-500/30 stroke-[3]"
       />
       <line
-        x1="79"
-        y1="39"
+        x1="77"
+        y1="40"
         x2="38"
-        y2="52"
-        className={`stroke-rose-400/70 stroke-[1.5] stroke-dasharray-[3,3] ${
+        y2="54"
+        className={`stroke-rose-400/80 stroke-[1.5] stroke-dasharray-[4,3] ${
           isPlaying ? 'animate-laser-beam' : ''
         }`}
       />
 
-      {/* 赤いレーザー光点（床の上に輝く赤いスポット） */}
+      {/* 赤いレーザー光点（床の上に輝く赤いスポット：ビーム先端 38, 54 と常に一体化） */}
       <g
-        transform="translate(38, 52)"
-        className={isPlaying ? 'animate-laser-dot-pulse' : ''}
+        transform="translate(38, 54)"
+        className={isPlaying ? 'animate-laser-dot-glow' : ''}
         data-testid="laser-dot-group"
       >
-        {/* 光の拡散オーラ */}
-        <circle
-          cx="0"
-          cy="0"
-          r={isPlaying ? '16' : '12'}
-          className="fill-rose-500/25 animate-ping"
-        />
-        <circle cx="0" cy="0" r="10" className="fill-rose-500/40" />
+        {/* 床への拡散光オーラ（楕円で自然な床面パース） */}
+        <ellipse cx="0" cy="0" rx="14" ry="4.5" className="fill-rose-500/25" />
+        <ellipse cx="0" cy="0" rx="8" ry="2.5" className="fill-rose-500/50" />
         {/* 核心の鮮やかな赤い光点 */}
-        <circle cx="0" cy="0" r="5" className="fill-rose-600" />
-        <circle cx="0" cy="0" r="2.5" className="fill-white" />
+        <circle cx="0" cy="0" r="4" className="fill-rose-600" />
+        <circle cx="0" cy="0" r="1.8" className="fill-white" />
       </g>
+    </g>
 
-      {/* レーザーポインター本体（シルバー＆ブラックのペン型） */}
+    {/* レーザーポインター本体（照射口 77px 40px を軸に手首でクイックイッと左右に振る） */}
+    <g
+      className={isPlaying ? 'animate-laser-pointer-tilt' : ''}
+      style={{ transformOrigin: '77px 40px' }}
+      data-testid="laser-pointer-group"
+    >
       <g transform="rotate(-20 95 35)">
         {/* メタリックボディ */}
         <rect
