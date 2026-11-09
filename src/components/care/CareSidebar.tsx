@@ -37,10 +37,8 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   const handleFeedClick = (food: FoodItem) => {
     setLastFedFoodId(food.id);
     onFeed(food);
-    // フィードバック用のアニメーションタイマー（少し経ったら解除）
-    setTimeout(() => {
-      setLastFedFoodId(null);
-    }, 1200);
+    // ごはんをあげた直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
+    handleSetOpen(false);
   };
 
   return (

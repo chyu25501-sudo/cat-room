@@ -152,12 +152,16 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
       fireEvent.click(feedKibbleBtn);
 
+      // サイドバーが即座に閉じ、猫の様子が見えること
+      const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
+      expect(sidebar).toHaveClass('translate-x-full');
+
       // スコアが 20 + 18 = 38% に上昇
       expect(within(indicator).getByText('38%')).toBeInTheDocument();
 
       // 吹き出しに黒猫のもぐもぐセリフが表示される
       expect(
-        screen.getByText(/カリカリ…ニャムニャム♪|サクサク…ミャオ！|カリッ…カリッ…♪/)
+        screen.getByText(/カリカリ…ニャムニャム♪|サクサク…ミャオ！|カリッ…カリッ…ゴロゴロ…/)
       ).toBeInTheDocument();
     });
 

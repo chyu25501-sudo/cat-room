@@ -13,8 +13,8 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     iconType: 'bowl',
     moodBoost: 18,
     eatingMessages: {
-      black: ['カリカリ…ニャムニャム♪', 'サクサク…ミャオ！', 'カリッ…カリッ…♪'],
-      white: ['サクサク…ふにゃあ♪', 'カリカリ…おいしいニャ♪', 'もぐもぐ…すやぁ…'],
+      black: ['カリカリ…ニャムニャム♪', 'サクサク…ミャオ！', 'カリッ…カリッ…ゴロゴロ…'],
+      white: ['サクサク…ふにゃあ♪', 'カリカリ…クニャ〜♪', 'カリッ…ふにゃ〜ん…'],
     },
     themeClass: 'from-amber-400 to-orange-400 text-amber-700 bg-amber-50 border-amber-200',
   },
@@ -25,8 +25,8 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     iconType: 'can',
     moodBoost: 28,
     eatingMessages: {
-      black: ['モグモグ…ウマウマ♡', 'ペロペロ…ミャオ〜〜♡', 'ガツガツ…んまぁ〜い！'],
-      white: ['ペロペロ…おいしいニャ〜♡', 'ふにゃあ…極上だニャ♡', 'ウマウマ…ごちそうさまニャ♪'],
+      black: ['ペロペロ…ミャオ〜〜♡', 'ハフハフ…ゴロゴロ…♡', 'ニャムニャム…ンニャ〜♡'],
+      white: ['ペロペロ…ふにゃ〜ん♡', 'クニャ〜…ゴロゴロ…♡', 'ニャム…ふにゃぁ〜♡'],
     },
     themeClass: 'from-sky-400 to-blue-400 text-sky-700 bg-sky-50 border-sky-200',
   },
@@ -37,8 +37,8 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     iconType: 'treat',
     moodBoost: 38,
     eatingMessages: {
-      black: ['ペロペロ…！んま〜い♡', '夢中でペロペロ…！♡', 'ンニャ〜〜♡ たまらないニャ！'],
-      white: ['夢中でペロペロ…しあわせぇ♡', 'ふにゃあぁ〜〜♡ とろけるニャ…', 'ペロペロが止まらないニャ〜♡'],
+      black: ['ペロペロ…！ゴロゴロゴロ…♡', 'ンニャ〜〜…ペロペロ♡', 'ミャ〜〜♡ ゴロゴロ…！'],
+      white: ['ペロペロ…ふにゃあぁ〜♡', 'ふにゃ〜〜…ゴロゴロゴロ…', 'クニャ〜ン…ペロペロ…♡'],
     },
     themeClass: 'from-rose-400 to-pink-500 text-rose-700 bg-rose-50 border-rose-200',
   },

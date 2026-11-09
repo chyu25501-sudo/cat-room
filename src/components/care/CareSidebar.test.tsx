@@ -67,20 +67,42 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(screen.getByText('+38%')).toBeInTheDocument();
   });
 
-  it('ごはんの「あげる」ボタンをクリックすると、選択したごはんアイテムを引数にonFeedが呼ばれること', () => {
+  it('ごはんの「あげる」ボタンをクリックすると、選択したごはんアイテムを引数にonFeedが呼ばれ、サイドバーが閉じること', () => {
     const handleFeed = vi.fn();
-    render(<CareSidebar currentCatName="くろねこ" onFeed={handleFeed} isOpen={true} />);
+    const handleToggleOpen = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="くろねこ"
+        onFeed={handleFeed}
+        isOpen={true}
+        onToggleOpen={handleToggleOpen}
+      />
+    );
 
     const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
     fireEvent.click(feedKibbleBtn);
 
     expect(handleFeed).toHaveBeenCalledTimes(1);
     expect(handleFeed).toHaveBeenCalledWith(FOOD_ITEMS[0]); // kibble
+    expect(handleToggleOpen).toHaveBeenCalledWith(false); // 即座に閉じる
+  });
 
-    const feedTreatBtn = screen.getByRole('button', { name: 'おやつピューレをあげる' });
-    fireEvent.click(feedTreatBtn);
+  it('内部ステート運用時もごはんをあげるとサイドバーが自動的に閉じること', () => {
+    const handleFeed = vi.fn();
+    render(<CareSidebar currentCatName="くろねこ" onFeed={handleFeed} />);
 
-    expect(handleFeed).toHaveBeenCalledTimes(2);
-    expect(handleFeed).toHaveBeenCalledWith(FOOD_ITEMS[2]); // treat
+    // 開く
+    const openButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+    fireEvent.click(openButton);
+
+    const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
+    expect(sidebar).toHaveClass('translate-x-0');
+
+    // ごはんをあげる
+    const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+    fireEvent.click(feedKibbleBtn);
+
+    // 即座に閉じる
+    expect(sidebar).toHaveClass('translate-x-full');
   });
 });

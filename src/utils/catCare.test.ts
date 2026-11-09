@@ -46,6 +46,30 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
     expect(treat.eatingMessages.white).toContain(whiteMsg);
   });
 
+  it('すべてのごはんメッセージが人間の言語（おいしい、ウマウマ、しあわせ等）を含まず、猫の鳴き声・擬音・喉鳴らし音であること', () => {
+    const forbiddenPhrases = [
+      'おいしい',
+      'ウマウマ',
+      'んま',
+      'ごちそうさま',
+      'しあわせ',
+      'とろける',
+      '極上',
+      'たまらない',
+      '止まらない',
+    ];
+
+    for (const food of FOOD_ITEMS) {
+      for (const catId of ['black', 'white'] as const) {
+        for (const msg of food.eatingMessages[catId]) {
+          for (const phrase of forbiddenPhrases) {
+            expect(msg).not.toContain(phrase);
+          }
+        }
+      }
+    }
+  });
+
   it('calculateFedMood: ごはんを与えた際にごきげん度が加算され、上限100でクランプされること', () => {
     // 20 + 18 = 38
     expect(calculateFedMood(20, 18)).toBe(38);
