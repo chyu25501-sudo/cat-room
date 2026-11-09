@@ -174,25 +174,80 @@ export const FoodDish: React.FC<FoodDishProps> = ({
       data-testid="food-dish-container"
       className={`relative inline-flex flex-col items-center justify-center transition-all duration-300 animate-in fade-in zoom-in-90 ${className}`}
     >
-      {/* 食事中のもぐもぐパーティクル（ハート・星・湯気のようなきらめきが立ち上る） */}
+      {/* 食事中のもぐもぐパーティクル（ハート・星・きらめきが左右にゆらゆら揺れながら立ち上る演出） */}
       {isEating && (
         <div
           data-testid="eating-particles"
-          className="absolute -top-6 inset-x-0 flex items-center justify-center pointer-events-none z-30"
+          className="absolute -top-3 inset-x-0 flex items-center justify-center pointer-events-none z-30 overflow-visible"
           aria-hidden="true"
         >
-          {/* 左側のハート */}
-          <span className="absolute -left-2 -top-2 animate-bounce">
-            <Heart className="w-4 h-4 fill-rose-400 text-rose-500 animate-pulse drop-shadow-sm" />
-          </span>
-          {/* 中央のきらめき */}
-          <span className="absolute top-0 animate-ping">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          </span>
-          {/* 右側の星 */}
-          <span className="absolute -right-2 -top-1 animate-bounce delay-150">
-            <Sparkles className="w-4 h-4 text-orange-400" />
-          </span>
+          {/* 左側のハート: 左揺れで昇る */}
+          <div
+            className="absolute pointer-events-none animate-eating-rise"
+            style={{
+              left: 'calc(50% - 24px)',
+              top: '0px',
+              animationDelay: '0ms',
+            }}
+          >
+            <div
+              className="animate-eating-sway-left"
+              style={{ animationDelay: '0ms' }}
+            >
+              <Heart className="w-4 h-4 fill-rose-400 text-rose-500 drop-shadow-md" />
+            </div>
+          </div>
+
+          {/* 中央のきらめき: 右揺れで昇る */}
+          <div
+            className="absolute pointer-events-none animate-eating-rise"
+            style={{
+              left: 'calc(50% - 2px)',
+              top: '-4px',
+              animationDelay: '450ms',
+            }}
+          >
+            <div
+              className="animate-eating-sway-right"
+              style={{ animationDelay: '450ms' }}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 drop-shadow-md" />
+            </div>
+          </div>
+
+          {/* 右側の星: 左揺れで昇る */}
+          <div
+            className="absolute pointer-events-none animate-eating-rise"
+            style={{
+              left: 'calc(50% + 18px)',
+              top: '2px',
+              animationDelay: '900ms',
+            }}
+          >
+            <div
+              className="animate-eating-sway-left"
+              style={{ animationDelay: '900ms' }}
+            >
+              <Sparkles className="w-4 h-4 text-orange-400 drop-shadow-md" />
+            </div>
+          </div>
+
+          {/* 中央やや左の小ハート: 右揺れで昇る */}
+          <div
+            className="absolute pointer-events-none animate-eating-rise"
+            style={{
+              left: 'calc(50% - 10px)',
+              top: '-2px',
+              animationDelay: '1350ms',
+            }}
+          >
+            <div
+              className="animate-eating-sway-right"
+              style={{ animationDelay: '1350ms' }}
+            >
+              <Heart className="w-3 h-3 fill-pink-400 text-pink-500 drop-shadow-md" />
+            </div>
+          </div>
         </div>
       )}
 

@@ -26,10 +26,15 @@ describe('FoodDish コンポーネント (ごはんイラスト描画)', () => {
   });
 
   it('isEating が true の時、もぐもぐパーティクルともぐもぐ中テキストが表示されること', () => {
-    render(<FoodDish food={FOOD_ITEMS[0]} isEating={true} />);
+    const { container } = render(<FoodDish food={FOOD_ITEMS[0]} isEating={true} />);
 
     expect(screen.getByTestId('eating-particles')).toBeInTheDocument();
     expect(screen.getByText('もぐもぐ…♪')).toBeInTheDocument();
+
+    // 左右にゆらゆらしながら上昇するアニメーションクラスが付与されていること
+    expect(container.querySelector('.animate-eating-rise')).toBeInTheDocument();
+    expect(container.querySelector('.animate-eating-sway-left')).toBeInTheDocument();
+    expect(container.querySelector('.animate-eating-sway-right')).toBeInTheDocument();
   });
 
   it('isEating が false の時、もぐもぐパーティクルが表示されないこと', () => {

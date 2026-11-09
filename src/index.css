@@ -73,3 +73,16 @@
 .animate-sway-right {
   animation: sineSwayRight 1.35s ease-in-out forwards;
 }
+
+/* ごはん食事中（もぐもぐ）パーティクル用：絶え間なくゆらゆらと昇るループアニメーション */
+.animate-eating-rise {
+  animation: floatRiseUp 1.6s cubic-bezier(0.25, 1, 0.4, 1) infinite;
+}
+
+.animate-eating-sway-left {
+  animation: sineSwayLeft 1.6s ease-in-out infinite;
+}
+
+.animate-eating-sway-right {
+  animation: sineSwayRight 1.6s ease-in-out infinite;
+}
