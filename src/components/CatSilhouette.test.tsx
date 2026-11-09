@@ -285,9 +285,21 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
     const teaser = TOY_ITEMS[0];
     render(<CatSilhouette activeToy={teaser} isPlayingToy={true} />);
 
-    expect(screen.getByTestId('active-toy-item')).toBeInTheDocument();
+    const toyContainer = screen.getByTestId('active-toy-item');
+    expect(toyContainer).toBeInTheDocument();
+    expect(toyContainer).toHaveClass('-bottom-2');
     expect(screen.getByTestId('teaser-toy-svg')).toBeInTheDocument();
     expect(screen.getByText('ワクワク…♪（ねこじゃらしであそび中）')).toBeInTheDocument();
+  });
+
+  it('レーザーポインターで遊ぶ場合、猫の体ではなく手前床面に光が照射されるよう少し下側に配置されること', () => {
+    const laser = TOY_ITEMS[2];
+    render(<CatSilhouette activeToy={laser} isPlayingToy={true} />);
+
+    const toyContainer = screen.getByTestId('active-toy-item');
+    expect(toyContainer).toBeInTheDocument();
+    expect(toyContainer).toHaveClass('-bottom-7');
+    expect(screen.getByTestId('laser-toy-svg')).toBeInTheDocument();
   });
 });
 

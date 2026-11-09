@@ -141,7 +141,7 @@ const LaserToySvg: React.FC<{ isPlaying?: boolean }> = ({ isPlaying }) => (
     data-testid="laser-toy-svg"
   >
     {/* 床の影 */}
-    <ellipse cx="40" cy="62" rx="22" ry="5" className="fill-stone-400/30" />
+    <ellipse cx="38" cy="62" rx="22" ry="5" className="fill-stone-400/30" />
     <ellipse cx="102" cy="58" rx="22" ry="4" className="fill-stone-400/20" />
 
     {/* レーザー光線と床の光点グループ（照射口 77px 40px を軸に水平に左右スイープ・ビーム伸縮） */}

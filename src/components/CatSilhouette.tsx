@@ -221,11 +221,15 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
             </div>
           )}
 
-          {/* 遊び中のおもちゃイラスト（猫の足元手前に描画） */}
+          {/* 遊び中のおもちゃイラスト（猫の足元手前に描画。レーザーポインターは猫の手前床面に照射されるよう少し下側に配置） */}
           {activeToy && (
             <div
               data-testid="active-toy-item"
-              className="absolute -bottom-2 z-20 pointer-events-none drop-shadow-lg"
+              className={`absolute z-20 pointer-events-none drop-shadow-lg ${
+                activeToy.id === 'laser'
+                  ? '-bottom-7 sm:-bottom-8'
+                  : '-bottom-2'
+              }`}
             >
               <ToyItemView toy={activeToy} isPlaying={isPlayingToy} />
             </div>
