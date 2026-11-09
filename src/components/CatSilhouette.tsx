@@ -6,6 +6,8 @@ import { WhiteCat } from './cats/WhiteCat.tsx';
 import { useCatPetting, type PetEventDetail } from '../hooks/useCatPetting.ts';
 import { DEFAULT_PET_COOLDOWN_MS, type Point } from '../utils/stroke.ts';
 import { CatMoodLevel } from '../types/mood.ts';
+import { FoodItem } from '../types/care.ts';
+import { FoodDish } from './care/FoodDish.tsx';
 import {
   generatePetEffectBurst,
   type PetEffectBurst,
@@ -27,6 +29,10 @@ export interface CatSilhouetteProps {
   isReacting?: boolean;
   /** 猫の現在の機嫌レベル（機嫌に応じて反応・エフェクトが変化） */
   moodLevel?: CatMoodLevel;
+  /** 現在猫が食べているごはん（未給餌時はnullまたは未指定） */
+  activeFood?: FoodItem | null;
+  /** 食事中アニメーション中かどうか */
+  isEating?: boolean;
   /** 猫をなでた（ドラッグストローク完了）ときのコールバック */
   onPet?: (detail?: PetEventDetail) => void;
   /** なでたと判定する移動距離のしきい値（ピクセル） */
@@ -43,6 +49,8 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   preset = CAT_PRESETS[0],
   isReacting = false,
   moodLevel = 'normal',
+  activeFood = null,
+  isEating = false,
   onPet,
   strokeThreshold,
   cooldownMs,
@@ -184,27 +192,43 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
         {/* 猫のSVGシルエット表示エリア（猫種切り替え時にも高さが変わらない固定ステージ） */}
         <div
           className={`relative w-64 sm:w-72 h-64 sm:h-72 flex items-end justify-center transition-all duration-300 ${
-            isReacting || isDragging
+            isEating
+              ? 'scale-105 -translate-y-1'
+              : isReacting || isDragging
               ? 'scale-105 -translate-y-1'
               : 'group-hover:-translate-y-0.5'
           }`}
         >
           <ActiveCatComponent
-            isReacting={isReacting || isDragging}
+            isReacting={isReacting || isDragging || isEating}
             moodLevel={moodLevel}
           />
+
+          {/* 食事中のごはん皿イラスト（猫の足元手前に描画） */}
+          {activeFood && (
+            <div
+              data-testid="active-food-dish"
+              className="absolute -bottom-2 z-20 pointer-events-none drop-shadow-lg"
+            >
+              <FoodDish food={activeFood} isEating={isEating} />
+            </div>
+          )}
         </div>
 
         {/* 足元のインタラクションガイドバッジ（機嫌に応じたメッセージ変化） */}
         <div
           className={`mt-3 px-3 py-1 rounded-full border text-xs font-medium tracking-wide flex items-center gap-1.5 shadow-2xs transition-colors ${
-            moodLevel === 'annoyed'
+            isEating
+              ? 'bg-amber-100/90 border-amber-300 text-amber-900'
+              : moodLevel === 'annoyed'
               ? 'bg-rose-100/90 border-rose-200 text-rose-700'
               : 'bg-orange-100/80 border-orange-200/60 text-stone-600 group-hover:bg-orange-200/80 group-hover:text-orange-900'
           }`}
         >
           <span>
-            {moodLevel === 'annoyed'
+            {isEating && activeFood
+              ? `モグモグ…♪（${activeFood.name}をお食事中）`
+              : moodLevel === 'annoyed'
               ? 'なですぎ注意！少し休ませてあげよう'
               : moodLevel === 'ecstatic'
               ? 'ゴロゴロ…♡（ごきげんMAX）'

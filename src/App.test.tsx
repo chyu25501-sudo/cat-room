@@ -159,6 +159,11 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       // スコアが 20 + 18 = 38% に上昇
       expect(within(indicator).getByText('38%')).toBeInTheDocument();
 
+      // 猫の足元手前にカリカリボウルのイラストが描画されること
+      expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
+      expect(screen.getByTestId('kibble-dish-svg')).toBeInTheDocument();
+      expect(screen.getByText('モグモグ…♪（カリカリをお食事中）')).toBeInTheDocument();
+
       // 吹き出しに黒猫のもぐもぐセリフが表示される
       expect(
         screen.getByText(/カリカリ…ニャムニャム♪|サクサク…ミャオ！|カリッ…カリッ…ゴロゴロ…/)
@@ -202,6 +207,10 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.queryByText('ごきげんななめ')).not.toBeInTheDocument();
         expect(screen.getByText('43%')).toBeInTheDocument();
         expect(screen.getByText('ごきげん♪')).toBeInTheDocument();
+
+        // おやつピューレのイラストが描画されること
+        expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
+        expect(screen.getByTestId('treat-dish-svg')).toBeInTheDocument();
       } finally {
         vi.useRealTimers();
       }

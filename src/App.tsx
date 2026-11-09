@@ -3,6 +3,7 @@ import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
 import { useCatMood } from './hooks/useCatMood.ts';
+import { useCatFeeding } from './hooks/useCatFeeding.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
@@ -18,6 +19,7 @@ export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat } = useCatMood();
+  const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding({ durationMs: 3200 });
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
   const currentMoodScore = getMoodScore(currentCatId);
@@ -46,6 +48,9 @@ export default function App() {
     // ごはんを与えて機嫌を大きく上昇させ、不機嫌も即時解消
     const { nextLevel } = feedCat(currentCatId, food.moodBoost);
 
+    // 猫の足元にごはん皿イラストを描画し、お食事中アニメーションを開始
+    startFeeding(food);
+
     // 美味しいごはんを食べた満足感を表現する明るい鳴き声
     const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
     const pitch = calculateVariedPitch(basePitch * 1.08);
@@ -60,12 +65,14 @@ export default function App() {
   };
 
   const handleSwitchCat = () => {
+    stopFeeding();
     switchCat();
     showBubble(`${nextPreset.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
   };
 
   const handleSelectCat = (id: CatId) => {
     if (id === currentCatId) return;
+    stopFeeding();
     selectCat(id);
     const target = getCatPresetById(id);
     showBubble(`${target.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
@@ -127,11 +134,13 @@ export default function App() {
           )}
         </div>
 
-        {/* 猫のシルエット（ドラッグ操作でなでる） */}
+        {/* 猫のシルエット（ドラッグ操作でなでる・ごはんのお食事） */}
         <CatSilhouette
           preset={currentPreset}
           isReacting={isPlaying}
           moodLevel={currentMoodLevel}
+          activeFood={activeFood}
+          isEating={isEating}
           onPet={handleInteractCat}
         />
       </section>
