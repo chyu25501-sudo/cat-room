@@ -22,7 +22,7 @@ export default function App() {
   const { meow, isPlaying } = useCatAudio();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood();
   const { getFullnessScore, getFullnessLevelForCat, feedCatFullness, playCatFullness } = useCatFullness();
-  const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding({ durationMs: 3200 });
+  const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding();
   const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 

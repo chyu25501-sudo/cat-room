@@ -82,6 +82,25 @@ export function calculateFedMood(currentScore: number, boost: number): number {
   return Math.max(MIN_MOOD_SCORE, Math.min(MAX_MOOD_SCORE, currentScore + boost));
 }
 
+/** 給餌（食事中）アニメーション時間の基準ミリ秒 */
+export const BASE_FEEDING_DURATION_MS = 2400;
+
+/** まんぷく度1%あたりの追加食事時間ミリ秒 */
+export const FEEDING_DURATION_PER_FULLNESS_MS = 40;
+
+/**
+ * ごはんのまんぷく度回復量に応じた食事時間を計算する純粋関数
+ * まんぷく度の回復量が多いほど食べる時間が少しだけ長くなる
+ * （例: おやつピューレ(+15%) → 3000ms、カリカリ(+25%) → 3400ms、ねこ缶(+35%) → 3800ms）
+ */
+export function calculateFeedingDurationMs(
+  fullnessBoost: number,
+  baseDurationMs: number = BASE_FEEDING_DURATION_MS,
+  perFullnessMs: number = FEEDING_DURATION_PER_FULLNESS_MS
+): number {
+  return Math.max(1000, Math.round(baseDurationMs + Math.max(0, fullnessBoost) * perFullnessMs));
+}
+
 /**
  * 選択可能なおもちゃアイテム一覧（3種類）
  */
@@ -94,8 +113,18 @@ export const TOY_ITEMS: readonly ToyItem[] = [
     icon: '🪶',
     moodBoost: 16,
     playMessages: {
-      black: ['カシャカシャ…ニャッ！', 'パシッ！…ミャオ！', 'ウニャ〜！…ササッ！'],
-      white: ['チョイチョイ…ふにゃ♪', 'パシパシ…クニャ！', 'フニャッ！…ゴロゴロ…'],
+      black: [
+        'カシャカシャ…ニャッ！',
+        'パシッ！…ミャオ！',
+        'ウニャ〜！…ササッ！',
+        'ちょいちょいっ！…ミャオ♪',
+      ],
+      white: [
+        'パシパシ…クニャ！',
+        'フニャッ！…ゴロゴロ…',
+        'ちょいちょい…ふにゃ〜♪',
+        'ちょいちょいっ！…クニャ♪',
+      ],
     },
     themeClass: 'from-amber-400 to-yellow-500 text-amber-700 bg-amber-50 border-amber-200',
   },
@@ -107,8 +136,18 @@ export const TOY_ITEMS: readonly ToyItem[] = [
     icon: '🧶',
     moodBoost: 26,
     playMessages: {
-      black: ['コロコロ…ダダダッ！', 'ケリケリ…ミャオ〜！', 'ガシッ…！ンニャ〜！'],
-      white: ['コロコロ…スチャッ！', 'ケリケリ…ふにゃ〜ん♪', 'トテトテ…クニャ〜♪'],
+      black: [
+        'コロコロ…ダダダッ！',
+        'ケリケリ…ミャオ〜！',
+        'ガシッ…！ンニャ〜！',
+        'ちょいちょい…ンニャ〜！',
+      ],
+      white: [
+        'コロコロ…スチャッ！',
+        'ケリケリ…ふにゃ〜ん♪',
+        'トテトテ…クニャ〜♪',
+        'ちょいちょいっ！…ふにゃん♪',
+      ],
     },
     themeClass: 'from-emerald-400 to-teal-500 text-emerald-700 bg-emerald-50 border-emerald-200',
   },
@@ -120,8 +159,18 @@ export const TOY_ITEMS: readonly ToyItem[] = [
     icon: '🔴',
     moodBoost: 36,
     playMessages: {
-      black: ['カカカッ…！', 'シュバッ…！ミャッ！', 'ダダダッ…ンニャ〜〜！'],
-      white: ['ピョンッ！…ふにゃあ！', 'カカッ…クニャ〜ン！', 'バシッ！…ふにゃあぁ！'],
+      black: [
+        'カカカッ…！',
+        'シュバッ…！ミャッ！',
+        'ダダダッ…ンニャ〜〜！',
+        'ちょいちょいっ！…ミャッ！',
+      ],
+      white: [
+        'ピョンッ！…ふにゃあ！',
+        'カカッ…クニャ〜ン！',
+        'バシッ！…ふにゃあぁ！',
+        'ちょいちょい…ふにゃあ！',
+      ],
     },
     themeClass: 'from-rose-400 to-red-500 text-rose-700 bg-rose-50 border-rose-200',
   },

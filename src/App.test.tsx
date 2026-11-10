@@ -248,7 +248,9 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
       // 吹き出しに黒猫の遊びセリフが表示される
       expect(
-        screen.getByText(/カシャカシャ…ニャッ！|パシッ！…ミャオ！|ウニャ〜！…ササッ！/)
+        screen.getByText(
+          /カシャカシャ…ニャッ！|パシッ！…ミャオ！|ウニャ〜！…ササッ！|ちょいちょいっ！…ミャオ♪/
+        )
       ).toBeInTheDocument();
     });
 
@@ -409,6 +411,61 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const fullnessScore = Number(fullnessMatch![1]);
       expect(fullnessScore).toBeGreaterThanOrEqual(40);
       expect(fullnessScore).toBeLessThanOrEqual(45);
+    });
+
+    it('猫にあげるごはんは、まんぷく度回復量が多いほど食べる時間が少しだけ長くなること', () => {
+      vi.useFakeTimers();
+      try {
+        localStorage.clear();
+        render(<App />);
+
+        const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+
+        // 1. おやつピューレ（回復量15%: 3000ms）を与える
+        fireEvent.click(careButton);
+        const feedTreatBtn = screen.getByRole('button', { name: 'おやつピューレをあげる' });
+        act(() => {
+          fireEvent.click(feedTreatBtn);
+        });
+
+        // 食事中であること
+        expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
+
+        // 2900ms時点: まだ食事中
+        act(() => {
+          vi.advanceTimersByTime(2900);
+        });
+        expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
+
+        // 3100ms時点: 食事終了
+        act(() => {
+          vi.advanceTimersByTime(200);
+        });
+        expect(screen.queryByTestId('active-food-dish')).not.toBeInTheDocument();
+
+        // 2. ねこ缶（回復量35%: 3800ms）を与える
+        fireEvent.click(careButton);
+        const feedCannedBtn = screen.getByRole('button', { name: 'ねこ缶（まぐろ）をあげる' });
+        act(() => {
+          fireEvent.click(feedCannedBtn);
+        });
+
+        expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
+
+        // おやつピューレなら終了していた3100ms経過時点でも、ねこ缶はまだ食事中
+        act(() => {
+          vi.advanceTimersByTime(3100);
+        });
+        expect(screen.getByTestId('active-food-dish')).toBeInTheDocument();
+
+        // 3900ms（合計）経過時点: 食事終了
+        act(() => {
+          vi.advanceTimersByTime(800);
+        });
+        expect(screen.queryByTestId('active-food-dish')).not.toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

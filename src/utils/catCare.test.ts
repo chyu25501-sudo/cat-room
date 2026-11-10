@@ -2,11 +2,14 @@ import { describe, it, expect } from 'vitest';
 import {
   FOOD_ITEMS,
   TOY_ITEMS,
+  BASE_FEEDING_DURATION_MS,
+  FEEDING_DURATION_PER_FULLNESS_MS,
   getFoodById,
   getToyById,
   getEatingMessage,
   getPlayMessage,
   calculateFedMood,
+  calculateFeedingDurationMs,
   calculatePlayedMood,
   getFootBadgeMessage,
 } from './catCare.ts';
@@ -91,6 +94,34 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
     expect(calculateFedMood(100, 28)).toBe(100);
   });
 
+  it('calculateFeedingDurationMs: まんぷく度の回復量が多いほど食べる時間が少しだけ長くなること', () => {
+    expect(BASE_FEEDING_DURATION_MS).toBe(2400);
+    expect(FEEDING_DURATION_PER_FULLNESS_MS).toBe(40);
+
+    const treat = getFoodById('treat'); // fullnessBoost: 15
+    const kibble = getFoodById('kibble'); // fullnessBoost: 25
+    const canned = getFoodById('canned'); // fullnessBoost: 35
+
+    const treatDuration = calculateFeedingDurationMs(treat.fullnessBoost);
+    const kibbleDuration = calculateFeedingDurationMs(kibble.fullnessBoost);
+    const cannedDuration = calculateFeedingDurationMs(canned.fullnessBoost);
+
+    // おやつ(+15%): 2400 + 15*40 = 3000ms
+    expect(treatDuration).toBe(3000);
+    // カリカリ(+25%): 2400 + 25*40 = 3400ms
+    expect(kibbleDuration).toBe(3400);
+    // ねこ缶(+35%): 2400 + 35*40 = 3800ms
+    expect(cannedDuration).toBe(3800);
+
+    // 回復量が多いほど食事時間が長いこと
+    expect(treatDuration).toBeLessThan(kibbleDuration);
+    expect(kibbleDuration).toBeLessThan(cannedDuration);
+
+    // 0以下の異常値でも下限値（1000ms）を下回らないこと
+    expect(calculateFeedingDurationMs(0)).toBe(2400);
+    expect(calculateFeedingDurationMs(-10)).toBe(2400);
+  });
+
   describe('おもちゃ純粋関数テスト', () => {
     it('TOY_ITEMS に3種類のおもちゃ（ねこじゃらし、毛糸ボール、レーザーポインター）が定義されていること', () => {
       expect(TOY_ITEMS).toHaveLength(3);
@@ -145,6 +176,26 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
       for (const toy of TOY_ITEMS) {
         for (const catId of ['black', 'white'] as const) {
           for (const msg of toy.playMessages[catId]) {
+            for (const phrase of forbiddenPhrases) {
+              expect(msg).not.toContain(phrase);
+            }
+          }
+        }
+      }
+    });
+
+    it('おもちゃ3種（ねこじゃらし、毛糸ボール、レーザーポインター）それぞれに「ちょいちょい」を含む自然なメッセージが登録されており、冗長な説明文（手でケリケリ等）が含まれていないこと', () => {
+      const forbiddenPhrases = ['手でケリケリ', 'ギュッと抱えて', '前足でケリケリ'];
+
+      for (const toy of TOY_ITEMS) {
+        for (const catId of ['black', 'white'] as const) {
+          const messages = toy.playMessages[catId];
+          const hasChoiChoiMsg = messages.some(
+            (msg) => msg.includes('ちょいちょい…') || msg.includes('ちょいちょいっ！')
+          );
+          expect(hasChoiChoiMsg).toBe(true);
+
+          for (const msg of messages) {
             for (const phrase of forbiddenPhrases) {
               expect(msg).not.toContain(phrase);
             }

@@ -87,4 +87,48 @@ describe('useCatFeeding フック', () => {
     expect(result.current.activeFood).toBeNull();
     expect(result.current.isEating).toBe(false);
   });
+
+  it('オプション未指定時、ごはんのまんぷく度回復量に応じて食べる時間が少しだけ長くなること', () => {
+    const { result } = renderHook(() => useCatFeeding());
+    const treat = FOOD_ITEMS[2]; // おやつピューレ(+15%): 3000ms
+    const canned = FOOD_ITEMS[1]; // ねこ缶(+35%): 3800ms
+
+    // 1. おやつピューレ（回復量小）
+    act(() => {
+      result.current.startFeeding(treat);
+    });
+    expect(result.current.isEating).toBe(true);
+
+    // 2900ms経過時点: まだお食事中
+    act(() => {
+      vi.advanceTimersByTime(2900);
+    });
+    expect(result.current.isEating).toBe(true);
+
+    // 3050ms経過時点: 終了
+    act(() => {
+      vi.advanceTimersByTime(150);
+    });
+    expect(result.current.isEating).toBe(false);
+    expect(result.current.activeFood).toBeNull();
+
+    // 2. ねこ缶（回復量大）
+    act(() => {
+      result.current.startFeeding(canned);
+    });
+    expect(result.current.isEating).toBe(true);
+
+    // 3050ms経過時点: おやつと違い、まだお食事中
+    act(() => {
+      vi.advanceTimersByTime(3050);
+    });
+    expect(result.current.isEating).toBe(true);
+
+    // 3850ms（合計）経過時点: 終了
+    act(() => {
+      vi.advanceTimersByTime(800);
+    });
+    expect(result.current.isEating).toBe(false);
+    expect(result.current.activeFood).toBeNull();
+  });
 });

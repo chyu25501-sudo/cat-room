@@ -1,10 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { FoodItem } from '../types/care.ts';
+import { calculateFeedingDurationMs } from '../utils/catCare.ts';
 
 export const DEFAULT_FEEDING_DURATION_MS = 3200;
 
 export interface UseCatFeedingOptions {
-  /** ごはんを食べている状態の継続時間ミリ秒（デフォルト: 3200ms） */
+  /**
+   * ごはんを食べている状態の継続時間ミリ秒（未指定時はごはんのまんぷく度回復量に応じた可変時間）
+   */
   durationMs?: number;
 }
 
@@ -13,17 +16,18 @@ export interface UseCatFeedingResult {
   activeFood: FoodItem | null;
   /** 食事中アニメーションフラグ */
   isEating: boolean;
-  /** ごはんを与えて食事演出を開始する関数 */
-  startFeeding: (food: FoodItem) => void;
+  /** ごはんを与えて食事演出を開始する関数（第2引数で時間を上書き可能） */
+  startFeeding: (food: FoodItem, durationMs?: number) => void;
   /** 食事演出を即時終了する関数 */
   stopFeeding: () => void;
 }
 
 /**
  * 猫の食事（給餌）状態とタイマーアニメーションを管理するカスタムフック
+ * まんぷく度の回復量が多いごはんほど食べる時間が少しだけ長くなります
  */
 export function useCatFeeding(options?: UseCatFeedingOptions): UseCatFeedingResult {
-  const durationMs = options?.durationMs ?? DEFAULT_FEEDING_DURATION_MS;
+  const fixedDurationMs = options?.durationMs;
 
   const [activeFood, setActiveFood] = useState<FoodItem | null>(null);
   const [isEating, setIsEating] = useState(false);
@@ -43,20 +47,28 @@ export function useCatFeeding(options?: UseCatFeedingOptions): UseCatFeedingResu
   }, [clearFeedingTimer]);
 
   const startFeeding = useCallback(
-    (food: FoodItem) => {
+    (food: FoodItem, customDurationMs?: number) => {
       clearFeedingTimer();
       setActiveFood(food);
       setIsEating(true);
+
+      // 時間の決定: 個別指定 > オプション固定時間 > ごはんのまんぷく度回復量に応じた可変時間
+      const duration =
+        typeof customDurationMs === 'number'
+          ? customDurationMs
+          : typeof fixedDurationMs === 'number'
+          ? fixedDurationMs
+          : calculateFeedingDurationMs(food.fullnessBoost);
 
       if (typeof window !== 'undefined') {
         timerRef.current = window.setTimeout(() => {
           setIsEating(false);
           setActiveFood(null);
           timerRef.current = null;
-        }, durationMs);
+        }, duration);
       }
     },
-    [durationMs, clearFeedingTimer]
+    [fixedDurationMs, clearFeedingTimer]
   );
 
   useEffect(() => {
