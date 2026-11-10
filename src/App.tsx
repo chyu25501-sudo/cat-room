@@ -21,7 +21,7 @@ export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood();
-  const { getFullnessScore, getFullnessLevelForCat, feedCatFullness } = useCatFullness();
+  const { getFullnessScore, getFullnessLevelForCat, feedCatFullness, playCatFullness } = useCatFullness();
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding({ durationMs: 3200 });
   const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
@@ -98,6 +98,9 @@ export default function App() {
 
     // おもちゃで遊んで機嫌を大きく上昇させ、不機嫌も即時解消
     const { nextLevel } = playCat(currentCatId, toy.moodBoost);
+
+    // おもちゃで遊んで運動し、まんぷく度を微減（5〜10%）
+    playCatFullness(currentCatId);
 
     // 猫の手前におもちゃイラストを描画し、遊び中アニメーションを開始
     startPlaying(toy);

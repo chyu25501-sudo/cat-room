@@ -12,6 +12,8 @@ import {
   getFullnessInfo,
   calculateNextFullness,
   calculateDecayedFullness,
+  calculatePlayFullnessReduction,
+  calculatePlayedFullness,
 } from '../utils/catFullness.ts';
 
 const STORAGE_KEY = 'nekoppoi_cats_fullness';
@@ -44,6 +46,11 @@ export interface UseCatFullnessResult {
     catId: CatId,
     boost: number
   ) => { nextScore: number; nextLevel: CatFullnessLevel };
+  /** おもちゃで遊んで運動し、まんぷく度を微減（5〜10%）させる関数 */
+  playCatFullness: (
+    catId: CatId,
+    reduction?: number
+  ) => { nextScore: number; nextLevel: CatFullnessLevel; reduction: number };
   /** 猫のまんぷく度を初期状態にリセットする関数 */
   resetFullness: (catId: CatId) => void;
 }
@@ -204,6 +211,37 @@ export function useCatFullness(
     [initialScore]
   );
 
+  const playCatFullness = useCallback(
+    (
+      catId: CatId,
+      reduction?: number
+    ): { nextScore: number; nextLevel: CatFullnessLevel; reduction: number } => {
+      const now = Date.now();
+      const current = fullnessRef.current[catId] ?? {
+        score: initialScore,
+        lastFedAt: now,
+      };
+
+      const actualReduction =
+        typeof reduction === 'number'
+          ? reduction
+          : calculatePlayFullnessReduction();
+      const nextScore = calculatePlayedFullness(current.score, actualReduction);
+      const nextLevel = getFullnessLevel(nextScore);
+
+      setFullnessMap((prev) => ({
+        ...prev,
+        [catId]: {
+          score: nextScore,
+          lastFedAt: now,
+        },
+      }));
+
+      return { nextScore, nextLevel, reduction: actualReduction };
+    },
+    [initialScore]
+  );
+
   const resetFullness = useCallback(
     (catId: CatId) => {
       setFullnessMap((prev) => ({
@@ -223,6 +261,7 @@ export function useCatFullness(
     getFullnessLevelForCat,
     getFullnessInfoForCat,
     feedCatFullness,
+    playCatFullness,
     resetFullness,
   };
 }

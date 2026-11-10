@@ -84,6 +84,39 @@ describe('useCatFullness フック', () => {
     expect(newResult.current.getFullnessScore('black')).toBe(80);
   });
 
+  it('playCatFullness: おもちゃで遊ぶとまんぷく度が5〜10%微減し、下限0でクランプされること', () => {
+    const { result } = renderHook(() => useCatFullness({ initialScore: 50 }));
+
+    // reduction省略時（5〜10%のランダム減）
+    act(() => {
+      const res = result.current.playCatFullness('black');
+      expect(res.reduction).toBeGreaterThanOrEqual(5);
+      expect(res.reduction).toBeLessThanOrEqual(10);
+      expect(res.nextScore).toBe(50 - res.reduction);
+    });
+
+    const scoreAfterPlay = result.current.getFullnessScore('black');
+    expect(scoreAfterPlay).toBeGreaterThanOrEqual(40);
+    expect(scoreAfterPlay).toBeLessThanOrEqual(45);
+    // 白猫は影響を受けないこと
+    expect(result.current.getFullnessScore('white')).toBe(50);
+
+    // reduction明示指定テスト（7%減少）
+    act(() => {
+      const res = result.current.playCatFullness('black', 7);
+      expect(res.reduction).toBe(7);
+      expect(res.nextScore).toBe(scoreAfterPlay - 7);
+    });
+
+    // 下限0%クランプテスト
+    act(() => {
+      const res = result.current.playCatFullness('black', 100);
+      expect(res.nextScore).toBe(0);
+      expect(res.nextLevel).toBe('starving');
+    });
+    expect(result.current.getFullnessScore('black')).toBe(0);
+  });
+
   it('resetFullness: スコアが初期値にリセットされること', () => {
     const { result } = renderHook(() => useCatFullness());
 

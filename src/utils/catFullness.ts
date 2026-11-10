@@ -118,3 +118,32 @@ export function calculateDecayedFullness(
   const decayed = Math.round(currentScore - decayAmount);
   return Math.max(minBaseline, Math.min(MAX_FULLNESS_SCORE, decayed));
 }
+
+/** おもちゃで遊んだときのまんぷく度微減の最小値（5%） */
+export const DEFAULT_PLAY_FULLNESS_MIN_REDUCTION = 5;
+
+/** おもちゃで遊んだときのまんぷく度微減の最大値（10%） */
+export const DEFAULT_PLAY_FULLNESS_MAX_REDUCTION = 10;
+
+/**
+ * おもちゃで遊んだときのまんぷく度減少量（5〜10%の整数ランダム）を算出する純粋関数
+ */
+export function calculatePlayFullnessReduction(
+  minReduction: number = DEFAULT_PLAY_FULLNESS_MIN_REDUCTION,
+  maxReduction: number = DEFAULT_PLAY_FULLNESS_MAX_REDUCTION,
+  randomFn: () => number = Math.random
+): number {
+  const range = maxReduction - minReduction + 1;
+  return Math.floor(randomFn() * range) + minReduction;
+}
+
+/**
+ * おもちゃで遊んだ後の新しいまんぷく度スコアを計算する純粋関数（0〜100でクランプ）
+ */
+export function calculatePlayedFullness(
+  currentScore: number,
+  reduction: number
+): number {
+  const next = currentScore - reduction;
+  return Math.max(MIN_FULLNESS_SCORE, Math.min(MAX_FULLNESS_SCORE, next));
+}

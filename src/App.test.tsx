@@ -380,5 +380,35 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('おもちゃで遊ぶとまんぷく度が5〜10%微減すること', () => {
+      localStorage.clear();
+      render(<App />);
+
+      // 初期状態でまんぷく度は 50%
+      expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('50%');
+
+      // お世話メニューを開く
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careButton);
+
+      // ねこじゃらし（ごきげん度+25%）であそぶ
+      const playFeatherBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
+      act(() => {
+        fireEvent.click(playFeatherBtn);
+      });
+
+      // ごきげん度は上昇（初期20% + ねこじゃらし16% = 36%）
+      const moodIndicator = screen.getByTestId('cat-mood-indicator');
+      expect(within(moodIndicator).getByText('36%')).toBeInTheDocument();
+
+      // まんぷく度は 5〜10% 微減（50 - 10 = 40% 〜 50 - 5 = 45% の範囲内）
+      const fullnessText = screen.getByTestId('fullness-score-percentage').textContent;
+      const fullnessMatch = fullnessText?.match(/(\d+)%/);
+      expect(fullnessMatch).not.toBeNull();
+      const fullnessScore = Number(fullnessMatch![1]);
+      expect(fullnessScore).toBeGreaterThanOrEqual(40);
+      expect(fullnessScore).toBeLessThanOrEqual(45);
+    });
   });
 });

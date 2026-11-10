@@ -5,10 +5,14 @@ import {
   DEFAULT_INITIAL_FULLNESS_SCORE,
   DEFAULT_FULLNESS_DECAY_PER_MINUTE,
   FULLNESS_THRESHOLDS,
+  DEFAULT_PLAY_FULLNESS_MIN_REDUCTION,
+  DEFAULT_PLAY_FULLNESS_MAX_REDUCTION,
   getFullnessLevel,
   getFullnessInfo,
   calculateNextFullness,
   calculateDecayedFullness,
+  calculatePlayFullnessReduction,
+  calculatePlayedFullness,
 } from './catFullness.ts';
 
 describe('catFullness ユーティリティ (純粋関数テスト)', () => {
@@ -74,5 +78,36 @@ describe('catFullness ユーティリティ (純粋関数テスト)', () => {
 
     // 大幅な時間経過でも下限0以下にはならないこと
     expect(calculateDecayedFullness(10, 6000000, 1)).toBe(0);
+  });
+
+  it('calculatePlayFullnessReduction: 5〜10%の範囲でランダムな減少量を算出すること', () => {
+    expect(DEFAULT_PLAY_FULLNESS_MIN_REDUCTION).toBe(5);
+    expect(DEFAULT_PLAY_FULLNESS_MAX_REDUCTION).toBe(10);
+
+    // デフォルト乱数呼び出しで5〜10の整数になること
+    for (let i = 0; i < 50; i++) {
+      const reduction = calculatePlayFullnessReduction();
+      expect(reduction).toBeGreaterThanOrEqual(5);
+      expect(reduction).toBeLessThanOrEqual(10);
+      expect(Number.isInteger(reduction)).toBe(true);
+    }
+
+    // 擬似乱数注入テスト（下限・上限の境界値検証）
+    expect(calculatePlayFullnessReduction(5, 10, () => 0)).toBe(5);
+    expect(calculatePlayFullnessReduction(5, 10, () => 0.999999)).toBe(10);
+  });
+
+  it('calculatePlayedFullness: まんぷく度が微減し、下限0でクランプされること', () => {
+    // 50から7減少 -> 43
+    expect(calculatePlayedFullness(50, 7)).toBe(43);
+
+    // 5から10減少 -> 0（負数にならずクランプ）
+    expect(calculatePlayedFullness(5, 10)).toBe(0);
+
+    // 0から5減少 -> 0
+    expect(calculatePlayedFullness(0, 5)).toBe(0);
+
+    // 100から5減少 -> 95
+    expect(calculatePlayedFullness(100, 5)).toBe(95);
   });
 });
