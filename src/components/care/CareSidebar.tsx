@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2, Sparkles } from 'lucide-react';
+import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2, Sparkles, AlertCircle } from 'lucide-react';
 import { FoodItem, ToyItem } from '../../types/care.ts';
-import { FOOD_ITEMS, TOY_ITEMS } from '../../utils/catCare.ts';
+import {
+  FOOD_ITEMS,
+  TOY_ITEMS,
+  canFeedCat,
+  canPlayWithCat,
+  MESSAGE_TOO_FULL_TO_EAT,
+  MESSAGE_TOO_HUNGRY_TO_PLAY,
+} from '../../utils/catCare.ts';
 
 export interface CareSidebarProps {
   /** 現在選択されている猫の名前（例: 「くろねこ」） */
@@ -16,6 +23,8 @@ export interface CareSidebarProps {
   isPlayingToy?: boolean;
   /** 食事中または遊び中など、お世話アクションが実行不可かどうか（未指定時は isEating || isPlayingToy） */
   isBusy?: boolean;
+  /** 現在選択されている猫のまんぷく度スコア（90%以上で給餌不可、10%以下で遊び不可） */
+  currentFullnessScore?: number;
   /** サイドバーの開閉状態（制御プロパティ、未指定時は内部ステート） */
   isOpen?: boolean;
   /** 開閉状態が変更されたときのコールバック */
@@ -29,6 +38,7 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   isEating = false,
   isPlayingToy = false,
   isBusy: controlledIsBusy,
+  currentFullnessScore,
   isOpen: controlledIsOpen,
   onToggleOpen,
 }) => {
@@ -39,6 +49,11 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
   const isBusy = controlledIsBusy !== undefined ? controlledIsBusy : (isEating || isPlayingToy);
 
+  // まんぷく度が90%以上のときは「まんぷくで食べられない！」
+  const isTooFull = typeof currentFullnessScore === 'number' && !canFeedCat(currentFullnessScore);
+  // まんぷく度が10%以下のときは「お腹が空いて遊べない！」
+  const isTooHungry = typeof currentFullnessScore === 'number' && !canPlayWithCat(currentFullnessScore);
+
   const handleSetOpen = (open: boolean) => {
     if (onToggleOpen) {
       onToggleOpen(open);
@@ -48,16 +63,16 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   };
 
   const handleFeedClick = (food: FoodItem) => {
-    // 食事中または遊び中は選択不可
-    if (isBusy) return;
+    // 食事中・遊び中、または満腹（90%以上）の場合は給餌不可
+    if (isBusy || isTooFull) return;
     onFeed(food);
     // ごはんをあげた直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
   };
 
   const handlePlayClick = (toy: ToyItem) => {
-    // 食事中または遊び中は選択不可
-    if (isBusy) return;
+    // 食事中・遊び中、または空腹（10%以下）の場合は遊び不可
+    if (isBusy || isTooHungry) return;
     onPlay(toy);
     // おもちゃで遊んだ直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
@@ -184,11 +199,24 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                 data-testid="food-submenu"
                 className="p-3 space-y-2.5 bg-gradient-to-b from-stone-50 to-amber-50/30"
               >
+                {/* 90%以上の満腹時は給餌不可バナーを表示 */}
+                {isTooFull && (
+                  <div
+                    data-testid="feed-disabled-banner"
+                    className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2 animate-in fade-in shadow-2xs"
+                  >
+                    <span className="text-base select-none shrink-0" role="img" aria-label="まんぷく">
+                      🈵
+                    </span>
+                    <span>{MESSAGE_TOO_FULL_TO_EAT}</span>
+                  </div>
+                )}
+
                 {FOOD_ITEMS.map((food) => (
                   <div
                     key={food.id}
                     className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
-                      isBusy ? 'opacity-80' : 'hover:border-orange-300 hover:shadow-sm'
+                      isBusy || isTooFull ? 'opacity-80' : 'hover:border-orange-300 hover:shadow-sm'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -229,20 +257,26 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                       </div>
                     </div>
 
-                    {/* あげるボタン（食事中・遊び中は無効化） */}
+                    {/* あげるボタン（食事中・遊び中・満腹90%以上は無効化） */}
                     <button
                       type="button"
-                      disabled={isBusy}
+                      disabled={isBusy || isTooFull}
                       onClick={() => handleFeedClick(food)}
                       aria-label={`${food.name}をあげる`}
                       className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
-                        isBusy
+                        isBusy || isTooFull
                           ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
                           : 'cursor-pointer bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs'
                       }`}
                     >
                       <Utensils className="w-3.5 h-3.5" />
-                      <span>{isBusy ? (isEating ? 'お食事中…' : 'あそび中…') : 'あげる'}</span>
+                      <span>
+                        {isBusy
+                          ? (isEating ? 'お食事中…' : 'あそび中…')
+                          : isTooFull
+                          ? MESSAGE_TOO_FULL_TO_EAT
+                          : 'あげる'}
+                      </span>
                     </button>
                   </div>
                 ))}
@@ -287,11 +321,24 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                 data-testid="toy-submenu"
                 className="p-3 space-y-2.5 bg-gradient-to-b from-stone-50 to-amber-50/30"
               >
+                {/* 10%以下の空腹時は遊び不可バナーを表示 */}
+                {isTooHungry && (
+                  <div
+                    data-testid="play-disabled-banner"
+                    className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold flex items-center gap-2 animate-in fade-in shadow-2xs"
+                  >
+                    <span className="text-base select-none shrink-0" role="img" aria-label="お腹が空いた">
+                      🪫
+                    </span>
+                    <span>{MESSAGE_TOO_HUNGRY_TO_PLAY}</span>
+                  </div>
+                )}
+
                 {TOY_ITEMS.map((toy) => (
                   <div
                     key={toy.id}
                     className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
-                      isBusy ? 'opacity-80' : 'hover:border-amber-300 hover:shadow-sm'
+                      isBusy || isTooHungry ? 'opacity-80' : 'hover:border-amber-300 hover:shadow-sm'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -321,20 +368,26 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                       </span>
                     </div>
 
-                    {/* あそぶボタン（食事中・遊び中は無効化） */}
+                    {/* あそぶボタン（食事中・遊び中・空腹10%以下は無効化） */}
                     <button
                       type="button"
-                      disabled={isBusy}
+                      disabled={isBusy || isTooHungry}
                       onClick={() => handlePlayClick(toy)}
                       aria-label={`${toy.name}であそぶ`}
                       className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
-                        isBusy
+                        isBusy || isTooHungry
                           ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
                           : 'cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white active:scale-98 shadow-xs'
                       }`}
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>{isBusy ? (isPlayingToy ? 'あそび中…' : 'お食事中…') : 'あそぶ'}</span>
+                      <span>
+                        {isBusy
+                          ? (isPlayingToy ? 'あそび中…' : 'お食事中…')
+                          : isTooHungry
+                          ? MESSAGE_TOO_HUNGRY_TO_PLAY
+                          : 'あそぶ'}
+                      </span>
                     </button>
                   </div>
                 ))}

@@ -12,6 +12,12 @@ import {
   calculateFeedingDurationMs,
   calculatePlayedMood,
   getFootBadgeMessage,
+  MAX_FEEDABLE_FULLNESS_SCORE,
+  MIN_PLAYABLE_FULLNESS_SCORE,
+  MESSAGE_TOO_FULL_TO_EAT,
+  MESSAGE_TOO_HUNGRY_TO_PLAY,
+  canFeedCat,
+  canPlayWithCat,
 } from './catCare.ts';
 
 describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関数テスト)', () => {
@@ -247,6 +253,33 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
         'うれしそうになでられています♪'
       );
       expect(getFootBadgeMessage({ moodLevel: 'normal' })).toBe('なでなで（ドラッグ）してふれあう');
+    });
+
+    it('canFeedCat: まんぷく度が90%以上のときは「まんぷくで食べられない！」ためごはん不可と判定すること', () => {
+      expect(MAX_FEEDABLE_FULLNESS_SCORE).toBe(90);
+      expect(MESSAGE_TOO_FULL_TO_EAT).toBe('まんぷくで食べられない！');
+
+      expect(canFeedCat(0)).toBe(true);
+      expect(canFeedCat(50)).toBe(true);
+      expect(canFeedCat(89)).toBe(true);
+      // 90%以上は不可
+      expect(canFeedCat(90)).toBe(false);
+      expect(canFeedCat(95)).toBe(false);
+      expect(canFeedCat(100)).toBe(false);
+    });
+
+    it('canPlayWithCat: まんぷく度が10%以下のときは「お腹が空いて遊べない！」ためおもちゃ不可と判定すること', () => {
+      expect(MIN_PLAYABLE_FULLNESS_SCORE).toBe(10);
+      expect(MESSAGE_TOO_HUNGRY_TO_PLAY).toBe('お腹が空いて遊べない！');
+
+      // 10%以下は不可
+      expect(canPlayWithCat(0)).toBe(false);
+      expect(canPlayWithCat(5)).toBe(false);
+      expect(canPlayWithCat(10)).toBe(false);
+      // 11%以上は可能
+      expect(canPlayWithCat(11)).toBe(true);
+      expect(canPlayWithCat(50)).toBe(true);
+      expect(canPlayWithCat(100)).toBe(true);
     });
   });
 });

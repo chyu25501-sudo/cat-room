@@ -13,7 +13,14 @@ import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
 import { CareSidebar } from './components/care/CareSidebar.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
-import { getEatingMessage, getPlayMessage } from './utils/catCare.ts';
+import {
+  getEatingMessage,
+  getPlayMessage,
+  canFeedCat,
+  canPlayWithCat,
+  MESSAGE_TOO_FULL_TO_EAT,
+  MESSAGE_TOO_HUNGRY_TO_PLAY,
+} from './utils/catCare.ts';
 import { CatId } from './types/cat.ts';
 import { FoodItem, ToyItem, LastCareAction } from './types/care.ts';
 
@@ -58,6 +65,12 @@ export default function App() {
     // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
     if (isEating || isPlayingToy) return;
 
+    // まんぷく度が90%以上の時は「まんぷくで食べられない！」と表示し、ごはんをあげられない
+    if (!canFeedCat(currentFullnessScore)) {
+      showBubble(MESSAGE_TOO_FULL_TO_EAT, { force: true, durationMs: 2400 });
+      return;
+    }
+
     // 直前アクションをごはんに設定
     setLastAction('feed');
 
@@ -89,6 +102,12 @@ export default function App() {
   const handlePlay = (toy: ToyItem) => {
     // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
     if (isEating || isPlayingToy) return;
+
+    // まんぷく度が10%以下のときは「お腹が空いて遊べない！」と表示しておもちゃで遊べない
+    if (!canPlayWithCat(currentFullnessScore)) {
+      showBubble(MESSAGE_TOO_HUNGRY_TO_PLAY, { force: true, durationMs: 2400 });
+      return;
+    }
 
     // 直前アクションをおもちゃに設定
     setLastAction('play');
@@ -219,6 +238,7 @@ export default function App() {
         currentCatName={currentPreset.name}
         isEating={isEating}
         isPlayingToy={isPlayingToy}
+        currentFullnessScore={currentFullnessScore}
         onFeed={handleFeed}
         onPlay={handlePlay}
       />

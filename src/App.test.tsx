@@ -522,5 +522,73 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('まんぷく度が90%以上のときは「まんぷくで食べられない！」と表示されごはんをあげられないこと', () => {
+      localStorage.clear();
+      // 黒猫のまんぷく度を 95%（90%以上）に設定
+      localStorage.setItem(
+        'nekoppoi_cats_fullness',
+        JSON.stringify({
+          black: { score: 95, lastFedAt: Date.now() },
+          white: { score: 50, lastFedAt: Date.now() },
+        })
+      );
+
+      render(<App />);
+
+      expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('95%');
+
+      // お世話メニューを開く
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careButton);
+
+      // 「まんぷくで食べられない！」バナーが表示されていること
+      expect(screen.getByTestId('feed-disabled-banner')).toHaveTextContent('まんぷくで食べられない！');
+
+      // ごはんボタンが無効化されていること
+      const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+      for (const btn of feedButtons) {
+        expect(btn).toBeDisabled();
+        expect(btn).toHaveTextContent('まんぷくで食べられない！');
+        fireEvent.click(btn);
+      }
+
+      // 食事中にならないこと
+      expect(screen.queryByTestId('active-food-dish')).not.toBeInTheDocument();
+    });
+
+    it('まんぷく度が10%以下のときは「お腹が空いて遊べない！」と表示されおもちゃで遊べないこと', () => {
+      localStorage.clear();
+      // 黒猫のまんぷく度を 8%（10%以下）に設定
+      localStorage.setItem(
+        'nekoppoi_cats_fullness',
+        JSON.stringify({
+          black: { score: 8, lastFedAt: Date.now() },
+          white: { score: 50, lastFedAt: Date.now() },
+        })
+      );
+
+      render(<App />);
+
+      expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('8%');
+
+      // お世話メニューを開く
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careButton);
+
+      // 「お腹が空いて遊べない！」バナーが表示されていること
+      expect(screen.getByTestId('play-disabled-banner')).toHaveTextContent('お腹が空いて遊べない！');
+
+      // おもちゃボタンが無効化されていること
+      const playButtons = screen.getAllByRole('button', { name: /であそぶ$/ });
+      for (const btn of playButtons) {
+        expect(btn).toBeDisabled();
+        expect(btn).toHaveTextContent('お腹が空いて遊べない！');
+        fireEvent.click(btn);
+      }
+
+      // 遊び中にならないこと
+      expect(screen.queryByTestId('active-toy-item')).not.toBeInTheDocument();
+    });
   });
 });

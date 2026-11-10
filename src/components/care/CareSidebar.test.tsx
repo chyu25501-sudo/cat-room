@@ -251,4 +251,68 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     }
     expect(handlePlay).not.toHaveBeenCalled();
   });
+
+  it('まんぷく度が90%以上のとき、「まんぷくで食べられない！」と表示され、ごはんボタンがdisabledになりごはんをあげられないこと', () => {
+    const handleFeed = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="くろねこ"
+        onFeed={handleFeed}
+        onPlay={vi.fn()}
+        isOpen={true}
+        currentFullnessScore={90}
+      />
+    );
+
+    // バナーが表示されていること
+    expect(screen.getByTestId('feed-disabled-banner')).toHaveTextContent('まんぷくで食べられない！');
+
+    // 全てのごはんボタンが disabled であり、「まんぷくで食べられない！」と表示されていること
+    const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+    expect(feedButtons).toHaveLength(3);
+    for (const btn of feedButtons) {
+      expect(btn).toBeDisabled();
+      expect(btn).toHaveTextContent('まんぷくで食べられない！');
+      fireEvent.click(btn);
+    }
+    expect(handleFeed).not.toHaveBeenCalled();
+
+    // おもちゃボタンは有効であること
+    const playButtons = screen.getAllByRole('button', { name: /であそぶ$/ });
+    for (const btn of playButtons) {
+      expect(btn).toBeEnabled();
+    }
+  });
+
+  it('まんぷく度が10%以下のとき、「お腹が空いて遊べない！」と表示され、おもちゃボタンがdisabledになりおもちゃで遊べないこと', () => {
+    const handlePlay = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="しろねこ"
+        onFeed={vi.fn()}
+        onPlay={handlePlay}
+        isOpen={true}
+        currentFullnessScore={10}
+      />
+    );
+
+    // バナーが表示されていること
+    expect(screen.getByTestId('play-disabled-banner')).toHaveTextContent('お腹が空いて遊べない！');
+
+    // 全てのおもちゃボタンが disabled であり、「お腹が空いて遊べない！」と表示されていること
+    const playButtons = screen.getAllByRole('button', { name: /であそぶ$/ });
+    expect(playButtons).toHaveLength(3);
+    for (const btn of playButtons) {
+      expect(btn).toBeDisabled();
+      expect(btn).toHaveTextContent('お腹が空いて遊べない！');
+      fireEvent.click(btn);
+    }
+    expect(handlePlay).not.toHaveBeenCalled();
+
+    // ごはんボタンは有効であること
+    const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+    for (const btn of feedButtons) {
+      expect(btn).toBeEnabled();
+    }
+  });
 });

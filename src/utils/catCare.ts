@@ -207,6 +207,34 @@ export function calculatePlayedMood(currentScore: number, boost: number): number
   return Math.max(MIN_MOOD_SCORE, Math.min(MAX_MOOD_SCORE, currentScore + boost));
 }
 
+/** ごはんをあげられるまんぷく度の上限境界値（90%以上は満腹で不可） */
+export const MAX_FEEDABLE_FULLNESS_SCORE = 90;
+
+/** おもちゃで遊べるまんぷく度の下限境界値（10%以下は空腹で不可） */
+export const MIN_PLAYABLE_FULLNESS_SCORE = 10;
+
+/** まんぷく度が90%以上でごはんをあげられないときのメッセージ */
+export const MESSAGE_TOO_FULL_TO_EAT = 'まんぷくで食べられない！';
+
+/** まんぷく度が10%以下でおもちゃで遊べないときのメッセージ */
+export const MESSAGE_TOO_HUNGRY_TO_PLAY = 'お腹が空いて遊べない！';
+
+/**
+ * 現在のまんぷく度スコアからごはんを与えられるか判定する純粋関数
+ * 90%以上のときは「まんぷくで食べられない！」ため不可
+ */
+export function canFeedCat(fullnessScore: number): boolean {
+  return fullnessScore < MAX_FEEDABLE_FULLNESS_SCORE;
+}
+
+/**
+ * 現在のまんぷく度スコアからおもちゃで遊べるか判定する純粋関数
+ * 10%以下のときは「お腹が空いて遊べない！」ため不可
+ */
+export function canPlayWithCat(fullnessScore: number): boolean {
+  return fullnessScore > MIN_PLAYABLE_FULLNESS_SCORE;
+}
+
 export interface FootBadgeParams {
   moodLevel: CatMoodLevel;
   isEating?: boolean;
