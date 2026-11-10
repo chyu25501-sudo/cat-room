@@ -20,8 +20,8 @@ import { FoodItem, ToyItem, LastCareAction } from './types/care.ts';
 export default function App() {
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
   const { meow, isPlaying } = useCatAudio();
-  const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood();
   const { getFullnessScore, getFullnessLevelForCat, feedCatFullness, playCatFullness } = useCatFullness();
+  const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood({ getFullnessScore });
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding();
   const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });

@@ -489,4 +489,80 @@ describe('useCatMood フック (第4週: 猫ごとの機嫌管理)', () => {
       vi.useRealTimers();
     });
   });
+
+  describe('まんぷく度に応じた機嫌減衰連携テスト', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('まんぷく度が0〜39%のとき減りが早く(6点/分)なり最大10%まで下がること、回復後は平常時(4点/分、下限20%)に戻ること', () => {
+      let blackFullness = 30; // 空腹（0〜39%）
+      const whiteFullness = 50; // 平常（40%以上）
+
+      const { result } = renderHook(() =>
+        useCatMood({
+          petIncrement: 40, // 20 + 40 = 60
+          enableVariation: false,
+          decayCheckIntervalMs: 1000,
+          decayPerMinute: 4,
+          getFullnessScore: (catId) => (catId === 'black' ? blackFullness : whiteFullness),
+        })
+      );
+
+      // t=0 で黒猫・白猫をなでる (20 + 40 = 60)
+      act(() => {
+        result.current.petCat('black');
+        result.current.petCat('white');
+      });
+
+      expect(result.current.getMoodScore('black')).toBe(60);
+      expect(result.current.getMoodScore('white')).toBe(60);
+
+      // 1分（60秒）経過:
+      // 黒猫（空腹: 6点/分）: 60 - 6 = 54
+      // 白猫（平常: 4点/分）: 60 - 4 = 56
+      act(() => {
+        vi.advanceTimersByTime(60 * 1000);
+      });
+
+      expect(result.current.getMoodScore('black')).toBe(54);
+      expect(result.current.getMoodScore('white')).toBe(56);
+
+      // さらに長時間放置（30分）:
+      // 黒猫は最大10%まで下がる
+      // 白猫は平常時ベースラインの20%までしか下がらない
+      act(() => {
+        vi.advanceTimersByTime(30 * 60 * 1000);
+      });
+
+      expect(result.current.getMoodScore('black')).toBe(10);
+      expect(result.current.getMoodScore('white')).toBe(20);
+
+      // ここで黒猫のまんぷく度が回復（ごはんを食べて50%に回復）
+      blackFullness = 50;
+
+      // 満腹度が回復した黒猫をなでる (10 + 40 = 50)
+      act(() => {
+        result.current.petCat('black');
+      });
+      expect(result.current.getMoodScore('black')).toBe(50);
+
+      // 1分経過: 平常時と同様の減り方（4点/分）に戻っていること
+      act(() => {
+        vi.advanceTimersByTime(60 * 1000);
+      });
+      // 50 - 4 = 46点
+      expect(result.current.getMoodScore('black')).toBe(46);
+
+      // 長時間放置しても、平常時の下限（20%）より下には下がらないこと
+      act(() => {
+        vi.advanceTimersByTime(30 * 60 * 1000);
+      });
+      expect(result.current.getMoodScore('black')).toBe(20);
+    });
+  });
 });

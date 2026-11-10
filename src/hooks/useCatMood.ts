@@ -17,6 +17,8 @@ import {
   calculateDecayedMood,
   checkOverstimulation,
   isCatAnnoyed,
+  getMoodDecayConfigByFullness,
+  evaluateCatMoodDecay,
 } from '../utils/catMood.ts';
 import { calculateFedMood, calculatePlayedMood } from '../utils/catCare.ts';
 
@@ -42,6 +44,8 @@ export interface UseCatMoodOptions {
   overstimulationThresholdCount?: number;
   /** 不機嫌状態の継続時間ミリ秒（未指定時は5000ms） */
   annoyedDurationMs?: number;
+  /** 猫の現在のまんぷく度スコアを取得する関数（未指定時は常に平常設定） */
+  getFullnessScore?: (catId: CatId) => number;
 }
 
 export interface UseCatMoodResult {
@@ -144,6 +148,14 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
     moodsRef.current = moods;
   }, [moods]);
 
+  const getFullnessScoreRef = useRef(options.getFullnessScore);
+  useEffect(() => {
+    getFullnessScoreRef.current = options.getFullnessScore;
+  }, [options.getFullnessScore]);
+
+  // 各猫の直前の空腹フラグ（まんぷく度0〜39%）を記録
+  const prevHungryMapRef = useRef<Record<string, boolean>>({});
+
   const saveToStorage = (updated: CatsMoodMap) => {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
@@ -190,15 +202,27 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
           if (enableDecay) {
             const isAnnoyedNow = isCatAnnoyed(item.annoyedUntil, now);
             if (!isAnnoyedNow) {
-              const baseScore = item.baseScore ?? item.score;
-              const elapsed = now - item.lastPetAt;
-              const decayed = calculateDecayedMood(baseScore, elapsed, decayPerMinute);
+              const fullness = getFullnessScoreRef.current ? getFullnessScoreRef.current(preset.id) : undefined;
+              const wasHungry = prevHungryMapRef.current[preset.id] ?? false;
+              const base = item.baseScore ?? item.score;
+              const { decayedScore, nextBaseScore, nextLastPetAt, isHungryNow } = evaluateCatMoodDecay(
+                item.score,
+                base,
+                item.lastPetAt,
+                now,
+                fullness,
+                decayPerMinute,
+                wasHungry
+              );
+              prevHungryMapRef.current[preset.id] = isHungryNow;
 
-              if (decayed !== item.score) {
+              if (decayedScore !== item.score || nextLastPetAt !== item.lastPetAt) {
                 hasChanged = true;
                 nextMap[preset.id] = {
                   ...item,
-                  score: decayed,
+                  score: decayedScore,
+                  baseScore: nextBaseScore,
+                  lastPetAt: nextLastPetAt,
                 };
               }
             }
@@ -283,10 +307,21 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
         actualIncrement = 0;
       } else {
         // 通常の機嫌上昇（enableVariation が true の場合は基準値に±1〜5%のランダムな揺らぎを加算）
-        const effectiveBase = current.baseScore ?? current.score;
-        const currentDecayed = enableDecay
-          ? calculateDecayedMood(effectiveBase, now - current.lastPetAt, decayPerMinute)
-          : current.score;
+        const fullness = getFullnessScoreRef.current ? getFullnessScoreRef.current(catId) : undefined;
+        const wasHungry = prevHungryMapRef.current[catId] ?? false;
+        const base = current.baseScore ?? current.score;
+        const { decayedScore, isHungryNow } = evaluateCatMoodDecay(
+          current.score,
+          base,
+          current.lastPetAt,
+          now,
+          fullness,
+          decayPerMinute,
+          wasHungry
+        );
+        prevHungryMapRef.current[catId] = isHungryNow;
+
+        const currentDecayed = enableDecay ? decayedScore : current.score;
 
         const incrementToApply = enableVariation
           ? calculateVariedMoodIncrement(petIncrement)
@@ -344,11 +379,23 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
         ? ANNOYED_MOOD_SCORE
         : (current.baseScore ?? current.score);
 
+      const fullness = getFullnessScoreRef.current ? getFullnessScoreRef.current(catId) : undefined;
+      const wasHungry = prevHungryMapRef.current[catId] ?? false;
+      const base = current.baseScore ?? current.score;
+      const { decayedScore, isHungryNow } = evaluateCatMoodDecay(
+        current.score,
+        base,
+        current.lastPetAt,
+        now,
+        fullness,
+        decayPerMinute,
+        wasHungry
+      );
+      prevHungryMapRef.current[catId] = isHungryNow;
+
       const currentScore = isAnnoyedNow
         ? ANNOYED_MOOD_SCORE
-        : (enableDecay
-            ? calculateDecayedMood(effectiveBase, now - current.lastPetAt, decayPerMinute)
-            : current.score);
+        : (enableDecay ? decayedScore : current.score);
 
       const nextScore = calculateFedMood(currentScore, moodBoost);
       const nextLevel = getMoodLevel(nextScore, false);
@@ -391,11 +438,23 @@ export function useCatMood(options: UseCatMoodOptions = {}): UseCatMoodResult {
         ? ANNOYED_MOOD_SCORE
         : (current.baseScore ?? current.score);
 
+      const fullness = getFullnessScoreRef.current ? getFullnessScoreRef.current(catId) : undefined;
+      const wasHungry = prevHungryMapRef.current[catId] ?? false;
+      const base = current.baseScore ?? current.score;
+      const { decayedScore, isHungryNow } = evaluateCatMoodDecay(
+        current.score,
+        base,
+        current.lastPetAt,
+        now,
+        fullness,
+        decayPerMinute,
+        wasHungry
+      );
+      prevHungryMapRef.current[catId] = isHungryNow;
+
       const currentScore = isAnnoyedNow
         ? ANNOYED_MOOD_SCORE
-        : (enableDecay
-            ? calculateDecayedMood(effectiveBase, now - current.lastPetAt, decayPerMinute)
-            : current.score);
+        : (enableDecay ? decayedScore : current.score);
 
       const nextScore = calculatePlayedMood(currentScore, moodBoost);
       const nextLevel = getMoodLevel(nextScore, false);

@@ -23,6 +23,112 @@ export const DEFAULT_MAX_MOOD_VARIATION = 5;
 /** 1分あたりの自然減衰スコア（15秒で約1点減衰） */
 export const DEFAULT_DECAY_PER_MINUTE = 4;
 
+/** 空腹時（まんぷく度0〜39%）のごきげん度減衰が発動するしきい値（満腹度スコア未満） */
+export const HUNGRY_MOOD_DECAY_FULLNESS_THRESHOLD = 40;
+
+/** 空腹時（まんぷく度0〜39%）の機嫌ベースライン下限値（最大10%まで下がる） */
+export const HUNGRY_MIN_MOOD_SCORE = 10;
+
+/** 空腹時（まんぷく度0〜39%）の1分あたりの減衰量（平常時の4点から6点に少し早くなる: 10秒で約1点） */
+export const HUNGRY_DECAY_PER_MINUTE = 6;
+
+export interface CatMoodDecayEvaluation {
+  /** 現在の減衰後スコア */
+  decayedScore: number;
+  /** 次の減衰計算の起点スコア（満腹度区分切り替わり時に更新） */
+  nextBaseScore: number;
+  /** 次の減衰計算の起点時刻（満腹度区分切り替わり時に更新） */
+  nextLastPetAt: number;
+  /** 現在空腹状態（0〜39%）かどうか */
+  isHungryNow: boolean;
+}
+
+/**
+ * 満腹度区分（空腹 / 平常）の切り替わり境界を考慮し、現在の時刻における猫の自然減衰スコアと新しい起点情報を計算する純粋関数
+ * 満腹度区分が変わらない間は起点を維持して丸め誤差を防ぎ、区分が切り替わった時のみそれまでの減衰を確定して新設定に切り替えます
+ */
+export function evaluateCatMoodDecay(
+  currentScore: number,
+  baseScore: number,
+  lastPetAt: number,
+  now: number,
+  fullnessScore: number | undefined,
+  defaultDecayPerMinute: number = DEFAULT_DECAY_PER_MINUTE,
+  wasHungry: boolean = false
+): CatMoodDecayEvaluation {
+  const currentConfig = getMoodDecayConfigByFullness(fullnessScore, defaultDecayPerMinute);
+  const isHungryNow = currentConfig.isHungryAccelerated;
+
+  let effectiveBase = baseScore;
+  let effectiveLastPetAt = lastPetAt;
+
+  // 満腹度区分（空腹 / 平常）が切り替わった場合、切り替わり前の設定でそれまでの減衰を確定して起点を更新
+  if (wasHungry !== isHungryNow) {
+    const prevConfig = getMoodDecayConfigByFullness(wasHungry ? 0 : 100, defaultDecayPerMinute);
+    const elapsedBefore = Math.max(0, now - lastPetAt);
+    const scoreAtSwitch = calculateDecayedMood(
+      effectiveBase,
+      elapsedBefore,
+      prevConfig.decayPerMinute,
+      prevConfig.minBaseline
+    );
+    effectiveBase = scoreAtSwitch;
+    effectiveLastPetAt = now;
+  }
+
+  const elapsed = Math.max(0, now - effectiveLastPetAt);
+  const decayedScore = calculateDecayedMood(
+    effectiveBase,
+    elapsed,
+    currentConfig.decayPerMinute,
+    currentConfig.minBaseline
+  );
+
+  return {
+    decayedScore,
+    nextBaseScore: effectiveBase,
+    nextLastPetAt: effectiveLastPetAt,
+    isHungryNow,
+  };
+}
+
+export interface MoodDecayConfig {
+  /** 1分あたりの減衰スコア */
+  decayPerMinute: number;
+  /** 自然減衰の下限ベースラインスコア */
+  minBaseline: number;
+  /** 空腹による減衰加速中フラグ */
+  isHungryAccelerated: boolean;
+}
+
+/**
+ * まんぷく度スコアに基づいて、ごきげん度の自然減衰設定（減衰速度と下限ベースライン）を取得する純粋関数
+ * - まんぷく度が0〜39%のとき: 減りが平常時より少し早くなり（6点/分）、最大10%まで下がる
+ * - まんぷく度が40%以上のとき（平常時）: 通常の減り方（4点/分）、最大20%（ベースライン）まで下がる
+ *
+ * @param fullnessScore 猫の現在のまんぷく度スコア（未指定時は平常設定）
+ * @param defaultDecayPerMinute 通常時の減衰量（デフォルト: 4）
+ * @param defaultBaseline 通常時の下限ベースライン（デフォルト: 20）
+ */
+export function getMoodDecayConfigByFullness(
+  fullnessScore?: number,
+  defaultDecayPerMinute: number = DEFAULT_DECAY_PER_MINUTE,
+  defaultBaseline: number = DEFAULT_INITIAL_MOOD_SCORE
+): MoodDecayConfig {
+  if (typeof fullnessScore === 'number' && fullnessScore < HUNGRY_MOOD_DECAY_FULLNESS_THRESHOLD) {
+    return {
+      decayPerMinute: HUNGRY_DECAY_PER_MINUTE,
+      minBaseline: HUNGRY_MIN_MOOD_SCORE,
+      isHungryAccelerated: true,
+    };
+  }
+  return {
+    decayPerMinute: defaultDecayPerMinute,
+    minBaseline: defaultBaseline,
+    isHungryAccelerated: false,
+  };
+}
+
 /** 過剰刺激（愛撫誘発性攻撃行動）の判定ウィンドウ（ミリ秒）: 12秒間 */
 export const DEFAULT_OVERSTIMULATION_WINDOW_MS = 12000;
 

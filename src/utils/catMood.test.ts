@@ -18,6 +18,10 @@ import {
   DEFAULT_OVERSTIMULATION_THRESHOLD_COUNT,
   DEFAULT_MIN_MOOD_VARIATION,
   DEFAULT_MAX_MOOD_VARIATION,
+  HUNGRY_MOOD_DECAY_FULLNESS_THRESHOLD,
+  HUNGRY_MIN_MOOD_SCORE,
+  HUNGRY_DECAY_PER_MINUTE,
+  getMoodDecayConfigByFullness,
 } from './catMood.ts';
 import { CAT_PRESETS } from '../types/cat.ts';
 
@@ -196,6 +200,56 @@ describe('catMood ユーティリティ (純粋関数テスト)', () => {
     // 4. 不機嫌時はアクションによらずイライラ
     expect(getMoodDescription('annoyed', 'feed')).toBe('なですぎてイライラしているよ…！');
     expect(getMoodDescription('annoyed', 'play')).toBe('なですぎてイライラしているよ…！');
+  });
+
+  describe('空腹時（まんぷく度0〜39%）の機嫌減衰パラメータ純粋関数テスト', () => {
+    it('空腹時定数が正しく設定されていること', () => {
+      expect(HUNGRY_MOOD_DECAY_FULLNESS_THRESHOLD).toBe(40);
+      expect(HUNGRY_MIN_MOOD_SCORE).toBe(10);
+      expect(HUNGRY_DECAY_PER_MINUTE).toBe(6);
+    });
+
+    it('getMoodDecayConfigByFullness: まんぷく度が0〜39%のとき減りが少し早くなり(6点/分)最大10%まで下がること', () => {
+      // 0%: 空腹減衰
+      const config0 = getMoodDecayConfigByFullness(0);
+      expect(config0.decayPerMinute).toBe(6);
+      expect(config0.minBaseline).toBe(10);
+      expect(config0.isHungryAccelerated).toBe(true);
+
+      // 39%: 空腹減衰の境界
+      const config39 = getMoodDecayConfigByFullness(39);
+      expect(config39.decayPerMinute).toBe(6);
+      expect(config39.minBaseline).toBe(10);
+      expect(config39.isHungryAccelerated).toBe(true);
+
+      // 40%: 平常時減衰（4点/分、下限20%）
+      const config40 = getMoodDecayConfigByFullness(40);
+      expect(config40.decayPerMinute).toBe(4);
+      expect(config40.minBaseline).toBe(20);
+      expect(config40.isHungryAccelerated).toBe(false);
+
+      // 100%: 平常時減衰
+      const config100 = getMoodDecayConfigByFullness(100);
+      expect(config100.decayPerMinute).toBe(4);
+      expect(config100.minBaseline).toBe(20);
+      expect(config100.isHungryAccelerated).toBe(false);
+
+      // 未指定（undefined）: 平常時減衰
+      const configUndef = getMoodDecayConfigByFullness(undefined);
+      expect(configUndef.decayPerMinute).toBe(4);
+      expect(configUndef.minBaseline).toBe(20);
+      expect(configUndef.isHungryAccelerated).toBe(false);
+    });
+
+    it('calculateDecayedMood: 空腹時の下限ベースライン（10%）まで減衰できること', () => {
+      // 20点から空腹時設定（6点/分、下限10%）で2分経過: 20 - 12 = 8 -> 10%クランプ
+      const decayed = calculateDecayedMood(20, 2 * 60 * 1000, 6, 10);
+      expect(decayed).toBe(10);
+
+      // 長時間放置でも10%より下には下がらないこと
+      const longDecayed = calculateDecayedMood(50, 60 * 60 * 1000, 6, 10);
+      expect(longDecayed).toBe(10);
+    });
   });
 });
 

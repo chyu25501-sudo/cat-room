@@ -467,5 +467,60 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('まんぷく度が0〜39％のとき、ごきげん度が最大10%まで下がり、ごはん回復後は平常通り20%までしか下がらないこと', () => {
+      vi.useFakeTimers();
+      try {
+        localStorage.clear();
+        // 黒猫のまんぷく度を30%（空腹）、ごきげん度20%で初期化
+        localStorage.setItem(
+          'nekoppoi_cats_fullness',
+          JSON.stringify({
+            black: { score: 30, lastFedAt: Date.now() },
+            white: { score: 50, lastFedAt: Date.now() },
+          })
+        );
+
+        render(<App />);
+
+        // まんぷく度が30%（小腹すいた）であることを確認
+        expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('30%');
+
+        const moodIndicator = screen.getByTestId('cat-mood-indicator');
+        expect(within(moodIndicator).getByTestId('mood-score-percentage')).toHaveTextContent('20%');
+
+        // 空腹状態（30%）なので、放置すると通常の下限20%を突き抜けて最大10%まで下がる（6点/分で減衰）
+        // 2分（120秒）進めると 20 - 12 = 8 -> 下限10%でクランプ
+        act(() => {
+          vi.advanceTimersByTime(120 * 1000);
+        });
+
+        expect(within(moodIndicator).getByTestId('mood-score-percentage')).toHaveTextContent('10%');
+
+        // ここでごはん（カリカリ: 満腹度+25%, 機嫌+18%）を与える
+        const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+        fireEvent.click(careButton);
+        const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+        act(() => {
+          fireEvent.click(feedKibbleBtn);
+        });
+
+        // 機嫌が 10 + 18 = 28% に回復
+        expect(within(moodIndicator).getByTestId('mood-score-percentage')).toHaveTextContent('28%');
+
+        // まんぷく度が回復（2分経過で30-2=28%に減衰後、カリカリ+25%で53%）し、40%以上に回復したことを確認
+        expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('53%');
+
+        // 満腹度回復後は、平常時の減り方（下限20%）に戻る
+        // 30分放置しても、下限20%より下には下がらないこと
+        act(() => {
+          vi.advanceTimersByTime(30 * 60 * 1000);
+        });
+
+        expect(within(moodIndicator).getByTestId('mood-score-percentage')).toHaveTextContent('20%');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });
