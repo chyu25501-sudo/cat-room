@@ -5,8 +5,8 @@ import { CatShapeProps } from './BlackCat.tsx';
 /**
  * 3種類目の猫「みけねこ（calico）」コンポーネント
  * 横向きに立ち、顔はこちら（正面）を向いていて、顔は右側、しっぽは左側にある姿勢。
- * 黒猫・白猫と統一された表情デザイン（優しい線画の目、ピンクの三角鼻、3本のひげ、条件付きチーク）を持ち、
- * 体と首・足の付け根が自然にシームレスに繋がっています。
+ * 首が折れ曲がらず体から右前へ自然に伸び、その先端に顔が位置しています。
+ * 黒猫・白猫と統一された表情デザイン（優しい線画の目、ピンクの三角鼻、3本のひげ、条件付きチーク）を持ちます。
  */
 export const CalicoCat: React.FC<CatShapeProps> = ({
   isReacting = false,
@@ -18,16 +18,16 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
 
   return (
     <svg
-      viewBox="0 0 260 210"
+      viewBox="0 0 270 210"
       className="w-64 h-52 sm:w-72 sm:h-60 drop-shadow-xl transition-all duration-300"
       aria-hidden="true"
       data-testid="calico-cat-svg"
     >
       {/* ===== 地面の影 ===== */}
       <ellipse
-        cx="130"
+        cx="135"
         cy="192"
-        rx="96"
+        rx="100"
         ry="11"
         className={`transition-all duration-300 ${
           isReacting ? 'fill-orange-300/40 scale-110' : 'fill-stone-300/60'
@@ -37,9 +37,9 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       {/* 音声再生・反応時の床の波紋エフェクト */}
       {isReacting && (
         <ellipse
-          cx="130"
+          cx="135"
           cy="192"
-          rx="108"
+          rx="112"
           ry="14"
           className="fill-orange-400/20 animate-ping"
         />
@@ -70,7 +70,7 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       </g>
 
       {/* ===== 奥側の足（左後ろ足・左前足：少し暗めで立体感を表現） ===== */}
-      {/* 左後ろ足（奥側：胴体深部からしっかり生えている自然な立ち姿、離れないよう上部を深くまで延長） */}
+      {/* 左後ろ足（奥側：胴体深部からしっかり生えている自然な立ち姿） */}
       <path
         d="
           M 63 114
@@ -84,34 +84,34 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       />
       {/* 左前足（奥側） */}
       <path
-        d="M 166 128 C 164 148 165 174 166 189 C 171 190 178 190 179 189 C 178 174 176 148 174 128 Z"
+        d="M 170 128 C 168 148 169 174 170 189 C 175 190 182 190 183 189 C 182 174 180 148 178 128 Z"
         className="fill-stone-100 stroke-stone-300/80"
         strokeWidth="1.5"
       />
 
-      {/* ===== 首と胴体の下地（頭部と胴体を隙間なく完全に連結するネックベース） ===== */}
+      {/* ===== 首と胴体の下地（左から右前へ素直に伸び、頭部と胴体を繋ぐネックベース） ===== */}
       <path
         d="
-          M 130 90
-          C 152 80 174 66 194 64
-          C 212 66 224 80 222 100
-          C 220 120 204 138 188 142
-          C 172 144 156 132 144 116
-          C 136 104 132 94 130 90 Z
+          M 136 88
+          C 160 84 182 78 206 72
+          C 222 76 230 90 224 104
+          C 218 118 204 132 188 138
+          C 174 140 156 128 146 112
+          C 138 100 136 92 136 88 Z
         "
         className="fill-white"
       />
 
-      {/* ===== 胴体（横向きに立つしなやかな姿勢、首筋へ自然に連続） ===== */}
+      {/* ===== 胴体（横向きに立ち、背中から首筋が右前へと素直に流れる自然なライン） ===== */}
       <path
         d="
           M 56 116
           C 50 96 68 84 95 86
-          C 125 88 152 86 172 74
-          C 178 84 186 96 188 114
-          C 188 128 186 140 180 144
-          C 168 147 156 148 138 146
-          C 114 144 98 148 84 146
+          C 125 88 156 86 182 80
+          C 196 78 208 80 216 88
+          C 214 106 204 122 192 134
+          C 182 142 172 146 156 146
+          C 132 144 98 148 84 146
           C 66 144 54 134 56 116 Z
         "
         className="fill-white stroke-stone-300/90"
@@ -145,8 +145,7 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       <ellipse cx="146" cy="138" rx="9" ry="6" className="fill-amber-600" />
 
       {/* ===== 手前側の足（右後ろ足・右前足） ===== */}
-      {/* 右後ろ足（手前側：体の上に余計な横線が出ないよう、お尻・腰から滑らかに一体化） */}
-      {/* 1. 白の塗りベース（ストロークなしで胴体と滑らかに融合） */}
+      {/* 右後ろ足（手前側：体の上に横線が出ないよう、お尻・腰から滑らかに一体化） */}
       <path
         d="
           M 72 116
@@ -158,7 +157,7 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
         "
         className="fill-white"
       />
-      {/* 2. お腹側（前側）の大腿〜足首ライン（体の上に横線は引かず、大腿の前縁のみ描画） */}
+      {/* お腹側（前側）の大腿〜足首ライン */}
       <path
         d="M 96 136 C 94 148 91 168 93 192"
         className="stroke-stone-300/90"
@@ -166,7 +165,7 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
         strokeLinecap="round"
         fill="none"
       />
-      {/* 3. お尻側（後ろ側）の大腿〜かかとライン */}
+      {/* お尻側（後ろ側）の大腿〜かかとライン */}
       <path
         d="M 70 126 C 70 146 73 170 77 192"
         className="stroke-stone-300/90"
@@ -174,7 +173,7 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
         strokeLinecap="round"
         fill="none"
       />
-      {/* 4. 右後ろ足の足先ライン */}
+      {/* 右後ろ足の足先ライン */}
       <path
         d="M 77 192 C 83 193 89 193 93 192"
         className="stroke-stone-300/90"
@@ -188,34 +187,34 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       {/* 右前足（手前側：胸元からすっと伸びる立ち姿） */}
       <path
         d="
-          M 178 124
-          C 174 136 175 154 176 174
-          C 176 182 177 191 178 192
-          C 185 193 193 193 194 192
-          C 194 180 193 162 191 144
-          C 192 136 190 128 186 122 Z
+          M 184 122
+          C 180 134 181 154 182 174
+          C 182 182 183 191 184 192
+          C 191 193 199 193 200 192
+          C 200 180 199 162 197 144
+          C 198 136 196 128 192 122 Z
         "
         className="fill-white stroke-stone-300/90"
         strokeWidth="1.5"
       />
       {/* 右前足の爪先ディテール */}
-      <path d="M 183 188 L 183 192 M 189 188 L 189 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
+      <path d="M 189 188 L 189 192 M 195 188 L 195 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
 
-      {/* ===== 胸元・首元のふんわりした白毛（顔が右へ移動しても胴体と頭部をシームレスに一体化） ===== */}
+      {/* ===== 胸元から喉元へのふんわり白毛（右前へすっと伸びる自然な首元） ===== */}
       <path
         d="
-          M 172 76
-          C 170 92 174 110 182 126
-          C 190 136 198 136 200 122
-          C 198 106 194 92 192 78 Z
+          M 180 84
+          C 184 98 192 114 200 124
+          C 208 128 214 124 216 112
+          C 214 98 206 86 198 78 Z
         "
         className="fill-white"
       />
 
-      {/* ===== 頭部と耳（正面向き：右側へ少し移動し立ち姿のバランスを最適化） ===== */}
+      {/* ===== 頭部と耳（正面向き：右側へしっかりと配置し、首の不自然な曲がりを解消） ===== */}
       <g
-        transform="translate(196, 75) scale(1.14) translate(-186, -75)"
-        className={`transition-transform duration-300 origin-[196px_75px] ${
+        transform="translate(210, 74) scale(1.14) translate(-186, -74)"
+        className={`transition-transform duration-300 origin-[210px_74px] ${
           isReacting ? 'scale-105' : isHappy ? 'scale-102' : ''
         }`}
       >
