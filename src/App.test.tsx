@@ -690,8 +690,13 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(overlay).toBeInTheDocument();
         expect(overlay).toHaveClass('opacity-100');
 
-        // 巨大なハートマークとなつき度の数値 (Lv.2)
-        expect(screen.getByTestId('affection-levelup-heart')).toBeInTheDocument();
+        // 暗い背景バックドロップが表示されていること
+        expect(screen.getByTestId('affection-levelup-backdrop')).toBeInTheDocument();
+
+        // 巨大なハートマーク（回転アニメーション付き）となつき度の数値 (Lv.2)
+        const heart = screen.getByTestId('affection-levelup-heart');
+        expect(heart).toBeInTheDocument();
+        expect(heart).toHaveClass('animate-heart-spin-intro');
         expect(screen.getByTestId('affection-levelup-number')).toHaveTextContent('Lv.2');
 
         // その下に祝うメッセージが表示されること

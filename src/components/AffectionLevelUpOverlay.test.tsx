@@ -8,7 +8,7 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('state が渡されたとき、巨大なハートマーク・なつき度数値・祝うメッセージが表示されること', () => {
+  it('state が渡されたとき、暗い背景・回転する光輪・巨大なハートマーク（回転アニメーション付き）・なつき度数値・祝うメッセージが表示されること', () => {
     render(
       <AffectionLevelUpOverlay
         state={{
@@ -25,8 +25,19 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     expect(overlay).toBeInTheDocument();
     expect(overlay).toHaveClass('opacity-100');
 
-    // 巨大ハートマーク
-    expect(screen.getByTestId('affection-levelup-heart')).toBeInTheDocument();
+    // 暗い背景バックドロップ
+    const backdrop = screen.getByTestId('affection-levelup-backdrop');
+    expect(backdrop).toBeInTheDocument();
+    expect(backdrop).toHaveClass('bg-stone-950/65');
+    expect(backdrop).toHaveClass('opacity-100');
+
+    // 背後の回転光輪（サンバースト）
+    expect(screen.getByTestId('affection-levelup-sunburst')).toBeInTheDocument();
+
+    // 巨大ハートマーク（回転アニメーションクラス付き）
+    const heart = screen.getByTestId('affection-levelup-heart');
+    expect(heart).toBeInTheDocument();
+    expect(heart).toHaveClass('animate-heart-spin-intro');
 
     // ハート内のなつき度数値
     const numberElement = screen.getByTestId('affection-levelup-number');
@@ -38,7 +49,7 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     expect(messageElement).toHaveTextContent('くろねこは「ちょっと気になる」になった♡');
   });
 
-  it('isFading が true のとき、フェードアウト用のクラス (opacity-0) が付与されること', () => {
+  it('isFading が true のとき、オーバーレイおよび背景バックドロップにフェードアウト用のクラス (opacity-0) が付与されること', () => {
     render(
       <AffectionLevelUpOverlay
         state={{
@@ -53,5 +64,8 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     const overlay = screen.getByTestId('affection-levelup-overlay');
     expect(overlay).toBeInTheDocument();
     expect(overlay).toHaveClass('opacity-0');
+
+    const backdrop = screen.getByTestId('affection-levelup-backdrop');
+    expect(backdrop).toHaveClass('opacity-0');
   });
 });
