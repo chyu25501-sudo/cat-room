@@ -5,7 +5,8 @@ import { CatShapeProps } from './BlackCat.tsx';
 /**
  * 3種類目の猫「みけねこ（calico）」コンポーネント
  * 横向きに立ち、顔はこちら（正面）を向いていて、顔は右側、しっぽは左側にある姿勢。
- * 白ベースに茶色（オレンジ系）と黒の美しい三毛ぶち模様を持ちます。
+ * 黒猫・白猫と統一された表情デザイン（優しい線画の目、ピンクの三角鼻、3本のひげ、条件付きチーク）を持ち、
+ * 体と首・頭部が自然にシームレスに繋がっています。
  */
 export const CalicoCat: React.FC<CatShapeProps> = ({
   isReacting = false,
@@ -46,24 +47,24 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
 
       {/* ===== しっぽ（左側でお尻から上へ優雅にカール） ===== */}
       <g
-        className={`transition-transform duration-300 origin-[54px_118px] ${
+        className={`transition-transform duration-300 origin-[56px_116px] ${
           isReacting ? 'rotate-8' : isEcstatic ? 'rotate-6' : isAnnoyed ? '-rotate-6' : 'group-hover:rotate-4'
         }`}
       >
         {/* しっぽ本体（白ベース） */}
         <path
-          d="M 54 118 C 32 110 18 84 26 54 C 30 40 44 42 42 56 C 36 78 46 96 62 108 Z"
+          d="M 56 116 C 34 108 20 82 28 52 C 32 38 46 40 44 54 C 38 76 48 94 64 106 Z"
           className="fill-white stroke-stone-300/90"
-          strokeWidth="1.5"
+          strokeWidth="1.8"
         />
         {/* しっぽの茶色パッチ */}
         <path
-          d="M 27 68 C 26 58 29 50 34 46 C 39 42 43 45 42 56 C 39 68 36 74 34 78 Z"
+          d="M 29 66 C 28 56 31 48 36 44 C 41 40 45 43 44 54 C 41 66 38 72 36 76 Z"
           className="fill-amber-600"
         />
         {/* しっぽ先端の黒パッチ */}
         <path
-          d="M 28 56 C 29 46 34 42 38 43 C 41 45 42 50 41 55 C 38 58 33 58 28 56 Z"
+          d="M 30 54 C 31 44 36 40 40 41 C 43 43 44 48 43 53 C 40 56 35 56 30 54 Z"
           className="fill-stone-800"
         />
       </g>
@@ -82,15 +83,29 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
         strokeWidth="1.5"
       />
 
-      {/* ===== 胴体（横向きに立つ姿勢） ===== */}
+      {/* ===== 首と胴体の下地（頭部と胴体を隙間なく完全に連結するネックベース） ===== */}
+      <path
+        d="
+          M 130 90
+          C 150 82 170 70 186 68
+          C 202 70 214 84 212 102
+          C 210 120 196 138 182 142
+          C 170 144 154 132 144 116
+          C 136 104 132 94 130 90 Z
+        "
+        className="fill-white"
+      />
+
+      {/* ===== 胴体（横向きに立つしなやかな姿勢、首筋へ自然に連続） ===== */}
       <path
         d="
           M 56 116
           C 50 96 68 84 95 86
-          C 125 88 152 92 176 102
-          C 186 112 188 126 186 142
-          C 174 146 160 148 140 146
-          C 116 144 98 148 84 146
+          C 125 88 152 86 172 74
+          C 178 84 186 96 188 114
+          C 188 128 186 140 180 144
+          C 168 147 156 148 138 146
+          C 114 144 98 148 84 146
           C 66 144 54 134 56 116 Z
         "
         className="fill-white stroke-stone-300/90"
@@ -101,10 +116,10 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       <path
         d="
           M 90 86
-          C 105 84 128 86 142 90
-          C 148 98 144 112 136 118
-          C 120 122 102 116 94 106
-          C 88 96 86 90 90 86 Z
+          C 105 84 128 85 142 89
+          C 148 97 144 111 136 117
+          C 120 121 102 115 94 105
+          C 88 95 86 89 90 86 Z
         "
         className="fill-amber-600"
       />
@@ -121,7 +136,7 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       />
 
       {/* 胴体の三毛模様（小さな茶色パッチ：お腹側） */}
-      <ellipse cx="148" cy="138" rx="10" ry="7" className="fill-amber-600" />
+      <ellipse cx="146" cy="138" rx="9" ry="6" className="fill-amber-600" />
 
       {/* ===== 手前側の足（右後ろ足・右前足） ===== */}
       {/* 右後ろ足（手前側：しっかりした大腿部から伸びる立ち姿） */}
@@ -143,7 +158,7 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       {/* 右前足（手前側：胸元からすっと伸びる立ち姿） */}
       <path
         d="
-          M 178 122
+          M 178 124
           C 174 136 175 154 176 174
           C 176 182 177 191 178 192
           C 185 193 193 193 194 192
@@ -156,116 +171,134 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       {/* 右前足の爪先ディテール */}
       <path d="M 183 188 L 183 192 M 189 188 L 189 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
 
-      {/* ===== 胸元のふんわりした白毛 ===== */}
+      {/* ===== 胸元・首元のふんわりした白毛（胴体と頭部を一体化） ===== */}
       <path
-        d="M 172 108 C 182 114 186 124 184 136 C 176 138 168 136 166 128 Z"
+        d="
+          M 172 82
+          C 170 94 172 108 178 122
+          C 184 132 190 132 192 122
+          C 190 110 186 96 184 84 Z
+        "
         className="fill-white"
       />
 
-      {/* ===== 頭部（右側に位置し、顔はこちら正面を向いている！） ===== */}
+      {/* ===== 頭部と耳（正面向き：黒猫・白猫と統一された愛らしい耳と頭の形状） ===== */}
       <g
-        className={`transition-transform duration-300 origin-[188px_82px] ${
+        className={`transition-transform duration-300 origin-[186px_74px] ${
           isReacting ? 'scale-105' : isHappy ? 'scale-102' : ''
         }`}
       >
-        {/* 耳（左耳・奥側：黒パッチ） */}
+        {/* 頭部と耳のシームレスな輪郭（白猫・黒猫の耳・顔立ちとプロポーションを統一） */}
         <path
-          d="M 166 66 L 158 38 C 168 40 180 48 182 58 Z"
-          className="fill-stone-800 stroke-stone-300/80"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-        {/* 左耳の内側ピンク */}
-        <path d="M 167 62 L 163 45 C 169 47 176 52 177 58 Z" className="fill-rose-300/70" />
-
-        {/* 耳（右耳・手前側：茶色パッチ） */}
-        <path
-          d="M 198 56 C 204 46 216 38 224 38 L 218 66 Z"
-          className="fill-amber-600 stroke-stone-300/80"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-        {/* 右耳の内側ピンク */}
-        <path d="M 203 58 C 208 51 216 46 220 45 L 215 62 Z" className="fill-rose-300/70" />
-
-        {/* 顔の輪郭（正面向きのまんまるヘッド） */}
-        <ellipse
-          cx="190"
-          cy="80"
-          rx="27"
-          ry="23"
+          d="
+            M 186 52
+            C 178 48 168 48 162 52
+            C 156 46 148 38 144 32
+            C 142 28 138 28 137 32
+            C 136 37 140 46 144 56
+            C 136 66 138 84 148 96
+            C 158 106 182 108 196 98
+            C 204 88 206 70 200 60
+            C 204 48 208 39 207 34
+            C 206 30 202 30 200 34
+            C 196 40 192 48 189 54
+            Z
+          "
           className="fill-white stroke-stone-300/90"
           strokeWidth="2"
+          transform="translate(14, 0)"
         />
 
-        {/* 顔の三毛ぶち模様：左上の黒パッチ */}
+        {/* 左耳の内側ピンク（黒猫・白猫と完全同一スタイル） */}
+        <path d="M 155 42 L 167 58 L 157 56 Z" className="fill-rose-200/90" transform="translate(14, 0)" />
+        {/* 右耳の内側ピンク */}
+        <path d="M 202 42 L 190 58 L 200 56 Z" className="fill-rose-200/90" transform="translate(14, 0)" />
+
+        {/* 三毛模様：左耳・左頭頂部の黒パッチ */}
         <path
-          d="M 166 70 C 165 58 174 58 182 60 C 178 72 172 78 166 70 Z"
+          d="
+            M 176 52
+            C 170 46 162 38 158 32
+            C 156 28 152 28 151 32
+            C 150 37 154 46 158 56
+            C 150 66 152 76 156 82
+            C 166 76 172 64 176 52 Z
+          "
           className="fill-stone-800"
         />
 
-        {/* 顔の三毛ぶち模様：右上の茶色パッチ */}
+        {/* 三毛模様：右耳・右頭頂部の茶色パッチ */}
         <path
-          d="M 214 70 C 215 58 206 58 198 60 C 202 72 208 78 214 70 Z"
+          d="
+            M 196 52
+            C 202 46 210 38 214 32
+            C 216 28 220 28 221 32
+            C 222 37 218 46 214 56
+            C 222 66 220 76 216 82
+            C 206 76 200 64 196 52 Z
+          "
           className="fill-amber-600"
         />
 
-        {/* ===== 表情パーツ ===== */}
-        {/* ほんのりピンクのチーク（両頬） */}
-        <ellipse cx="174" cy="85" rx="5" ry="3" className="fill-rose-300/40" />
-        <ellipse cx="206" cy="85" rx="5" ry="3" className="fill-rose-300/40" />
+        {/* ===== 顔パーツ（黒猫・白猫と完全にそろえたデザイン） ===== */}
 
-        {/* 目（moodLevelに応じた表情変化） */}
+        {/* 目（黒猫・白猫と同じスタイリッシュな線画スタイル） */}
         {isAnnoyed ? (
-          // 不機嫌（annoyed）：キッとしたつり目
-          <g stroke="#292524" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="174" y1="78" x2="182" y2="74" />
-            <line x1="206" y1="78" x2="198" y2="74" />
+          // 不機嫌（annoyed）：吊り上がった鋭いジト目（黒猫・白猫と完全に同構造）
+          <g stroke="#f87171" strokeWidth="2.6" strokeLinecap="round" fill="none">
+            {/* 左目 */}
+            <path d="M 172 75 Q 177 69 182 72" />
+            <path d="M 173 75 L 181 73" />
+            {/* 右目 */}
+            <path d="M 190 72 Q 195 69 200 75" />
+            <path d="M 191 73 L 199 75" />
           </g>
-        ) : isEcstatic ? (
-          // 大喜び（ecstatic）：目を細めて嬉しそうな笑顔アーチ
-          <g stroke="#292524" strokeWidth="2.5" strokeLinecap="round" fill="none">
-            <path d="M 174 76 Q 179 70 184 76" />
-            <path d="M 196 76 Q 201 70 206 76" />
+        ) : isReacting || isEcstatic ? (
+          // 反応時・大喜び（isReacting || isEcstatic）：上向きアーチのにっこり目 ^ ^
+          <g stroke={isEcstatic ? '#f59e0b' : '#fbbf24'} strokeWidth="2.8" strokeLinecap="round" fill="none">
+            <path d="M 172 73 Q 177 63 182 73" />
+            <path d="M 190 73 Q 195 63 200 73" />
           </g>
         ) : isHappy ? (
-          // ごきげん（happy）：にっこり目
-          <g stroke="#292524" strokeWidth="2" strokeLinecap="round" fill="none">
-            <path d="M 174 76 Q 179 72 184 76" />
-            <path d="M 196 76 Q 201 72 206 76" />
+          // ごきげん（isHappy）：にっこり目
+          <g stroke="#78716c" strokeWidth="2.4" strokeLinecap="round" fill="none">
+            <path d="M 172 72 Q 177 67 182 72" />
+            <path d="M 190 72 Q 195 67 200 72" />
           </g>
         ) : (
-          // 通常（normal）：こちらをじっと見つめるクリクリの丸い瞳
-          <g>
-            {/* 左目 */}
-            <ellipse cx="179" cy="76" rx="3.5" ry="4.5" className="fill-stone-900" />
-            <circle cx="177.5" cy="74.5" r="1.3" className="fill-white" />
-            {/* 右目 */}
-            <ellipse cx="201" cy="76" rx="3.5" ry="4.5" className="fill-stone-900" />
-            <circle cx="199.5" cy="74.5" r="1.3" className="fill-white" />
+          // 通常（normal）：下向きアーチの落ち着いた優しい目（黒猫・白猫と完全に同構造）
+          <g stroke="#57534e" strokeWidth="2.2" strokeLinecap="round" fill="none">
+            <path d="M 172 72 Q 177 77 182 72" />
+            <path d="M 190 72 Q 195 77 200 72" />
           </g>
         )}
 
-        {/* 鼻（小さなピンクの逆三角形） */}
-        <polygon points="188,83 192,83 190,86" className="fill-rose-400" />
+        {/* ほっぺのほんのり赤らみ（黒猫・白猫と完全に同構造：平常〜ごきげん時のみ表示、不機嫌時は非表示） */}
+        {!isAnnoyed && (isReacting || isEcstatic || isHappy) && (
+          <g fill="#f43f5e" opacity={isReacting ? 0.45 : isEcstatic ? 0.35 : 0.2}>
+            <circle cx="169" cy="80" r={isEcstatic ? 7 : 6} />
+            <circle cx="203" cy="80" r={isEcstatic ? 7 : 6} />
+          </g>
+        )}
 
-        {/* 口（ωの形をしたかわいい口元） */}
-        <path
-          d="M 186 88 Q 190 91 190 87 Q 190 91 194 88"
+        {/* 鼻（黒猫・白猫と完全に同構造のピンク逆三角形） */}
+        <polygon points="186,83 182,78 190,78" className="fill-rose-400" />
+
+        {/* ひげ（黒猫・白猫と完全にそろえた左右3本ずつのすっきりした直線） */}
+        <g
           stroke="#78716c"
-          strokeWidth="1.5"
+          strokeWidth="1.8"
           strokeLinecap="round"
-          fill="none"
-        />
-
-        {/* ひげ（左側2本、右側2本） */}
-        <g stroke="#a8a29e" strokeWidth="1" strokeLinecap="round">
-          {/* 左ひげ */}
-          <line x1="168" y1="84" x2="154" y2="81" />
-          <line x1="168" y1="87" x2="152" y2="88" />
-          {/* 右ひげ */}
-          <line x1="212" y1="84" x2="226" y2="81" />
-          <line x1="212" y1="87" x2="228" y2="88" />
+          className="transition-opacity duration-200"
+        >
+          {/* 左のひげ */}
+          <line x1="168" y1="76" x2="148" y2="72" />
+          <line x1="166" y1="81" x2="144" y2="81" />
+          <line x1="168" y1="86" x2="148" y2="90" />
+          {/* 右のひげ */}
+          <line x1="204" y1="76" x2="224" y2="72" />
+          <line x1="206" y1="81" x2="228" y2="81" />
+          <line x1="204" y1="86" x2="224" y2="90" />
         </g>
       </g>
     </svg>
