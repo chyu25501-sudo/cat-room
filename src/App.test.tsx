@@ -14,23 +14,29 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     expect(screen.getByRole('button', { name: /猫の見た目を切り替える/ })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /みけねこ（たち）を選択/ })).toBeInTheDocument();
   });
 
-  it('切り替えマークを押すと白猫（寝転がり）と黒猫が循環切り替えされること', () => {
+  it('切り替えマークを押すと黒猫・白猫・三毛猫が順番に循環切り替えされること', () => {
     render(<App />);
 
     // 初期状態: 黒猫
     expect(screen.getByTestId('black-cat-svg')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /くろねこのシルエット/ })).toBeInTheDocument();
 
-    // 切り替えマークを押す
+    // 切り替えマークを押す (1回目 -> 白猫)
     const switchButton = screen.getByRole('button', { name: /猫の見た目を切り替える/ });
     fireEvent.click(switchButton);
 
-    // 白猫に切り替わる
     expect(screen.getByTestId('white-cat-svg')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /しろねこのシルエット/ })).toBeInTheDocument();
     expect(screen.getByText(/しろねこにきりかえたよ/)).toBeInTheDocument();
+
+    // 切り替えマークを押す (2回目 -> 三毛猫: 横向き立ち姿)
+    fireEvent.click(switchButton);
+    expect(screen.getByTestId('calico-cat-svg')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /みけねこのシルエット/ })).toBeInTheDocument();
+    expect(screen.getByText(/みけねこにきりかえたよ/)).toBeInTheDocument();
 
     // もう一度押すと黒猫に戻る（循環切り替え）
     fireEvent.click(switchButton);
@@ -48,6 +54,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     // 白猫に切り替わる
     expect(screen.getByTestId('white-cat-svg')).toBeInTheDocument();
     expect(screen.getByText(/しろねこにきりかえたよ/)).toBeInTheDocument();
+
+    // 三毛猫の円形ラジオボタンをクリック
+    const calicoRadio = screen.getByRole('radio', { name: /みけねこ（たち）を選択/ });
+    fireEvent.click(calicoRadio);
+
+    // 三毛猫に切り替わる
+    expect(screen.getByTestId('calico-cat-svg')).toBeInTheDocument();
+    expect(screen.getByText(/みけねこにきりかえたよ/)).toBeInTheDocument();
 
     // 黒の円形ラジオボタンをクリック
     const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });

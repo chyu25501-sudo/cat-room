@@ -1,6 +1,6 @@
 import { CatMoodLevel } from './mood.ts';
 
-export type CatId = 'black' | 'white';
+export type CatId = 'black' | 'white' | 'calico';
 
 export interface CatPresetSwatch {
   /** 円形ラジオボタンの背景色Tailwindクラス */
@@ -83,6 +83,32 @@ export const CAT_PRESETS: readonly CatPreset[] = [
       bgClass: 'bg-white',
       borderClass: 'border-stone-300',
       dotClass: 'bg-stone-800',
+    },
+  },
+  {
+    id: 'calico',
+    name: 'みけねこ',
+    poseName: 'たち',
+    label: 'みけねこ（たち）',
+    description: '横向きに立ちこちらを見つめている三毛猫',
+    defaultPitch: 1.08,
+    meowMessages: [
+      'ミャ〜ン♪',
+      'クルル…♪',
+      'ニャオ？',
+      'ゴロゴロ…♡',
+      'みゃあ♪',
+    ],
+    moodMessages: {
+      annoyed: ['シャーッ！', 'フニャッ！', 'ウーッ…', 'カッ！'],
+      normal: ['ミャ〜ン♪', 'ニャオ？', 'トコトコ…♪'],
+      happy: ['クルル…♪', 'ゴロゴロ…♡', 'みゃあ〜♡', 'すりすり…♪'],
+      ecstatic: ['クルルル…♡', 'ゴロゴロゴロ…♡', 'みゃあぁ〜ん♡', 'ニャ〜〜オ♡'],
+    },
+    swatch: {
+      bgClass: 'bg-amber-100',
+      borderClass: 'border-amber-400',
+      dotClass: 'bg-amber-700',
     },
   },
 ] as const;

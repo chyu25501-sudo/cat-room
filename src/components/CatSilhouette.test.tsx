@@ -39,6 +39,23 @@ describe('CatSilhouette コンポーネント (第3週: なでるドラッグ操
     expect(handlePet).toHaveBeenCalledTimes(1);
   });
 
+  it('三毛猫プリセットを指定した場合、横向きに立っている三毛猫が表示されドラッグでなでられること', () => {
+    const calicoPreset = CAT_PRESETS.find((p) => p.id === 'calico')!;
+    const handlePet = vi.fn();
+    render(<CatSilhouette preset={calicoPreset} onPet={handlePet} />);
+
+    const catButton = screen.getByRole('button', { name: /みけねこのシルエット/ });
+    expect(catButton).toBeInTheDocument();
+    expect(screen.getByTestId('calico-cat-svg')).toBeInTheDocument();
+
+    // ドラッグ操作
+    fireEvent.pointerDown(catButton, { clientX: 60, clientY: 60, isPrimary: true });
+    fireEvent.pointerMove(catButton, { clientX: 130, clientY: 60, isPrimary: true }); // +70px
+    fireEvent.pointerUp(catButton, { clientX: 130, clientY: 60, isPrimary: true });
+
+    expect(handlePet).toHaveBeenCalledTimes(1);
+  });
+
   it('わずかな動き（しきい値未満）ではなでたと判定されないこと', () => {
     const handlePet = vi.fn();
     render(<CatSilhouette onPet={handlePet} />);

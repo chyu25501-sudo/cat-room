@@ -18,6 +18,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     eatingMessages: {
       black: ['カリカリ…ニャムニャム♪', 'サクサク…ミャオ！', 'カリッ…カリッ…ゴロゴロ…'],
       white: ['サクサク…ふにゃあ♪', 'カリカリ…クニャ〜♪', 'カリッ…ふにゃ〜ん…'],
+      calico: ['カリカリ…クルル♪', 'サクサク…ミャオ！', 'カリッ…ゴロゴロ…♪'],
     },
     themeClass: 'from-amber-400 to-orange-400 text-amber-700 bg-amber-50 border-amber-200',
   },
@@ -32,6 +33,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     eatingMessages: {
       black: ['ペロペロ…ミャオ〜〜♡', 'ハフハフ…ゴロゴロ…♡', 'ニャムニャム…ンニャ〜♡'],
       white: ['ペロペロ…ふにゃ〜ん♡', 'クニャ〜…ゴロゴロ…♡', 'ニャム…ふにゃぁ〜♡'],
+      calico: ['ペロペロ…みゃあ〜♡', 'ハフハフ…クルルル♡', 'ニャムニャム…ゴロゴロ…♡'],
     },
     themeClass: 'from-sky-400 to-blue-400 text-sky-700 bg-sky-50 border-sky-200',
   },
@@ -46,6 +48,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
     eatingMessages: {
       black: ['ペロペロ…！ゴロゴロゴロ…♡', 'ンニャ〜〜…ペロペロ♡', 'ミャ〜〜♡ ゴロゴロ…！'],
       white: ['ペロペロ…ふにゃあぁ〜♡', 'ふにゃ〜〜…ゴロゴロゴロ…', 'クニャ〜ン…ペロペロ…♡'],
+      calico: ['ペロペロ…！みゃあぁ〜〜♡', 'クルル〜…ペロペロ♡', 'ミャ〜〜♡ ゴロゴロゴロ…！'],
     },
     themeClass: 'from-rose-400 to-pink-500 text-rose-700 bg-rose-50 border-rose-200',
   },
@@ -125,6 +128,12 @@ export const TOY_ITEMS: readonly ToyItem[] = [
         'ちょいちょい…ふにゃ〜♪',
         'ちょいちょいっ！…クニャ♪',
       ],
+      calico: [
+        'カシャカシャ…ニャオ！',
+        'パシッ！…クルル♪',
+        'ちょいちょい…ミャオ♪',
+        'ちょいちょいっ！…クルル！',
+      ],
     },
     themeClass: 'from-amber-400 to-yellow-500 text-amber-700 bg-amber-50 border-amber-200',
   },
@@ -148,6 +157,12 @@ export const TOY_ITEMS: readonly ToyItem[] = [
         'トテトテ…クニャ〜♪',
         'ちょいちょいっ！…ふにゃん♪',
       ],
+      calico: [
+        'コロコロ…ダダダッ！',
+        'トテトテ…みゃあ♪',
+        'ちょいちょい…クルル〜！',
+        'ちょいちょいっ！…ニャオ♪',
+      ],
     },
     themeClass: 'from-emerald-400 to-teal-500 text-emerald-700 bg-emerald-50 border-emerald-200',
   },
@@ -170,6 +185,12 @@ export const TOY_ITEMS: readonly ToyItem[] = [
         'カカッ…クニャ〜ン！',
         'バシッ！…ふにゃあぁ！',
         'ちょいちょい…ふにゃあ！',
+      ],
+      calico: [
+        'カカカッ…クルルッ！',
+        'シュバッ！…みゃあ！',
+        'ちょいちょい…ニャオ！',
+        'ちょいちょいっ！…みゃっ！',
       ],
     },
     themeClass: 'from-rose-400 to-red-500 text-rose-700 bg-rose-50 border-rose-200',

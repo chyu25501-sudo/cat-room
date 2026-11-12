@@ -3,6 +3,7 @@ import { Heart, Sparkles } from 'lucide-react';
 import { CatPreset, CAT_PRESETS, CatId } from '../types/cat.ts';
 import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
 import { WhiteCat } from './cats/WhiteCat.tsx';
+import { CalicoCat } from './cats/CalicoCat.tsx';
 import { useCatPetting, type PetEventDetail } from '../hooks/useCatPetting.ts';
 import { DEFAULT_PET_COOLDOWN_MS, type Point } from '../utils/stroke.ts';
 import { CatMoodLevel } from '../types/mood.ts';
@@ -22,6 +23,7 @@ import { MusicalNoteIcon } from './effects/MusicalNoteIcon.tsx';
 const CAT_COMPONENTS: Record<CatId, React.FC<CatShapeProps>> = {
   black: BlackCat,
   white: WhiteCat,
+  calico: CalicoCat,
 };
 
 export interface CatSilhouetteProps {

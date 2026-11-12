@@ -8,12 +8,15 @@ import {
 import { CatPreset, CAT_PRESETS } from '../types/cat.ts';
 
 describe('catPreset ユーティリティ', () => {
-  it('getNextCatPreset: black から white へ、white から black へ循環切り替えできること', () => {
+  it('getNextCatPreset: black から white、white から calico、calico から black へ循環切り替えできること', () => {
     const nextAfterBlack = getNextCatPreset('black');
     expect(nextAfterBlack.id).toBe('white');
 
     const nextAfterWhite = getNextCatPreset('white');
-    expect(nextAfterWhite.id).toBe('black');
+    expect(nextAfterWhite.id).toBe('calico');
+
+    const nextAfterCalico = getNextCatPreset('calico');
+    expect(nextAfterCalico.id).toBe('black');
   });
 
   it('getNextCatPreset: 3種類以上のプリセットが存在する場合も順番に循環すること', () => {

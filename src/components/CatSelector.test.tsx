@@ -4,7 +4,7 @@ import { CatSelector } from './CatSelector.tsx';
 import { CAT_PRESETS, CatPreset } from '../types/cat.ts';
 
 describe('CatSelector コンポーネント', () => {
-  it('切り替えマークと黒・白の円形ラジオボタンがレンダリングされること', () => {
+  it('切り替えマークと黒・白・三毛の円形ラジオボタンがレンダリングされること', () => {
     const handleSelect = vi.fn();
     const handleNext = vi.fn();
 
@@ -19,15 +19,18 @@ describe('CatSelector コンポーネント', () => {
     // 切り替えマーク
     expect(screen.getByRole('button', { name: /猫の見た目を切り替える/ })).toBeInTheDocument();
 
-    // ラジオボタン
+    // ラジオボタン（3匹）
     const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });
     const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
+    const calicoRadio = screen.getByRole('radio', { name: /みけねこ（たち）を選択/ });
     expect(blackRadio).toBeInTheDocument();
     expect(whiteRadio).toBeInTheDocument();
+    expect(calicoRadio).toBeInTheDocument();
 
     // 黒猫が選択中
     expect(blackRadio).toHaveAttribute('aria-checked', 'true');
     expect(whiteRadio).toHaveAttribute('aria-checked', 'false');
+    expect(calicoRadio).toHaveAttribute('aria-checked', 'false');
   });
 
   it('円形ボタンをクリックすると onSelectCat が呼び出されること', () => {
@@ -38,6 +41,11 @@ describe('CatSelector コンポーネント', () => {
     fireEvent.click(whiteRadio);
 
     expect(handleSelect).toHaveBeenCalledWith('white');
+
+    const calicoRadio = screen.getByRole('radio', { name: /みけねこ（たち）を選択/ });
+    fireEvent.click(calicoRadio);
+
+    expect(handleSelect).toHaveBeenCalledWith('calico');
   });
 
   it('切り替えマークをクリックすると onSwitchNext が呼び出されること', () => {
@@ -54,10 +62,10 @@ describe('CatSelector コンポーネント', () => {
     const extendedPresets: CatPreset[] = [
       ...CAT_PRESETS,
       {
-        id: 'calico' as any, // 拡張テスト用のユニークID
-        name: 'みけねこ',
+        id: 'tabby' as CatId,
+        name: 'とらねこ',
         poseName: 'のびのび',
-        label: 'みけねこ（のびのび）',
+        label: 'とらねこ（のびのび）',
         description: '',
         defaultPitch: 1.0,
         meowMessages: [],
@@ -74,7 +82,7 @@ describe('CatSelector コンポーネント', () => {
     );
 
     const radios = screen.getAllByRole('radio');
-    expect(radios).toHaveLength(3);
+    expect(radios).toHaveLength(4);
   });
 });
 
