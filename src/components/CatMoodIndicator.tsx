@@ -1,10 +1,11 @@
 import React from 'react';
-import { Heart, Sparkles, Zap, Utensils } from 'lucide-react';
+import { Heart, Sparkles, Zap, Utensils, HeartHandshake } from 'lucide-react';
 import { CatMoodLevel } from '../types/mood.ts';
 import { CatFullnessLevel } from '../types/fullness.ts';
 import { LastCareAction } from '../types/care.ts';
 import { getMoodInfo, getMoodDescription } from '../utils/catMood.ts';
 import { getFullnessInfo } from '../utils/catFullness.ts';
+import { getAffectionTitle, MAX_AFFECTION_LEVEL } from '../utils/catAffection.ts';
 
 export interface CatMoodIndicatorProps {
   /** 現在のごきげんスコア（0 〜 100） */
@@ -15,6 +16,12 @@ export interface CatMoodIndicatorProps {
   fullnessScore?: number;
   /** 現在のまんぷくレベル（オプション） */
   fullnessLevel?: CatFullnessLevel;
+  /** 現在のなつき度レベル（1 〜 10、オプション） */
+  affectionLevel?: number;
+  /** 現在のなつき度ゲージ進捗パーセンテージ（0 〜 100%、オプション） */
+  affectionProgress?: number;
+  /** 現在のなつき度Exp（オプション） */
+  affectionExp?: { current: number; required: number };
   /** 直前のアクション（なでる・ごはん・おもちゃ） */
   lastAction?: LastCareAction | null;
   /** 対象の猫の名称（表示用） */
@@ -30,6 +37,9 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
   moodLevel,
   fullnessScore,
   fullnessLevel,
+  affectionLevel,
+  affectionProgress = 0,
+  affectionExp,
   lastAction = null,
   catName = 'ねこ',
   className = '',
@@ -178,6 +188,71 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
               className="font-semibold text-stone-600 shrink-0 ml-2"
             >
               {fullnessScore}%
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ===== なつき度セクション（第7週: 指定時のみ表示） ===== */}
+      {typeof affectionLevel === 'number' && (
+        <div
+          data-testid="cat-affection-section"
+          className="mt-2.5 pt-2 border-t border-orange-100/80 transition-all duration-300"
+        >
+          {/* 上段：なつき度タイトルとレベルバッジ */}
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <HeartHandshake className="w-3.5 h-3.5 text-pink-500 shrink-0" />
+              <span className="text-xs font-bold text-stone-700 truncate">
+                {catName}のなつき度
+              </span>
+            </div>
+
+            {/* なつき度レベルバッジ */}
+            <div
+              data-testid="affection-level-badge"
+              className="px-2.5 py-0.5 rounded-full border text-xs font-bold tracking-wide shadow-2xs transition-colors duration-300 bg-pink-100 text-pink-800 border-pink-300 flex items-center gap-1"
+            >
+              <span>
+                {affectionLevel >= MAX_AFFECTION_LEVEL
+                  ? 'Lv.10 MAX♡'
+                  : `Lv.${affectionLevel} ${getAffectionTitle(affectionLevel)}`}
+              </span>
+            </div>
+          </div>
+
+          {/* 中段：なつき度プログレスバー */}
+          <div className="relative w-full">
+            <div
+              role="progressbar"
+              aria-valuenow={affectionProgress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`${catName}のなつき度: Lv.${affectionLevel} (${affectionProgress}%)`}
+              className="w-full bg-pink-100/80 h-2.5 rounded-full overflow-hidden p-0.5 border border-pink-200/60 shadow-inner"
+            >
+              <div
+                data-testid="affection-gauge-fill"
+                className="h-full rounded-full bg-gradient-to-r from-pink-400 via-rose-400 to-purple-400 transition-all duration-500 ease-out"
+                style={{ width: `${Math.max(4, Math.min(100, affectionProgress))}%` }}
+              />
+            </div>
+          </div>
+
+          {/* 下段：次のレベルまでの必要Exp案内またはMAXメッセージと進捗パーセント */}
+          <div className="mt-1 flex items-center justify-between text-[11px] text-stone-500">
+            <span className="truncate">
+              {affectionLevel >= MAX_AFFECTION_LEVEL
+                ? '深い絆で結ばれた最高のパートナー♡'
+                : affectionExp
+                ? `次のLvまで あと ${Math.max(0, affectionExp.required - affectionExp.current)}pt`
+                : `${getAffectionTitle(affectionLevel)}`}
+            </span>
+            <span
+              data-testid="affection-progress-percentage"
+              className="font-semibold text-stone-600 shrink-0 ml-2"
+            >
+              {affectionLevel >= MAX_AFFECTION_LEVEL ? 'MAX' : `${affectionProgress}%`}
             </span>
           </div>
         </div>

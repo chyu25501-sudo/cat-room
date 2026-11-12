@@ -591,4 +591,143 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(screen.queryByTestId('active-toy-item')).not.toBeInTheDocument();
     });
   });
+
+  describe('第7週: なつき度（Affection）機能の統合テスト', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('初期状態で黒猫のなつき度Lv.1（はじめまして、0%）が表示されること', () => {
+      render(<App />);
+
+      expect(screen.getByTestId('cat-affection-section')).toBeInTheDocument();
+      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('0%');
+      expect(screen.getByText(/次のLvまで あと 100pt/)).toBeInTheDocument();
+    });
+
+    it('撫でる・ごはん・おもちゃの「ふれあい」でなつき度Expが増加すること', () => {
+      vi.useFakeTimers();
+      try {
+        render(<App />);
+
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+
+        // 1. 撫でる (+10pt / 100pt = 10%)
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('10%');
+        expect(screen.getByText(/次のLvまで あと 90pt/)).toBeInTheDocument();
+
+        // 2. ごはん（カリカリ: +25pt -> 35pt / 100pt = 35%）
+        const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+        fireEvent.click(careButton);
+        const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+        act(() => {
+          fireEvent.click(feedKibbleBtn);
+        });
+
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('35%');
+        expect(screen.getByText(/次のLvまで あと 65pt/)).toBeInTheDocument();
+
+        // 食事完了（カリカリは3400ms）までタイマーを進めて次のアクションを受け付け可能にする
+        act(() => {
+          vi.advanceTimersByTime(4000);
+        });
+
+        // 3. おもちゃ（ねこじゃらし: +20pt -> 55pt / 100pt = 55%）
+        const playFeatherBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
+        act(() => {
+          fireEvent.click(playFeatherBtn);
+        });
+
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('55%');
+        expect(screen.getByText(/次のLvまで あと 45pt/)).toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('ゲージが1回満タンになるとLv.2にレベルアップし、ゲージがリセットされお祝いメッセージが表示されること', () => {
+      // 事前に黒猫のExpを95pt（Lv.1の残り5pt）に設定
+      localStorage.setItem(
+        'nekoppoi_cats_affection',
+        JSON.stringify({
+          black: { level: 1, currentExp: 95, requiredExp: 100 },
+          white: { level: 1, currentExp: 0, requiredExp: 100 },
+        })
+      );
+
+      render(<App />);
+
+      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('95%');
+
+      // 撫でる (+10pt -> 95 + 10 = 105pt, 100ptでレベルアップしLv.2へ。余剰5pt / 125pt = 4%)
+      const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+      act(() => {
+        fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+        fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+      });
+
+      // レベル2（ちょっと気になる）に上昇
+      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.2 ちょっと気になる');
+      // ゲージがリセットされて余剰5pt / 125pt = 4%
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('4%');
+      expect(screen.getByText(/次のLvまで あと 120pt/)).toBeInTheDocument();
+
+      // お祝いメッセージが表示されていること
+      expect(screen.getByText('【なつき度UP!】Lv.2になったよ♡')).toBeInTheDocument();
+    });
+
+    it('猫ごとに独立してなつき度が管理されること', () => {
+      render(<App />);
+
+      // 初期状態は黒猫・Lv.1 (0%)
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('0%');
+
+      // 黒猫を撫でる (+10pt)
+      const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+      fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+      fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+      fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('10%');
+
+      // 白猫に切り替える
+      const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
+      fireEvent.click(whiteRadio);
+
+      // 白猫はまだふれあっていないため初期Lv.1 (0%)
+      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('0%');
+
+      // 再び黒猫に戻すと10%が維持されていること
+      const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });
+      fireEvent.click(blackRadio);
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('10%');
+    });
+
+    it('なつき度の最大値が10であり、Lv.10到達時はゲージがMAX表示を維持すること', () => {
+      localStorage.setItem(
+        'nekoppoi_cats_affection',
+        JSON.stringify({
+          black: { level: 10, currentExp: 300, requiredExp: 300 },
+          white: { level: 1, currentExp: 0, requiredExp: 100 },
+        })
+      );
+
+      render(<App />);
+
+      // Lv.10 MAX表示
+      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.10 MAX♡');
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('MAX');
+      expect(screen.getByText('深い絆で結ばれた最高のパートナー♡')).toBeInTheDocument();
+    });
+  });
 });

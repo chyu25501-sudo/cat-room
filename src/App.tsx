@@ -6,6 +6,7 @@ import { useCatMood } from './hooks/useCatMood.ts';
 import { useCatFullness } from './hooks/useCatFullness.ts';
 import { useCatFeeding } from './hooks/useCatFeeding.ts';
 import { useCatPlay } from './hooks/useCatPlay.ts';
+import { useCatAffection } from './hooks/useCatAffection.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
@@ -13,6 +14,11 @@ import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
 import { CareSidebar } from './components/care/CareSidebar.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
+import {
+  DEFAULT_PET_AFFECTION_EXP,
+  FOOD_AFFECTION_EXP_MAP,
+  TOY_AFFECTION_EXP_MAP,
+} from './utils/catAffection.ts';
 import {
   getEatingMessage,
   getPlayMessage,
@@ -31,6 +37,12 @@ export default function App() {
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood({ getFullnessScore });
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding();
   const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
+  const {
+    getAffectionLevel,
+    getAffectionProgress,
+    getAffectionState,
+    gainAffection,
+  } = useCatAffection();
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
   // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
@@ -40,6 +52,9 @@ export default function App() {
   const currentMoodLevel = getMoodLevelForCat(currentCatId);
   const currentFullnessScore = getFullnessScore(currentCatId);
   const currentFullnessLevel = getFullnessLevelForCat(currentCatId);
+  const currentAffectionLevel = getAffectionLevel(currentCatId);
+  const currentAffectionProgress = getAffectionProgress(currentCatId);
+  const currentAffectionState = getAffectionState(currentCatId);
 
   const handleInteractCat = () => {
     setLastAction('pet');
@@ -47,6 +62,14 @@ export default function App() {
     const { nextLevel } = petCat(currentCatId);
     const isMoodChanged = nextLevel !== currentMoodLevel;
     const isAnnoyed = nextLevel === 'annoyed';
+
+    // 不機嫌でない正常なふれあい時に、なつき度ゲージを少しずつ増加
+    if (!isAnnoyed && nextLevel !== 'annoyed') {
+      const affRes = gainAffection(currentCatId, DEFAULT_PET_AFFECTION_EXP);
+      if (affRes.isLevelUp) {
+        showBubble(`【なつき度UP!】Lv.${affRes.nextLevel}になったよ♡`, { force: true, durationMs: 2800 });
+      }
+    }
 
     // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生（不機嫌時は低く鋭い威嚇音）
     const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
@@ -83,6 +106,10 @@ export default function App() {
     // ごはんを与えてまんぷく度を上昇
     feedCatFullness(currentCatId, food.fullnessBoost);
 
+    // ごはんをあげることでなつき度ゲージを増加
+    const foodExp = FOOD_AFFECTION_EXP_MAP[food.id] ?? 25;
+    const affRes = gainAffection(currentCatId, foodExp);
+
     // 猫の足元にごはん皿イラストを描画し、お食事中アニメーションを開始
     startFeeding(food);
 
@@ -94,9 +121,13 @@ export default function App() {
       duration: 0.65,
     });
 
-    // ごはんの種類と猫種に応じたもぐもぐメッセージを吹き出しに表示
-    const msg = getEatingMessage(food, currentCatId);
-    showBubble(msg, { force: true, durationMs: 2600 });
+    // レベルアップした場合はお祝いメッセージ、それ以外はごはんもぐもぐメッセージを吹き出しに表示
+    if (affRes.isLevelUp) {
+      showBubble(`【なつき度UP!】Lv.${affRes.nextLevel}になったよ♡`, { force: true, durationMs: 2800 });
+    } else {
+      const msg = getEatingMessage(food, currentCatId);
+      showBubble(msg, { force: true, durationMs: 2600 });
+    }
   };
 
   const handlePlay = (toy: ToyItem) => {
@@ -121,6 +152,10 @@ export default function App() {
     // おもちゃで遊んで運動し、まんぷく度を微減（5〜10%）
     playCatFullness(currentCatId);
 
+    // おもちゃで遊ぶことでなつき度ゲージを増加
+    const toyExp = TOY_AFFECTION_EXP_MAP[toy.id] ?? 20;
+    const affRes = gainAffection(currentCatId, toyExp);
+
     // 猫の手前におもちゃイラストを描画し、遊び中アニメーションを開始
     startPlaying(toy);
 
@@ -132,9 +167,13 @@ export default function App() {
       duration: 0.6,
     });
 
-    // おもちゃの種類と猫種に応じた遊びメッセージを吹き出しに表示
-    const msg = getPlayMessage(toy, currentCatId);
-    showBubble(msg, { force: true, durationMs: 2600 });
+    // レベルアップした場合はお祝いメッセージ、それ以外はおもちゃメッセージを吹き出しに表示
+    if (affRes.isLevelUp) {
+      showBubble(`【なつき度UP!】Lv.${affRes.nextLevel}になったよ♡`, { force: true, durationMs: 2800 });
+    } else {
+      const msg = getPlayMessage(toy, currentCatId);
+      showBubble(msg, { force: true, durationMs: 2600 });
+    }
   };
 
   const handleSwitchCat = () => {
@@ -185,6 +224,12 @@ export default function App() {
             moodLevel={currentMoodLevel}
             fullnessScore={currentFullnessScore}
             fullnessLevel={currentFullnessLevel}
+            affectionLevel={currentAffectionLevel}
+            affectionProgress={currentAffectionProgress}
+            affectionExp={{
+              current: currentAffectionState.currentExp,
+              required: currentAffectionState.requiredExp,
+            }}
             lastAction={lastAction}
             catName={currentPreset.name}
           />

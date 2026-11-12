@@ -153,5 +153,65 @@ describe('CatMoodIndicator コンポーネント (第4週: ごきげん視覚表
 
     expect(screen.queryByTestId('cat-fullness-section')).not.toBeInTheDocument();
   });
+
+  describe('第7週: なつき度セクション表示テスト', () => {
+    it('affectionLevel が指定されたとき、なつき度セクションとバッジ・ゲージが表示されること', () => {
+      render(
+        <CatMoodIndicator
+          moodScore={50}
+          moodLevel="happy"
+          catName="くろねこ"
+          fullnessScore={70}
+          affectionLevel={2}
+          affectionProgress={40}
+          affectionExp={{ current: 50, required: 125 }}
+        />
+      );
+
+      // なつき度タイトル
+      expect(screen.getByText('くろねこのなつき度')).toBeInTheDocument();
+
+      // レベルバッジ
+      const badge = screen.getByTestId('affection-level-badge');
+      expect(badge).toHaveTextContent('Lv.2 ちょっと気になる');
+
+      // ゲージ
+      const gauge = screen.getByTestId('affection-gauge-fill');
+      expect(gauge.style.width).toBe('40%');
+
+      // 進行度パーセント
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('40%');
+      // 残りExpテキスト (125 - 50 = 75pt)
+      expect(screen.getByText('次のLvまで あと 75pt')).toBeInTheDocument();
+    });
+
+    it('なつき度がLv.10（MAX）のとき、MAXバッジと100%が表示されること', () => {
+      render(
+        <CatMoodIndicator
+          moodScore={100}
+          moodLevel="ecstatic"
+          catName="しろねこ"
+          affectionLevel={10}
+          affectionProgress={100}
+        />
+      );
+
+      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.10 MAX♡');
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('MAX');
+      expect(screen.getByText('深い絆で結ばれた最高のパートナー♡')).toBeInTheDocument();
+    });
+
+    it('affectionLevel が未指定のときは、なつき度セクションが表示されないこと（後方互換性）', () => {
+      render(
+        <CatMoodIndicator
+          moodScore={50}
+          moodLevel="happy"
+          catName="くろねこ"
+        />
+      );
+
+      expect(screen.queryByTestId('cat-affection-section')).not.toBeInTheDocument();
+    });
+  });
 });
 
