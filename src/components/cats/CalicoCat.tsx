@@ -6,7 +6,7 @@ import { CatShapeProps } from './BlackCat.tsx';
  * 3種類目の猫「みけねこ（calico）」コンポーネント
  * 横向きに立ち、顔はこちら（正面）を向いていて、顔は右側、しっぽは左側にある姿勢。
  * 黒猫・白猫と統一された表情デザイン（優しい線画の目、ピンクの三角鼻、3本のひげ、条件付きチーク）を持ち、
- * 体と首・頭部が自然にシームレスに繋がっています。
+ * 体と首・足の付け根が自然にシームレスに繋がっています。
  */
 export const CalicoCat: React.FC<CatShapeProps> = ({
   isReacting = false,
@@ -70,15 +70,21 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       </g>
 
       {/* ===== 奥側の足（左後ろ足・左前足：少し暗めで立体感を表現） ===== */}
-      {/* 左後ろ足（奥側） */}
+      {/* 左後ろ足（奥側：胴体深部からしっかり生えている自然な立ち姿、離れないよう上部を深くまで延長） */}
       <path
-        d="M 64 142 C 60 160 62 178 63 190 C 68 191 75 191 76 190 C 76 178 74 158 72 142 Z"
+        d="
+          M 63 114
+          C 60 138 59 166 62 190
+          C 67 191 74 191 75 190
+          C 77 166 77 138 76 114
+          Z
+        "
         className="fill-stone-100 stroke-stone-300/80"
         strokeWidth="1.5"
       />
       {/* 左前足（奥側） */}
       <path
-        d="M 166 136 C 164 152 165 174 166 189 C 171 190 178 190 179 189 C 178 174 176 150 174 136 Z"
+        d="M 166 128 C 164 148 165 174 166 189 C 171 190 178 190 179 189 C 178 174 176 148 174 128 Z"
         className="fill-stone-100 stroke-stone-300/80"
         strokeWidth="1.5"
       />
@@ -87,9 +93,9 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       <path
         d="
           M 130 90
-          C 150 82 170 70 186 68
-          C 202 70 214 84 212 102
-          C 210 120 196 138 182 142
+          C 150 80 170 66 186 64
+          C 204 66 216 80 214 100
+          C 212 120 196 138 182 142
           C 170 144 154 132 144 116
           C 136 104 132 94 130 90 Z
         "
@@ -139,18 +145,42 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       <ellipse cx="146" cy="138" rx="9" ry="6" className="fill-amber-600" />
 
       {/* ===== 手前側の足（右後ろ足・右前足） ===== */}
-      {/* 右後ろ足（手前側：しっかりした大腿部から伸びる立ち姿） */}
+      {/* 右後ろ足（手前側：体の上に余計な横線が出ないよう、お尻・腰から滑らかに一体化） */}
+      {/* 1. 白の塗りベース（ストロークなしで胴体と滑らかに融合） */}
       <path
         d="
-          M 78 124
-          C 70 134 72 150 74 168
-          C 74 180 76 190 77 192
+          M 72 116
+          C 70 134 72 154 75 174
+          C 75 182 76 191 77 192
           C 84 193 92 193 93 192
-          C 93 182 92 168 90 152
-          C 96 144 98 134 94 124 Z
+          C 93 180 92 164 90 148
+          C 96 140 98 130 96 116 Z
         "
-        className="fill-white stroke-stone-300/90"
+        className="fill-white"
+      />
+      {/* 2. お腹側（前側）の大腿〜足首ライン（体の上に横線は引かず、大腿の前縁のみ描画） */}
+      <path
+        d="M 96 136 C 94 148 91 168 93 192"
+        className="stroke-stone-300/90"
         strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* 3. お尻側（後ろ側）の大腿〜かかとライン */}
+      <path
+        d="M 70 126 C 70 146 73 170 77 192"
+        className="stroke-stone-300/90"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* 4. 右後ろ足の足先ライン */}
+      <path
+        d="M 77 192 C 83 193 89 193 93 192"
+        className="stroke-stone-300/90"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        fill="none"
       />
       {/* 右後ろ足の爪先ディテール */}
       <path d="M 83 188 L 83 192 M 88 188 L 88 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
@@ -171,20 +201,21 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       {/* 右前足の爪先ディテール */}
       <path d="M 183 188 L 183 192 M 189 188 L 189 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
 
-      {/* ===== 胸元・首元のふんわりした白毛（胴体と頭部を一体化） ===== */}
+      {/* ===== 胸元・首元のふんわりした白毛（顔が大きくなっても胴体と頭部をシームレスに一体化） ===== */}
       <path
         d="
-          M 172 82
-          C 170 94 172 108 178 122
-          C 184 132 190 132 192 122
-          C 190 110 186 96 184 84 Z
+          M 166 76
+          C 164 92 168 110 176 126
+          C 184 136 192 136 194 122
+          C 192 106 188 92 186 78 Z
         "
         className="fill-white"
       />
 
-      {/* ===== 頭部と耳（正面向き：黒猫・白猫と統一された愛らしい耳と頭の形状） ===== */}
+      {/* ===== 頭部と耳（正面向き：少し大きく拡大して愛らしい存在感に調整） ===== */}
       <g
-        className={`transition-transform duration-300 origin-[186px_74px] ${
+        transform="translate(186, 75) scale(1.14) translate(-186, -75)"
+        className={`transition-transform duration-300 origin-[186px_75px] ${
           isReacting ? 'scale-105' : isHappy ? 'scale-102' : ''
         }`}
       >
