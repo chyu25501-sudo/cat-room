@@ -22,8 +22,10 @@ export interface AffectionGainResult {
   previousLevel: CatAffectionLevel;
   /** 加算後のレベル */
   nextLevel: CatAffectionLevel;
-  /** レベルアップしたかどうか */
+  /** レベルアップまたは最大時ゲージ満タン演出トリガー */
   isLevelUp: boolean;
+  /** 最大レベル到達後のループゲージ満タンボーナスかどうか */
+  isMaxBonus?: boolean;
   /** 加算後の現在Exp */
   currentExp: number;
   /** 現在のレベルの必要Exp */
@@ -42,6 +44,8 @@ export interface AffectionLevelUpTriggerPayload {
   catName: string;
   /** レベルアップ時の称号（肩書き） */
   title: string;
+  /** 最大レベル到達後のループゲージ満タンボーナスかどうか */
+  isMaxBonus?: boolean;
 }
 
 /** なつき度レベルアップ演出の表示ステート */

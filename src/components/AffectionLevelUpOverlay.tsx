@@ -16,7 +16,7 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
     return null;
   }
 
-  const { level, catName, title, isFading } = state;
+  const { level, catName, title, isFading, isMaxBonus = false } = state;
 
   return (
     <div
@@ -77,10 +77,10 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
               className="absolute inset-0 flex flex-col items-center justify-center text-white pb-3 drop-shadow-md select-none"
             >
               <span className="text-xs sm:text-sm font-black tracking-widest uppercase opacity-90 mb-0.5">
-                なつき度
+                {isMaxBonus ? 'だいすき♡' : 'なつき度'}
               </span>
               <span className="text-5xl sm:text-6xl font-black tracking-tight leading-none">
-                Lv.{level}
+                {isMaxBonus ? 'MAX' : `Lv.${level}`}
               </span>
             </div>
           </div>
@@ -94,11 +94,17 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
           <div className="w-full bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-pink-400">
             <p className="text-base sm:text-lg font-black text-rose-600 tracking-wide flex items-center justify-center gap-1.5">
               <Sparkles className="w-5 h-5 text-amber-400 fill-amber-400 shrink-0" />
-              <span>なつき度が上がったよ！</span>
+              <span>{isMaxBonus ? 'ハートがいっぱい♡' : 'なつき度が上がったよ！'}</span>
               <Sparkles className="w-5 h-5 text-amber-400 fill-amber-400 shrink-0" />
             </p>
             <p className="text-xs sm:text-sm font-bold text-stone-700 mt-1">
-              {catName}は「<span className="text-pink-600 font-extrabold">{title}</span>」になった♡
+              {isMaxBonus
+                ? `${catName}からたくさんの愛を受け取ったよ♡`
+                : (
+                  <>
+                    {catName}は「<span className="text-pink-600 font-extrabold">{title}</span>」になった♡
+                  </>
+                )}
             </p>
           </div>
         </div>

@@ -243,7 +243,9 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
           <div className="mt-1 flex items-center justify-between text-[11px] text-stone-500">
             <span className="truncate">
               {affectionLevel >= MAX_AFFECTION_LEVEL
-                ? '深い絆で結ばれた最高のパートナー♡'
+                ? affectionExp && affectionExp.current > 0 && affectionExp.current < affectionExp.required
+                  ? `ハートまで あと ${Math.max(0, affectionExp.required - affectionExp.current)}pt`
+                  : '深い絆で結ばれた最高のパートナー♡'
                 : affectionExp
                 ? `次のLvまで あと ${Math.max(0, affectionExp.required - affectionExp.current)}pt`
                 : `${getAffectionTitle(affectionLevel)}`}
@@ -252,7 +254,11 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
               data-testid="affection-progress-percentage"
               className="font-semibold text-stone-600 shrink-0 ml-2"
             >
-              {affectionLevel >= MAX_AFFECTION_LEVEL ? 'MAX' : `${affectionProgress}%`}
+              {affectionLevel >= MAX_AFFECTION_LEVEL
+                ? affectionProgress >= 100 || (affectionProgress === 0 && (!affectionExp || affectionExp.current === 0))
+                  ? 'MAX'
+                  : `${affectionProgress}%`
+                : `${affectionProgress}%`}
             </span>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { AffectionLevelUpTriggerPayload, AffectionLevelUpState } from '../types/affection.ts';
 
 export interface UseAffectionLevelUpOptions {
-  /** フェードアウト開始までの表示ミリ秒（デフォルト: 2400ms） */
+  /** フェードアウト開始までの表示ミリ秒（デフォルト: 2900ms、以前の2400msから+500ms延長） */
   displayDurationMs?: number;
   /** フェードアウトにかけるアニメーションミリ秒（デフォルト: 600ms） */
   fadeDurationMs?: number;
@@ -12,7 +12,7 @@ export interface UseAffectionLevelUpOptions {
  * なつき度レベルアップ演出の表示・フェードアウト状態を管理するカスタムフック
  */
 export function useAffectionLevelUp(options: UseAffectionLevelUpOptions = {}) {
-  const { displayDurationMs = 2400, fadeDurationMs = 600 } = options;
+  const { displayDurationMs = 2900, fadeDurationMs = 600 } = options;
 
   const [levelUpState, setLevelUpState] = useState<AffectionLevelUpState | null>(null);
 

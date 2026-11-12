@@ -75,6 +75,7 @@ export default function App() {
           level: affRes.nextLevel,
           catName: currentPreset.name,
           title: getAffectionTitle(affRes.nextLevel),
+          isMaxBonus: affRes.isMaxBonus,
         });
       }
     }
@@ -135,6 +136,7 @@ export default function App() {
         level: affRes.nextLevel,
         catName: currentPreset.name,
         title: getAffectionTitle(affRes.nextLevel),
+        isMaxBonus: affRes.isMaxBonus,
       });
     }
 
@@ -186,6 +188,7 @@ export default function App() {
         level: affRes.nextLevel,
         catName: currentPreset.name,
         title: getAffectionTitle(affRes.nextLevel),
+        isMaxBonus: affRes.isMaxBonus,
       });
     }
 

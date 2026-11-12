@@ -113,4 +113,40 @@ describe('useCatAffection フック (第7週: なつき度機能テスト)', () 
     expect(result.current.getAffectionProgress('black')).toBe(0);
     expect(result.current.getAffectionState('black').currentExp).toBe(0);
   });
+
+  it('なつき度最大（Lv.10）のときもゲージを溜められ、満タンでリセット＆演出トリガーが発生してループすること', () => {
+    // 初期状態をLv.10, 0pt に設定
+    const { result } = renderHook(() =>
+      useCatAffection({ initialLevel: 10, initialExp: 0 })
+    );
+
+    expect(result.current.getAffectionLevel('calico')).toBe(10);
+    expect(result.current.getAffectionProgress('calico')).toBe(0);
+
+    // 100pt獲得（必要300pt中100pt = 33%）-> レベルは10のまま、演出はまだ出ない
+    act(() => {
+      const res = result.current.gainAffection('calico', 100);
+      expect(res.nextLevel).toBe(10);
+      expect(res.isLevelUp).toBe(false);
+      expect(res.isMaxBonus).toBe(false);
+      expect(res.currentExp).toBe(100);
+      expect(res.progressPercentage).toBe(33);
+    });
+
+    expect(result.current.getAffectionProgress('calico')).toBe(33);
+
+    // さらに230pt獲得（100 + 230 = 330pt >= 300pt）-> 満タン達成！
+    // レベルは10のまま、演出トリガー (isLevelUp & isMaxBonus) が発火、余剰30ptでゲージが再スタート (30/300 = 10%)
+    act(() => {
+      const res = result.current.gainAffection('calico', 230);
+      expect(res.nextLevel).toBe(10);
+      expect(res.isLevelUp).toBe(true);
+      expect(res.isMaxBonus).toBe(true);
+      expect(res.currentExp).toBe(30);
+      expect(res.progressPercentage).toBe(10);
+    });
+
+    expect(result.current.getAffectionLevel('calico')).toBe(10);
+    expect(result.current.getAffectionProgress('calico')).toBe(10);
+  });
 });

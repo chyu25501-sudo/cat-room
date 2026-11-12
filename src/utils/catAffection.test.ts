@@ -54,8 +54,10 @@ describe('catAffection ユーティリティ (第7週: なつき度純粋関数�
       expect(calculateAffectionProgress(50, 100, 1)).toBe(50);
       // 125pt中25pt -> 20%
       expect(calculateAffectionProgress(25, 125, 2)).toBe(20);
-      // Lv.10（MAX）のときは常に100%
-      expect(calculateAffectionProgress(0, 300, 10)).toBe(100);
+      // Lv.10（MAX）のときもゲージ進捗を計算（300pt中150pt -> 50%, 0pt -> 0%）
+      expect(calculateAffectionProgress(150, 300, 10)).toBe(50);
+      expect(calculateAffectionProgress(0, 300, 10)).toBe(0);
+      expect(calculateAffectionProgress(300, 300, 10)).toBe(100);
     });
   });
 
@@ -105,20 +107,36 @@ describe('catAffection ユーティリティ (第7週: なつき度純粋関数�
       expect(res.requiredExp).toBe(150);
     });
 
-    it('最大値（Lv.10）に到達した後は、それ以上レベルが上がらずゲージ満タン（100%）を維持すること', () => {
-      // Lv.9（必要300pt）, 現在290pt, +50pt 獲得 -> Lv.10（MAX）に到達
+    it('最大値（Lv.10）到達後も同じ必要量（300pt）でゲージを溜められ、満タンになるたびに演出トリガーが発生してゲージがループすること', () => {
+      // Lv.9（必要300pt）, 現在290pt, +50pt 獲得 -> Lv.10（MAX）に到達（余剰40ptがLv.10ゲージへ）
       const res = calculateAffectionGain(9, 290, 50);
       expect(res.previousLevel).toBe(9);
       expect(res.nextLevel).toBe(10);
       expect(res.isLevelUp).toBe(true);
-      expect(res.progressPercentage).toBe(100);
+      expect(res.isMaxBonus).toBe(false);
+      expect(res.currentExp).toBe(40);
+      expect(res.requiredExp).toBe(300);
+      expect(res.progressPercentage).toBe(13); // 40 / 300 = 13%
 
-      // すでにLv.10の猫にさらにExpを与えてもLv.10のまま
-      const resAtMax = calculateAffectionGain(10, 300, 100);
-      expect(resAtMax.previousLevel).toBe(10);
-      expect(resAtMax.nextLevel).toBe(10);
-      expect(resAtMax.isLevelUp).toBe(false);
-      expect(resAtMax.progressPercentage).toBe(100);
+      // すでにLv.10の猫がさらにふれあい（+100pt）-> 140/300pt（47%）、レベルは10のまま、まだ満タン演出は出ない
+      const resProgress = calculateAffectionGain(10, 40, 100);
+      expect(resProgress.previousLevel).toBe(10);
+      expect(resProgress.nextLevel).toBe(10);
+      expect(resProgress.isLevelUp).toBe(false);
+      expect(resProgress.currentExp).toBe(140);
+      expect(resProgress.requiredExp).toBe(300);
+      expect(resProgress.progressPercentage).toBe(47);
+
+      // さらにふれあい（現在280ptから+30pt = 310pt）-> 満タン（300pt）達成！
+      // レベルは10のままで、演出トリガー（isLevelUp & isMaxBonus）が発火し、余剰10ptでゲージがリセットされる
+      const resLoop = calculateAffectionGain(10, 280, 30);
+      expect(resLoop.previousLevel).toBe(10);
+      expect(resLoop.nextLevel).toBe(10);
+      expect(resLoop.isLevelUp).toBe(true);
+      expect(resLoop.isMaxBonus).toBe(true);
+      expect(resLoop.currentExp).toBe(10);
+      expect(resLoop.requiredExp).toBe(300);
+      expect(resLoop.progressPercentage).toBe(3); // 10 / 300 = 3%
     });
   });
 

@@ -718,9 +718,15 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(message).toHaveTextContent('なつき度が上がったよ！');
         expect(message).toHaveTextContent('くろねこは「ちょっと気になる」になった♡');
 
-        // 少しの間表示された後（2400ms）、フェードアウト開始（opacity-0）
+        // 2400ms 経過時点ではまだフェードアウトせず表示中（0.5秒延長されたため）
         act(() => {
           vi.advanceTimersByTime(2400);
+        });
+        expect(screen.getByTestId('affection-levelup-overlay')).toHaveClass('opacity-100');
+
+        // さらに 500ms（合計2900ms）経過後、フェードアウト開始（opacity-0）
+        act(() => {
+          vi.advanceTimersByTime(500);
         });
         expect(screen.getByTestId('affection-levelup-overlay')).toHaveClass('opacity-0');
 
@@ -729,6 +735,87 @@ describe('App コンポーネント (猫切り替え機能)', () => {
           vi.advanceTimersByTime(600);
         });
         expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('なつき度が最大のときもゲージを溜められ、ゲージがたまると画面中央にハートマーク演出が表示され、なつき度は最大のままで再度ゲージを溜められること', () => {
+      vi.useFakeTimers();
+      try {
+        // 黒猫のなつき度を最大（Lv.10, ゲージ280pt / 必要300pt）に設定
+        localStorage.setItem(
+          'nekoppoi_cats_affection',
+          JSON.stringify({
+            black: { level: 10, currentExp: 280, requiredExp: 300 },
+          })
+        );
+
+        render(<App />);
+
+        // レベルバッジは「Lv.10 MAX♡」、ゲージは 280/300 = 93%
+        expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.10 MAX♡');
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('93%');
+        expect(screen.getByText(/ハートまで あと 20pt/)).toBeInTheDocument();
+
+        // 撫でる (+10pt -> 290/300 = 97%)
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('97%');
+        expect(screen.getByText(/ハートまで あと 10pt/)).toBeInTheDocument();
+        // まだ満タンではないので演出は非表示
+        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+
+        // 撫でるクールダウン（1000ms）を経過させる
+        act(() => {
+          vi.advanceTimersByTime(1100);
+        });
+
+        // もう一度撫でる (+10pt -> 300/300 満タン達成！)
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        // 画面中央にハートマーク演出が表示されること
+        const overlay = screen.getByTestId('affection-levelup-overlay');
+        expect(overlay).toBeInTheDocument();
+        expect(overlay).toHaveClass('opacity-100');
+
+        // ハート内に「だいすき♡」「MAX」、メッセージに「ハートがいっぱい♡」が表示されること
+        expect(screen.getByTestId('affection-levelup-number')).toHaveTextContent('だいすき♡');
+        expect(screen.getByTestId('affection-levelup-number')).toHaveTextContent('MAX');
+        expect(screen.getByTestId('affection-levelup-message')).toHaveTextContent('ハートがいっぱい♡');
+
+        // なつき度は Lv.10 のままで、ゲージがリセットされ（0pt/300pt）、また溜め直せること
+        expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.10 MAX♡');
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('MAX');
+
+        // 演出が 2900ms 表示された後フェードアウトすること
+        act(() => {
+          vi.advanceTimersByTime(2900);
+        });
+        expect(screen.getByTestId('affection-levelup-overlay')).toHaveClass('opacity-0');
+
+        act(() => {
+          vi.advanceTimersByTime(600);
+        });
+        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+
+        // 演出終了後も、再度撫でてゲージを溜められること (+10pt -> 3%)
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('3%');
+        expect(screen.getByText(/ハートまで あと 290pt/)).toBeInTheDocument();
       } finally {
         vi.useRealTimers();
       }

@@ -16,6 +16,38 @@ describe('useAffectionLevelUp フック', () => {
     expect(result.current.levelUpState).toBeNull();
   });
 
+  it('デフォルト設定で2900ms表示（以前の2400msより0.5秒延長）された後、フェードアウトして非表示になること', () => {
+    const { result } = renderHook(() => useAffectionLevelUp());
+
+    act(() => {
+      result.current.triggerLevelUp({
+        level: 5,
+        catName: 'みけねこ',
+        title: 'なかよし',
+      });
+    });
+
+    expect(result.current.levelUpState?.isFading).toBe(false);
+
+    // 2400ms 経過時点ではまだフェードアウトせず表示中（0.5秒延長されたため）
+    act(() => {
+      vi.advanceTimersByTime(2400);
+    });
+    expect(result.current.levelUpState?.isFading).toBe(false);
+
+    // さらに 500ms（合計2900ms）経過でフェードアウト開始
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(result.current.levelUpState?.isFading).toBe(true);
+
+    // 600ms 経過で完全に消去
+    act(() => {
+      vi.advanceTimersByTime(600);
+    });
+    expect(result.current.levelUpState).toBeNull();
+  });
+
   it('triggerLevelUp を呼び出すと表示状態になり、時間経過でフェードアウトして非表示になること', () => {
     const { result } = renderHook(() =>
       useAffectionLevelUp({ displayDurationMs: 2000, fadeDurationMs: 500 })

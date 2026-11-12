@@ -45,15 +45,13 @@ export function calculateRequiredExp(level: number): number {
 
 /**
  * 現在のゲージ経験値と必要経験値から、ゲージの進行度パーセンテージ（0〜100%）を計算する純粋関数
+ * なつき度最大時もゲージを溜めることができるため、現在のExpと必要Expの比率を計算します。
  */
 export function calculateAffectionProgress(
   currentExp: number,
   requiredExp: number,
-  level: number = MIN_AFFECTION_LEVEL
+  _level: number = MIN_AFFECTION_LEVEL
 ): number {
-  if (level >= MAX_AFFECTION_LEVEL) {
-    return 100;
-  }
   if (requiredExp <= 0) {
     return 0;
   }
@@ -64,7 +62,8 @@ export function calculateAffectionProgress(
 /**
  * ふれあい（なでる・ごはん・おもちゃ）による経験値獲得とレベルアップを計算する純粋関数
  * ゲージが1回満タンになるとレベルが+1上昇し、ゲージはリセット（余剰Exp引き継ぎ）されます。
- * 最大値（Lv.10）に到達するとそれ以上レベルは上がらず、ゲージ満タンを維持します。
+ * 最大値（Lv.10）に到達した後も、最大に上げる時と同じ必要量でゲージを溜めることができ、
+ * 満タンになるたびに演出トリガー（isLevelUp & isMaxBonus）が発生し、ゲージがリセットされて何度でも溜め直せます。
  *
  * @param currentLevel 加算前のなつき度レベル
  * @param currentExp 加算前の現在ゲージ経験値
@@ -81,17 +80,28 @@ export function calculateAffectionGain(
     Math.min(MAX_AFFECTION_LEVEL, Math.floor(currentLevel))
   );
 
-  // すでに最大レベル（Lv.10）に達している場合
+  // すでに最大レベル（Lv.10）に達している場合: 同じ必要量（300pt）でゲージを溜め、満タンでリセット＆演出トリガー
   if (startLevel >= MAX_AFFECTION_LEVEL) {
     const required = calculateRequiredExp(MAX_AFFECTION_LEVEL);
+    let exp = Math.max(0, currentExp) + safeGained;
+    let isMaxBonus = false;
+
+    while (exp >= required) {
+      exp -= required;
+      isMaxBonus = true;
+    }
+
+    const progressPercentage = calculateAffectionProgress(exp, required, MAX_AFFECTION_LEVEL);
+
     return {
-      previousLevel: startLevel,
+      previousLevel: MAX_AFFECTION_LEVEL,
       nextLevel: MAX_AFFECTION_LEVEL,
-      isLevelUp: false,
-      currentExp: required,
+      isLevelUp: isMaxBonus,
+      isMaxBonus,
+      currentExp: exp,
       requiredExp: required,
       gainedExp: safeGained,
-      progressPercentage: 100,
+      progressPercentage,
     };
   }
 
@@ -99,6 +109,7 @@ export function calculateAffectionGain(
   let exp = Math.max(0, currentExp) + safeGained;
   let required = calculateRequiredExp(level);
   let isLevelUp = false;
+  let isMaxBonus = false;
 
   // ゲージが満タンになったらレベルアップ＆ゲージリセット（余剰Expを次のレベルへ持ち越し）
   while (exp >= required && level < MAX_AFFECTION_LEVEL) {
@@ -108,9 +119,12 @@ export function calculateAffectionGain(
     required = calculateRequiredExp(level);
   }
 
-  // 最大レベルに到達した場合はゲージ満タン状態
+  // 最大レベルに到達した場合、さらにLv.10の必要量（300pt）を超えている場合はループボーナス
   if (level >= MAX_AFFECTION_LEVEL) {
-    exp = required;
+    while (exp >= required) {
+      exp -= required;
+      isMaxBonus = true;
+    }
   }
 
   const progressPercentage = calculateAffectionProgress(exp, required, level);
@@ -119,6 +133,7 @@ export function calculateAffectionGain(
     previousLevel: startLevel,
     nextLevel: level,
     isLevelUp,
+    isMaxBonus,
     currentExp: exp,
     requiredExp: required,
     gainedExp: safeGained,
