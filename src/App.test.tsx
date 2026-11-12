@@ -652,37 +652,67 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       }
     });
 
-    it('ゲージが1回満タンになるとLv.2にレベルアップし、ゲージがリセットされお祝いメッセージが表示されること', () => {
-      // 事前に黒猫のExpを95pt（Lv.1の残り5pt）に設定
-      localStorage.setItem(
-        'nekoppoi_cats_affection',
-        JSON.stringify({
-          black: { level: 1, currentExp: 95, requiredExp: 100 },
-          white: { level: 1, currentExp: 0, requiredExp: 100 },
-        })
-      );
+    it('ゲージが1回満タンになるとLv.2にレベルアップし、画面中央に巨大ハートとなつき度数値・祝うメッセージが表示されフェードアウトすること', () => {
+      vi.useFakeTimers();
+      try {
+        // 事前に黒猫のExpを95pt（Lv.1の残り5pt）に設定
+        localStorage.setItem(
+          'nekoppoi_cats_affection',
+          JSON.stringify({
+            black: { level: 1, currentExp: 95, requiredExp: 100 },
+            white: { level: 1, currentExp: 0, requiredExp: 100 },
+          })
+        );
 
-      render(<App />);
+        render(<App />);
 
-      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
-      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('95%');
+        expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('95%');
 
-      // 撫でる (+10pt -> 95 + 10 = 105pt, 100ptでレベルアップしLv.2へ。余剰5pt / 125pt = 4%)
-      const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
-      act(() => {
-        fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
-        fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
-        fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
-      });
+        // レベルアップ前は中央演出は表示されていないこと
+        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
 
-      // レベル2（ちょっと気になる）に上昇
-      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.2 ちょっと気になる');
-      // ゲージがリセットされて余剰5pt / 125pt = 4%
-      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('4%');
-      expect(screen.getByText(/次のLvまで あと 120pt/)).toBeInTheDocument();
+        // 撫でる (+10pt -> 95 + 10 = 105pt, 100ptでレベルアップしLv.2へ。余剰5pt / 125pt = 4%)
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
 
-      // お祝いメッセージが表示されていること
-      expect(screen.getByText('【なつき度UP!】Lv.2になったよ♡')).toBeInTheDocument();
+        // インジケーター側: レベル2（ちょっと気になる）に上昇し、ゲージがリセット
+        expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.2 ちょっと気になる');
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('4%');
+        expect(screen.getByText(/次のLvまで あと 120pt/)).toBeInTheDocument();
+
+        // 画面中央に大きくレベルアップ演出が表示されること
+        const overlay = screen.getByTestId('affection-levelup-overlay');
+        expect(overlay).toBeInTheDocument();
+        expect(overlay).toHaveClass('opacity-100');
+
+        // 巨大なハートマークとなつき度の数値 (Lv.2)
+        expect(screen.getByTestId('affection-levelup-heart')).toBeInTheDocument();
+        expect(screen.getByTestId('affection-levelup-number')).toHaveTextContent('Lv.2');
+
+        // その下に祝うメッセージが表示されること
+        const message = screen.getByTestId('affection-levelup-message');
+        expect(message).toHaveTextContent('なつき度が上がったよ！');
+        expect(message).toHaveTextContent('くろねこは「ちょっと気になる」になった♡');
+
+        // 少しの間表示された後（2400ms）、フェードアウト開始（opacity-0）
+        act(() => {
+          vi.advanceTimersByTime(2400);
+        });
+        expect(screen.getByTestId('affection-levelup-overlay')).toHaveClass('opacity-0');
+
+        // アニメーション完了（さらに600ms）で画面から完全に消えること
+        act(() => {
+          vi.advanceTimersByTime(600);
+        });
+        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('猫ごとに独立してなつき度が管理されること', () => {

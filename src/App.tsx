@@ -7,17 +7,20 @@ import { useCatFullness } from './hooks/useCatFullness.ts';
 import { useCatFeeding } from './hooks/useCatFeeding.ts';
 import { useCatPlay } from './hooks/useCatPlay.ts';
 import { useCatAffection } from './hooks/useCatAffection.ts';
+import { useAffectionLevelUp } from './hooks/useAffectionLevelUp.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
 import { CareSidebar } from './components/care/CareSidebar.tsx';
+import { AffectionLevelUpOverlay } from './components/AffectionLevelUpOverlay.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
 import {
   DEFAULT_PET_AFFECTION_EXP,
   FOOD_AFFECTION_EXP_MAP,
   TOY_AFFECTION_EXP_MAP,
+  getAffectionTitle,
 } from './utils/catAffection.ts';
 import {
   getEatingMessage,
@@ -43,6 +46,7 @@ export default function App() {
     getAffectionState,
     gainAffection,
   } = useCatAffection();
+  const { levelUpState, triggerLevelUp } = useAffectionLevelUp();
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
   // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
@@ -67,7 +71,11 @@ export default function App() {
     if (!isAnnoyed && nextLevel !== 'annoyed') {
       const affRes = gainAffection(currentCatId, DEFAULT_PET_AFFECTION_EXP);
       if (affRes.isLevelUp) {
-        showBubble(`【なつき度UP!】Lv.${affRes.nextLevel}になったよ♡`, { force: true, durationMs: 2800 });
+        triggerLevelUp({
+          level: affRes.nextLevel,
+          catName: currentPreset.name,
+          title: getAffectionTitle(affRes.nextLevel),
+        });
       }
     }
 
@@ -121,13 +129,18 @@ export default function App() {
       duration: 0.65,
     });
 
-    // レベルアップした場合はお祝いメッセージ、それ以外はごはんもぐもぐメッセージを吹き出しに表示
+    // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
     if (affRes.isLevelUp) {
-      showBubble(`【なつき度UP!】Lv.${affRes.nextLevel}になったよ♡`, { force: true, durationMs: 2800 });
-    } else {
-      const msg = getEatingMessage(food, currentCatId);
-      showBubble(msg, { force: true, durationMs: 2600 });
+      triggerLevelUp({
+        level: affRes.nextLevel,
+        catName: currentPreset.name,
+        title: getAffectionTitle(affRes.nextLevel),
+      });
     }
+
+    // ごはんもぐもぐメッセージを吹き出しに表示
+    const msg = getEatingMessage(food, currentCatId);
+    showBubble(msg, { force: true, durationMs: 2600 });
   };
 
   const handlePlay = (toy: ToyItem) => {
@@ -167,13 +180,18 @@ export default function App() {
       duration: 0.6,
     });
 
-    // レベルアップした場合はお祝いメッセージ、それ以外はおもちゃメッセージを吹き出しに表示
+    // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
     if (affRes.isLevelUp) {
-      showBubble(`【なつき度UP!】Lv.${affRes.nextLevel}になったよ♡`, { force: true, durationMs: 2800 });
-    } else {
-      const msg = getPlayMessage(toy, currentCatId);
-      showBubble(msg, { force: true, durationMs: 2600 });
+      triggerLevelUp({
+        level: affRes.nextLevel,
+        catName: currentPreset.name,
+        title: getAffectionTitle(affRes.nextLevel),
+      });
     }
+
+    // おもちゃメッセージを吹き出しに表示
+    const msg = getPlayMessage(toy, currentCatId);
+    showBubble(msg, { force: true, durationMs: 2600 });
   };
 
   const handleSwitchCat = () => {
@@ -287,6 +305,9 @@ export default function App() {
         onFeed={handleFeed}
         onPlay={handlePlay}
       />
+
+      {/* なつき度レベルアップ時の中央巨大ハート＆祝うメッセージ演出オーバーレイ */}
+      <AffectionLevelUpOverlay state={levelUpState} />
     </main>
   );
 }

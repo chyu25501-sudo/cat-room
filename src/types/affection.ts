@@ -33,3 +33,20 @@ export interface AffectionGainResult {
   /** ゲージの進行度パーセンテージ（0 〜 100%） */
   progressPercentage: number;
 }
+
+/** なつき度レベルアップ演出のトリガーデータ */
+export interface AffectionLevelUpTriggerPayload {
+  /** 上昇後のレベル（1 〜 10） */
+  level: CatAffectionLevel;
+  /** 対象の猫の名称 */
+  catName: string;
+  /** レベルアップ時の称号（肩書き） */
+  title: string;
+}
+
+/** なつき度レベルアップ演出の表示ステート */
+export interface AffectionLevelUpState extends AffectionLevelUpTriggerPayload {
+  /** フェードアウト中フラグ */
+  isFading: boolean;
+}
+
