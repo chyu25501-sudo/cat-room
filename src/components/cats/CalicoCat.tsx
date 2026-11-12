@@ -93,10 +93,10 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       <path
         d="
           M 130 90
-          C 150 80 170 66 186 64
-          C 204 66 216 80 214 100
-          C 212 120 196 138 182 142
-          C 170 144 154 132 144 116
+          C 152 80 174 66 194 64
+          C 212 66 224 80 222 100
+          C 220 120 204 138 188 142
+          C 172 144 156 132 144 116
           C 136 104 132 94 130 90 Z
         "
         className="fill-white"
@@ -201,21 +201,21 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       {/* 右前足の爪先ディテール */}
       <path d="M 183 188 L 183 192 M 189 188 L 189 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
 
-      {/* ===== 胸元・首元のふんわりした白毛（顔が大きくなっても胴体と頭部をシームレスに一体化） ===== */}
+      {/* ===== 胸元・首元のふんわりした白毛（顔が右へ移動しても胴体と頭部をシームレスに一体化） ===== */}
       <path
         d="
-          M 166 76
-          C 164 92 168 110 176 126
-          C 184 136 192 136 194 122
-          C 192 106 188 92 186 78 Z
+          M 172 76
+          C 170 92 174 110 182 126
+          C 190 136 198 136 200 122
+          C 198 106 194 92 192 78 Z
         "
         className="fill-white"
       />
 
-      {/* ===== 頭部と耳（正面向き：少し大きく拡大して愛らしい存在感に調整） ===== */}
+      {/* ===== 頭部と耳（正面向き：右側へ少し移動し立ち姿のバランスを最適化） ===== */}
       <g
-        transform="translate(186, 75) scale(1.14) translate(-186, -75)"
-        className={`transition-transform duration-300 origin-[186px_75px] ${
+        transform="translate(196, 75) scale(1.14) translate(-186, -75)"
+        className={`transition-transform duration-300 origin-[196px_75px] ${
           isReacting ? 'scale-105' : isHappy ? 'scale-102' : ''
         }`}
       >
