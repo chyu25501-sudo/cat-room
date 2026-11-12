@@ -4,9 +4,10 @@ import { CatShapeProps } from './BlackCat.tsx';
 
 /**
  * 3種類目の猫「みけねこ（calico）」コンポーネント
- * 横向きに立ち、顔はこちら（正面）を向いていて、顔は右側、しっぽは左側にある姿勢。
- * 首が折れ曲がらず体から右前へ自然に伸び、その先端に顔が位置しています。
- * 黒猫・白猫と統一された表情デザイン（優しい線画の目、ピンクの三角鼻、3本のひげ、条件付きチーク）を持ちます。
+ * 横向きに立ち、顔は右側（正面向き）、しっぽは左側にある姿勢。
+ * 首筋のカーブは右上（顔・顎下）から左下（胸元・前足付け根）へと滑らかに繋がり、
+ * 不自然な折れ曲がりのない自然な立ち姿を実現しています。
+ * 表情は黒猫・白猫と統一されたデザイン（線画の目、ピンクの三角鼻、3本のひげ、条件付きチーク）です。
  */
 export const CalicoCat: React.FC<CatShapeProps> = ({
   isReacting = false,
@@ -18,16 +19,16 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
 
   return (
     <svg
-      viewBox="0 0 270 210"
+      viewBox="0 0 260 210"
       className="w-64 h-52 sm:w-72 sm:h-60 drop-shadow-xl transition-all duration-300"
       aria-hidden="true"
       data-testid="calico-cat-svg"
     >
       {/* ===== 地面の影 ===== */}
       <ellipse
-        cx="135"
+        cx="130"
         cy="192"
-        rx="100"
+        rx="96"
         ry="11"
         className={`transition-all duration-300 ${
           isReacting ? 'fill-orange-300/40 scale-110' : 'fill-stone-300/60'
@@ -37,9 +38,9 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       {/* 音声再生・反応時の床の波紋エフェクト */}
       {isReacting && (
         <ellipse
-          cx="135"
+          cx="130"
           cy="192"
-          rx="112"
+          rx="108"
           ry="14"
           className="fill-orange-400/20 animate-ping"
         />
@@ -70,48 +71,29 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       </g>
 
       {/* ===== 奥側の足（左後ろ足・左前足：少し暗めで立体感を表現） ===== */}
-      {/* 左後ろ足（奥側：胴体深部からしっかり生えている自然な立ち姿） */}
+      {/* 左後ろ足（奥側：胴体内部から自然に生えている立ち姿） */}
       <path
-        d="
-          M 63 114
-          C 60 138 59 166 62 190
-          C 67 191 74 191 75 190
-          C 77 166 77 138 76 114
-          Z
-        "
+        d="M 64 124 C 60 146 61 168 63 190 C 68 191 75 191 76 190 C 76 168 75 146 74 124 Z"
         className="fill-stone-100 stroke-stone-300/80"
         strokeWidth="1.5"
       />
       {/* 左前足（奥側） */}
       <path
-        d="M 170 128 C 168 148 169 174 170 189 C 175 190 182 190 183 189 C 182 174 180 148 178 128 Z"
+        d="M 166 128 C 164 148 165 174 166 189 C 171 190 178 190 179 189 C 178 174 176 148 174 128 Z"
         className="fill-stone-100 stroke-stone-300/80"
         strokeWidth="1.5"
       />
 
-      {/* ===== 首と胴体の下地（左から右前へ素直に伸び、頭部と胴体を繋ぐネックベース） ===== */}
-      <path
-        d="
-          M 136 88
-          C 160 84 182 78 206 72
-          C 222 76 230 90 224 104
-          C 218 118 204 132 188 138
-          C 174 140 156 128 146 112
-          C 138 100 136 92 136 88 Z
-        "
-        className="fill-white"
-      />
-
-      {/* ===== 胴体（横向きに立ち、背中から首筋が右前へと素直に流れる自然なライン） ===== */}
+      {/* ===== 胴体（横向きに立ち、首筋は右上から左下へと滑らかに繋がる自然なライン） ===== */}
       <path
         d="
           M 56 116
           C 50 96 68 84 95 86
-          C 125 88 156 86 182 80
-          C 196 78 208 80 216 88
-          C 214 106 204 122 192 134
-          C 182 142 172 146 156 146
-          C 132 144 98 148 84 146
+          C 125 88 152 86 174 76
+          C 184 72 194 74 200 82
+          C 194 96 186 112 176 126
+          C 172 136 170 144 162 146
+          C 138 146 114 146 84 146
           C 66 144 54 134 56 116 Z
         "
         className="fill-white stroke-stone-300/90"
@@ -145,76 +127,42 @@ export const CalicoCat: React.FC<CatShapeProps> = ({
       <ellipse cx="146" cy="138" rx="9" ry="6" className="fill-amber-600" />
 
       {/* ===== 手前側の足（右後ろ足・右前足） ===== */}
-      {/* 右後ろ足（手前側：体の上に横線が出ないよう、お尻・腰から滑らかに一体化） */}
+      {/* 右後ろ足（手前側：お尻・腰から自然に伸びる大腿部の立ち姿） */}
       <path
         d="
-          M 72 116
-          C 70 134 72 154 75 174
-          C 75 182 76 191 77 192
+          M 76 122
+          C 70 134 72 150 74 168
+          C 74 180 76 190 77 192
           C 84 193 92 193 93 192
-          C 93 180 92 164 90 148
-          C 96 140 98 130 96 116 Z
+          C 93 182 92 168 90 152
+          C 95 142 96 132 92 122 Z
         "
-        className="fill-white"
-      />
-      {/* お腹側（前側）の大腿〜足首ライン */}
-      <path
-        d="M 96 136 C 94 148 91 168 93 192"
-        className="stroke-stone-300/90"
+        className="fill-white stroke-stone-300/90"
         strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      {/* お尻側（後ろ側）の大腿〜かかとライン */}
-      <path
-        d="M 70 126 C 70 146 73 170 77 192"
-        className="stroke-stone-300/90"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      {/* 右後ろ足の足先ライン */}
-      <path
-        d="M 77 192 C 83 193 89 193 93 192"
-        className="stroke-stone-300/90"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
       />
       {/* 右後ろ足の爪先ディテール */}
       <path d="M 83 188 L 83 192 M 88 188 L 88 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
 
-      {/* 右前足（手前側：胸元からすっと伸びる立ち姿） */}
+      {/* 右前足（手前側：首筋の終端からすっと伸びる立ち姿） */}
       <path
         d="
-          M 184 122
-          C 180 134 181 154 182 174
-          C 182 182 183 191 184 192
-          C 191 193 199 193 200 192
-          C 200 180 199 162 197 144
-          C 198 136 196 128 192 122 Z
+          M 176 126
+          C 174 138 175 154 176 174
+          C 176 182 177 191 178 192
+          C 185 193 193 193 194 192
+          C 194 180 193 162 191 144
+          C 190 134 186 126 182 124 Z
         "
         className="fill-white stroke-stone-300/90"
         strokeWidth="1.5"
       />
       {/* 右前足の爪先ディテール */}
-      <path d="M 189 188 L 189 192 M 195 188 L 195 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
+      <path d="M 183 188 L 183 192 M 189 188 L 189 192" stroke="#d6d3d1" strokeWidth="1" strokeLinecap="round" />
 
-      {/* ===== 胸元から喉元へのふんわり白毛（右前へすっと伸びる自然な首元） ===== */}
-      <path
-        d="
-          M 180 84
-          C 184 98 192 114 200 124
-          C 208 128 214 124 216 112
-          C 214 98 206 86 198 78 Z
-        "
-        className="fill-white"
-      />
-
-      {/* ===== 頭部と耳（正面向き：右側へしっかりと配置し、首の不自然な曲がりを解消） ===== */}
+      {/* ===== 頭部と耳（正面向き：右側に位置し、首筋は右上から左下へと滑らかに繋がる） ===== */}
       <g
-        transform="translate(210, 74) scale(1.14) translate(-186, -74)"
-        className={`transition-transform duration-300 origin-[210px_74px] ${
+        transform="translate(202, 72) scale(1.14) translate(-186, -74)"
+        className={`transition-transform duration-300 origin-[202px_72px] ${
           isReacting ? 'scale-105' : isHappy ? 'scale-102' : ''
         }`}
       >
