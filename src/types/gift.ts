@@ -17,6 +17,7 @@ export type GiftId =
   | 'button'
   | 'old-coin'
   | 'rainbow-feather'
+  | 'four-leaf-clover'
   | string;
 
 /**

@@ -98,7 +98,7 @@ describe('GiftCollectionModal コンポーネント', () => {
     expect(screen.getByText('みけねこ: 1個')).toBeInTheDocument();
   });
 
-  it('レアリティの高いおくりもの（ふしぎな古銭・なないろの羽根）は、背景が白色ではなく金色になること', () => {
+  it('レアリティの高いおくりもの（ふしぎな古銭・なないろの羽根・よつばのクローバー）は、背景が白色ではなく金色になること', () => {
     const inventory: GiftInventory = {
       pebble: {
         giftId: 'pebble',
@@ -113,11 +113,19 @@ describe('GiftCollectionModal コンポーネント', () => {
         firstReceivedAt: 1200,
         lastReceivedAt: 1200,
       },
+      'four-leaf-clover': {
+        giftId: 'four-leaf-clover',
+        count: 1,
+        byCat: { calico: 1 },
+        firstReceivedAt: 1300,
+        lastReceivedAt: 1300,
+      },
     };
 
     render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
 
     const oldCoinTile = screen.getByTestId('gift-tile-old-coin');
+    const fourLeafTile = screen.getByTestId('gift-tile-four-leaf-clover');
     const pebbleTile = screen.getByTestId('gift-tile-pebble');
 
     // 古銭をクリックして選択状態にする（小石は非選択状態になる）
@@ -129,6 +137,9 @@ describe('GiftCollectionModal コンポーネント', () => {
     // レアのふしぎな古銭のタイル背景は金色系（amberグラデーション）
     expect(oldCoinTile.className).toContain('from-amber-200');
     expect(oldCoinTile.className).toContain('border-amber-500');
+
+    // レアのよつばのクローバーも金色系
+    expect(fourLeafTile.className).toContain('from-amber-200');
 
     // 詳細パネルのアイコン背景ボックスが金色であること
     const detailIconBox = screen.getByTestId('gift-detail-icon-box');

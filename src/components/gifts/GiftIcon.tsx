@@ -322,8 +322,8 @@ export const PineconeIcon: React.FC<{ className?: string }> = ({ className = 'w-
 );
 
 /**
- * 「みどりのクローバー」のSVGイラストアイコン
- * 説明:「草むらの中から摘んできた、青々とした四つ葉のクローバー。」
+ * 「みどりのクローバー」のSVGイラストアイコン（三つ葉）
+ * 説明:「草むらの中から摘んできた、青々とした三つ葉のクローバー。」
  */
 export const CloverIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
   <svg
@@ -342,32 +342,89 @@ export const CloverIcon: React.FC<{ className?: string }> = ({ className = 'w-8 
       </linearGradient>
     </defs>
     <ellipse cx="24" cy="42" rx="12" ry="3" fill="#000000" fillOpacity="0.1" />
+    {/* 三つ葉のクローバー（上・左下・右下の3枚のハート型の葉） */}
+    {/* 上葉 */}
+    <path
+      d="M24 23C21 16 14 12 17 7C20.5 2.5 24 7.5 24 11C24 7.5 27.5 2.5 31 7C34 12 27 16 24 23Z"
+      fill="url(#cloverGrad)"
+      stroke="#166534"
+      strokeWidth="1.2"
+    />
+    {/* 左下葉（-120度回転） */}
+    <path
+      d="M24 23C21 16 14 12 17 7C20.5 2.5 24 7.5 24 11C24 7.5 27.5 2.5 31 7C34 12 27 16 24 23Z"
+      transform="rotate(-120 24 23)"
+      fill="url(#cloverGrad)"
+      stroke="#166534"
+      strokeWidth="1.2"
+    />
+    {/* 右下葉（+120度回転） */}
+    <path
+      d="M24 23C21 16 14 12 17 7C20.5 2.5 24 7.5 24 11C24 7.5 27.5 2.5 31 7C34 12 27 16 24 23Z"
+      transform="rotate(120 24 23)"
+      fill="url(#cloverGrad)"
+      stroke="#166534"
+      strokeWidth="1.2"
+    />
+    {/* 茎 */}
+    <path
+      d="M24 23C23 31 25 38 31 43"
+      stroke="#15803D"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+    {/* 中央の小さなきらめき */}
+    <circle cx="24" cy="23" r="1.5" fill="#DCFCE7" />
+  </svg>
+);
+
+/**
+ * 「よつばのクローバー」のSVGイラストアイコン（レア・四つ葉）
+ * 説明:「草むらの中で奇跡的に見つけた、特別な幸運をもたらす四つ葉のクローバー。」
+ */
+export const FourLeafCloverIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="four-leaf-clover-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="fourLeafCloverGrad" x1="12" y1="10" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#4ADE80" />
+        <stop offset="50%" stopColor="#22C55E" />
+        <stop offset="100%" stopColor="#15803D" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="12" ry="3" fill="#000000" fillOpacity="0.1" />
     {/* 四つ葉の4枚のハート（上・下・左・右） */}
     {/* 上葉 */}
     <path
       d="M24 24C22 17 15 13 18 8C21 4 24 9 24 12C24 9 27 4 30 8C33 13 26 17 24 24Z"
-      fill="url(#cloverGrad)"
+      fill="url(#fourLeafCloverGrad)"
       stroke="#166534"
       strokeWidth="1.2"
     />
     {/* 下葉 */}
     <path
       d="M24 24C22 31 15 35 18 40C21 44 24 39 24 36C24 39 27 44 30 40C33 35 26 31 24 24Z"
-      fill="url(#cloverGrad)"
+      fill="url(#fourLeafCloverGrad)"
       stroke="#166534"
       strokeWidth="1.2"
     />
     {/* 左葉 */}
     <path
       d="M24 24C17 22 13 15 8 18C4 21 9 24 12 24C9 24 4 27 8 30C13 33 17 26 24 24Z"
-      fill="url(#cloverGrad)"
+      fill="url(#fourLeafCloverGrad)"
       stroke="#166534"
       strokeWidth="1.2"
     />
     {/* 右葉 */}
     <path
       d="M24 24C31 22 35 15 40 18C44 21 39 24 36 24C39 24 44 27 40 30C35 33 31 26 24 24Z"
-      fill="url(#cloverGrad)"
+      fill="url(#fourLeafCloverGrad)"
       stroke="#166534"
       strokeWidth="1.2"
     />
@@ -656,6 +713,8 @@ export const GiftIcon: React.FC<GiftIconProps> = ({
       return <OldCoinIcon className={className} />;
     case 'rainbow-feather':
       return <RainbowFeatherIcon className={className} />;
+    case 'four-leaf-clover':
+      return <FourLeafCloverIcon className={className} />;
     default:
       return <DefaultGiftIcon className={className} />;
   }

@@ -17,8 +17,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catGifts utils (おくりもの計算・インベントリ管理ロジック)', () => {
   describe('CAT_GIFTS 定数', () => {
-    it('合計12種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
-      expect(CAT_GIFTS.length).toBe(12);
+    it('合計13種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
+      expect(CAT_GIFTS.length).toBe(13);
 
       const expectedIds = [
         'pebble',
@@ -33,6 +33,7 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'button',
         'old-coin',
         'rainbow-feather',
+        'four-leaf-clover',
       ];
       expectedIds.forEach((id) => {
         const gift = CAT_GIFTS.find((g) => g.id === id);
@@ -41,7 +42,12 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         expect(gift?.description).toBeTruthy();
       });
 
-      // レアアイテム（ふしぎな古銭、なないろの羽根）の定義確認
+      // 「みどりのクローバー」が三つ葉の説明になっていること
+      const clover = CAT_GIFTS.find((g) => g.id === 'clover');
+      expect(clover?.description).toContain('三つ葉');
+      expect(clover?.rarity).toBe('common');
+
+      // レアアイテム（ふしぎな古銭、なないろの羽根、よつばのクローバー）の定義確認
       const oldCoin = CAT_GIFTS.find((g) => g.id === 'old-coin');
       expect(oldCoin?.name).toBe('ふしぎな古銭');
       expect(oldCoin?.rarity).toBe('rare');
@@ -50,8 +56,13 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(rainbowFeather?.name).toBe('なないろの羽根');
       expect(rainbowFeather?.rarity).toBe('rare');
 
+      const fourLeafClover = CAT_GIFTS.find((g) => g.id === 'four-leaf-clover');
+      expect(fourLeafClover?.name).toBe('よつばのクローバー');
+      expect(fourLeafClover?.description).toContain('四つ葉');
+      expect(fourLeafClover?.rarity).toBe('rare');
+
       // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語
-      const hiraganaPrefixPattern = /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの)/;
+      const hiraganaPrefixPattern = /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの)/;
       CAT_GIFTS.forEach((gift) => {
         expect(gift.name).toMatch(hiraganaPrefixPattern);
       });
@@ -96,9 +107,9 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       const item0 = pickRandomGift(CAT_GIFTS, () => 0.0);
       expect(item0.id).toBe('pebble');
 
-      // randomFn が 0.999 のときは最後のアイテム（rainbow-feather）
+      // randomFn が 0.999 のときは最後のアイテム（four-leaf-clover）
       const itemLast = pickRandomGift(CAT_GIFTS, () => 0.999);
-      expect(itemLast.id).toBe('rainbow-feather');
+      expect(itemLast.id).toBe('four-leaf-clover');
     });
 
     it('カタログが空の場合はデフォルトギフトを返すこと', () => {

@@ -14,6 +14,7 @@ import {
   ButtonIcon,
   OldCoinIcon,
   RainbowFeatherIcon,
+  FourLeafCloverIcon,
 } from './GiftIcon.tsx';
 
 describe('GiftIcon コンポーネント (おくりもののSVGイラスト描画)', () => {
@@ -31,6 +32,7 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       { id: 'button', testId: 'button-icon' },
       { id: 'old-coin', testId: 'old-coin-icon' },
       { id: 'rainbow-feather', testId: 'rainbow-feather-icon' },
+      { id: 'four-leaf-clover', testId: 'four-leaf-clover-icon' },
     ];
 
     for (const { id, testId } of testCases) {
@@ -65,6 +67,7 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       ButtonIcon,
       OldCoinIcon,
       RainbowFeatherIcon,
+      FourLeafCloverIcon,
     ];
 
     for (const Comp of components) {

@@ -72,8 +72,8 @@ export const CAT_GIFTS: readonly GiftItem[] = [
   {
     id: 'clover',
     name: 'みどりのクローバー',
-    description: '草むらの中から摘んできた、青々とした四つ葉のクローバー。',
-    icon: '🍀',
+    description: '草むらの中から摘んできた、青々とした三つ葉のクローバー。',
+    icon: '☘️',
     iconType: 'clover',
     themeClass: 'from-emerald-100 to-green-100 border-emerald-300 text-emerald-700',
     rarity: 'common',
@@ -112,6 +112,15 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     icon: '🪶',
     iconType: 'rainbow-feather',
     themeClass: 'from-pink-200 via-sky-200 to-amber-200 border-purple-300 text-purple-900',
+    rarity: 'rare',
+  },
+  {
+    id: 'four-leaf-clover',
+    name: 'よつばのクローバー',
+    description: '草むらの中で奇跡的に見つけた、特別な幸運をもたらす四つ葉のクローバー。',
+    icon: '🍀',
+    iconType: 'four-leaf-clover',
+    themeClass: 'from-emerald-200 to-green-300 border-emerald-400 text-emerald-900',
     rarity: 'rare',
   },
 ] as const;
