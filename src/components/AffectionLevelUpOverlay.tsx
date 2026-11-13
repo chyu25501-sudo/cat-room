@@ -89,7 +89,7 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
         {/* その下に表示する祝うメッセージ */}
         <div
           data-testid="affection-levelup-message"
-          className="mt-6 flex flex-col items-center text-center px-4 max-w-xs sm:max-w-sm w-full animate-bounce"
+          className="mt-6 flex flex-col items-center text-center px-4 max-w-xs sm:max-w-sm w-full"
         >
           <div className="w-full bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-2xl shadow-2xl border-2 border-pink-400">
             <p className="text-base sm:text-lg font-black text-rose-600 tracking-wide flex items-center justify-center gap-1.5">
