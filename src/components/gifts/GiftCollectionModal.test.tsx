@@ -98,6 +98,39 @@ describe('GiftCollectionModal コンポーネント', () => {
     expect(screen.getByText('みけねこ: 1個')).toBeInTheDocument();
   });
 
+  it('レアリティの高いおくりものは獲得済みだけでなく未入手状態でも「？」の背景が金色になり、レアだと識別できること', () => {
+    // インベントリは空（すべて未入手）
+    render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
+
+    // 通常アイテムの未入手タイル（feather: 初期非選択の通常アイテム）
+    const featherTile = screen.getByTestId('gift-tile-feather');
+    expect(featherTile.className).toContain('bg-stone-50');
+    const featherUnknownIcon = within(featherTile).getByTestId('unknown-gift-icon');
+    expect(featherUnknownIcon).toHaveAttribute('data-rare', 'false');
+
+    // レアアイテムの未入手タイル（ふしぎな古銭、なないろの羽根、よつばのクローバー）
+    const rareOldCoinTile = screen.getByTestId('gift-tile-old-coin');
+    expect(rareOldCoinTile.className).toContain('from-amber-100');
+    expect(rareOldCoinTile.className).toContain('border-amber-400');
+    expect(within(rareOldCoinTile).getByTestId('rare-badge-old-coin')).toHaveTextContent('★');
+
+    // 未入手レアの「？」アイコン自体も金色背景（data-rare="true"）
+    const oldCoinUnknownIcon = within(rareOldCoinTile).getByTestId('unknown-gift-icon');
+    expect(oldCoinUnknownIcon).toHaveAttribute('data-rare', 'true');
+
+    // 未入手のレアタイルをクリックして下部詳細パネルを確認
+    fireEvent.click(rareOldCoinTile);
+
+    // 詳細パネルのアイコン枠も金色
+    const detailIconBox = screen.getByTestId('gift-detail-icon-box');
+    expect(detailIconBox.className).toContain('from-amber-100');
+    expect(detailIconBox.className).toContain('border-amber-400');
+    expect(within(detailIconBox).getByTestId('unknown-gift-icon')).toHaveAttribute('data-rare', 'true');
+
+    // 詳細パネルにも未入手ながら★レアバッジが表示されること
+    expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★ レア');
+  });
+
   it('レアリティの高いおくりもの（ふしぎな古銭・なないろの羽根・よつばのクローバー）は、背景が白色ではなく金色になること', () => {
     const inventory: GiftInventory = {
       pebble: {

@@ -42,10 +42,22 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
     }
   });
 
-  it('isAcquired が false のとき、未発見（?）のSVG（unknown-gift-icon）が描画されること', () => {
-    render(<GiftIcon giftId="pebble" isAcquired={false} />);
-    expect(screen.getByTestId('unknown-gift-icon')).toBeInTheDocument();
+  it('isAcquired が false のとき、未発見（?）のSVG（unknown-gift-icon）が描画され、レアアイテムの場合は金色背景になること', () => {
+    // 通常アイテムの未受取: グレー背景
+    const { unmount } = render(<GiftIcon giftId="pebble" isAcquired={false} />);
+    const commonUnknown = screen.getByTestId('unknown-gift-icon');
+    expect(commonUnknown).toBeInTheDocument();
+    expect(commonUnknown).toHaveAttribute('data-rare', 'false');
     expect(screen.queryByTestId('pebble-icon')).not.toBeInTheDocument();
+    unmount();
+
+    // レアアイテムの未受取: 金色背景（data-rare="true"）
+    render(<GiftIcon giftId="old-coin" isAcquired={false} />);
+    const rareUnknown = screen.getByTestId('unknown-gift-icon');
+    expect(rareUnknown).toBeInTheDocument();
+    expect(rareUnknown).toHaveAttribute('data-rare', 'true');
+    expect(rareUnknown.querySelector('defs linearGradient#unknownRareGrad')).toBeInTheDocument();
+    expect(screen.queryByTestId('old-coin-icon')).not.toBeInTheDocument();
   });
 
   it('未定義のIDが渡されたとき、デフォルトギフトのSVG（default-gift-icon）が描画されること', () => {

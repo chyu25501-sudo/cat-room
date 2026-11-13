@@ -126,22 +126,33 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                     onClick={() => setSelectedGiftId(gift.id)}
                     data-testid={`gift-tile-${gift.id}`}
                     aria-selected={isSelected}
-                    aria-label={`${isAcquired ? gift.name : '未受取のおくりもの'}: ${count}個`}
+                    aria-label={`${isAcquired ? gift.name : isRare ? '未受取のレアおくりもの' : '未受取のおくりもの'}: ${count}個`}
                     className={`relative aspect-square rounded-2xl border flex items-center justify-center transition-all duration-200 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
                       isSelected
-                        ? isRare && isAcquired
-                          ? 'ring-2 ring-amber-500 border-amber-500 bg-gradient-to-br from-amber-200/95 via-yellow-100/90 to-amber-300/95 shadow-md scale-102 z-10'
+                        ? isRare
+                          ? isAcquired
+                            ? 'ring-2 ring-amber-500 border-amber-500 bg-gradient-to-br from-amber-200/95 via-yellow-100/90 to-amber-300/95 shadow-md scale-102 z-10'
+                            : 'ring-2 ring-amber-500 border-amber-400 bg-gradient-to-br from-amber-100/95 via-yellow-50/95 to-amber-200/95 shadow-md scale-102 z-10'
                           : 'ring-2 ring-orange-400 border-orange-400 bg-gradient-to-b from-orange-50/90 to-amber-100/70 shadow-md scale-102 z-10'
                         : isAcquired
                         ? isRare
                           ? 'bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-amber-400 hover:border-amber-500 shadow-2xs hover:shadow-xs hover:scale-101'
                           : 'bg-white border-orange-200/90 hover:border-orange-300 hover:shadow-xs shadow-2xs hover:scale-101'
+                        : isRare
+                        ? 'bg-gradient-to-br from-amber-100/90 via-yellow-50/90 to-amber-200/90 border-amber-400/90 hover:border-amber-500 shadow-2xs hover:shadow-xs opacity-90 hover:opacity-100'
                         : 'bg-stone-50/70 border-stone-200/70 opacity-60 hover:opacity-90'
                     }`}
                   >
-                    {/* レアアイコンバッジ（獲得済みレアの場合） */}
-                    {isAcquired && isRare && (
-                      <span className="absolute top-1.5 left-1.5 text-[9px] font-black text-amber-700 bg-amber-100/90 px-1 rounded-sm border border-amber-300/80 leading-tight">
+                    {/* レアアイコンバッジ（レアおくりものの場合、未入手でも表示） */}
+                    {isRare && (
+                      <span
+                        data-testid={`rare-badge-${gift.id}`}
+                        className={`absolute top-1.5 left-1.5 text-[9px] font-black px-1 rounded-sm border leading-tight ${
+                          isAcquired
+                            ? 'text-amber-700 bg-amber-100/90 border-amber-300/80'
+                            : 'text-amber-800 bg-amber-200/90 border-amber-400/80'
+                        }`}
+                      >
                         ★
                       </span>
                     )}
@@ -156,6 +167,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                       <GiftIcon
                         giftId={gift.id}
                         isAcquired={isAcquired}
+                        rarity={gift.rarity}
                         className="w-9 h-9 sm:w-11 sm:h-11"
                       />
                     </div>
@@ -190,16 +202,19 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 <div
                   data-testid="gift-detail-icon-box"
                   className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border p-1 ${
-                    isSelectedAcquired
-                      ? selectedGift.rarity === 'rare'
+                    selectedGift.rarity === 'rare'
+                      ? isSelectedAcquired
                         ? 'bg-gradient-to-br from-amber-300 via-yellow-100 to-amber-400 border-amber-500 shadow-amber-300/50'
-                        : 'bg-white border-orange-200'
+                        : 'bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 border-amber-400 shadow-amber-200/40'
+                      : isSelectedAcquired
+                      ? 'bg-white border-orange-200'
                       : 'bg-stone-100 border-stone-200 text-stone-300'
                   }`}
                 >
                   <GiftIcon
                     giftId={selectedGift.id}
                     isAcquired={isSelectedAcquired}
+                    rarity={selectedGift.rarity}
                     className="w-10 h-10"
                   />
                 </div>
@@ -211,10 +226,14 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                       <h3 className="text-sm sm:text-base font-extrabold text-stone-800 truncate">
                         {isSelectedAcquired ? selectedGift.name : '？？？？'}
                       </h3>
-                      {isSelectedAcquired && selectedGift.rarity === 'rare' && (
+                      {selectedGift.rarity === 'rare' && (
                         <span
                           data-testid="gift-detail-rare-badge"
-                          className="px-1.5 py-0.5 rounded-md text-[10px] font-black bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-2xs shrink-0"
+                          className={`px-1.5 py-0.5 rounded-md text-[10px] font-black shadow-2xs shrink-0 ${
+                            isSelectedAcquired
+                              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white'
+                              : 'bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 border border-amber-400'
+                          }`}
                         >
                           ★ レア
                         </span>
@@ -239,6 +258,8 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                   >
                     {isSelectedAcquired
                       ? selectedGift.description
+                      : selectedGift.rarity === 'rare'
+                      ? 'めったにもらえない、とても貴重なレアおくりものです。猫ちゃんとたくさんふれあうと貰えるかも…？'
                       : 'まだ受け取っていないおくりものです。猫ちゃんとたくさんふれあうと貰えるかも…？'}
                   </p>
 
