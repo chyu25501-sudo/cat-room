@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import App from './App.tsx';
+import { CAT_GIFTS } from './utils/catGifts.ts';
 
 describe('App コンポーネント (猫切り替え機能)', () => {
   beforeEach(() => {
@@ -896,18 +897,22 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(giftCard).toBeInTheDocument();
         expect(screen.getByText('くろねこからのおくりもの')).toBeInTheDocument();
 
-        // 貰える贈り物は「きれいな小石」または「ふわふわの羽根」のいずれか
+        // 貰える贈り物は定義されたおくりもののいずれか
         const giftName = screen.getByTestId('gift-item-name').textContent;
-        expect(['きれいな小石', 'ふわふわの羽根']).toContain(giftName);
+        const allGiftNames = CAT_GIFTS.map((g) => g.name);
+        expect(allGiftNames).toContain(giftName);
 
         // localStorage に贈り物インベントリが記録されていること
         const rawGifts = localStorage.getItem('nekoppoi_cat_gifts');
         expect(rawGifts).not.toBeNull();
         const gifts = JSON.parse(rawGifts || '{}');
-        const giftKey = giftName === 'きれいな小石' ? 'pebble' : 'feather';
-        expect(gifts[giftKey]).toBeDefined();
-        expect(gifts[giftKey].count).toBe(1);
-        expect(gifts[giftKey].byCat?.black).toBe(1);
+        const matchedGift = CAT_GIFTS.find((g) => g.name === giftName);
+        expect(matchedGift).toBeDefined();
+        if (matchedGift) {
+          expect(gifts[matchedGift.id]).toBeDefined();
+          expect(gifts[matchedGift.id].count).toBe(1);
+          expect(gifts[matchedGift.id].byCat?.black).toBe(1);
+        }
       } finally {
         vi.useRealTimers();
       }

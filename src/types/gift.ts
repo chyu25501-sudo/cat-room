@@ -4,7 +4,18 @@ import { CatId } from './cat.ts';
  * おくりもの（ギフト）の識別子
  * 今後新しい贈り物が追加されても拡張可能な文字列リテラル/文字列型
  */
-export type GiftId = 'pebble' | 'feather' | string;
+export type GiftId =
+  | 'pebble'
+  | 'feather'
+  | 'acorn'
+  | 'twig'
+  | 'seashell'
+  | 'fallen-leaf'
+  | 'pinecone'
+  | 'clover'
+  | 'ribbon'
+  | 'button'
+  | string;
 
 /**
  * 贈り物の定義情報

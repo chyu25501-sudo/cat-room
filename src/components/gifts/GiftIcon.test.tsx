@@ -1,16 +1,39 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { GiftIcon, PebbleIcon, FeatherIcon } from './GiftIcon.tsx';
+import {
+  GiftIcon,
+  PebbleIcon,
+  FeatherIcon,
+  AcornIcon,
+  TwigIcon,
+  SeashellIcon,
+  FallenLeafIcon,
+  PineconeIcon,
+  CloverIcon,
+  RibbonIcon,
+  ButtonIcon,
+} from './GiftIcon.tsx';
 
 describe('GiftIcon コンポーネント (おくりもののSVGイラスト描画)', () => {
-  it('pebble が渡されたとき、きれいな小石のSVG（pebble-icon）が描画されること', () => {
-    render(<GiftIcon giftId="pebble" />);
-    expect(screen.getByTestId('pebble-icon')).toBeInTheDocument();
-  });
+  it('各ギフトIDが渡されたとき、対応する専用SVGが描画されること', () => {
+    const testCases = [
+      { id: 'pebble', testId: 'pebble-icon' },
+      { id: 'feather', testId: 'feather-icon' },
+      { id: 'acorn', testId: 'acorn-icon' },
+      { id: 'twig', testId: 'twig-icon' },
+      { id: 'seashell', testId: 'seashell-icon' },
+      { id: 'fallen-leaf', testId: 'fallen-leaf-icon' },
+      { id: 'pinecone', testId: 'pinecone-icon' },
+      { id: 'clover', testId: 'clover-icon' },
+      { id: 'ribbon', testId: 'ribbon-icon' },
+      { id: 'button', testId: 'button-icon' },
+    ];
 
-  it('feather が渡されたとき、ふわふわの羽根のSVG（feather-icon）が描画されること', () => {
-    render(<GiftIcon giftId="feather" />);
-    expect(screen.getByTestId('feather-icon')).toBeInTheDocument();
+    for (const { id, testId } of testCases) {
+      const { unmount } = render(<GiftIcon giftId={id} />);
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
+      unmount();
+    }
   });
 
   it('isAcquired が false のとき、未発見（?）のSVG（unknown-gift-icon）が描画されること', () => {
@@ -24,11 +47,24 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
     expect(screen.getByTestId('default-gift-icon')).toBeInTheDocument();
   });
 
-  it('個別コンポーネント PebbleIcon, FeatherIcon が正常にレンダリングされること', () => {
-    const { container: c1 } = render(<PebbleIcon className="w-10 h-10" />);
-    expect(c1.querySelector('[data-testid="pebble-icon"]')).toBeInTheDocument();
+  it('個別SVGコンポーネントが正常にレンダリングされること', () => {
+    const components = [
+      PebbleIcon,
+      FeatherIcon,
+      AcornIcon,
+      TwigIcon,
+      SeashellIcon,
+      FallenLeafIcon,
+      PineconeIcon,
+      CloverIcon,
+      RibbonIcon,
+      ButtonIcon,
+    ];
 
-    const { container: c2 } = render(<FeatherIcon className="w-10 h-10" />);
-    expect(c2.querySelector('[data-testid="feather-icon"]')).toBeInTheDocument();
+    for (const Comp of components) {
+      const { container, unmount } = render(<Comp className="w-10 h-10" />);
+      expect(container.querySelector('svg')).toBeInTheDocument();
+      unmount();
+    }
   });
 });

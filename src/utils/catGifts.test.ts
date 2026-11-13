@@ -13,18 +13,33 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catGifts utils (おくりもの計算・インベントリ管理ロジック)', () => {
   describe('CAT_GIFTS 定数', () => {
-    it('初期状態で「きれいな小石」と「ふわふわの羽根」が定義されていること', () => {
-      expect(CAT_GIFTS.length).toBeGreaterThanOrEqual(2);
-      const pebble = CAT_GIFTS.find((g) => g.id === 'pebble');
-      const feather = CAT_GIFTS.find((g) => g.id === 'feather');
+    it('合計10種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
+      expect(CAT_GIFTS.length).toBe(10);
 
-      expect(pebble).toBeDefined();
-      expect(pebble?.name).toBe('きれいな小石');
-      expect(pebble?.icon).toBe('🪨');
+      const expectedIds = [
+        'pebble',
+        'feather',
+        'acorn',
+        'twig',
+        'seashell',
+        'fallen-leaf',
+        'pinecone',
+        'clover',
+        'ribbon',
+        'button',
+      ];
+      expectedIds.forEach((id) => {
+        const gift = CAT_GIFTS.find((g) => g.id === id);
+        expect(gift).toBeDefined();
+        expect(gift?.name).toBeTruthy();
+        expect(gift?.description).toBeTruthy();
+      });
 
-      expect(feather).toBeDefined();
-      expect(feather?.name).toBe('ふわふわの羽根');
-      expect(feather?.icon).toBe('🪶');
+      // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語（きれいな、ふわふわの、まるい、ほそい、ちいさな、あかい、おおきな、みどりの、ながい、ひかる等）
+      const hiraganaPrefixPattern = /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる)/;
+      CAT_GIFTS.forEach((gift) => {
+        expect(gift.name).toMatch(hiraganaPrefixPattern);
+      });
     });
   });
 
@@ -46,9 +61,9 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       const item0 = pickRandomGift(CAT_GIFTS, () => 0.0);
       expect(item0.id).toBe('pebble');
 
-      // randomFn が 0.99 のときは最後のアイテム（feather）
+      // randomFn が 0.99 のときは最後のアイテム（button）
       const item1 = pickRandomGift(CAT_GIFTS, () => 0.99);
-      expect(item1.id).toBe('feather');
+      expect(item1.id).toBe('button');
     });
 
     it('カタログが空の場合はデフォルトギフトを返すこと', () => {
