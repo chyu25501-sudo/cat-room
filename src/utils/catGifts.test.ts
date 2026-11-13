@@ -17,8 +17,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catGifts utils (おくりもの計算・インベントリ管理ロジック)', () => {
   describe('CAT_GIFTS 定数', () => {
-    it('合計45種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
-      expect(CAT_GIFTS.length).toBe(45);
+    it('合計60種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
+      expect(CAT_GIFTS.length).toBe(60);
 
       const expectedIds = [
         'pebble',
@@ -52,6 +52,21 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'bento-baran',
         'super-ball',
         'small-bell',
+        'broken-rubber-band',
+        'crumpled-aluminum',
+        'cardboard-scrap',
+        'cat-whisker',
+        'torn-receipt',
+        'hairball',
+        'twisted-wire',
+        'withered-foxtail',
+        'dented-pingpong-ball',
+        'lizard-tail',
+        'soft-dandelion',
+        'jelly-cup',
+        'plastic-bottle-cap',
+        'cicada-wing',
+        'yarn-scrap',
         'old-coin',
         'rainbow-feather',
         'four-leaf-clover',
@@ -84,7 +99,7 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(importantPaper?.description).toBe('よくわからないが請求書と書かれている。');
       expect(importantPaper?.rarity).toBe('rare');
 
-      // 通常おくりものの定義確認（だいじそうな紙を除く10種）
+      // 通常おくりものの定義確認（だいじそうな紙を除く通常25種）
       const newCommonIds = [
         'snack-wrapper',
         'skewer',
@@ -96,6 +111,21 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'bento-baran',
         'super-ball',
         'small-bell',
+        'broken-rubber-band',
+        'crumpled-aluminum',
+        'cardboard-scrap',
+        'cat-whisker',
+        'torn-receipt',
+        'hairball',
+        'twisted-wire',
+        'withered-foxtail',
+        'dented-pingpong-ball',
+        'lizard-tail',
+        'soft-dandelion',
+        'jelly-cup',
+        'plastic-bottle-cap',
+        'cicada-wing',
+        'yarn-scrap',
       ];
       newCommonIds.forEach((id) => {
         const gift = CAT_GIFTS.find((g) => g.id === id);
@@ -133,7 +163,7 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
 
       // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語
       const hiraganaPrefixPattern =
-        /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの|こけむした|ふるい|かわいい|しおれた|せみの|しろい|きらきらした|よごれた|かたっぽの|ひまわりの|おやつの|ほそながい|はずれの|だいじそうな|あおい|からっぽの|ももいろの|おかしの|おべんとうの|あかいろの|あおいろの|きいろの|あたりの|りゅうの|ほしの|いにしえの|りっぱな|きみょうな)/;
+        /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの|こけむした|ふるい|かわいい|しおれた|せみの|しろい|きらきらした|よごれた|かたっぽの|ひまわりの|おやつの|ほそながい|はずれの|だいじそうな|あおい|からっぽの|ももいろの|おかしの|おべんとうの|あかいろの|あおいろの|きいろの|あたりの|りゅうの|ほしの|いにしえの|りっぱな|きみょうな|ちぎれた|まるめた|ぬけた|やぶれた|まるまった|ねじれた|かれた|へこんだ|やわらかい|あいた|すべすべの|かわいた)/;
       CAT_GIFTS.forEach((gift) => {
         expect(gift.name).toMatch(hiraganaPrefixPattern);
       });

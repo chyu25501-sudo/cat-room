@@ -50,6 +50,21 @@ export type GiftId =
   | 'splendid-branch'
   | 'curious-magatama'
   | 'glowing-moss-stone'
+  | 'broken-rubber-band'
+  | 'crumpled-aluminum'
+  | 'cardboard-scrap'
+  | 'cat-whisker'
+  | 'torn-receipt'
+  | 'hairball'
+  | 'twisted-wire'
+  | 'withered-foxtail'
+  | 'dented-pingpong-ball'
+  | 'lizard-tail'
+  | 'soft-dandelion'
+  | 'jelly-cup'
+  | 'plastic-bottle-cap'
+  | 'cicada-wing'
+  | 'yarn-scrap'
   | string;
 
 /**

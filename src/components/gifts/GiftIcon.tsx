@@ -2243,6 +2243,705 @@ export const GlowingMossStoneIcon: React.FC<{ className?: string }> = ({ classNa
 );
 
 /**
+ * 「ちぎれた輪ゴム」のSVGイラストアイコン
+ * 説明:「引っ張って遊んでいるうちにプチッとちぎれた、少し伸びきった茶色い輪ゴム。」
+ */
+export const BrokenRubberBandIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="broken-rubber-band-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="rubberGrad" x1="10" y1="12" x2="38" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="50%" stopColor="#D97706" />
+        <stop offset="100%" stopColor="#B45309" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="14" ry="3" fill="#000000" fillOpacity="0.12" />
+    {/* ちぎれてカールした輪ゴム本体 */}
+    <path
+      d="M10 22C12 14 20 10 28 11C35 12 39 18 37 25C35 31 29 36 21 35C16 34 13 30 15 26C17 22 23 23 25 26C26 28 25 30 22 31"
+      stroke="url(#rubberGrad)"
+      strokeWidth="3.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* ちぎれた断面・先端 */}
+    <circle cx="10" cy="22" r="1.5" fill="#FDE68A" />
+    <circle cx="22" cy="31" r="1.5" fill="#FDE68A" />
+    {/* ゴムのツヤ */}
+    <path
+      d="M20 12C24 12 29 14 32 17"
+      stroke="#FEF3C7"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeOpacity="0.8"
+    />
+  </svg>
+);
+
+/**
+ * 「まるめたアルミホイル」のSVGイラストアイコン
+ * 説明:「手で転がしてサッカーのように遊んでいた、ぎゅっと小さく丸めた銀色のアルミホイル。」
+ */
+export const CrumpledAluminumIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="crumpled-aluminum-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="foilGrad" x1="12" y1="10" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F8FAFC" />
+        <stop offset="25%" stopColor="#E2E8F0" />
+        <stop offset="50%" stopColor="#94A3B8" />
+        <stop offset="75%" stopColor="#CBD5E1" />
+        <stop offset="100%" stopColor="#64748B" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="41" rx="13" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* クシャクシャの外輪多角形 */}
+    <polygon
+      points="17,11 26,9 34,14 38,22 36,31 29,38 20,38 12,32 10,23 12,15"
+      fill="url(#foilGrad)"
+      stroke="#475569"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* クシャッとした皺（ファセット面） */}
+    <polygon points="17,11 26,9 24,19 16,18" fill="#FFFFFF" fillOpacity="0.9" />
+    <polygon points="26,9 34,14 28,21 24,19" fill="#94A3B8" />
+    <polygon points="34,14 38,22 30,24 28,21" fill="#E2E8F0" />
+    <polygon points="38,22 36,31 28,29 30,24" fill="#64748B" />
+    <polygon points="36,31 29,38 24,30 28,29" fill="#94A3B8" />
+    <polygon points="29,38 20,38 21,29 24,30" fill="#475569" />
+    <polygon points="20,38 12,32 17,26 21,29" fill="#64748B" />
+    <polygon points="12,32 10,23 18,22 17,26" fill="#CBD5E1" />
+    <polygon points="10,23 12,15 16,18 18,22" fill="#E2E8F0" />
+    {/* 中央の皺 */}
+    <polygon points="16,18 24,19 28,21 30,24 28,29 24,30 21,29 17,26 18,22" fill="#F1F5F9" />
+    <line x1="24" y1="19" x2="21" y2="29" stroke="#475569" strokeWidth="1" />
+    <line x1="18" y1="22" x2="28" y2="21" stroke="#334155" strokeWidth="1" />
+    <line x1="24" y1="30" x2="28" y2="21" stroke="#334155" strokeWidth="1" />
+    {/* メタリックな強いハイライト光 */}
+    <circle cx="20" cy="15" r="1.5" fill="#FFFFFF" />
+    <line x1="26" y1="11" x2="32" y2="15" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 「ちいさなダンボール片」のSVGイラストアイコン
+ * 説明:「爪研ぎや噛みつきで器用にちぎり取られた、角がボロボロのダンボールの切れ端。」
+ */
+export const CardboardScrapIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="cardboard-scrap-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="cardboardGrad" x1="10" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FBBF24" />
+        <stop offset="40%" stopColor="#D97706" />
+        <stop offset="100%" stopColor="#92400E" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="14" ry="3" fill="#000000" fillOpacity="0.14" />
+    {/* ちぎれたダンボール片本体 */}
+    <path
+      d="M10 16L24 10L37 14L38 27L33 34L20 37L11 31L13 22L10 16Z"
+      fill="url(#cardboardGrad)"
+      stroke="#78350F"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* ダンボール特有の破れ断面（波状の中芯紙 / フルート） */}
+    <path
+      d="M10 16C11 18 9 19 11 21C13 23 11 24 13 26"
+      stroke="#FEF3C7"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M33 34C34 33 36 34 37 32C38 30 37 29 38 27"
+      stroke="#FDE68A"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
+    {/* クラフト紙の縦筋・折れ目 */}
+    <line x1="20" y1="13" x2="18" y2="34" stroke="#78350F" strokeWidth="0.8" strokeDasharray="3 2" strokeOpacity="0.6" />
+    <line x1="28" y1="12" x2="26" y2="32" stroke="#78350F" strokeWidth="0.8" strokeDasharray="3 2" strokeOpacity="0.6" />
+    {/* 猫の噛み跡・爪あと */}
+    <circle cx="23" cy="22" r="1" fill="#451A03" />
+    <circle cx="26" cy="20" r="1.2" fill="#451A03" />
+    <line x1="21" y1="24" x2="24" y2="28" stroke="#451A03" strokeWidth="1" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 「ぬけたじぶんのヒゲ」のSVGイラストアイコン
+ * 説明:「掃除中に見つかることの多い、ピンと白くて縁起が良いとされる猫自身の抜け落ちたヒゲ。」
+ */
+export const CatWhiskerIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="cat-whisker-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="whiskerGlow" x1="8" y1="36" x2="40" y2="12" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#E2E8F0" />
+        <stop offset="50%" stopColor="#FFFFFF" />
+        <stop offset="100%" stopColor="#CBD5E1" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="14" ry="2.5" fill="#000000" fillOpacity="0.08" />
+    {/* ヒゲのゆるやかなアーチ（根元が少し太く、先が鋭い） */}
+    <path
+      d="M8 35C16 35 27 30 38 13"
+      stroke="#94A3B8"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+    />
+    <path
+      d="M8 35C16 35 27 30 38 13"
+      stroke="url(#whiskerGlow)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    {/* 根元の毛根プツッとした小さな粒 */}
+    <circle cx="8" cy="35" r="1.6" fill="#F1F5F9" stroke="#94A3B8" strokeWidth="0.8" />
+    {/* 縁起の良さを表す繊細な光彩・きらめき */}
+    <circle cx="26" cy="27" r="1" fill="#FFFFFF" />
+    <path
+      d="M34 11C34 13 35 14 37 14C35 14 34 15 34 17C34 15 33 14 31 14C33 14 34 13 34 11Z"
+      fill="#CBD5E1"
+    />
+  </svg>
+);
+
+/**
+ * 「やぶれたレシート」のSVGイラストアイコン
+ * 説明:「くしゃくしゃにして爪で引き裂いた、お買い物合計だけが読める感熱紙のレシート。」
+ */
+export const TornReceiptIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="torn-receipt-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="receiptGrad" x1="14" y1="8" x2="32" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" />
+        <stop offset="70%" stopColor="#F8FAFC" />
+        <stop offset="100%" stopColor="#E2E8F0" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="41" rx="12" ry="3" fill="#000000" fillOpacity="0.12" />
+    {/* 破れたレシート用紙（上部ギザギザ、少し斜めにねじれ） */}
+    <path
+      d="M15 11L18 9L21 11L24 9L27 11L30 9L33 12L31 38L17 39L15 26L14 18L15 11Z"
+      fill="url(#receiptGrad)"
+      stroke="#94A3B8"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    {/* レシートの印字線（テキスト表現） */}
+    <line x1="18" y1="15" x2="28" y2="15" stroke="#64748B" strokeWidth="1" strokeLinecap="round" />
+    <line x1="18" y1="18" x2="26" y2="18" stroke="#94A3B8" strokeWidth="0.8" strokeLinecap="round" />
+    <line x1="18" y1="21" x2="29" y2="21" stroke="#94A3B8" strokeWidth="0.8" strokeLinecap="round" />
+    <line x1="18" y1="24" x2="27" y2="24" stroke="#94A3B8" strokeWidth="0.8" strokeLinecap="round" />
+    {/* 合計金額ライン */}
+    <line x1="17" y1="28" x2="29" y2="28" stroke="#475569" strokeWidth="1.2" strokeLinecap="round" />
+    {/* クシャッとした折れ皺 */}
+    <path d="M15 22L22 24L31 20" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    {/* 爪で開けられた小穴 */}
+    <circle cx="21" cy="33" r="1.2" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="0.5" />
+  </svg>
+);
+
+/**
+ * 「まるまった毛玉」のSVGイラストアイコン
+ * 説明:「ブラッシングのあとや毛づくろいの抜け毛が丸まった、手のひらサイズのふわっと軽い毛玉。」
+ */
+export const HairballIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="hairball-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <radialGradient id="hairballGrad" cx="22" cy="22" r="16" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F1F5F9" />
+        <stop offset="45%" stopColor="#CBD5E1" />
+        <stop offset="85%" stopColor="#94A3B8" />
+        <stop offset="100%" stopColor="#64748B" />
+      </radialGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="13" ry="3" fill="#000000" fillOpacity="0.14" />
+    {/* ふわふわ毛玉本体 */}
+    <circle cx="24" cy="24" r="14" fill="url(#hairballGrad)" stroke="#64748B" strokeWidth="1.2" />
+    {/* 飛び出た毛足（ふわふわ感） */}
+    <path d="M12 20C10 18 9 21 11 23" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M14 14C13 11 16 12 17 14" stroke="#CBD5E1" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M22 10C24 8 26 9 25 11" stroke="#E2E8F0" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M32 14C35 13 36 16 34 17" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M37 22C39 24 38 27 36 26" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M33 32C34 35 31 36 30 34" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M18 36C16 38 14 36 16 34" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
+    {/* 表面に絡まる毛並みライン */}
+    <path d="M17 21C20 18 26 19 28 23C29 27 25 29 21 28" stroke="#475569" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.5" />
+    <path d="M19 16C23 15 28 17 31 20" stroke="#F8FAFC" strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.8" />
+  </svg>
+);
+
+/**
+ * 「ねじれた針金」のSVGイラストアイコン
+ * 説明:「食パンの袋を留めていたビニールタイ。ぐにゃぐにゃに曲げて遊んだ跡がある。」
+ */
+export const TwistedWireIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="twisted-wire-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="tieGold" x1="10" y1="12" x2="38" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="50%" stopColor="#EAB308" />
+        <stop offset="100%" stopColor="#CA8A04" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="13" ry="3" fill="#000000" fillOpacity="0.12" />
+    {/* ぐにゃぐにゃに曲がったビニールタイ本体 */}
+    <path
+      d="M10 28C13 22 17 14 23 16C29 18 23 28 29 30C34 32 37 25 36 18C35 14 37 12 39 12"
+      stroke="url(#tieGold)"
+      strokeWidth="4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* 中心の芯金ライン */}
+    <path
+      d="M10 28C13 22 17 14 23 16C29 18 23 28 29 30C34 32 37 25 36 18C35 14 37 12 39 12"
+      stroke="#713F12"
+      strokeWidth="0.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* 先端から飛び出た針金の金属線 */}
+    <line x1="39" y1="12" x2="41" y2="10" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" />
+    <line x1="10" y1="28" x2="8" y2="30" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" />
+    {/* ビニールの光沢 */}
+    <path d="M21 16C23 17 25 19 25 21" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.8" />
+  </svg>
+);
+
+/**
+ * 「かれたねこじゃらし草」のSVGイラストアイコン
+ * 説明:「道端から根元ごとくわえてきた、秋風に吹かれて穂がカサカサに乾いたエノコログサ。」
+ */
+export const WitheredFoxtailIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="withered-foxtail-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="foxtailDry" x1="16" y1="8" x2="36" y2="28" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF3C7" />
+        <stop offset="50%" stopColor="#FDE68A" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="12" ry="2.5" fill="#000000" fillOpacity="0.12" />
+    {/* しなった茎 */}
+    <path
+      d="M12 40C16 38 24 35 28 26C31 20 33 14 35 9"
+      stroke="#B45309"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    {/* 穂（ふさふさした楕円ベース） */}
+    <ellipse
+      cx="32"
+      cy="13"
+      rx="6"
+      ry="11"
+      transform="rotate(25 32 13)"
+      fill="url(#foxtailDry)"
+      stroke="#B45309"
+      strokeWidth="1.2"
+    />
+    {/* 穂から放射状に出る乾燥した芒（のぎ / ヒゲ毛） */}
+    <path d="M28 6L25 3M32 4L32 1M36 5L39 2" stroke="#D97706" strokeWidth="1" strokeLinecap="round" />
+    <path d="M25 10L21 8M26 15L21 15M27 20L23 22" stroke="#D97706" strokeWidth="1" strokeLinecap="round" />
+    <path d="M37 10L41 8M38 16L43 16M37 22L41 24" stroke="#D97706" strokeWidth="1" strokeLinecap="round" />
+    {/* 茎についた小さな枯葉 */}
+    <path
+      d="M24 31C20 28 17 28 15 30C18 31 21 32 24 31Z"
+      fill="#D97706"
+      stroke="#92400E"
+      strokeWidth="0.8"
+    />
+  </svg>
+);
+
+/**
+ * 「へこんだピンポン球」のSVGイラストアイコン
+ * 説明:「夢中で追いかけ回して爪でひと突きされたのか、ペコッとへこんで不規則に転がるピンポン球。」
+ */
+export const DentedPingpongBallIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="dented-pingpong-ball-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="pingpongGrad" x1="14" y1="12" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFF7ED" />
+        <stop offset="40%" stopColor="#FED7AA" />
+        <stop offset="85%" stopColor="#FB923C" />
+        <stop offset="100%" stopColor="#EA580C" />
+      </linearGradient>
+      <radialGradient id="dentShadow" cx="29" cy="20" r="8" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#C2410C" />
+        <stop offset="65%" stopColor="#EA580C" />
+        <stop offset="100%" stopColor="#FB923C" />
+      </radialGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="14" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* ピンポン球外形（右上が凹んだ形状） */}
+    <path
+      d="M24 10C16.3 10 10 16.3 10 24C10 31.7 16.3 38 24 38C31.7 38 38 31.7 38 24C38 21 34 22 30 19C26 16 27 12 24 10Z"
+      fill="url(#pingpongGrad)"
+      stroke="#C2410C"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* ペコッとへこんだ窪み面 */}
+    <path
+      d="M24 10C27 12 26 16 30 19C34 22 38 21 38 24C36 27 30 25 27 22C23 18 23 13 24 10Z"
+      fill="url(#dentShadow)"
+      stroke="#9A3412"
+      strokeWidth="1"
+    />
+    {/* 球面の丸みハイライト */}
+    <path
+      d="M14 19C15 15 19 13 23 13"
+      stroke="#FFFFFF"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeOpacity="0.9"
+    />
+    {/* へこみの折り目ライン */}
+    <path d="M26 16C28 18 31 20 34 21" stroke="#7C2D12" strokeWidth="1" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 「ちいさなトカゲのしっぽ」のSVGイラストアイコン
+ * 説明:「庭先で自切したトカゲから譲り受けた（？）のか、まだかすかにピクピクしている青い尾。」
+ */
+export const LizardTailIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="lizard-tail-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="lizardBlue" x1="12" y1="14" x2="38" y2="34" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#38BDF8" />
+        <stop offset="40%" stopColor="#0284C7" />
+        <stop offset="75%" stopColor="#2563EB" />
+        <stop offset="100%" stopColor="#1E3A8A" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="14" ry="3" fill="#000000" fillOpacity="0.14" />
+    {/* S字にうねるトカゲの青い尻尾 */}
+    <path
+      d="M12 16C16 14 22 17 26 23C30 29 35 32 38 31C40 30 38 27 35 26C31 24 27 19 23 15C18 10 13 12 12 16Z"
+      fill="url(#lizardBlue)"
+      stroke="#0369A1"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* 自切した切断面（ピンク） */}
+    <ellipse cx="12.5" cy="15.5" rx="2" ry="3" transform="rotate(-30 12.5 15.5)" fill="#FDA4AF" stroke="#E11D48" strokeWidth="0.8" />
+    {/* 鮮やかなコバルトブルーの鱗ハイライト */}
+    <path
+      d="M18 14C22 15 26 20 29 25C32 29 35 30 37 30"
+      stroke="#BAE6FD"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeOpacity="0.9"
+    />
+    {/* 尾先の細いピクピクカーブ */}
+    <path d="M36 30C38 30 40 31 39 33" stroke="#0284C7" strokeWidth="1" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 「やわらかい綿毛」のSVGイラストアイコン
+ * 説明:「風に乗ってふわふわ飛んでいたところを前足で上手にキャッチした、まんまるいたんぽぽの綿毛。」
+ */
+export const SoftDandelionIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="soft-dandelion-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <radialGradient id="dandelionCenter" cx="24" cy="22" r="14" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" />
+        <stop offset="70%" stopColor="#F1F5F9" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#E2E8F0" stopOpacity="0" />
+      </radialGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="10" ry="2.5" fill="#000000" fillOpacity="0.1" />
+    {/* たんぽぽの茎 */}
+    <path d="M24 26V41" stroke="#84CC16" strokeWidth="2" strokeLinecap="round" />
+    {/* ふんわりした綿毛の背景グロー */}
+    <circle cx="24" cy="22" r="14" fill="url(#dandelionCenter)" />
+    {/* 放射状に広がる綿毛の枝線 */}
+    <line x1="24" y1="22" x2="24" y2="10" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    <line x1="24" y1="22" x2="33" y2="14" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    <line x1="24" y1="22" x2="36" y2="22" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    <line x1="24" y1="22" x2="33" y2="30" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    <line x1="24" y1="22" x2="15" y2="30" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    <line x1="24" y1="22" x2="12" y2="22" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    <line x1="24" y1="22" x2="15" y2="14" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+    {/* 先端の白い綿毛フサ */}
+    <circle cx="24" cy="10" r="2" fill="#FFFFFF" />
+    <circle cx="33" cy="14" r="2" fill="#FFFFFF" />
+    <circle cx="36" cy="22" r="2" fill="#FFFFFF" />
+    <circle cx="33" cy="30" r="1.8" fill="#FFFFFF" />
+    <circle cx="15" cy="30" r="1.8" fill="#FFFFFF" />
+    <circle cx="12" cy="22" r="2" fill="#FFFFFF" />
+    <circle cx="15" cy="14" r="2" fill="#FFFFFF" />
+    {/* 中心の種子（茶色） */}
+    <circle cx="24" cy="22" r="2.5" fill="#78350F" stroke="#A16207" strokeWidth="0.8" />
+  </svg>
+);
+
+/**
+ * 「あいたゼリーのカップ」のSVGイラストアイコン
+ * 説明:「甘い果汁の香りに惹かれて転がしてきた、きれいに洗われた小さな透明プラスチックカップ。」
+ */
+export const JellyCupIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="jelly-cup-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="cupGrad" x1="12" y1="12" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#E0F2FE" stopOpacity="0.85" />
+        <stop offset="50%" stopColor="#BAE6FD" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0.75" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="41" rx="13" ry="3.5" fill="#000000" fillOpacity="0.14" />
+    {/* プラスチックカップ本体（逆台形） */}
+    <path
+      d="M12 16L16 36C16.5 38 18 39 24 39C30 39 31.5 38 32 36L36 16"
+      fill="url(#cupGrad)"
+      stroke="#0284C7"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* 上部開口部の楕円リム */}
+    <ellipse cx="24" cy="16" rx="12" ry="3.5" fill="#F0F9FF" fillOpacity="0.6" stroke="#0284C7" strokeWidth="1.5" />
+    {/* フタを剥がした縁のギザギザ・ツバ */}
+    <path d="M11 16H9M37 16H39" stroke="#0284C7" strokeWidth="1.5" strokeLinecap="round" />
+    {/* 底面の丸みライン */}
+    <ellipse cx="24" cy="36" rx="7" ry="2" fill="#BAE6FD" stroke="#0284C7" strokeWidth="1" />
+    {/* 透明プラスチックの縦ハイライト */}
+    <line x1="18" y1="19" x2="20" y2="34" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.9" />
+  </svg>
+);
+
+/**
+ * 「すべすべのプラスチックフタ」のSVGイラストアイコン
+ * 説明:「床をすべる感触が楽しくてドリブルしていた、ペットボトルのまあるいキャップ。」
+ */
+export const PlasticBottleCapIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="plastic-bottle-cap-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="capTopGrad" x1="12" y1="12" x2="36" y2="24" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#38BDF8" />
+        <stop offset="60%" stopColor="#0284C7" />
+        <stop offset="100%" stopColor="#0369A1" />
+      </linearGradient>
+      <linearGradient id="capSideGrad" x1="12" y1="20" x2="36" y2="34" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#0284C7" />
+        <stop offset="50%" stopColor="#0369A1" />
+        <stop offset="100%" stopColor="#075985" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="41" rx="14" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* 側面（ギザギザローレット加工） */}
+    <path
+      d="M11 20V31C11 34.5 16.8 37 24 37C31.2 37 37 34.5 37 31V20"
+      fill="url(#capSideGrad)"
+      stroke="#075985"
+      strokeWidth="1.5"
+    />
+    {/* 側面の溝（ローレット縦線） */}
+    <line x1="15" y1="22" x2="15" y2="33" stroke="#0284C7" strokeWidth="1" />
+    <line x1="19" y1="23" x2="19" y2="35" stroke="#38BDF8" strokeWidth="1" strokeOpacity="0.7" />
+    <line x1="24" y1="24" x2="24" y2="36" stroke="#38BDF8" strokeWidth="1" strokeOpacity="0.7" />
+    <line x1="29" y1="23" x2="29" y2="35" stroke="#075985" strokeWidth="1" />
+    <line x1="33" y1="22" x2="33" y2="33" stroke="#075985" strokeWidth="1" />
+    {/* 上部天面（楕円） */}
+    <ellipse cx="24" cy="20" rx="13" ry="5.5" fill="url(#capTopGrad)" stroke="#0284C7" strokeWidth="1.5" />
+    {/* 天面の丸みハイライト */}
+    <ellipse cx="22" cy="18.5" rx="8" ry="3" fill="#BAE6FD" fillOpacity="0.5" />
+  </svg>
+);
+
+/**
+ * 「かわいた蝉の羽」のSVGイラストアイコン
+ * 説明:「ベランダのすみに落ちていた、ステンドグラスのように透明な翅脈の美しい蝉のはね。」
+ */
+export const CicadaWingIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="cicada-wing-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="wingGrad" x1="10" y1="8" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF3C7" stopOpacity="0.8" />
+        <stop offset="40%" stopColor="#F1F5F9" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="#E2E8F0" stopOpacity="0.7" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="41" rx="14" ry="3" fill="#000000" fillOpacity="0.12" />
+    {/* 蝉の透明な羽の輪郭 */}
+    <path
+      d="M10 26C12 18 19 10 28 8C33 7 37 9 38 12C39 17 37 25 31 31C24 38 16 36 12 33L10 26Z"
+      fill="url(#wingGrad)"
+      stroke="#78350F"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* 前縁の太い翅脈 */}
+    <path d="M10 26C12 18 19 10 28 8C33 7 37 9 38 12" stroke="#92400E" strokeWidth="1.8" strokeLinecap="round" />
+    {/* 幾何学的なステンドグラス状の翅脈 */}
+    <line x1="20" y1="16" x2="31" y2="31" stroke="#92400E" strokeWidth="1" />
+    <line x1="27" y1="12" x2="23" y2="27" stroke="#92400E" strokeWidth="0.8" />
+    <line x1="33" y1="15" x2="28" y2="24" stroke="#92400E" strokeWidth="0.8" />
+    <line x1="16" y1="23" x2="20" y2="32" stroke="#92400E" strokeWidth="0.8" />
+    <path d="M28 8L33 19M31 16L36 24" stroke="#92400E" strokeWidth="0.8" />
+    {/* 透明な輝きハイライト */}
+    <path d="M16 18C20 14 26 11 31 11" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.9" />
+  </svg>
+);
+
+/**
+ * 「まるい毛糸くず」のSVGイラストアイコン
+ * 説明:「手芸カゴからこっそり引っ張り出して丸めた、ふかふかと柔らかな短い毛糸の切れ端。」
+ */
+export const YarnScrapIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="yarn-scrap-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="yarnGrad" x1="14" y1="12" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F472B6" />
+        <stop offset="45%" stopColor="#EC4899" />
+        <stop offset="100%" stopColor="#BE185D" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="40" rx="13" ry="3.5" fill="#000000" fillOpacity="0.14" />
+    {/* 丸まった毛糸玉本体 */}
+    <ellipse cx="24" cy="24" rx="13" ry="12" fill="url(#yarnGrad)" stroke="#9D174D" strokeWidth="1.5" />
+    {/* 巻き付いた糸の筋・テクスチャ */}
+    <path d="M13 22C17 17 29 16 35 22" stroke="#FBCFE8" strokeWidth="2" strokeLinecap="round" />
+    <path d="M14 27C18 31 28 32 34 26" stroke="#9D174D" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M18 15C22 21 24 29 22 35" stroke="#F472B6" strokeWidth="2" strokeLinecap="round" />
+    <path d="M26 13C28 19 29 27 31 33" stroke="#831843" strokeWidth="1.5" strokeLinecap="round" />
+    {/* ぴょんと飛び出た糸端 */}
+    <path
+      d="M33 21C37 19 40 22 39 25C38 27 41 29 42 28"
+      stroke="#EC4899"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/**
  * 未獲得（未発見）のおくりもの用プレースホルダーアイコン
  * isRare が true の場合、レアリティの高いおくりものだと分かるように金色背景で「？」を描画します。
  */
@@ -2444,6 +3143,36 @@ export const GiftIcon: React.FC<GiftIconProps> = ({
       return <CuriousMagatamaIcon className={className} />;
     case 'glowing-moss-stone':
       return <GlowingMossStoneIcon className={className} />;
+    case 'broken-rubber-band':
+      return <BrokenRubberBandIcon className={className} />;
+    case 'crumpled-aluminum':
+      return <CrumpledAluminumIcon className={className} />;
+    case 'cardboard-scrap':
+      return <CardboardScrapIcon className={className} />;
+    case 'cat-whisker':
+      return <CatWhiskerIcon className={className} />;
+    case 'torn-receipt':
+      return <TornReceiptIcon className={className} />;
+    case 'hairball':
+      return <HairballIcon className={className} />;
+    case 'twisted-wire':
+      return <TwistedWireIcon className={className} />;
+    case 'withered-foxtail':
+      return <WitheredFoxtailIcon className={className} />;
+    case 'dented-pingpong-ball':
+      return <DentedPingpongBallIcon className={className} />;
+    case 'lizard-tail':
+      return <LizardTailIcon className={className} />;
+    case 'soft-dandelion':
+      return <SoftDandelionIcon className={className} />;
+    case 'jelly-cup':
+      return <JellyCupIcon className={className} />;
+    case 'plastic-bottle-cap':
+      return <PlasticBottleCapIcon className={className} />;
+    case 'cicada-wing':
+      return <CicadaWingIcon className={className} />;
+    case 'yarn-scrap':
+      return <YarnScrapIcon className={className} />;
     default:
       return <DefaultGiftIcon className={className} />;
   }
