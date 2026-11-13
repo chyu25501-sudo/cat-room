@@ -25,6 +25,17 @@ import {
   DirtyPlushIcon,
   SingleSockIcon,
   SunflowerSeedIcon,
+  SnackWrapperIcon,
+  SkewerIcon,
+  IceStickIcon,
+  ImportantPaperIcon,
+  BlueCanIcon,
+  EmptyBottleIcon,
+  PinkHandkerchiefIcon,
+  CandyWrapperIcon,
+  BentoBaranIcon,
+  SuperBallIcon,
+  SmallBellIcon,
 } from './GiftIcon.tsx';
 
 describe('GiftIcon コンポーネント (おくりもののSVGイラスト描画)', () => {
@@ -53,6 +64,17 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       { id: 'dirty-plush', testId: 'dirty-plush-icon' },
       { id: 'single-sock', testId: 'single-sock-icon' },
       { id: 'sunflower-seed', testId: 'sunflower-seed-icon' },
+      { id: 'snack-wrapper', testId: 'snack-wrapper-icon' },
+      { id: 'skewer', testId: 'skewer-icon' },
+      { id: 'ice-stick', testId: 'ice-stick-icon' },
+      { id: 'important-paper', testId: 'important-paper-icon' },
+      { id: 'blue-can', testId: 'blue-can-icon' },
+      { id: 'empty-bottle', testId: 'empty-bottle-icon' },
+      { id: 'pink-handkerchief', testId: 'pink-handkerchief-icon' },
+      { id: 'candy-wrapper', testId: 'candy-wrapper-icon' },
+      { id: 'bento-baran', testId: 'bento-baran-icon' },
+      { id: 'super-ball', testId: 'super-ball-icon' },
+      { id: 'small-bell', testId: 'small-bell-icon' },
     ];
 
     for (const { id, testId } of testCases) {
@@ -110,6 +132,17 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       DirtyPlushIcon,
       SingleSockIcon,
       SunflowerSeedIcon,
+      SnackWrapperIcon,
+      SkewerIcon,
+      IceStickIcon,
+      ImportantPaperIcon,
+      BlueCanIcon,
+      EmptyBottleIcon,
+      PinkHandkerchiefIcon,
+      CandyWrapperIcon,
+      BentoBaranIcon,
+      SuperBallIcon,
+      SmallBellIcon,
     ];
 
     for (const Comp of components) {

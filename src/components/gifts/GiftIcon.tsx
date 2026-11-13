@@ -1057,6 +1057,456 @@ export const SunflowerSeedIcon: React.FC<{ className?: string }> = ({ className 
 );
 
 /**
+ * 「おやつの空き袋」のSVGイラストアイコン
+ * 説明:「おいしい匂いが残っているのか、くしゃくしゃに丸められたスナックの空き袋。」
+ */
+export const SnackWrapperIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="snack-wrapper-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="snackBagGrad" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F87171" />
+        <stop offset="40%" stopColor="#EF4444" />
+        <stop offset="70%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#DC2626" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="14" ry="3" fill="#000000" fillOpacity="0.1" />
+    <path
+      d="M12 16L16 11L32 13L36 17L33 34L29 37L15 35L11 31L12 16Z"
+      fill="url(#snackBagGrad)"
+      stroke="#B91C1C"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path d="M12 16L14 13L16 15L18 12L20 14" stroke="#FFFFFF" strokeWidth="1.2" strokeLinejoin="round" />
+    <path d="M16 15L22 24L17 33" stroke="#FEF08A" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M22 24L31 20L33 30" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.8" />
+    <path d="M25 13L29 20" stroke="#7F1D1D" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M18 28L26 35" stroke="#7F1D1D" strokeWidth="1.2" strokeLinecap="round" />
+    <polygon points="21,17 26,19 24,23 20,20" fill="#FFFFFF" fillOpacity="0.5" />
+  </svg>
+);
+
+/**
+ * 「ほそながい串」のSVGイラストアイコン
+ * 説明:「どこかで拾ってきた、先が少し丸くなった長くて細い竹串。」
+ */
+export const SkewerIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="skewer-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="bambooGrad" x1="10" y1="38" x2="38" y2="10" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#D97706" />
+        <stop offset="30%" stopColor="#FDE68A" />
+        <stop offset="70%" stopColor="#FEF3C7" />
+        <stop offset="100%" stopColor="#F59E0B" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="14" ry="2.5" fill="#000000" fillOpacity="0.08" />
+    <path
+      d="M10 38L37 11L39 9L38 8L36 10L9 37C8.5 37.5 9 38.5 10 38Z"
+      fill="url(#bambooGrad)"
+      stroke="#B45309"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    <line x1="17" y1="31" x2="19" y2="29" stroke="#92400E" strokeWidth="1.2" strokeLinecap="round" />
+    <line x1="26" y1="22" x2="28" y2="20" stroke="#92400E" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M34 14L37 11" stroke="#FFFFFF" strokeWidth="0.8" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 「はずれのアイス棒」のSVGイラストアイコン
+ * 説明:「おいしく食べたあとの木製アイスバーの棒。「はずれ」の焼き印がある。」
+ */
+export const IceStickIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="ice-stick-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="woodStickGrad" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF3C7" />
+        <stop offset="50%" stopColor="#FDE68A" />
+        <stop offset="100%" stopColor="#F59E0B" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="14" ry="3" fill="#000000" fillOpacity="0.1" />
+    <rect
+      x="8"
+      y="21"
+      width="32"
+      height="8"
+      rx="4"
+      transform="rotate(-30 24 24)"
+      fill="url(#woodStickGrad)"
+      stroke="#B45309"
+      strokeWidth="1.5"
+    />
+    <path
+      d="M13 29L32 18"
+      stroke="#D97706"
+      strokeWidth="0.8"
+      strokeDasharray="4 2"
+    />
+    <text
+      x="24"
+      y="25.5"
+      transform="rotate(-30 24 24)"
+      textAnchor="middle"
+      fill="#78350F"
+      fontSize="5.5"
+      fontWeight="900"
+      fontFamily="sans-serif"
+      letterSpacing="1"
+    >
+      はずれ
+    </text>
+  </svg>
+);
+
+/**
+ * 「だいじそうな紙」のSVGイラストアイコン
+ * 説明:「よくわからないが請求書と書かれている。」
+ */
+export const ImportantPaperIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="important-paper-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="paperGrad" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" />
+        <stop offset="100%" stopColor="#F8FAFC" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.1" />
+    <rect x="11" y="8" width="26" height="32" rx="2" fill="url(#paperGrad)" stroke="#94A3B8" strokeWidth="1.5" />
+    <line x1="11" y1="18" x2="37" y2="18" stroke="#E2E8F0" strokeWidth="1.5" />
+    <line x1="11" y1="28" x2="37" y2="28" stroke="#E2E8F0" strokeWidth="1.5" />
+    <text
+      x="24"
+      y="15"
+      textAnchor="middle"
+      fill="#1E293B"
+      fontSize="4.5"
+      fontWeight="bold"
+      fontFamily="sans-serif"
+    >
+      請 求 書
+    </text>
+    <line x1="15" y1="22" x2="33" y2="22" stroke="#64748B" strokeWidth="1" strokeLinecap="round" />
+    <line x1="15" y1="25" x2="28" y2="25" stroke="#94A3B8" strokeWidth="0.8" strokeLinecap="round" />
+    <line x1="15" y1="32" x2="33" y2="32" stroke="#64748B" strokeWidth="1" strokeLinecap="round" />
+    <line x1="15" y1="35" x2="26" y2="35" stroke="#94A3B8" strokeWidth="0.8" strokeLinecap="round" />
+    <rect x="29" y="30" width="6" height="6" rx="1" fill="#FEE2E2" stroke="#DC2626" strokeWidth="0.9" />
+    <text x="32" y="34.5" textAnchor="middle" fill="#DC2626" fontSize="3.5" fontWeight="black">印</text>
+  </svg>
+);
+
+/**
+ * 「あおい空き缶」のSVGイラストアイコン
+ * 説明:「転がして遊んでいたのか、少しへこんだ鮮やかな青色のジュースの空き缶。」
+ */
+export const BlueCanIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="blue-can-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="canBodyGrad" x1="12" y1="16" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#38BDF8" />
+        <stop offset="40%" stopColor="#0284C7" />
+        <stop offset="80%" stopColor="#0369A1" />
+        <stop offset="100%" stopColor="#0C4A6E" />
+      </linearGradient>
+      <linearGradient id="canSilverRim" x1="14" y1="10" x2="34" y2="16" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F1F5F9" />
+        <stop offset="50%" stopColor="#CBD5E1" />
+        <stop offset="100%" stopColor="#94A3B8" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="12" ry="3.5" fill="#000000" fillOpacity="0.12" />
+    <ellipse cx="24" cy="38" rx="10" ry="3" fill="#0284C7" stroke="#0369A1" strokeWidth="1.2" />
+    <path
+      d="M14 14V38C14 39.5 18.5 41 24 41C29.5 41 34 39.5 34 38V14C32 23 30 26 34 29V14H14Z"
+      fill="url(#canBodyGrad)"
+      stroke="#0369A1"
+      strokeWidth="1.2"
+    />
+    <path d="M19 24C23 27 28 26 31 22" stroke="#075985" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M21 27C24 29 27 28 29 25" stroke="#38BDF8" strokeWidth="1.2" strokeLinecap="round" />
+    <ellipse cx="24" cy="14" rx="10" ry="3" fill="url(#canSilverRim)" stroke="#64748B" strokeWidth="1.2" />
+    <ellipse cx="23" cy="14" rx="3.5" ry="1.5" fill="#94A3B8" stroke="#475569" strokeWidth="0.8" />
+    <circle cx="25" cy="14" r="0.8" fill="#475569" />
+  </svg>
+);
+
+/**
+ * 「からっぽのペットボトル」のSVGイラストアイコン
+ * 説明:「爪でカリカリ引っかいた跡がある、軽くて透明な空のペットボトル。」
+ */
+export const EmptyBottleIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="empty-bottle-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="bottleGrad" x1="14" y1="12" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#E0F2FE" />
+        <stop offset="50%" stopColor="#BAE6FD" />
+        <stop offset="100%" stopColor="#7DD3FC" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="11" ry="3" fill="#000000" fillOpacity="0.08" />
+    <rect x="21" y="6" width="6" height="4" rx="1" fill="#0284C7" stroke="#0369A1" strokeWidth="1" />
+    <path
+      d="M22 10V14L16 19V38C16 40 19.5 41 24 41C28.5 41 32 40 32 38V19L26 14V10H22Z"
+      fill="url(#bottleGrad)"
+      fillOpacity="0.65"
+      stroke="#38BDF8"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path d="M16 25C19 26.5 29 26.5 32 25" stroke="#0284C7" strokeWidth="1" strokeOpacity="0.6" />
+    <path d="M16 31C19 32.5 29 32.5 32 31" stroke="#0284C7" strokeWidth="1" strokeOpacity="0.6" />
+    <path d="M20 20L23 23M23 19L26 23" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M19 18V36" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.8" />
+  </svg>
+);
+
+/**
+ * 「ももいろのハンカチ」のSVGイラストアイコン
+ * 説明:「洗濯物の近くからくわえてきた、やわらかくて優しいピンク色のハンカチ。」
+ */
+export const PinkHandkerchiefIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="pink-handkerchief-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="handkerchiefGrad" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FCE7F3" />
+        <stop offset="50%" stopColor="#F472B6" />
+        <stop offset="100%" stopColor="#EC4899" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="14" ry="3.5" fill="#000000" fillOpacity="0.1" />
+    <path
+      d="M13 20C12 16 16 12 21 13L33 16C37 17 38 21 36 25L32 35C31 38 27 39 23 37L14 30C12 28 11 24 13 20Z"
+      fill="url(#handkerchiefGrad)"
+      stroke="#DB2777"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path d="M14 26C18 29 27 28 32 23" stroke="#BE185D" strokeWidth="1.3" strokeLinecap="round" />
+    <path d="M20 18C23 23 27 26 34 27" stroke="#FDF2F8" strokeWidth="1.3" strokeLinecap="round" />
+    <circle cx="17" cy="18" r="1" fill="#FFFFFF" />
+    <circle cx="21" cy="22" r="1" fill="#FFFFFF" />
+    <circle cx="25" cy="33" r="1" fill="#FFFFFF" />
+    <circle cx="29" cy="31" r="1" fill="#FFFFFF" />
+  </svg>
+);
+
+/**
+ * 「おかしの包み紙」のSVGイラストアイコン
+ * 説明:「両端がキュッとねじられた、きらきらと光るキャンディの包み紙。」
+ */
+export const CandyWrapperIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="candy-wrapper-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="candyGrad" x1="12" y1="14" x2="36" y2="34" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#C084FC" />
+        <stop offset="50%" stopColor="#F472B6" />
+        <stop offset="100%" stopColor="#FB7185" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="14" ry="3" fill="#000000" fillOpacity="0.1" />
+    <path
+      d="M17 24L7 16V32L17 24Z"
+      fill="url(#candyGrad)"
+      stroke="#9333EA"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    <path d="M8 20L15 24L8 28" stroke="#FDF4FF" strokeWidth="1" />
+    <path
+      d="M31 24L41 16V32L31 24Z"
+      fill="url(#candyGrad)"
+      stroke="#9333EA"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+    />
+    <path d="M40 20L33 24L40 28" stroke="#FDF4FF" strokeWidth="1" />
+    <ellipse cx="24" cy="24" rx="9" ry="8" fill="url(#candyGrad)" stroke="#9333EA" strokeWidth="1.5" />
+    <path d="M18 19C21 21 21 27 18 29" stroke="#FEF08A" strokeWidth="2" strokeLinecap="round" />
+    <path d="M23 16C26 19 26 29 23 32" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+    <path d="M28 18C31 21 31 27 28 30" stroke="#FEF08A" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 「おべんとうのバラン」のSVGイラストアイコン
+ * 説明:「お弁当箱のすみにあった、草の形をした緑色のギザギザした仕切りシート。」
+ */
+export const BentoBaranIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="bento-baran-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="baranGrad" x1="10" y1="12" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#4ADE80" />
+        <stop offset="50%" stopColor="#22C55E" />
+        <stop offset="100%" stopColor="#15803D" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="14" ry="3" fill="#000000" fillOpacity="0.1" />
+    <path
+      d="M10 38V24L13 13L16 23L19 11L22 23L25 10L28 23L31 11L34 23L37 13L38 24V38H10Z"
+      fill="url(#baranGrad)"
+      stroke="#166534"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <line x1="14" y1="20" x2="14" y2="36" stroke="#86EFAC" strokeWidth="1" strokeLinecap="round" />
+    <line x1="19" y1="18" x2="19" y2="36" stroke="#86EFAC" strokeWidth="1" strokeLinecap="round" />
+    <line x1="24" y1="17" x2="24" y2="36" stroke="#86EFAC" strokeWidth="1" strokeLinecap="round" />
+    <line x1="29" y1="18" x2="29" y2="36" stroke="#86EFAC" strokeWidth="1" strokeLinecap="round" />
+    <line x1="34" y1="20" x2="34" y2="36" stroke="#86EFAC" strokeWidth="1" strokeLinecap="round" />
+  </svg>
+);
+
+/**
+ * 「みどりのスーパーボール」のSVGイラストアイコン
+ * 説明:「フローリングの上でよく弾む、鮮やかな緑色のゴム製スーパーボール。」
+ */
+export const SuperBallIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="super-ball-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="superBallGrad" x1="14" y1="10" x2="34" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#A3E635" />
+        <stop offset="35%" stopColor="#4ADE80" />
+        <stop offset="70%" stopColor="#16A34A" />
+        <stop offset="100%" stopColor="#14532D" />
+      </linearGradient>
+      <linearGradient id="superBallShine" x1="16" y1="12" x2="26" y2="22" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+        <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="13" ry="3.5" fill="#000000" fillOpacity="0.14" />
+    <circle cx="24" cy="24" r="17" fill="url(#superBallGrad)" stroke="#15803D" strokeWidth="1.8" />
+    <path
+      d="M11 20C16 15 28 17 35 24C38 27 34 35 25 35C17 35 12 28 17 21"
+      stroke="#FEF08A"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeOpacity="0.85"
+    />
+    <path
+      d="M17 33C22 36 31 34 36 29"
+      stroke="#38BDF8"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeOpacity="0.75"
+    />
+    <ellipse cx="19" cy="16" rx="5" ry="3" transform="rotate(-30 19 16)" fill="url(#superBallShine)" />
+    <circle cx="16" cy="14" r="1.5" fill="#FFFFFF" fillOpacity="0.95" />
+  </svg>
+);
+
+/**
+ * 「ちいさな鈴」のSVGイラストアイコン
+ * 説明:「転がすとチリンと軽やかな音が鳴る、金色のちいさな丸い鈴。」
+ */
+export const SmallBellIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="small-bell-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="bellGoldGrad" x1="12" y1="10" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="40%" stopColor="#FBBF24" />
+        <stop offset="80%" stopColor="#D97706" />
+        <stop offset="100%" stopColor="#92400E" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="13" ry="3.5" fill="#000000" fillOpacity="0.14" />
+    <path
+      d="M21 11C21 8 23 6 24 6C25 6 27 8 27 11"
+      stroke="#B45309"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    />
+    <circle cx="24" cy="11" r="2.5" fill="#D97706" />
+    <circle cx="24" cy="26" r="15" fill="url(#bellGoldGrad)" stroke="#B45309" strokeWidth="1.8" />
+    <line x1="10" y1="24" x2="38" y2="24" stroke="#78350F" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="10" y1="26" x2="38" y2="26" stroke="#FEF3C7" strokeWidth="0.8" strokeLinecap="round" />
+    <circle cx="24" cy="33" r="2.5" fill="#451A03" />
+    <path d="M17 35C20 34 24 33 24 33C24 33 28 34 31 35" stroke="#451A03" strokeWidth="1.5" strokeLinecap="round" />
+    <ellipse cx="18" cy="18" rx="4" ry="2" transform="rotate(-30 18 18)" fill="#FFFFFF" fillOpacity="0.8" />
+  </svg>
+);
+
+/**
  * 未獲得（未発見）のおくりもの用プレースホルダーアイコン
  * isRare が true の場合、レアリティの高いおくりものだと分かるように金色背景で「？」を描画します。
  */
@@ -1214,6 +1664,28 @@ export const GiftIcon: React.FC<GiftIconProps> = ({
       return <SingleSockIcon className={className} />;
     case 'sunflower-seed':
       return <SunflowerSeedIcon className={className} />;
+    case 'snack-wrapper':
+      return <SnackWrapperIcon className={className} />;
+    case 'skewer':
+      return <SkewerIcon className={className} />;
+    case 'ice-stick':
+      return <IceStickIcon className={className} />;
+    case 'important-paper':
+      return <ImportantPaperIcon className={className} />;
+    case 'blue-can':
+      return <BlueCanIcon className={className} />;
+    case 'empty-bottle':
+      return <EmptyBottleIcon className={className} />;
+    case 'pink-handkerchief':
+      return <PinkHandkerchiefIcon className={className} />;
+    case 'candy-wrapper':
+      return <CandyWrapperIcon className={className} />;
+    case 'bento-baran':
+      return <BentoBaranIcon className={className} />;
+    case 'super-ball':
+      return <SuperBallIcon className={className} />;
+    case 'small-bell':
+      return <SmallBellIcon className={className} />;
     default:
       return <DefaultGiftIcon className={className} />;
   }

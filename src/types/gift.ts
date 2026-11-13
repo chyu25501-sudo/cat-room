@@ -28,6 +28,17 @@ export type GiftId =
   | 'dirty-plush'
   | 'single-sock'
   | 'sunflower-seed'
+  | 'snack-wrapper'
+  | 'skewer'
+  | 'ice-stick'
+  | 'important-paper'
+  | 'blue-can'
+  | 'empty-bottle'
+  | 'pink-handkerchief'
+  | 'candy-wrapper'
+  | 'bento-baran'
+  | 'super-ball'
+  | 'small-bell'
   | string;
 
 /**

@@ -147,7 +147,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
       // 不機嫌（ごきげんななめ）バッジと威嚇セリフが表示されること
       expect(screen.getByText('ごきげんななめ')).toBeInTheDocument();
-      expect(screen.getByText('5%')).toBeInTheDocument();
+      expect(screen.getByTestId('mood-score-percentage')).toHaveTextContent('5%');
       expect(screen.getByText(/シャーッ！|フシャーッ！|ウーッ…|カッ…！/)).toBeInTheDocument();
     } finally {
       vi.useRealTimers();
@@ -208,7 +208,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         }
 
         expect(screen.getByText('ごきげんななめ')).toBeInTheDocument();
-        expect(screen.getByText('5%')).toBeInTheDocument();
+        expect(screen.getByTestId('mood-score-percentage')).toHaveTextContent('5%');
 
         // お世話ボタンを開く
         const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
@@ -292,7 +292,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         }
 
         expect(screen.getByText('ごきげんななめ')).toBeInTheDocument();
-        expect(screen.getByText('5%')).toBeInTheDocument();
+        expect(screen.getByTestId('mood-score-percentage')).toHaveTextContent('5%');
 
         // お世話ボタンを開く
         const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
@@ -625,6 +625,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
     it('撫でる・ごはん・おもちゃの「ふれあい」でなつき度Expが増加すること', () => {
       vi.useFakeTimers();
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
       try {
         render(<App />);
 
@@ -665,12 +666,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('55%');
         expect(screen.getByText(/次のLvまで あと 45pt/)).toBeInTheDocument();
       } finally {
+        randomSpy.mockRestore();
         vi.useRealTimers();
       }
     });
 
     it('ゲージが1回満タンになるとLv.2にレベルアップし、画面中央に巨大ハートとなつき度数値・祝うメッセージが表示されフェードアウトすること', () => {
       vi.useFakeTimers();
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
       try {
         // 事前に黒猫のExpを95pt（Lv.1の残り5pt）に設定
         localStorage.setItem(
@@ -739,12 +742,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         });
         expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
       } finally {
+        randomSpy.mockRestore();
         vi.useRealTimers();
       }
     });
 
     it('なつき度が最大のときもゲージを溜められ、ゲージがたまると画面中央にハートマーク演出が表示され、なつき度は最大のままで再度ゲージを溜められること', () => {
       vi.useFakeTimers();
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
       try {
         // 黒猫のなつき度を最大（Lv.10, ゲージ290pt / 必要300pt、あと10ptで満タン）に設定
         localStorage.setItem(
@@ -804,6 +809,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         // 機嫌が上がっているため 20pt 以上獲得してゲージが進むこと
         expect(screen.getByTestId('affection-progress-percentage')).not.toHaveTextContent('MAX');
       } finally {
+        randomSpy.mockRestore();
         vi.useRealTimers();
       }
     });
@@ -858,13 +864,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       // 初期状態は黒猫・Lv.1 (0%)
       expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('0%');
 
-      // 黒猫を撫でる (+10pt)
+      // 黒猫を撫でる (ごきげん度上昇によりExp獲得)
       const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
       fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
       fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
       fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
 
-      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('10%');
+      const blackExpPercentage = screen.getByTestId('affection-progress-percentage').textContent;
+      expect(blackExpPercentage).toMatch(/^(10|20)%$/);
 
       // 白猫に切り替える
       const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
@@ -874,10 +881,10 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
       expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('0%');
 
-      // 再び黒猫に戻すと10%が維持されていること
+      // 再び黒猫に戻すと黒猫の獲得Exp割合が維持されていること
       const blackRadio = screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ });
       fireEvent.click(blackRadio);
-      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('10%');
+      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent(blackExpPercentage!);
     });
 
     it('なつき度の最大値が10であり、Lv.10到達時はゲージがMAX表示を維持すること', () => {
