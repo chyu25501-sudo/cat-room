@@ -24,6 +24,7 @@ import {
   FOOD_AFFECTION_EXP_MAP,
   TOY_AFFECTION_EXP_MAP,
   calculatePetAffectionExp,
+  calculateVariedAffectionExp,
   getAffectionTitle,
 } from './utils/catAffection.ts';
 import {
@@ -76,10 +77,11 @@ export default function App() {
     const isAnnoyed = nextLevel === 'annoyed';
 
     // 不機嫌でない正常なふれあい時に、猫のごきげん度に応じたなつき度Expを獲得
-    // ごきげん度が高ければ高いほど、なつき度の上昇幅が多めに上がります
+    // ごきげん度が高ければ高いほど上昇幅が大きくなり、ごきげん度と同様に±1〜5%（±1〜5pt）ランダムで変動します
     if (!isAnnoyed && nextLevel !== 'annoyed') {
-      const petAffectionExp = calculatePetAffectionExp(nextScore);
-      const affRes = gainAffection(currentCatId, petAffectionExp);
+      const baseAffectionExp = calculatePetAffectionExp(nextScore);
+      const variedAffectionExp = calculateVariedAffectionExp(baseAffectionExp);
+      const affRes = gainAffection(currentCatId, variedAffectionExp);
       if (affRes.isLevelUp) {
         const gift = receiveGift(currentCatId);
         triggerLevelUp({

@@ -23,6 +23,12 @@ export const HAPPY_PET_AFFECTION_EXP = 20;
 /** ごきげんMAX♡（ecstatic: 75〜100点）時の基準獲得なつき度Exp */
 export const ECSTATIC_PET_AFFECTION_EXP = 40;
 
+/** なつき度Exp上昇量のデフォルト変動最小値（-5pt / -5%相当） */
+export const DEFAULT_MIN_AFFECTION_VARIATION = -5;
+
+/** なつき度Exp上昇量のデフォルト変動最大値（+5pt / +5%相当） */
+export const DEFAULT_MAX_AFFECTION_VARIATION = 5;
+
 /**
  * 猫のごきげん度（スコア 0〜100、または機嫌レベル）に応じた、撫でた時のなつき度獲得Expを計算する純粋関数
  * ごきげん度が高ければ高いほど、なつき度の上昇幅が多めに上がります。
@@ -71,6 +77,31 @@ export function calculatePetAffectionExp(
 
   // おだやか (0〜39点): 10pt
   return DEFAULT_PET_AFFECTION_EXP;
+}
+
+/**
+ * 撫でた時のなつき度獲得Exp（基準値に±1〜5pt / ±1〜5%のランダムな揺らぎを加えた値）を計算する純粋関数
+ * ごきげん度の上昇幅変動と同様に、ふれあいごとにわずかに上昇量が変化します。
+ * 基準Expが0以下（不機嫌時など）の場合は変動せず0を返します。
+ *
+ * @param baseExp 基準の獲得経験値（calculatePetAffectionExp の戻り値など）
+ * @param randomFn 乱数生成関数（テスト用注入可能、デフォルト: Math.random）
+ * @param minVariation 変動最小値（デフォルト: -5）
+ * @param maxVariation 変動最大値（デフォルト: 5）
+ * @returns 揺らぎ後の獲得経験値（基準値 > 0 のとき最小1pt保証）
+ */
+export function calculateVariedAffectionExp(
+  baseExp: number,
+  randomFn: () => number = Math.random,
+  minVariation: number = DEFAULT_MIN_AFFECTION_VARIATION,
+  maxVariation: number = DEFAULT_MAX_AFFECTION_VARIATION
+): number {
+  if (baseExp <= 0) {
+    return 0;
+  }
+  const deltaRange = maxVariation - minVariation + 1;
+  const delta = Math.floor(randomFn() * deltaRange) + minVariation;
+  return Math.max(1, baseExp + delta);
 }
 
 /** ごはんの種類ごとの獲得なつき度Exp */

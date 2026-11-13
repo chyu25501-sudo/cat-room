@@ -10,9 +10,12 @@ import {
   calculateAffectionProgress,
   calculateAffectionGain,
   calculatePetAffectionExp,
+  calculateVariedAffectionExp,
   DEFAULT_PET_AFFECTION_EXP,
   HAPPY_PET_AFFECTION_EXP,
   ECSTATIC_PET_AFFECTION_EXP,
+  DEFAULT_MIN_AFFECTION_VARIATION,
+  DEFAULT_MAX_AFFECTION_VARIATION,
   getAffectionTitle,
   getAffectionDescription,
 } from './catAffection.ts';
@@ -201,6 +204,45 @@ describe('catAffection ユーティリティ (第7週: なつき度純粋関数�
       expect(calculatePetAffectionExp(10, true)).toBe(0);
       expect(calculatePetAffectionExp(100, true)).toBe(0);
       expect(calculatePetAffectionExp('annoyed')).toBe(0);
+    });
+  });
+
+  describe('calculateVariedAffectionExp (なつき度上昇量のランダム変動純粋関数テスト)', () => {
+    it('定数が仕様通り-5〜+5（±5%相当）に設定されていること', () => {
+      expect(DEFAULT_MIN_AFFECTION_VARIATION).toBe(-5);
+      expect(DEFAULT_MAX_AFFECTION_VARIATION).toBe(5);
+    });
+
+    it('乱数値に応じて正しく-5〜+5の範囲でExpが変動すること', () => {
+      // 基準Exp: 10pt（おだやか時）
+      // random = 0 のとき: 最小変動 -5pt -> 5pt
+      const minVal = calculateVariedAffectionExp(10, () => 0);
+      expect(minVal).toBe(5);
+
+      // random = 0.5 のとき: 0pt 変動 -> 10pt
+      const midVal = calculateVariedAffectionExp(10, () => 0.5);
+      expect(midVal).toBe(10);
+
+      // random = 0.9999 のとき: 最大変動 +5pt -> 15pt
+      const maxVal = calculateVariedAffectionExp(10, () => 0.9999);
+      expect(maxVal).toBe(15);
+    });
+
+    it('基準Expが40pt（ごきげんMAX時）のとき、35〜45ptに変動すること', () => {
+      expect(calculateVariedAffectionExp(40, () => 0)).toBe(35);
+      expect(calculateVariedAffectionExp(40, () => 0.5)).toBe(40);
+      expect(calculateVariedAffectionExp(40, () => 0.9999)).toBe(45);
+    });
+
+    it('基準Expが0以下（不機嫌時など）の場合は変動せず0を返すこと', () => {
+      expect(calculateVariedAffectionExp(0, () => 0.9999)).toBe(0);
+      expect(calculateVariedAffectionExp(-5, () => 0.5)).toBe(0);
+    });
+
+    it('計算結果が0以下になる場合でも最低1ptが保証されること', () => {
+      // baseExpが3ptで、最小変動-5ptのとき -> -2ptではなく下限1ptにクランプされる
+      const clamped = calculateVariedAffectionExp(3, () => 0);
+      expect(clamped).toBe(1);
     });
   });
 });

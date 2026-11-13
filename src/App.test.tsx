@@ -814,8 +814,8 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       }
     });
 
-    it('猫のごきげん度が高ければ高いほど、撫でた時のなつき度の上昇幅が多めに上がること', () => {
-      // 1. おだやか（低ごきげん: スコア15点）な猫を撫でた場合: +10pt (10%)
+    it('猫のごきげん度が高ければ高いほど、撫でた時のなつき度の上習幅が多めに上がること（プラスマイナスのランダム変動を含む）', () => {
+      // 1. おだやか（低ごきげん: スコア15点）な猫を撫でた場合: 基準10pt (±5%変動により5〜15%)
       localStorage.clear();
       localStorage.setItem(
         'nekoppoi_cats_mood',
@@ -830,11 +830,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         fireEvent.pointerMove(catSilhouette1, { clientX: 160, clientY: 100, isPrimary: true });
         fireEvent.pointerUp(catSilhouette1, { clientX: 160, clientY: 100, isPrimary: true });
       });
-      // 機嫌スコアが35点以下（おだやか）に留まるため、獲得Expは10pt (10%)
-      expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('10%');
+      // 機嫌スコアが35点以下（おだやか）に留まるため基準10pt、±5%の変動により5〜15%
+      const progressText1 = screen.getByTestId('affection-progress-percentage').textContent;
+      const progressNum1 = parseInt(progressText1?.replace('%', '') || '0', 10);
+      expect(progressNum1).toBeGreaterThanOrEqual(5);
+      expect(progressNum1).toBeLessThanOrEqual(15);
       unmount();
 
-      // 2. ごきげんMAX（スコア85点）の猫を撫でた場合: +40pt以上大幅に上昇
+      // 2. ごきげんMAX（スコア85点）の猫を撫でた場合: 基準44pt、±5%変動により35%以上大幅に上昇
       localStorage.clear();
       localStorage.setItem(
         'nekoppoi_cats_mood',
@@ -852,10 +855,11 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         fireEvent.pointerUp(catSilhouette2, { clientX: 160, clientY: 100, isPrimary: true });
       });
 
-      // ごきげんMAXの時は 44pt 獲得するため、10%ではなく40%以上（44%）まで一気に上昇すること
-      const progressText = screen.getByTestId('affection-progress-percentage').textContent;
-      const progressNum = parseInt(progressText?.replace('%', '') || '0', 10);
-      expect(progressNum).toBeGreaterThanOrEqual(40);
+      // ごきげんMAXの時は基準44ptに±5%変動するため、おだやか時（最大15%）よりも明らかに高い35%以上まで一気に上昇すること
+      const progressText2 = screen.getByTestId('affection-progress-percentage').textContent;
+      const progressNum2 = parseInt(progressText2?.replace('%', '') || '0', 10);
+      expect(progressNum2).toBeGreaterThanOrEqual(35);
+      expect(progressNum2).toBeGreaterThan(progressNum1);
     });
 
     it('猫ごとに独立してなつき度が管理されること', () => {
@@ -871,7 +875,9 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
 
       const blackExpPercentage = screen.getByTestId('affection-progress-percentage').textContent;
-      expect(blackExpPercentage).toMatch(/^(10|20)%$/);
+      const blackExpNum = parseInt(blackExpPercentage?.replace('%', '') || '0', 10);
+      expect(blackExpNum).toBeGreaterThanOrEqual(5);
+      expect(blackExpNum).toBeLessThanOrEqual(25);
 
       // 白猫に切り替える
       const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
