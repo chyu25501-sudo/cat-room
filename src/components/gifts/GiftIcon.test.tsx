@@ -36,6 +36,17 @@ import {
   BentoBaranIcon,
   SuperBallIcon,
   SmallBellIcon,
+  RedGemIcon,
+  BlueGemIcon,
+  YellowGemIcon,
+  WinningIceStickIcon,
+  DragonScaleIcon,
+  DragonClawIcon,
+  StarFragmentIcon,
+  AncientGearIcon,
+  SplendidBranchIcon,
+  CuriousMagatamaIcon,
+  GlowingMossStoneIcon,
 } from './GiftIcon.tsx';
 
 describe('GiftIcon コンポーネント (おくりもののSVGイラスト描画)', () => {
@@ -75,6 +86,17 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       { id: 'bento-baran', testId: 'bento-baran-icon' },
       { id: 'super-ball', testId: 'super-ball-icon' },
       { id: 'small-bell', testId: 'small-bell-icon' },
+      { id: 'red-gem', testId: 'red-gem-icon' },
+      { id: 'blue-gem', testId: 'blue-gem-icon' },
+      { id: 'yellow-gem', testId: 'yellow-gem-icon' },
+      { id: 'winning-ice-stick', testId: 'winning-ice-stick-icon' },
+      { id: 'dragon-scale', testId: 'dragon-scale-icon' },
+      { id: 'dragon-claw', testId: 'dragon-claw-icon' },
+      { id: 'star-fragment', testId: 'star-fragment-icon' },
+      { id: 'ancient-gear', testId: 'ancient-gear-icon' },
+      { id: 'splendid-branch', testId: 'splendid-branch-icon' },
+      { id: 'curious-magatama', testId: 'curious-magatama-icon' },
+      { id: 'glowing-moss-stone', testId: 'glowing-moss-stone-icon' },
     ];
 
     for (const { id, testId } of testCases) {
@@ -100,6 +122,12 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
     expect(rareUnknown).toHaveAttribute('data-rare', 'true');
     expect(rareUnknown.querySelector('defs linearGradient#unknownRareGrad')).toBeInTheDocument();
     expect(screen.queryByTestId('old-coin-icon')).not.toBeInTheDocument();
+
+    // 「だいじそうな紙」（レア）の未受取も金色背景になること
+    const { unmount: unmountPaper } = render(<GiftIcon giftId="important-paper" isAcquired={false} />);
+    const paperUnknown = screen.getAllByTestId('unknown-gift-icon')[1];
+    expect(paperUnknown).toHaveAttribute('data-rare', 'true');
+    unmountPaper();
   });
 
   it('未定義のIDが渡されたとき、デフォルトギフトのSVG（default-gift-icon）が描画されること', () => {
@@ -143,6 +171,17 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       BentoBaranIcon,
       SuperBallIcon,
       SmallBellIcon,
+      RedGemIcon,
+      BlueGemIcon,
+      YellowGemIcon,
+      WinningIceStickIcon,
+      DragonScaleIcon,
+      DragonClawIcon,
+      StarFragmentIcon,
+      AncientGearIcon,
+      SplendidBranchIcon,
+      CuriousMagatamaIcon,
+      GlowingMossStoneIcon,
     ];
 
     for (const Comp of components) {

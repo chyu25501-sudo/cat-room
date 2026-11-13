@@ -1507,6 +1507,742 @@ export const SmallBellIcon: React.FC<{ className?: string }> = ({ className = 'w
 );
 
 /**
+ * 「あかいろの宝石」のSVGイラストアイコン
+ * 説明:「深紅に輝くカットが美しい、どこかの宝飾品から落ちたような小さな赤い宝石。」
+ */
+export const RedGemIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="red-gem-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="redGemTop" x1="16" y1="10" x2="32" y2="19" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FDA4AF" />
+        <stop offset="60%" stopColor="#F43F5E" />
+        <stop offset="100%" stopColor="#E11D48" />
+      </linearGradient>
+      <linearGradient id="redGemMain" x1="10" y1="19" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#E11D48" />
+        <stop offset="40%" stopColor="#BE123C" />
+        <stop offset="100%" stopColor="#881337" />
+      </linearGradient>
+      <linearGradient id="redGemFacet" x1="24" y1="19" x2="24" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FB7185" />
+        <stop offset="100%" stopColor="#9F1239" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* 宝石パビリオン（下部三角形全体） */}
+    <polygon points="10,19 38,19 24,40" fill="url(#redGemMain)" stroke="#9F1239" strokeWidth="1.5" strokeLinejoin="round" />
+    {/* 中央メインファセット */}
+    <polygon points="17,19 31,19 24,40" fill="url(#redGemFacet)" opacity="0.95" />
+    {/* 上部クラウン面（台形） */}
+    <polygon points="15,10 33,10 38,19 10,19" fill="url(#redGemTop)" stroke="#BE123C" strokeWidth="1.5" strokeLinejoin="round" />
+    {/* テーブル面（上部中央平坦面） */}
+    <polygon points="18,10 30,10 33,19 15,19" fill="#FFF1F2" fillOpacity="0.45" />
+    {/* 輝きのハイライトライン */}
+    <line x1="15" y1="10" x2="17" y2="19" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.8" strokeLinecap="round" />
+    {/* きらめき星マーク */}
+    <path
+      d="M36 8C36 11 38 13 41 13C38 13 36 15 36 18C36 15 34 13 31 13C34 13 36 11 36 8Z"
+      fill="#FFFFFF"
+    />
+    <circle cx="16" cy="14" r="1.5" fill="#FFFFFF" fillOpacity="0.9" />
+  </svg>
+);
+
+/**
+ * 「あおいろの宝石」のSVGイラストアイコン
+ * 説明:「夜空や深い海を閉じ込めたように澄み渡る、吸い込まれそうな青い宝石。」
+ */
+export const BlueGemIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="blue-gem-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="blueGemGrad" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#7DD3FC" />
+        <stop offset="30%" stopColor="#0284C7" />
+        <stop offset="70%" stopColor="#0369A1" />
+        <stop offset="100%" stopColor="#1E3A8A" />
+      </linearGradient>
+      <linearGradient id="blueGemFacetL" x1="12" y1="18" x2="24" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#BAE6FD" />
+        <stop offset="100%" stopColor="#0284C7" />
+      </linearGradient>
+      <linearGradient id="blueGemFacetR" x1="36" y1="18" x2="24" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#0284C7" />
+        <stop offset="100%" stopColor="#0C4A6E" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="13" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* しずく型外枠 */}
+    <path
+      d="M24 7C24 7 11 22 11 30C11 36.6 16.8 41 24 41C31.2 41 37 36.6 37 30C37 22 24 7 24 7Z"
+      fill="url(#blueGemGrad)"
+      stroke="#0369A1"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* ファセット分割（左側面） */}
+    <path
+      d="M24 7C24 7 11 22 11 30C11 34 14 38 20 40L24 25L24 7Z"
+      fill="url(#blueGemFacetL)"
+      fillOpacity="0.6"
+    />
+    {/* ファセット分割（右側面） */}
+    <path
+      d="M24 7L24 25L28 40C34 38 37 34 37 30C37 22 24 7 24 7Z"
+      fill="url(#blueGemFacetR)"
+      fillOpacity="0.5"
+    />
+    {/* 中央クリスタル面 */}
+    <polygon points="24,12 28,26 24,37 20,26" fill="#E0F2FE" fillOpacity="0.5" />
+    {/* 反射ハイライト */}
+    <path
+      d="M17 22C15 26 15 31 17 34"
+      stroke="#FFFFFF"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeOpacity="0.85"
+    />
+    {/* きらめき星マーク */}
+    <path
+      d="M34 10C34 12.5 35.5 14 38 14C35.5 14 34 15.5 34 18C34 15.5 32.5 14 30 14C32.5 14 34 12.5 34 10Z"
+      fill="#FFFFFF"
+    />
+  </svg>
+);
+
+/**
+ * 「きいろの宝石」のSVGイラストアイコン
+ * 説明:「陽だまりの光を閉じ込めたように明るくきらめく、黄金色に澄んだ黄色い宝石。」
+ */
+export const YellowGemIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="yellow-gem-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="yellowGemGrad" x1="10" y1="10" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="30%" stopColor="#FACC15" />
+        <stop offset="70%" stopColor="#EAB308" />
+        <stop offset="100%" stopColor="#CA8A04" />
+      </linearGradient>
+      <linearGradient id="yellowGemCenter" x1="16" y1="16" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" />
+        <stop offset="50%" stopColor="#FEF08A" />
+        <stop offset="100%" stopColor="#FACC15" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* ダイヤモンド型外形（八角形カット） */}
+    <polygon
+      points="16,9 32,9 39,16 39,32 32,39 16,39 9,32 9,16"
+      fill="url(#yellowGemGrad)"
+      stroke="#B45309"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* 中央テーブル面 */}
+    <polygon
+      points="19,15 29,15 33,19 33,29 29,33 19,33 15,29 15,19"
+      fill="url(#yellowGemCenter)"
+      stroke="#D97706"
+      strokeWidth="1"
+      strokeLinejoin="round"
+    />
+    {/* コーナーファセット線 */}
+    <line x1="16" y1="9" x2="19" y2="15" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.8" />
+    <line x1="32" y1="9" x2="29" y2="15" stroke="#FDE047" strokeWidth="1" />
+    <line x1="39" y1="16" x2="33" y2="19" stroke="#FDE047" strokeWidth="1" />
+    <line x1="39" y1="32" x2="33" y2="29" stroke="#B45309" strokeWidth="1" />
+    <line x1="32" y1="39" x2="29" y2="33" stroke="#B45309" strokeWidth="1" />
+    <line x1="16" y1="39" x2="19" y2="33" stroke="#B45309" strokeWidth="1" />
+    <line x1="9" y1="32" x2="15" y2="29" stroke="#EAB308" strokeWidth="1" />
+    <line x1="9" y1="16" x2="15" y2="19" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.8" />
+    {/* 光沢のハイライト */}
+    <circle cx="21" cy="18" r="2" fill="#FFFFFF" fillOpacity="0.9" />
+    {/* きらめき星マーク */}
+    <path
+      d="M10 9C10 11.5 11.5 13 14 13C11.5 13 10 14.5 10 17C10 14.5 8.5 13 6 13C8.5 13 10 11.5 10 9Z"
+      fill="#FFFFFF"
+    />
+    <path
+      d="M38 7C38 9 39 10 41 10C39 10 38 11 38 13C38 11 37 10 35 10C37 10 38 9 38 7Z"
+      fill="#FEF08A"
+    />
+  </svg>
+);
+
+/**
+ * 「あたりのアイス棒」のSVGイラストアイコン
+ * 説明:「見事に「あたり」が出た木製アイスバーの棒。もう一本もらえる幸運の証。」
+ */
+export const WinningIceStickIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="winning-ice-stick-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="winStickWood" x1="18" y1="6" x2="30" y2="42" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF3C7" />
+        <stop offset="35%" stopColor="#FDE68A" />
+        <stop offset="80%" stopColor="#FCD34D" />
+        <stop offset="100%" stopColor="#F59E0B" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="10" ry="3" fill="#000000" fillOpacity="0.14" />
+    {/* 木製スティック本体 */}
+    <rect
+      x="18"
+      y="6"
+      width="12"
+      height="34"
+      rx="6"
+      fill="url(#winStickWood)"
+      stroke="#D97706"
+      strokeWidth="1.5"
+    />
+    {/* 木目ライン */}
+    <path d="M21 10V36" stroke="#F59E0B" strokeWidth="0.8" strokeDasharray="4 3" strokeOpacity="0.7" />
+    <path d="M27 12V34" stroke="#F59E0B" strokeWidth="0.8" strokeDasharray="3 4" strokeOpacity="0.7" />
+    {/* 赤い「あたり」スタンプ枠 */}
+    <rect x="20" y="11" width="8" height="15" rx="1.5" fill="#FEE2E2" stroke="#DC2626" strokeWidth="0.8" />
+    {/* 「あたり」の文字表現（赤文字） */}
+    <text
+      x="24"
+      y="15.5"
+      fontSize="3.8"
+      fontFamily="sans-serif"
+      fontWeight="bold"
+      fill="#DC2626"
+      textAnchor="middle"
+    >
+      あ
+    </text>
+    <text
+      x="24"
+      y="19.5"
+      fontSize="3.8"
+      fontFamily="sans-serif"
+      fontWeight="bold"
+      fill="#DC2626"
+      textAnchor="middle"
+    >
+      た
+    </text>
+    <text
+      x="24"
+      y="23.5"
+      fontSize="3.8"
+      fontFamily="sans-serif"
+      fontWeight="bold"
+      fill="#DC2626"
+      textAnchor="middle"
+    >
+      り
+    </text>
+    {/* 赤い星マーク★ */}
+    <path
+      d="M24 28L24.8 29.5L26.5 29.8L25.2 31L25.5 32.7L24 31.9L22.5 32.7L22.8 31L21.5 29.8L23.2 29.5L24 28Z"
+      fill="#DC2626"
+    />
+    {/* 輝きエフェクト */}
+    <path
+      d="M13 14C13 16 14 17 16 17C14 17 13 18 13 20C13 18 12 17 10 17C12 17 13 16 13 14Z"
+      fill="#F59E0B"
+    />
+    <path
+      d="M35 18C35 20 36 21 38 21C36 21 35 22 35 24C35 22 34 21 32 21C34 21 35 20 35 18Z"
+      fill="#F59E0B"
+    />
+  </svg>
+);
+
+/**
+ * 「りゅうの鱗」のSVGイラストアイコン
+ * 説明:「伝説のドラゴンから剥がれ落ちたと伝わる、虹色に光る硬質で神聖なウロコ。」
+ */
+export const DragonScaleIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="dragon-scale-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="dragonScaleGrad" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#A7F3D0" />
+        <stop offset="25%" stopColor="#2DD4BF" />
+        <stop offset="55%" stopColor="#0D9488" />
+        <stop offset="85%" stopColor="#047857" />
+        <stop offset="100%" stopColor="#312E81" />
+      </linearGradient>
+      <linearGradient id="dragonScaleShine" x1="24" y1="8" x2="16" y2="32" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+        <stop offset="60%" stopColor="#5EEAD4" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="#14B8A6" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* 竜のウロコ外形（上部が丸く、下部が鋭利な楯型） */}
+    <path
+      d="M24 7C14 7 10 16 10 24C10 32 17 38 24 41C31 38 38 32 38 24C38 16 34 7 24 7Z"
+      fill="url(#dragonScaleGrad)"
+      stroke="#065F46"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    {/* 竜の硬質キール（中央の隆起稜線） */}
+    <path
+      d="M24 8V39"
+      stroke="#FDE047"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeOpacity="0.85"
+    />
+    {/* 放射状の肋骨・鱗紋様 */}
+    <path
+      d="M24 16L14 22M24 23L13 29M24 30L17 35"
+      stroke="#6EE7B7"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeOpacity="0.6"
+    />
+    <path
+      d="M24 16L34 22M24 23L35 29M24 30L31 35"
+      stroke="#047857"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeOpacity="0.8"
+    />
+    {/* ハイライト光沢面 */}
+    <path
+      d="M24 8C18 8 13 15 13 22C17 19 22 17 24 8Z"
+      fill="url(#dragonScaleShine)"
+    />
+    {/* 神秘のきらめき星マーク */}
+    <path
+      d="M34 10C34 12 35 13 37 13C35 13 34 14 34 16C34 14 33 13 31 13C33 13 34 12 34 10Z"
+      fill="#FDE047"
+    />
+  </svg>
+);
+
+/**
+ * 「りゅうの爪」のSVGイラストアイコン
+ * 説明:「鋼よりも鋭く湾曲した、古のドラゴンが残したとされる神秘的な黒金の爪。」
+ */
+export const DragonClawIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="dragon-claw-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="dragonClawGrad" x1="12" y1="8" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#475569" />
+        <stop offset="30%" stopColor="#1E293B" />
+        <stop offset="70%" stopColor="#0F172A" />
+        <stop offset="100%" stopColor="#020617" />
+      </linearGradient>
+      <linearGradient id="dragonClawGoldEdge" x1="28" y1="8" x2="38" y2="36" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="50%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#B45309" />
+      </linearGradient>
+      <linearGradient id="dragonScaleBase" x1="10" y1="6" x2="24" y2="18" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#64748B" />
+        <stop offset="100%" stopColor="#334155" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="26" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* 根元の甲殻・ウロコ関節部 */}
+    <path
+      d="M10 11C10 7 16 6 22 7C25 7.5 28 10 26 15C23 20 12 18 10 11Z"
+      fill="url(#dragonScaleBase)"
+      stroke="#1E293B"
+      strokeWidth="1.5"
+    />
+    <circle cx="15" cy="11" r="1.5" fill="#94A3B8" />
+    <circle cx="20" cy="12" r="1.2" fill="#94A3B8" />
+    {/* 鋭く湾曲した鉤爪本体 */}
+    <path
+      d="M23 11C28 15 35 23 37 36C33 34 26 31 20 27C14 23 13 18 16 14L23 11Z"
+      fill="url(#dragonClawGrad)"
+      stroke="#0F172A"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    {/* 外側カーブの黄金エッジ刃筋 */}
+    <path
+      d="M23 11C28 15 35 23 37 36C36 31 32 22 26 15L23 11Z"
+      fill="url(#dragonClawGoldEdge)"
+    />
+    {/* 研ぎ澄まされた鋭利なハイライトライン */}
+    <path
+      d="M25 14C29 19 34 26 36 35"
+      stroke="#FFFFFF"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeOpacity="0.8"
+    />
+    {/* 先端のキリッとした光彩 */}
+    <circle cx="37" cy="36" r="1.5" fill="#FEF08A" />
+    <path
+      d="M39 31C39 33 40 34 42 34C40 34 39 35 39 37C39 35 38 34 36 34C38 34 39 33 39 31Z"
+      fill="#F59E0B"
+    />
+  </svg>
+);
+
+/**
+ * 「ほしのかけら」のSVGイラストアイコン
+ * 説明:「夜空から落ちてきた流れ星の欠片。手のひらで淡く温かく明滅している。」
+ */
+export const StarFragmentIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="star-fragment-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <radialGradient id="starGlow" cx="24" cy="24" r="20" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF08A" stopOpacity="0.6" />
+        <stop offset="60%" stopColor="#F59E0B" stopOpacity="0.2" />
+        <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+      </radialGradient>
+      <linearGradient id="starBodyGrad" x1="12" y1="10" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFBEB" />
+        <stop offset="25%" stopColor="#FEF08A" />
+        <stop offset="65%" stopColor="#FBBF24" />
+        <stop offset="100%" stopColor="#F59E0B" />
+      </linearGradient>
+    </defs>
+    {/* 背後の発光オーラ */}
+    <circle cx="24" cy="24" r="19" fill="url(#starGlow)" />
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="12" ry="3" fill="#000000" fillOpacity="0.12" />
+    {/* ふっくら立体的な星型本体 */}
+    <path
+      d="M24 6L29 17L40 18L32 26L35 37L24 31L13 37L16 26L8 18L19 17L24 6Z"
+      fill="url(#starBodyGrad)"
+      stroke="#D97706"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* 中央の立体ピラミッド面 */}
+    <polygon points="24,6 24,24 29,17" fill="#FFFFFF" fillOpacity="0.8" />
+    <polygon points="40,18 24,24 29,17" fill="#FEF08A" fillOpacity="0.6" />
+    <polygon points="40,18 24,24 32,26" fill="#F59E0B" fillOpacity="0.4" />
+    <polygon points="35,37 24,24 32,26" fill="#D97706" fillOpacity="0.5" />
+    <polygon points="35,37 24,24 24,31" fill="#B45309" fillOpacity="0.5" />
+    <polygon points="13,37 24,24 24,31" fill="#F59E0B" fillOpacity="0.6" />
+    <polygon points="13,37 24,24 16,26" fill="#FBBF24" fillOpacity="0.7" />
+    <polygon points="8,18 24,24 16,26" fill="#FEF08A" fillOpacity="0.8" />
+    <polygon points="8,18 24,24 19,17" fill="#FFFFFF" fillOpacity="0.9" />
+    <polygon points="24,6 24,24 19,17" fill="#FFFBEB" fillOpacity="0.95" />
+    {/* まわりの小さな光の粒・星屑 */}
+    <circle cx="9" cy="11" r="1.5" fill="#FEF08A" />
+    <circle cx="39" cy="12" r="1.2" fill="#FEF08A" />
+    <circle cx="38" cy="35" r="1.5" fill="#FBBF24" />
+    <circle cx="10" cy="34" r="1.2" fill="#FBBF24" />
+    <path
+      d="M37 22C37 23.5 38 24.5 39.5 24.5C38 24.5 37 25.5 37 27C37 25.5 36 24.5 34.5 24.5C36 24.5 37 23.5 37 22Z"
+      fill="#FFFFFF"
+    />
+  </svg>
+);
+
+/**
+ * 「いにしえの歯車」のSVGイラストアイコン
+ * 説明:「古代の高度な文明で作られたと思われる、決して錆びることのない真鍮の精密な歯車。」
+ */
+export const AncientGearIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="ancient-gear-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="gearBrass" x1="10" y1="8" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FDE68A" />
+        <stop offset="35%" stopColor="#D97706" />
+        <stop offset="70%" stopColor="#B45309" />
+        <stop offset="100%" stopColor="#78350F" />
+      </linearGradient>
+      <linearGradient id="gearInner" x1="16" y1="16" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFBEB" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* 12枚歯の歯車外輪 */}
+    <path
+      d="M22 6H26V9.1C27.4 9.4 28.7 10 29.9 10.7L32.1 8.5L34.9 11.3L32.7 13.5C33.4 14.7 34 16 34.3 17.4H37.4V21.4H34.3C34 22.8 33.4 24.1 32.7 25.3L34.9 27.5L32.1 30.3L29.9 28.1C28.7 28.8 27.4 29.4 26 29.7V32.8H22V29.7C20.6 29.4 19.3 28.8 18.1 28.1L15.9 30.3L13.1 27.5L15.3 25.3C14.6 24.1 14 22.8 13.7 21.4H10.6V17.4H13.7C14 16 14.6 14.7 15.3 13.5L13.1 11.3L15.9 8.5L18.1 10.7C19.3 10 20.6 9.4 22 9.1V6Z"
+      transform="translate(0, 4.5)"
+      fill="url(#gearBrass)"
+      stroke="#78350F"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* 内側サークルリム */}
+    <circle cx="24" cy="28" r="9.5" fill="url(#gearInner)" stroke="#92400E" strokeWidth="1.2" />
+    {/* 4つの抜き穴（古代幾何学デザイン） */}
+    <circle cx="24" cy="22" r="2.2" fill="#FEF3C7" stroke="#92400E" strokeWidth="1" />
+    <circle cx="24" cy="34" r="2.2" fill="#78350F" stroke="#92400E" strokeWidth="1" />
+    <circle cx="18" cy="28" r="2.2" fill="#D97706" stroke="#92400E" strokeWidth="1" />
+    <circle cx="30" cy="28" r="2.2" fill="#B45309" stroke="#92400E" strokeWidth="1" />
+    {/* 中心車軸穴 */}
+    <circle cx="24" cy="28" r="3.5" fill="#451A03" stroke="#FDE68A" strokeWidth="1.2" />
+    <circle cx="24" cy="28" r="1.5" fill="#FDE68A" />
+    {/* 真鍮の金属光沢ライン */}
+    <path
+      d="M17 18.5C19 16.5 22 15.5 25 15.5"
+      stroke="#FFFFFF"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeOpacity="0.8"
+    />
+  </svg>
+);
+
+/**
+ * 「りっぱな枝」のSVGイラストアイコン
+ * 説明:「どこかの神木から落ちたのか、見事な枝振りと小さな金の芽をつけた立派な木の枝。」
+ */
+export const SplendidBranchIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="splendid-branch-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="splendidWood" x1="10" y1="40" x2="38" y2="8" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#78350F" />
+        <stop offset="50%" stopColor="#92400E" />
+        <stop offset="100%" stopColor="#B45309" />
+      </linearGradient>
+      <linearGradient id="goldBud" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="100%" stopColor="#EAB308" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="14" ry="3" fill="#000000" fillOpacity="0.14" />
+    {/* 太い主幹と分かれ枝 */}
+    <path
+      d="M10 40C12 36 15 31 18 27C21 23 25 18 29 11L33 8C32 12 28 17 24 22L36 17C38 18 36 21 32 23L24 26C22 30 18 35 15 41C13 42 11 41 10 40Z"
+      fill="url(#splendidWood)"
+      stroke="#451A03"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    {/* サブの小枝 */}
+    <path
+      d="M19 25C17 22 14 20 12 20C13 22 15 24 17 27"
+      fill="#92400E"
+      stroke="#451A03"
+      strokeWidth="1.2"
+    />
+    {/* 枝先の瑞々しい緑の若葉 */}
+    <path
+      d="M33 8C35 5 39 6 39 8C39 11 35 11 33 8Z"
+      fill="#22C55E"
+      stroke="#15803D"
+      strokeWidth="1"
+    />
+    <path
+      d="M36 17C39 15 42 17 41 19C39 21 36 19 36 17Z"
+      fill="#16A34A"
+      stroke="#15803D"
+      strokeWidth="1"
+    />
+    <path
+      d="M12 20C9 18 9 15 11 15C13 15 14 18 12 20Z"
+      fill="#4ADE80"
+      stroke="#16A34A"
+      strokeWidth="1"
+    />
+    {/* 神秘の金のつぼみ・新芽 */}
+    <circle cx="34" cy="7" r="2" fill="url(#goldBud)" stroke="#CA8A04" strokeWidth="0.8" />
+    <circle cx="37" cy="16" r="1.8" fill="url(#goldBud)" stroke="#CA8A04" strokeWidth="0.8" />
+    <circle cx="11" cy="19" r="1.5" fill="url(#goldBud)" stroke="#CA8A04" strokeWidth="0.8" />
+    {/* 金の輝きスパークル */}
+    <path
+      d="M28 10C28 11.5 29 12.5 30.5 12.5C29 12.5 28 13.5 28 15C28 13.5 27 12.5 25.5 12.5C27 12.5 28 11.5 28 10Z"
+      fill="#FACC15"
+    />
+  </svg>
+);
+
+/**
+ * 「きみょうな勾玉」のSVGイラストアイコン
+ * 説明:「翡翠のように淡く緑色に透き通る、古い儀式で使われていたような形の不思議な勾玉。」
+ */
+export const CuriousMagatamaIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="curious-magatama-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="magatamaGrad" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#A7F3D0" />
+        <stop offset="35%" stopColor="#34D399" />
+        <stop offset="70%" stopColor="#059669" />
+        <stop offset="100%" stopColor="#064E3B" />
+      </linearGradient>
+    </defs>
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="13" ry="3.5" fill="#000000" fillOpacity="0.16" />
+    {/* 勾玉特有のなめらかなC字カーブ（頭部が丸く、尾部が細く湾曲） */}
+    <path
+      d="M24 8C16 8 11 14 11 22C11 31 18 39 27 39C32 39 36 36 36 32C36 27 31 27 28 27C22 27 21 21 22 17C23 13 27 12 28 10C27 8.7 25.6 8 24 8Z"
+      fill="url(#magatamaGrad)"
+      stroke="#047857"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    {/* 勾玉の穴（頭部貫通孔） */}
+    <circle cx="21" cy="18" r="3.2" fill="#064E3B" stroke="#047857" strokeWidth="1" />
+    <circle cx="21" cy="18" r="1.5" fill="#022C22" />
+    {/* なめらかな翡翠の光沢ハイライト */}
+    <path
+      d="M16 14C14 17 14 21 16 26"
+      stroke="#FFFFFF"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeOpacity="0.8"
+    />
+    <path
+      d="M26 36C29 36 32 34 33 32"
+      stroke="#A7F3D0"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeOpacity="0.7"
+    />
+    {/* 神秘の光彩星 */}
+    <path
+      d="M35 12C35 14 36 15 38 15C36 15 35 16 35 18C35 16 34 15 32 15C34 15 35 14 35 12Z"
+      fill="#6EE7B7"
+    />
+  </svg>
+);
+
+/**
+ * 「ひかる苔石」のSVGイラストアイコン
+ * 説明:「暗闇で幻想的な淡い青緑の光を放つ、特殊な光る苔がびっしりと覆った不思議な丸石。」
+ */
+export const GlowingMossStoneIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="glowing-moss-stone-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <radialGradient id="mossGlow" cx="24" cy="24" r="20" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#2DD4BF" stopOpacity="0.5" />
+        <stop offset="60%" stopColor="#10B981" stopOpacity="0.2" />
+        <stop offset="100%" stopColor="#047857" stopOpacity="0" />
+      </radialGradient>
+      <linearGradient id="mossStoneBody" x1="14" y1="12" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#64748B" />
+        <stop offset="45%" stopColor="#475569" />
+        <stop offset="100%" stopColor="#1E293B" />
+      </linearGradient>
+      <linearGradient id="glowMossPatch" x1="12" y1="14" x2="32" y2="30" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#6EE7B7" />
+        <stop offset="50%" stopColor="#10B981" />
+        <stop offset="100%" stopColor="#059669" />
+      </linearGradient>
+    </defs>
+    {/* 苔の周囲に漂う幻想的な発光オーラ */}
+    <circle cx="24" cy="26" r="19" fill="url(#mossGlow)" />
+    {/* 影 */}
+    <ellipse cx="24" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.18" />
+    {/* ベースの丸石 */}
+    <path
+      d="M13 22C13 14 20 11 27 12C34 13 37 19 37 27C37 34 31 39 23 39C15 39 13 32 13 22Z"
+      fill="url(#mossStoneBody)"
+      stroke="#1E293B"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    {/* 蛍光発光するヒカリゴケ（パッチ1） */}
+    <path
+      d="M15 20C17 16 22 14 26 15C29 16 32 18 31 22C29 24 27 21 24 21C21 21 20 25 17 25C15 25 14 23 15 20Z"
+      fill="url(#glowMossPatch)"
+    />
+    {/* 蛍光苔パッチ2 */}
+    <path
+      d="M20 28C22 26 27 25 29 27C31 29 34 30 33 33C31 35 28 34 25 35C22 36 19 34 19 31C19 29 19 29 20 28Z"
+      fill="#34D399"
+    />
+    {/* 苔の粒・自発光の小さな斑点群 */}
+    <circle cx="18" cy="19" r="1.2" fill="#A7F3D0" />
+    <circle cx="23" cy="17" r="1.5" fill="#D1FAE5" />
+    <circle cx="28" cy="20" r="1.2" fill="#A7F3D0" />
+    <circle cx="23" cy="28" r="1.2" fill="#D1FAE5" />
+    <circle cx="28" cy="30" r="1.5" fill="#A7F3D0" />
+    {/* 立ち上る光の胞子パーティクル */}
+    <circle cx="12" cy="15" r="1" fill="#6EE7B7" />
+    <circle cx="36" cy="14" r="1.2" fill="#34D399" />
+    <circle cx="32" cy="8" r="1" fill="#A7F3D0" />
+    <path
+      d="M19 10C19 11.5 20 12.5 21.5 12.5C20 12.5 19 13.5 19 15C19 13.5 18 12.5 16.5 12.5C18 12.5 19 11.5 19 10Z"
+      fill="#A7F3D0"
+    />
+  </svg>
+);
+
+/**
  * 未獲得（未発見）のおくりもの用プレースホルダーアイコン
  * isRare が true の場合、レアリティの高いおくりものだと分かるように金色背景で「？」を描画します。
  */
@@ -1686,6 +2422,28 @@ export const GiftIcon: React.FC<GiftIconProps> = ({
       return <SuperBallIcon className={className} />;
     case 'small-bell':
       return <SmallBellIcon className={className} />;
+    case 'red-gem':
+      return <RedGemIcon className={className} />;
+    case 'blue-gem':
+      return <BlueGemIcon className={className} />;
+    case 'yellow-gem':
+      return <YellowGemIcon className={className} />;
+    case 'winning-ice-stick':
+      return <WinningIceStickIcon className={className} />;
+    case 'dragon-scale':
+      return <DragonScaleIcon className={className} />;
+    case 'dragon-claw':
+      return <DragonClawIcon className={className} />;
+    case 'star-fragment':
+      return <StarFragmentIcon className={className} />;
+    case 'ancient-gear':
+      return <AncientGearIcon className={className} />;
+    case 'splendid-branch':
+      return <SplendidBranchIcon className={className} />;
+    case 'curious-magatama':
+      return <CuriousMagatamaIcon className={className} />;
+    case 'glowing-moss-stone':
+      return <GlowingMossStoneIcon className={className} />;
     default:
       return <DefaultGiftIcon className={className} />;
   }

@@ -39,6 +39,17 @@ export type GiftId =
   | 'bento-baran'
   | 'super-ball'
   | 'small-bell'
+  | 'red-gem'
+  | 'blue-gem'
+  | 'yellow-gem'
+  | 'winning-ice-stick'
+  | 'dragon-scale'
+  | 'dragon-claw'
+  | 'star-fragment'
+  | 'ancient-gear'
+  | 'splendid-branch'
+  | 'curious-magatama'
+  | 'glowing-moss-stone'
   | string;
 
 /**

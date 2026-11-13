@@ -17,8 +17,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catGifts utils (おくりもの計算・インベントリ管理ロジック)', () => {
   describe('CAT_GIFTS 定数', () => {
-    it('合計34種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
-      expect(CAT_GIFTS.length).toBe(34);
+    it('合計45種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
+      expect(CAT_GIFTS.length).toBe(45);
 
       const expectedIds = [
         'pebble',
@@ -55,6 +55,17 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'old-coin',
         'rainbow-feather',
         'four-leaf-clover',
+        'red-gem',
+        'blue-gem',
+        'yellow-gem',
+        'winning-ice-stick',
+        'dragon-scale',
+        'dragon-claw',
+        'star-fragment',
+        'ancient-gear',
+        'splendid-branch',
+        'curious-magatama',
+        'glowing-moss-stone',
       ];
       expectedIds.forEach((id) => {
         const gift = CAT_GIFTS.find((g) => g.id === id);
@@ -68,17 +79,16 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(clover?.description).toContain('三つ葉');
       expect(clover?.rarity).toBe('common');
 
-      // 「だいじそうな紙」の説明文が指定通りであること
+      // 「だいじそうな紙」の説明文が指定通りで、レアリティがレアであること
       const importantPaper = CAT_GIFTS.find((g) => g.id === 'important-paper');
       expect(importantPaper?.description).toBe('よくわからないが請求書と書かれている。');
-      expect(importantPaper?.rarity).toBe('common');
+      expect(importantPaper?.rarity).toBe('rare');
 
-      // 新規追加された通常おくりものの定義確認
+      // 通常おくりものの定義確認（だいじそうな紙を除く10種）
       const newCommonIds = [
         'snack-wrapper',
         'skewer',
         'ice-stick',
-        'important-paper',
         'blue-can',
         'empty-bottle',
         'pink-handkerchief',
@@ -92,23 +102,38 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         expect(gift?.rarity).toBe('common');
       });
 
-      // レアアイテム（ふしぎな古銭、なないろの羽根、よつばのクローバー）の定義確認
-      const oldCoin = CAT_GIFTS.find((g) => g.id === 'old-coin');
-      expect(oldCoin?.name).toBe('ふしぎな古銭');
-      expect(oldCoin?.rarity).toBe('rare');
+      // レアアイテム（ふしぎな古銭、なないろの羽根、よつばのクローバー、新規11種＋だいじそうな紙）の定義確認
+      const rareIds = [
+        'old-coin',
+        'rainbow-feather',
+        'four-leaf-clover',
+        'important-paper',
+        'red-gem',
+        'blue-gem',
+        'yellow-gem',
+        'winning-ice-stick',
+        'dragon-scale',
+        'dragon-claw',
+        'star-fragment',
+        'ancient-gear',
+        'splendid-branch',
+        'curious-magatama',
+        'glowing-moss-stone',
+      ];
+      rareIds.forEach((id) => {
+        const gift = CAT_GIFTS.find((g) => g.id === id);
+        expect(gift?.rarity).toBe('rare');
+      });
 
-      const rainbowFeather = CAT_GIFTS.find((g) => g.id === 'rainbow-feather');
-      expect(rainbowFeather?.name).toBe('なないろの羽根');
-      expect(rainbowFeather?.rarity).toBe('rare');
-
-      const fourLeafClover = CAT_GIFTS.find((g) => g.id === 'four-leaf-clover');
-      expect(fourLeafClover?.name).toBe('よつばのクローバー');
-      expect(fourLeafClover?.description).toContain('四つ葉');
-      expect(fourLeafClover?.rarity).toBe('rare');
+      // 「りゅうの鱗」「りゅうの爪」の「りゅう」がドラゴンであること
+      const dragonScale = CAT_GIFTS.find((g) => g.id === 'dragon-scale');
+      expect(dragonScale?.description).toContain('ドラゴン');
+      const dragonClaw = CAT_GIFTS.find((g) => g.id === 'dragon-claw');
+      expect(dragonClaw?.description).toContain('ドラゴン');
 
       // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語
       const hiraganaPrefixPattern =
-        /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの|こけむした|ふるい|かわいい|しおれた|せみの|しろい|きらきらした|よごれた|かたっぽの|ひまわりの|おやつの|ほそながい|はずれの|だいじそうな|あおい|からっぽの|ももいろの|おかしの|おべんとうの)/;
+        /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの|こけむした|ふるい|かわいい|しおれた|せみの|しろい|きらきらした|よごれた|かたっぽの|ひまわりの|おやつの|ほそながい|はずれの|だいじそうな|あおい|からっぽの|ももいろの|おかしの|おべんとうの|あかいろの|あおいろの|きいろの|あたりの|りゅうの|ほしの|いにしえの|りっぱな|きみょうな)/;
       CAT_GIFTS.forEach((gift) => {
         expect(gift.name).toMatch(hiraganaPrefixPattern);
       });
@@ -153,9 +178,9 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       const item0 = pickRandomGift(CAT_GIFTS, () => 0.0);
       expect(item0.id).toBe('pebble');
 
-      // randomFn が 0.999 のときは最後のアイテム（four-leaf-clover）
+      // randomFn が 0.999 のときは最後のアイテム（glowing-moss-stone）
       const itemLast = pickRandomGift(CAT_GIFTS, () => 0.999);
-      expect(itemLast.id).toBe('four-leaf-clover');
+      expect(itemLast.id).toBe('glowing-moss-stone');
     });
 
     it('カタログが空の場合はデフォルトギフトを返すこと', () => {
