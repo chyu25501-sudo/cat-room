@@ -23,6 +23,7 @@ import {
   DEFAULT_PET_AFFECTION_EXP,
   FOOD_AFFECTION_EXP_MAP,
   TOY_AFFECTION_EXP_MAP,
+  calculatePetAffectionExp,
   getAffectionTitle,
 } from './utils/catAffection.ts';
 import {
@@ -70,13 +71,15 @@ export default function App() {
   const handleInteractCat = () => {
     setLastAction('pet');
     // 撫でることで選択中の猫の機嫌を更新（過剰撫で時は愛撫誘発性攻撃により不機嫌になる）
-    const { nextLevel } = petCat(currentCatId);
+    const { nextScore, nextLevel } = petCat(currentCatId);
     const isMoodChanged = nextLevel !== currentMoodLevel;
     const isAnnoyed = nextLevel === 'annoyed';
 
-    // 不機嫌でない正常なふれあい時に、なつき度ゲージを少しずつ増加
+    // 不機嫌でない正常なふれあい時に、猫のごきげん度に応じたなつき度Expを獲得
+    // ごきげん度が高ければ高いほど、なつき度の上昇幅が多めに上がります
     if (!isAnnoyed && nextLevel !== 'annoyed') {
-      const affRes = gainAffection(currentCatId, DEFAULT_PET_AFFECTION_EXP);
+      const petAffectionExp = calculatePetAffectionExp(nextScore);
+      const affRes = gainAffection(currentCatId, petAffectionExp);
       if (affRes.isLevelUp) {
         const gift = receiveGift(currentCatId);
         triggerLevelUp({

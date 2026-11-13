@@ -9,6 +9,10 @@ import {
   calculateRequiredExp,
   calculateAffectionProgress,
   calculateAffectionGain,
+  calculatePetAffectionExp,
+  DEFAULT_PET_AFFECTION_EXP,
+  HAPPY_PET_AFFECTION_EXP,
+  ECSTATIC_PET_AFFECTION_EXP,
   getAffectionTitle,
   getAffectionDescription,
 } from './catAffection.ts';
@@ -156,6 +160,47 @@ describe('catAffection ユーティリティ (第7週: なつき度純粋関数�
 
       const descMax = getAffectionDescription(10, 100);
       expect(descMax).toContain('なつき度MAX');
+    });
+  });
+
+  describe('calculatePetAffectionExp (ごきげん度に応じたなつき度上昇量の計算)', () => {
+    it('おだやか（0〜39点 / normal）のときは基準値（10pt）になること', () => {
+      expect(calculatePetAffectionExp(0)).toBe(10);
+      expect(calculatePetAffectionExp(20)).toBe(10);
+      expect(calculatePetAffectionExp(35)).toBe(10);
+      expect(calculatePetAffectionExp(39)).toBe(10);
+      expect(calculatePetAffectionExp('normal')).toBe(10);
+    });
+
+    it('ごきげん♪（40〜74点 / happy）のときは20〜30ptに上昇すること', () => {
+      expect(calculatePetAffectionExp(40)).toBe(20);
+      expect(calculatePetAffectionExp(57)).toBeGreaterThanOrEqual(24);
+      expect(calculatePetAffectionExp(74)).toBe(30);
+      expect(calculatePetAffectionExp('happy')).toBe(25);
+    });
+
+    it('ごきげんMAX♡（75〜100点 / ecstatic）のときは40〜50ptに特大上昇すること', () => {
+      expect(calculatePetAffectionExp(75)).toBe(40);
+      expect(calculatePetAffectionExp(85)).toBe(44);
+      expect(calculatePetAffectionExp(100)).toBe(50);
+      expect(calculatePetAffectionExp('ecstatic')).toBe(45);
+    });
+
+    it('ごきげん度が高ければ高いほど、撫でた時のなつき度の上昇幅が多めに上がること（単調増加）', () => {
+      const normalExp = calculatePetAffectionExp(20);
+      const happyExp = calculatePetAffectionExp(50);
+      const ecstaticExp = calculatePetAffectionExp(85);
+      const maxExp = calculatePetAffectionExp(100);
+
+      expect(normalExp).toBeLessThan(happyExp);
+      expect(happyExp).toBeLessThan(ecstaticExp);
+      expect(ecstaticExp).toBeLessThan(maxExp);
+    });
+
+    it('不機嫌（annoyed または isAnnoyed: true）のときは 0pt になること', () => {
+      expect(calculatePetAffectionExp(10, true)).toBe(0);
+      expect(calculatePetAffectionExp(100, true)).toBe(0);
+      expect(calculatePetAffectionExp('annoyed')).toBe(0);
     });
   });
 });

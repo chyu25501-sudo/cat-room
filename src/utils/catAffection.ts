@@ -1,5 +1,6 @@
 import { CatAffectionLevel, AffectionGainResult } from '../types/affection.ts';
 import { FoodId, ToyId } from '../types/care.ts';
+import { CatMoodLevel } from '../types/mood.ts';
 
 /** なつき度の初期最小レベル */
 export const MIN_AFFECTION_LEVEL = 1;
@@ -13,8 +14,64 @@ export const BASE_AFFECTION_EXP = 100;
 /** なつき度が1レベル上がるごとに増加する追加必要経験値 */
 export const AFFECTION_EXP_PER_LEVEL = 25;
 
-/** 1回のなでなでで獲得する基準なつき度Exp */
+/** 1回のなでなでで獲得する基準なつき度Exp（おだやか時） */
 export const DEFAULT_PET_AFFECTION_EXP = 10;
+
+/** ごきげん♪（happy: 40〜74点）時の基準獲得なつき度Exp */
+export const HAPPY_PET_AFFECTION_EXP = 20;
+
+/** ごきげんMAX♡（ecstatic: 75〜100点）時の基準獲得なつき度Exp */
+export const ECSTATIC_PET_AFFECTION_EXP = 40;
+
+/**
+ * 猫のごきげん度（スコア 0〜100、または機嫌レベル）に応じた、撫でた時のなつき度獲得Expを計算する純粋関数
+ * ごきげん度が高ければ高いほど、なつき度の上昇幅が多めに上がります。
+ *
+ * - ごきげんMAX♡（75〜100点 / ecstatic）: 40〜50pt（最大5倍の特大上昇！おくりものが集めやすくなります）
+ * - ごきげん♪（40〜74点 / happy）: 20〜30pt（ごはんやおもちゃ並みの2〜3倍上昇）
+ * - おだやか（0〜39点 / normal）: 10pt（通常ベースライン）
+ * - 不機嫌（annoyed）: 0pt（イライラ中はなつき度が上がらない）
+ *
+ * @param mood 猫のごきげんスコア（0〜100）または機嫌レベル（CatMoodLevel）
+ * @param isAnnoyed 不機嫌フラグ（未指定時はfalse）
+ */
+export function calculatePetAffectionExp(
+  mood: number | CatMoodLevel,
+  isAnnoyed: boolean = false
+): number {
+  if (isAnnoyed || mood === 'annoyed') {
+    return 0;
+  }
+
+  if (typeof mood === 'string') {
+    switch (mood) {
+      case 'ecstatic':
+        return 45;
+      case 'happy':
+        return 25;
+      case 'normal':
+      default:
+        return DEFAULT_PET_AFFECTION_EXP; // 10
+    }
+  }
+
+  const score = Math.max(0, Math.min(100, Math.round(mood)));
+
+  // ごきげんMAX♡ (75〜100点): 40〜50pt
+  if (score >= 75) {
+    const ratio = (score - 75) / 25;
+    return Math.round(40 + ratio * 10);
+  }
+
+  // ごきげん♪ (40〜74点): 20〜30pt
+  if (score >= 40) {
+    const ratio = (score - 40) / 34;
+    return Math.round(20 + ratio * 10);
+  }
+
+  // おだやか (0〜39点): 10pt
+  return DEFAULT_PET_AFFECTION_EXP;
+}
 
 /** ごはんの種類ごとの獲得なつき度Exp */
 export const FOOD_AFFECTION_EXP_MAP: Record<FoodId, number> = {
