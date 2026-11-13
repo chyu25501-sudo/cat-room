@@ -7,6 +7,7 @@ import { useCatFullness } from './hooks/useCatFullness.ts';
 import { useCatFeeding } from './hooks/useCatFeeding.ts';
 import { useCatPlay } from './hooks/useCatPlay.ts';
 import { useCatAffection } from './hooks/useCatAffection.ts';
+import { useCatGifts } from './hooks/useCatGifts.ts';
 import { useAffectionLevelUp } from './hooks/useAffectionLevelUp.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
@@ -46,6 +47,7 @@ export default function App() {
     getAffectionState,
     gainAffection,
   } = useCatAffection();
+  const { receiveGift } = useCatGifts();
   const { levelUpState, triggerLevelUp } = useAffectionLevelUp();
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
 
@@ -71,11 +73,13 @@ export default function App() {
     if (!isAnnoyed && nextLevel !== 'annoyed') {
       const affRes = gainAffection(currentCatId, DEFAULT_PET_AFFECTION_EXP);
       if (affRes.isLevelUp) {
+        const gift = receiveGift(currentCatId);
         triggerLevelUp({
           level: affRes.nextLevel,
           catName: currentPreset.name,
           title: getAffectionTitle(affRes.nextLevel),
           isMaxBonus: affRes.isMaxBonus,
+          gift,
         });
       }
     }
@@ -132,11 +136,13 @@ export default function App() {
 
     // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
     if (affRes.isLevelUp) {
+      const gift = receiveGift(currentCatId);
       triggerLevelUp({
         level: affRes.nextLevel,
         catName: currentPreset.name,
         title: getAffectionTitle(affRes.nextLevel),
         isMaxBonus: affRes.isMaxBonus,
+        gift,
       });
     }
 
@@ -184,11 +190,13 @@ export default function App() {
 
     // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
     if (affRes.isLevelUp) {
+      const gift = receiveGift(currentCatId);
       triggerLevelUp({
         level: affRes.nextLevel,
         catName: currentPreset.name,
         title: getAffectionTitle(affRes.nextLevel),
         isMaxBonus: affRes.isMaxBonus,
+        gift,
       });
     }
 

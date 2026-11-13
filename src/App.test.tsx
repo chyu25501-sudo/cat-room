@@ -792,6 +792,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByTestId('affection-levelup-number')).toHaveTextContent('だいすき♡');
         expect(screen.getByTestId('affection-levelup-number')).toHaveTextContent('MAX');
         expect(screen.getByTestId('affection-levelup-message')).toHaveTextContent('ハートがいっぱい♡');
+        expect(screen.getByTestId('affection-levelup-gift')).toBeInTheDocument();
 
         // なつき度は Lv.10 のままで、ゲージがリセットされ（0pt/300pt）、また溜め直せること
         expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.10 MAX♡');
@@ -864,6 +865,50 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.10 MAX♡');
       expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('MAX');
       expect(screen.getByText('深い絆で結ばれた最高のパートナー♡')).toBeInTheDocument();
+    });
+
+    it('なつき度が上がったときや満タン時に猫からおくりものが貰え、演出上に表示されてlocalStorageに記録されること', () => {
+      vi.useFakeTimers();
+      try {
+        // レベルアップ直前の状態（Lv.1, 95/100pt）を設定
+        localStorage.setItem(
+          'nekoppoi_cats_affection',
+          JSON.stringify({
+            black: { level: 1, currentExp: 95, requiredExp: 100 },
+          })
+        );
+
+        render(<App />);
+
+        // 撫でる (+10pt -> 100pt到達でLv.2へレベルアップ)
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        // ハートマーク演出とおくりものカードが表示されること
+        expect(screen.getByTestId('affection-levelup-overlay')).toBeInTheDocument();
+        const giftCard = screen.getByTestId('affection-levelup-gift');
+        expect(giftCard).toBeInTheDocument();
+        expect(screen.getByText('くろねこからのおくりもの')).toBeInTheDocument();
+
+        // 貰える贈り物は「きれいな小石」または「ふわふわの羽根」のいずれか
+        const giftName = screen.getByTestId('gift-item-name').textContent;
+        expect(['きれいな小石', 'ふわふわの羽根']).toContain(giftName);
+
+        // localStorage に贈り物インベントリが記録されていること
+        const rawGifts = localStorage.getItem('nekoppoi_cat_gifts');
+        expect(rawGifts).not.toBeNull();
+        const gifts = JSON.parse(rawGifts || '{}');
+        const giftKey = giftName === 'きれいな小石' ? 'pebble' : 'feather';
+        expect(gifts[giftKey]).toBeDefined();
+        expect(gifts[giftKey].count).toBe(1);
+        expect(gifts[giftKey].byCat?.black).toBe(1);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

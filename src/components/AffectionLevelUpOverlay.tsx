@@ -16,7 +16,7 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
     return null;
   }
 
-  const { level, catName, title, isFading, isMaxBonus = false } = state;
+  const { level, catName, title, isFading, isMaxBonus = false, gift } = state;
 
   return (
     <div
@@ -106,6 +106,36 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
                   </>
                 )}
             </p>
+
+            {/* 猫からもらったおくりもの表示 */}
+            {gift && (
+              <div
+                data-testid="affection-levelup-gift"
+                className="mt-3 pt-2.5 border-t border-pink-100 flex items-center gap-2.5 text-left bg-gradient-to-r from-amber-50/90 via-orange-50/70 to-pink-50/90 p-2.5 rounded-xl border border-orange-200/80 shadow-xs"
+              >
+                <div
+                  data-testid="gift-item-icon"
+                  className="w-10 h-10 rounded-lg bg-white shadow-xs border border-orange-200 flex items-center justify-center text-2xl shrink-0"
+                >
+                  {gift.icon}
+                </div>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-[10px] font-bold text-orange-600 flex items-center gap-1">
+                    <span>🎁</span>
+                    <span>{catName}からのおくりもの</span>
+                  </span>
+                  <span
+                    data-testid="gift-item-name"
+                    className="text-xs sm:text-sm font-extrabold text-stone-800 truncate"
+                  >
+                    {gift.name}
+                  </span>
+                  <span className="text-[10px] text-stone-500 truncate">
+                    {gift.description}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

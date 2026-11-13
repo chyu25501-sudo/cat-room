@@ -68,4 +68,31 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     const backdrop = screen.getByTestId('affection-levelup-backdrop');
     expect(backdrop).toHaveClass('opacity-0');
   });
+
+  it('state に gift（おくりもの）が含まれる場合、ハートマーク演出とともにおくりものカードが表示されること', () => {
+    render(
+      <AffectionLevelUpOverlay
+        state={{
+          level: 5,
+          catName: 'みけねこ',
+          title: '仲良し',
+          isFading: false,
+          gift: {
+            id: 'pebble',
+            name: 'きれいな小石',
+            description: 'どこかで見つけてきた、つるつると丸くてきれいな小石。',
+            icon: '🪨',
+            iconType: 'pebble',
+          },
+        }}
+      />
+    );
+
+    const giftCard = screen.getByTestId('affection-levelup-gift');
+    expect(giftCard).toBeInTheDocument();
+    expect(screen.getByText('みけねこからのおくりもの')).toBeInTheDocument();
+    expect(screen.getByTestId('gift-item-name')).toHaveTextContent('きれいな小石');
+    expect(screen.getByTestId('gift-item-icon')).toHaveTextContent('🪨');
+    expect(screen.getByText('どこかで見つけてきた、つるつると丸くてきれいな小石。')).toBeInTheDocument();
+  });
 });

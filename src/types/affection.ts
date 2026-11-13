@@ -1,4 +1,5 @@
 import { CatId } from './cat.ts';
+import { GiftItem } from './gift.ts';
 
 /** なつき度レベル（1 〜 10） */
 export type CatAffectionLevel = number;
@@ -46,6 +47,8 @@ export interface AffectionLevelUpTriggerPayload {
   title: string;
   /** 最大レベル到達後のループゲージ満タンボーナスかどうか */
   isMaxBonus?: boolean;
+  /** レベルアップまたはゲージ満タン時に猫からもらったおくりもの */
+  gift?: GiftItem;
 }
 
 /** なつき度レベルアップ演出の表示ステート */
