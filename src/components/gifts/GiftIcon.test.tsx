@@ -12,6 +12,8 @@ import {
   CloverIcon,
   RibbonIcon,
   ButtonIcon,
+  OldCoinIcon,
+  RainbowFeatherIcon,
 } from './GiftIcon.tsx';
 
 describe('GiftIcon コンポーネント (おくりもののSVGイラスト描画)', () => {
@@ -27,6 +29,8 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       { id: 'clover', testId: 'clover-icon' },
       { id: 'ribbon', testId: 'ribbon-icon' },
       { id: 'button', testId: 'button-icon' },
+      { id: 'old-coin', testId: 'old-coin-icon' },
+      { id: 'rainbow-feather', testId: 'rainbow-feather-icon' },
     ];
 
     for (const { id, testId } of testCases) {
@@ -59,6 +63,8 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       CloverIcon,
       RibbonIcon,
       ButtonIcon,
+      OldCoinIcon,
+      RainbowFeatherIcon,
     ];
 
     for (const Comp of components) {

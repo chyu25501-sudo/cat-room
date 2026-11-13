@@ -8,13 +8,17 @@ import {
   getGiftCount,
   getTotalGiftCount,
   sanitizeGiftInventory,
+  getGiftWeight,
+  getGiftIconBgClass,
+  DEFAULT_COMMON_GIFT_WEIGHT,
+  DEFAULT_RARE_GIFT_WEIGHT,
 } from './catGifts.ts';
 import { GiftInventory } from '../types/gift.ts';
 
 describe('catGifts utils (おくりもの計算・インベントリ管理ロジック)', () => {
   describe('CAT_GIFTS 定数', () => {
-    it('合計10種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
-      expect(CAT_GIFTS.length).toBe(10);
+    it('合計12種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
+      expect(CAT_GIFTS.length).toBe(12);
 
       const expectedIds = [
         'pebble',
@@ -27,6 +31,8 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'clover',
         'ribbon',
         'button',
+        'old-coin',
+        'rainbow-feather',
       ];
       expectedIds.forEach((id) => {
         const gift = CAT_GIFTS.find((g) => g.id === id);
@@ -35,11 +41,40 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         expect(gift?.description).toBeTruthy();
       });
 
-      // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語（きれいな、ふわふわの、まるい、ほそい、ちいさな、あかい、おおきな、みどりの、ながい、ひかる等）
-      const hiraganaPrefixPattern = /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる)/;
+      // レアアイテム（ふしぎな古銭、なないろの羽根）の定義確認
+      const oldCoin = CAT_GIFTS.find((g) => g.id === 'old-coin');
+      expect(oldCoin?.name).toBe('ふしぎな古銭');
+      expect(oldCoin?.rarity).toBe('rare');
+
+      const rainbowFeather = CAT_GIFTS.find((g) => g.id === 'rainbow-feather');
+      expect(rainbowFeather?.name).toBe('なないろの羽根');
+      expect(rainbowFeather?.rarity).toBe('rare');
+
+      // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語
+      const hiraganaPrefixPattern = /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの)/;
       CAT_GIFTS.forEach((gift) => {
         expect(gift.name).toMatch(hiraganaPrefixPattern);
       });
+    });
+  });
+
+  describe('レアリティと重み計算 (getGiftWeight & getGiftIconBgClass)', () => {
+    it('レアアイテムは通常アイテムより重みが小さく、もらえる確率が低くなっていること', () => {
+      expect(DEFAULT_RARE_GIFT_WEIGHT).toBeLessThan(DEFAULT_COMMON_GIFT_WEIGHT);
+
+      const commonGift = CAT_GIFTS.find((g) => g.id === 'pebble')!;
+      const rareGift = CAT_GIFTS.find((g) => g.id === 'old-coin')!;
+
+      expect(getGiftWeight(commonGift)).toBe(DEFAULT_COMMON_GIFT_WEIGHT);
+      expect(getGiftWeight(rareGift)).toBe(DEFAULT_RARE_GIFT_WEIGHT);
+      expect(getGiftWeight(rareGift)).toBeLessThan(getGiftWeight(commonGift));
+    });
+
+    it('getGiftIconBgClass がレアリティに応じて金色または白色の背景クラスを返すこと', () => {
+      expect(getGiftIconBgClass('rare')).toContain('from-amber-200');
+      expect(getGiftIconBgClass('rare')).toContain('border-amber-400');
+      expect(getGiftIconBgClass('common')).toContain('bg-white');
+      expect(getGiftIconBgClass(undefined)).toContain('bg-white');
     });
   });
 
@@ -61,9 +96,9 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       const item0 = pickRandomGift(CAT_GIFTS, () => 0.0);
       expect(item0.id).toBe('pebble');
 
-      // randomFn が 0.99 のときは最後のアイテム（button）
-      const item1 = pickRandomGift(CAT_GIFTS, () => 0.99);
-      expect(item1.id).toBe('button');
+      // randomFn が 0.999 のときは最後のアイテム（rainbow-feather）
+      const itemLast = pickRandomGift(CAT_GIFTS, () => 0.999);
+      expect(itemLast.id).toBe('rainbow-feather');
     });
 
     it('カタログが空の場合はデフォルトギフトを返すこと', () => {

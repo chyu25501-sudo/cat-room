@@ -15,7 +15,16 @@ export type GiftId =
   | 'clover'
   | 'ribbon'
   | 'button'
+  | 'old-coin'
+  | 'rainbow-feather'
   | string;
+
+/**
+ * 贈り物のレアリティ
+ * common: 通常のおくりもの
+ * rare: レアリティの高いおくりもの（もらえる確率が低く、背景が金色）
+ */
+export type GiftRarity = 'common' | 'rare';
 
 /**
  * 贈り物の定義情報
@@ -23,18 +32,20 @@ export type GiftId =
 export interface GiftItem {
   /** 贈り物の一意識別子 */
   id: GiftId;
-  /** 贈り物の名称（例: "きれいな小石", "ふわふわの羽根"） */
+  /** 贈り物の名称（例: "きれいな小石", "ふしぎな古銭"） */
   name: string;
   /** 贈り物の説明文（例: "どこかで見つけてきた、つるつると丸くてきれいな小石。"） */
   description: string;
-  /** 表示用絵文字アイコン（例: "🪨", "🪶"） */
+  /** 表示用絵文字アイコン（例: "🪨", "🪙"） */
   icon: string;
   /** アイコンの種類（カスタムSVG等との連携用） */
-  iconType: 'pebble' | 'feather' | string;
+  iconType: string;
   /** アイコン背景や装飾用カラークラス（Tailwindクラス） */
   themeClass?: string;
-  /** レアリティ（今後の拡張用: 'common' | 'rare' | 'special' など） */
-  rarity?: 'common' | 'rare' | 'special';
+  /** レアリティ（'common' | 'rare'） */
+  rarity?: GiftRarity;
+  /** 抽選確率計算用の重み（未指定時はレアリティに応じたデフォルト値） */
+  weight?: number;
 }
 
 /**

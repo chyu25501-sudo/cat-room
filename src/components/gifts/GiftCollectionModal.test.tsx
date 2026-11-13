@@ -98,6 +98,47 @@ describe('GiftCollectionModal コンポーネント', () => {
     expect(screen.getByText('みけねこ: 1個')).toBeInTheDocument();
   });
 
+  it('レアリティの高いおくりもの（ふしぎな古銭・なないろの羽根）は、背景が白色ではなく金色になること', () => {
+    const inventory: GiftInventory = {
+      pebble: {
+        giftId: 'pebble',
+        count: 1,
+        firstReceivedAt: 1000,
+        lastReceivedAt: 1000,
+      },
+      'old-coin': {
+        giftId: 'old-coin',
+        count: 1,
+        byCat: { black: 1 },
+        firstReceivedAt: 1200,
+        lastReceivedAt: 1200,
+      },
+    };
+
+    render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
+
+    const oldCoinTile = screen.getByTestId('gift-tile-old-coin');
+    const pebbleTile = screen.getByTestId('gift-tile-pebble');
+
+    // 古銭をクリックして選択状態にする（小石は非選択状態になる）
+    fireEvent.click(oldCoinTile);
+
+    // 通常の小石のタイル背景は白色系
+    expect(pebbleTile.className).toContain('bg-white');
+
+    // レアのふしぎな古銭のタイル背景は金色系（amberグラデーション）
+    expect(oldCoinTile.className).toContain('from-amber-200');
+    expect(oldCoinTile.className).toContain('border-amber-500');
+
+    // 詳細パネルのアイコン背景ボックスが金色であること
+    const detailIconBox = screen.getByTestId('gift-detail-icon-box');
+    expect(detailIconBox.className).toContain('from-amber-300');
+    expect(detailIconBox.className).toContain('border-amber-500');
+
+    // レアバッジが表示されること
+    expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★ レア');
+  });
+
   it('閉じるボタンやバックドロップのクリックで onClose が呼ばれること', () => {
     const handleClose = vi.fn();
     render(<GiftCollectionModal isOpen={true} onClose={handleClose} inventory={{}} />);

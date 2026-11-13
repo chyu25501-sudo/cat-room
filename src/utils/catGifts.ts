@@ -1,4 +1,4 @@
-import { GiftId, GiftItem, GiftRecord, GiftInventory } from '../types/gift.ts';
+import { GiftId, GiftItem, GiftRecord, GiftInventory, GiftRarity } from '../types/gift.ts';
 import { CatId } from '../types/cat.ts';
 
 /**
@@ -96,6 +96,24 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     themeClass: 'from-cyan-100 to-blue-100 border-blue-300 text-cyan-800',
     rarity: 'common',
   },
+  {
+    id: 'old-coin',
+    name: 'ふしぎな古銭',
+    description: 'どこかの古い蔵や床下で見つけてきたのか、不思議な文字が刻まれた丸い古銭。',
+    icon: '🪙',
+    iconType: 'old-coin',
+    themeClass: 'from-amber-200 to-yellow-300 border-amber-400 text-amber-900',
+    rarity: 'rare',
+  },
+  {
+    id: 'rainbow-feather',
+    name: 'なないろの羽根',
+    description: '光に透かすと虹色にきらめく、伝説の鳥が落としていったような奇跡の羽根。',
+    icon: '🪶',
+    iconType: 'rainbow-feather',
+    themeClass: 'from-pink-200 via-sky-200 to-amber-200 border-purple-300 text-purple-900',
+    rarity: 'rare',
+  },
 ] as const;
 
 /** デフォルトのフォールバック用ギフト（万が一の未登録時） */
@@ -111,8 +129,36 @@ export function getGiftById(
   return catalog.find((g) => g.id === giftId);
 }
 
+/** 通常アイテムの抽選重み（デフォルト） */
+export const DEFAULT_COMMON_GIFT_WEIGHT = 10;
+
+/** レアアイテムの抽選重み（通常の1/5の確率、出にくく希少） */
+export const DEFAULT_RARE_GIFT_WEIGHT = 2;
+
 /**
- * ギフト一覧からランダムで1つ選出する純粋関数
+ * ギフトの抽選確率計算用重みを取得する純粋関数
+ */
+export function getGiftWeight(gift: GiftItem): number {
+  if (typeof gift.weight === 'number' && gift.weight > 0) {
+    return gift.weight;
+  }
+  return gift.rarity === 'rare' ? DEFAULT_RARE_GIFT_WEIGHT : DEFAULT_COMMON_GIFT_WEIGHT;
+}
+
+/**
+ * ギフトのレアリティに応じたアイコン背景Tailwindクラスを返す純粋関数
+ * レアリティの高いおくりものは金色、通常のおくりものは白色
+ */
+export function getGiftIconBgClass(rarity?: GiftRarity): string {
+  if (rarity === 'rare') {
+    return 'bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-amber-400 text-amber-900 shadow-amber-200/60';
+  }
+  return 'bg-white border-orange-200 text-stone-700';
+}
+
+/**
+ * ギフト一覧から確率（レアリティ重み）に応じて1つ選出する純粋関数
+ * レアアイテムは通常のアイテムと比べて出現確率が低くなります。
  * テスト容易性のために randomFn を注入可能（デフォルト: Math.random）
  */
 export function pickRandomGift(
@@ -122,9 +168,25 @@ export function pickRandomGift(
   if (catalog.length === 0) {
     return DEFAULT_GIFT;
   }
-  const index = Math.floor(randomFn() * catalog.length);
-  const clampedIndex = Math.max(0, Math.min(catalog.length - 1, index));
-  return catalog[clampedIndex] ?? DEFAULT_GIFT;
+
+  const totalWeight = catalog.reduce((sum, item) => sum + getGiftWeight(item), 0);
+  if (totalWeight <= 0) {
+    return catalog[0] ?? DEFAULT_GIFT;
+  }
+
+  // 0 <= rand < totalWeight
+  const randVal = Math.max(0, Math.min(0.9999999, randomFn()));
+  const rand = randVal * totalWeight;
+
+  let cumulative = 0;
+  for (const item of catalog) {
+    cumulative += getGiftWeight(item);
+    if (rand < cumulative) {
+      return item;
+    }
+  }
+
+  return catalog[catalog.length - 1] ?? DEFAULT_GIFT;
 }
 
 /**

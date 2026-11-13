@@ -464,6 +464,108 @@ export const ButtonIcon: React.FC<{ className?: string }> = ({ className = 'w-8 
 );
 
 /**
+ * 「ふしぎな古銭」のSVGイラストアイコン（レア）
+ * 説明:「どこかの古い蔵や床下で見つけてきたのか、不思議な文字が刻まれた丸い古銭。」
+ */
+export const OldCoinIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="old-coin-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="coinBronzeGrad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="35%" stopColor="#D97706" />
+        <stop offset="70%" stopColor="#B45309" />
+        <stop offset="100%" stopColor="#78350F" />
+      </linearGradient>
+      <linearGradient id="coinGoldShine" x1="12" y1="10" x2="36" y2="34" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF3C7" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.14" />
+    {/* 古銭の外枠円盤 */}
+    <circle cx="24" cy="24" r="18" fill="url(#coinBronzeGrad)" stroke="#78350F" strokeWidth="2" />
+    {/* 古銭の外周リング縁取り */}
+    <circle cx="24" cy="24" r="15.5" stroke="#FDE68A" strokeWidth="1" strokeOpacity="0.6" />
+    {/* 中央の正方形の穴（方孔） */}
+    <rect x="18" y="18" width="12" height="12" rx="1" fill="#78350F" stroke="#FDE68A" strokeWidth="1.2" />
+    {/* 古代の四文字レリーフ（上下左右） */}
+    <path d="M21 12H27M24 10V15" stroke="#FEF3C7" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M21 33H27M24 33V37" stroke="#FEF3C7" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 21V27M10 24H15" stroke="#FEF3C7" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M36 21V27M33 24H38" stroke="#FEF3C7" strokeWidth="1.5" strokeLinecap="round" />
+    {/* アンティークな光沢ハイライト */}
+    <path d="M11 18C13 13 18 10 24 9" stroke="url(#coinGoldShine)" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="15" cy="14" r="1.5" fill="#FFFBEB" />
+  </svg>
+);
+
+/**
+ * 「なないろの羽根」のSVGイラストアイコン（レア）
+ * 説明:「光に透かすと虹色にきらめく、伝説の鳥が落としていったような奇跡の羽根。」
+ */
+export const RainbowFeatherIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="rainbow-feather-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="rainbowGrad" x1="10" y1="38" x2="38" y2="8" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#EC4899" />
+        <stop offset="20%" stopColor="#8B5CF6" />
+        <stop offset="40%" stopColor="#3B82F6" />
+        <stop offset="60%" stopColor="#10B981" />
+        <stop offset="80%" stopColor="#FBBF24" />
+        <stop offset="100%" stopColor="#EF4444" />
+      </linearGradient>
+      <linearGradient id="goldShaft" x1="6" y1="42" x2="40" y2="6" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#D97706" />
+        <stop offset="50%" stopColor="#FDE68A" />
+        <stop offset="100%" stopColor="#F59E0B" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="23" cy="40" rx="14" ry="3.5" fill="#000000" fillOpacity="0.1" />
+    <path
+      d="M11 36C10 31 11 24 17 18C23 12 31 8 38 7C35 13 31 19 28 25C25 31 19 35 11 36Z"
+      fill="url(#rainbowGrad)"
+      stroke="#A855F7"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M11 36C17 36 23 33 28 27C33 21 36 14 38 7C38 11 36 16 33 21L30 20L32 24C29 28 25 31 20 33L18 32L17 36H11Z"
+      fill="url(#rainbowGrad)"
+      fillOpacity="0.9"
+      stroke="#A855F7"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7 42C12 38 23 25 39 6"
+      stroke="url(#goldShaft)"
+      strokeWidth="3"
+      strokeLinecap="round"
+    />
+    <circle cx="19" cy="19" r="1.5" fill="#FFFFFF" fillOpacity="0.95" />
+    <circle cx="28" cy="14" r="1.8" fill="#FFFFFF" fillOpacity="0.95" />
+    <path
+      d="M32 22L33 24L35 25L33 26L32 28L31 26L29 25L31 24L32 22Z"
+      fill="#FEF08A"
+    />
+  </svg>
+);
+
+/**
  * 未獲得（未発見）のおくりもの用プレースホルダーアイコン
  */
 export const UnknownGiftIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
@@ -550,6 +652,10 @@ export const GiftIcon: React.FC<GiftIconProps> = ({
       return <RibbonIcon className={className} />;
     case 'button':
       return <ButtonIcon className={className} />;
+    case 'old-coin':
+      return <OldCoinIcon className={className} />;
+    case 'rainbow-feather':
+      return <RainbowFeatherIcon className={className} />;
     default:
       return <DefaultGiftIcon className={className} />;
   }

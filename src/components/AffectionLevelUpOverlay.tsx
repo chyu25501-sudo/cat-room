@@ -116,7 +116,11 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
               >
                 <div
                   data-testid="gift-item-icon"
-                  className="w-11 h-11 rounded-xl bg-white shadow-xs border border-orange-200 flex items-center justify-center shrink-0 p-1"
+                  className={`w-11 h-11 rounded-xl shadow-xs border flex items-center justify-center shrink-0 p-1 ${
+                    gift.rarity === 'rare'
+                      ? 'bg-gradient-to-br from-amber-300 via-yellow-100 to-amber-400 border-amber-500 shadow-amber-300/50'
+                      : 'bg-white border-orange-200'
+                  }`}
                 >
                   <GiftIcon giftId={gift.id} className="w-8 h-8" />
                 </div>
@@ -124,6 +128,14 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
                   <span className="text-[10px] font-bold text-orange-600 flex items-center gap-1">
                     <span>🎁</span>
                     <span>{catName}からのおくりもの</span>
+                    {gift.rarity === 'rare' && (
+                      <span
+                        data-testid="gift-overlay-rare-badge"
+                        className="ml-1 px-1.5 py-0.2 rounded-sm text-[9px] font-black bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-2xs"
+                      >
+                        ★ レア
+                      </span>
+                    )}
                   </span>
                   <span
                     data-testid="gift-item-name"

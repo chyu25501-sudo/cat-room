@@ -93,6 +93,35 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     expect(screen.getByText('みけねこからのおくりもの')).toBeInTheDocument();
     expect(screen.getByTestId('gift-item-name')).toHaveTextContent('きれいな小石');
     expect(screen.getByTestId('pebble-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('gift-item-icon')).toHaveClass('bg-white');
     expect(screen.getByText('どこかで見つけてきた、つるつると丸くてきれいな小石。')).toBeInTheDocument();
+  });
+
+  it('レアリティの高いおくりものを受け取ったとき、アイコンの背景が金色になりレアバッジが表示されること', () => {
+    render(
+      <AffectionLevelUpOverlay
+        state={{
+          level: 10,
+          catName: 'くろねこ',
+          title: '最高の相棒',
+          isFading: false,
+          isMaxBonus: true,
+          gift: {
+            id: 'old-coin',
+            name: 'ふしぎな古銭',
+            description: 'どこかの古い蔵や床下で見つけてきたのか、不思議な文字が刻まれた丸い古銭。',
+            icon: '🪙',
+            iconType: 'old-coin',
+            rarity: 'rare',
+          },
+        }}
+      />
+    );
+
+    const iconBox = screen.getByTestId('gift-item-icon');
+    expect(iconBox.className).toContain('from-amber-300');
+    expect(iconBox.className).toContain('border-amber-500');
+    expect(screen.getByTestId('old-coin-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('gift-overlay-rare-badge')).toHaveTextContent('★ レア');
   });
 });

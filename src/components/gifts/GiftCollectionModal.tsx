@@ -117,6 +117,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 const record = inventory[gift.id];
                 const count = record?.count ?? 0;
                 const isAcquired = count > 0;
+                const isRare = gift.rarity === 'rare';
 
                 return (
                   <button
@@ -128,12 +129,23 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                     aria-label={`${isAcquired ? gift.name : '未受取のおくりもの'}: ${count}個`}
                     className={`relative aspect-square rounded-2xl border flex items-center justify-center transition-all duration-200 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
                       isSelected
-                        ? 'ring-2 ring-orange-400 border-orange-400 bg-gradient-to-b from-orange-50/90 to-amber-100/70 shadow-md scale-102 z-10'
+                        ? isRare && isAcquired
+                          ? 'ring-2 ring-amber-500 border-amber-500 bg-gradient-to-br from-amber-200/95 via-yellow-100/90 to-amber-300/95 shadow-md scale-102 z-10'
+                          : 'ring-2 ring-orange-400 border-orange-400 bg-gradient-to-b from-orange-50/90 to-amber-100/70 shadow-md scale-102 z-10'
                         : isAcquired
-                        ? 'bg-white border-orange-200/90 hover:border-orange-300 hover:shadow-xs shadow-2xs hover:scale-101'
+                        ? isRare
+                          ? 'bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-amber-400 hover:border-amber-500 shadow-2xs hover:shadow-xs hover:scale-101'
+                          : 'bg-white border-orange-200/90 hover:border-orange-300 hover:shadow-xs shadow-2xs hover:scale-101'
                         : 'bg-stone-50/70 border-stone-200/70 opacity-60 hover:opacity-90'
                     }`}
                   >
+                    {/* レアアイコンバッジ（獲得済みレアの場合） */}
+                    {isAcquired && isRare && (
+                      <span className="absolute top-1.5 left-1.5 text-[9px] font-black text-amber-700 bg-amber-100/90 px-1 rounded-sm border border-amber-300/80 leading-tight">
+                        ★
+                      </span>
+                    )}
+
                     {/* 正方形の中に描画されたアイコン */}
                     <div
                       data-testid={`gift-tile-icon-${gift.id}`}
@@ -176,9 +188,12 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
               <div className="flex items-start gap-3">
                 {/* 詳細アイコン */}
                 <div
+                  data-testid="gift-detail-icon-box"
                   className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border p-1 ${
                     isSelectedAcquired
-                      ? 'bg-white border-orange-200'
+                      ? selectedGift.rarity === 'rare'
+                        ? 'bg-gradient-to-br from-amber-300 via-yellow-100 to-amber-400 border-amber-500 shadow-amber-300/50'
+                        : 'bg-white border-orange-200'
                       : 'bg-stone-100 border-stone-200 text-stone-300'
                   }`}
                 >
@@ -192,9 +207,19 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 {/* 名前と所持個数バッジ */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-sm sm:text-base font-extrabold text-stone-800 truncate">
-                      {isSelectedAcquired ? selectedGift.name : '？？？？'}
-                    </h3>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <h3 className="text-sm sm:text-base font-extrabold text-stone-800 truncate">
+                        {isSelectedAcquired ? selectedGift.name : '？？？？'}
+                      </h3>
+                      {isSelectedAcquired && selectedGift.rarity === 'rare' && (
+                        <span
+                          data-testid="gift-detail-rare-badge"
+                          className="px-1.5 py-0.5 rounded-md text-[10px] font-black bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-2xs shrink-0"
+                        >
+                          ★ レア
+                        </span>
+                      )}
+                    </div>
                     <span
                       data-testid="gift-detail-count-badge"
                       className={`text-xs font-black px-2.5 py-0.5 rounded-full border shadow-2xs shrink-0 ${
