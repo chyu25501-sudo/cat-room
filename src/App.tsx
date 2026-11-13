@@ -15,6 +15,8 @@ import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
 import { CareSidebar } from './components/care/CareSidebar.tsx';
 import { AffectionLevelUpOverlay } from './components/AffectionLevelUpOverlay.tsx';
+import { TreasureChestButton } from './components/gifts/TreasureChestButton.tsx';
+import { GiftCollectionModal } from './components/gifts/GiftCollectionModal.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
 import {
@@ -47,9 +49,12 @@ export default function App() {
     getAffectionState,
     gainAffection,
   } = useCatAffection();
-  const { receiveGift } = useCatGifts();
+  const { inventory, receiveGift } = useCatGifts();
   const { levelUpState, triggerLevelUp } = useAffectionLevelUp();
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
+
+  // おくりもの一覧モーダルの開閉ステート
+  const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
   // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
   const [lastAction, setLastAction] = useState<LastCareAction | null>(null);
@@ -225,6 +230,9 @@ export default function App() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-between p-6 bg-gradient-to-b from-amber-50 via-orange-50 to-amber-100 selection:bg-orange-200">
+      {/* 画面左上：これまでに受け取ったおくりもの一覧を開く宝箱ボタン */}
+      <TreasureChestButton onClick={() => setIsGiftModalOpen(true)} />
+
       {/* ヘッダーエリア */}
       <header className="w-full max-w-md pt-8 text-center">
         <h1 className="text-3xl sm:text-4xl font-bold text-stone-800 tracking-tight">
@@ -319,6 +327,13 @@ export default function App() {
 
       {/* なつき度レベルアップ時の中央巨大ハート＆祝うメッセージ演出オーバーレイ */}
       <AffectionLevelUpOverlay state={levelUpState} />
+
+      {/* これまでに受け取ったおくりもの一覧モーダル画面 */}
+      <GiftCollectionModal
+        isOpen={isGiftModalOpen}
+        onClose={() => setIsGiftModalOpen(false)}
+        inventory={inventory}
+      />
     </main>
   );
 }

@@ -910,5 +910,47 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('画面左上の宝箱ボタンを押すと、これまでに受け取ったおくりもの一覧モーダルが開閉できること', () => {
+      // 既におくりものを2個受け取っている初期状態
+      localStorage.setItem(
+        'nekoppoi_cat_gifts',
+        JSON.stringify({
+          pebble: {
+            giftId: 'pebble',
+            count: 2,
+            byCat: { black: 2 },
+            firstReceivedAt: 1000,
+            lastReceivedAt: 2000,
+          },
+        })
+      );
+
+      render(<App />);
+
+      // 画面左上に宝箱ボタンが表示されていること
+      const chestButton = screen.getByRole('button', { name: 'これまでに受け取ったおくりもの一覧を開く' });
+      expect(chestButton).toBeInTheDocument();
+      expect(screen.getByTestId('treasure-chest-icon')).toBeInTheDocument();
+
+      // 初期状態ではモーダルは非表示
+      expect(screen.queryByTestId('gift-collection-modal')).not.toBeInTheDocument();
+
+      // 宝箱ボタンをクリック
+      fireEvent.click(chestButton);
+
+      // おくりもの一覧モーダルが開くこと
+      expect(screen.getByTestId('gift-collection-modal')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '猫からのおくりもの' })).toBeInTheDocument();
+      expect(screen.getByTestId('total-gift-count')).toHaveTextContent('2個');
+      expect(screen.getByText('きれいな小石')).toBeInTheDocument();
+      expect(screen.getByTestId('gift-count-pebble')).toHaveTextContent('× 2');
+      expect(screen.getByText('くろねこ: 2個')).toBeInTheDocument();
+
+      // 閉じるボタンをクリックして閉じられること
+      const closeButton = screen.getByRole('button', { name: 'おくりもの一覧を閉じる' });
+      fireEvent.click(closeButton);
+      expect(screen.queryByTestId('gift-collection-modal')).not.toBeInTheDocument();
+    });
   });
 });
