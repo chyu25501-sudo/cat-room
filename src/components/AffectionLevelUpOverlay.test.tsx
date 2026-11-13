@@ -92,7 +92,7 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     expect(giftCard).toBeInTheDocument();
     expect(screen.getByText('みけねこからのおくりもの')).toBeInTheDocument();
     expect(screen.getByTestId('gift-item-name')).toHaveTextContent('きれいな小石');
-    expect(screen.getByTestId('gift-item-icon')).toHaveTextContent('🪨');
+    expect(screen.getByTestId('pebble-icon')).toBeInTheDocument();
     expect(screen.getByText('どこかで見つけてきた、つるつると丸くてきれいな小石。')).toBeInTheDocument();
   });
 });

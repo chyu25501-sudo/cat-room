@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import { AffectionLevelUpState } from '../types/affection.ts';
+import { GiftIcon } from './gifts/GiftIcon.tsx';
 
 export interface AffectionLevelUpOverlayProps {
   /** レベルアップ演出ステート（null のときは非表示） */
@@ -115,9 +116,9 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
               >
                 <div
                   data-testid="gift-item-icon"
-                  className="w-10 h-10 rounded-lg bg-white shadow-xs border border-orange-200 flex items-center justify-center text-2xl shrink-0"
+                  className="w-11 h-11 rounded-xl bg-white shadow-xs border border-orange-200 flex items-center justify-center shrink-0 p-1"
                 >
-                  {gift.icon}
+                  <GiftIcon giftId={gift.id} className="w-8 h-8" />
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="text-[10px] font-bold text-orange-600 flex items-center gap-1">

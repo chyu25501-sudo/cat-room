@@ -3,6 +3,7 @@ import { X, Sparkles } from 'lucide-react';
 import { GiftInventory, GiftItem } from '../../types/gift.ts';
 import { CAT_GIFTS, getTotalGiftCount } from '../../utils/catGifts.ts';
 import { TreasureChestIcon } from './TreasureChestButton.tsx';
+import { GiftIcon } from './GiftIcon.tsx';
 import { CAT_PRESETS } from '../../types/cat.ts';
 
 export interface GiftCollectionModalProps {
@@ -134,14 +135,18 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                     }`}
                   >
                     {/* 正方形の中に描画されたアイコン */}
-                    <span
+                    <div
                       data-testid={`gift-tile-icon-${gift.id}`}
-                      className={`text-3xl sm:text-4xl select-none filter transition-transform ${
+                      className={`w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center select-none filter transition-transform ${
                         isSelected ? 'scale-110 drop-shadow-xs' : 'drop-shadow-2xs'
-                      } ${!isAcquired ? 'grayscale opacity-50 text-stone-400' : ''}`}
+                      }`}
                     >
-                      {isAcquired ? gift.icon : '？'}
-                    </span>
+                      <GiftIcon
+                        giftId={gift.id}
+                        isAcquired={isAcquired}
+                        className="w-9 h-9 sm:w-11 sm:h-11"
+                      />
+                    </div>
 
                     {/* 正方形の右下あたりに個数を表示 */}
                     <span
@@ -171,13 +176,17 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
               <div className="flex items-start gap-3">
                 {/* 詳細アイコン */}
                 <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 shadow-xs border ${
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border p-1 ${
                     isSelectedAcquired
                       ? 'bg-white border-orange-200'
                       : 'bg-stone-100 border-stone-200 text-stone-300'
                   }`}
                 >
-                  {isSelectedAcquired ? selectedGift.icon : '？'}
+                  <GiftIcon
+                    giftId={selectedGift.id}
+                    isAcquired={isSelectedAcquired}
+                    className="w-10 h-10"
+                  />
                 </div>
 
                 {/* 名前と所持個数バッジ */}

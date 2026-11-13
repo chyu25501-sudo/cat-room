@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { GiftCollectionModal } from './GiftCollectionModal.tsx';
 import { GiftInventory } from '../../types/gift.ts';
@@ -45,12 +45,13 @@ describe('GiftCollectionModal コンポーネント', () => {
     const pebbleTile = screen.getByTestId('gift-tile-pebble');
     expect(pebbleTile).toHaveClass('aspect-square');
     expect(pebbleTile).toHaveClass('rounded-2xl');
-    expect(screen.getByTestId('gift-tile-icon-pebble')).toHaveTextContent('🪨');
+    expect(within(pebbleTile).getByTestId('pebble-icon')).toBeInTheDocument();
     expect(screen.getByTestId('gift-count-pebble')).toHaveTextContent('× 3');
 
     // 未受け取りの羽根のタイル
     const featherTile = screen.getByTestId('gift-tile-feather');
     expect(featherTile).toHaveClass('aspect-square');
+    expect(within(featherTile).getByTestId('unknown-gift-icon')).toBeInTheDocument();
     expect(screen.getByTestId('gift-count-feather')).toHaveTextContent('0');
   });
 

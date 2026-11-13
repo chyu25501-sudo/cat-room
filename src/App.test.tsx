@@ -76,9 +76,11 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     render(<App />);
 
     const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
-    fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
-    fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
-    fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+    act(() => {
+      fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+      fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+      fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+    });
 
     // 吹き出しメッセージが表示される
     const bubbleElement = screen.getByText(/ニャ〜ン♪|ゴロゴロ…♪|にゃあ〜♡|すりすり…|ミャオ！/);
