@@ -15,6 +15,16 @@ import {
   OldCoinIcon,
   RainbowFeatherIcon,
   FourLeafCloverIcon,
+  MossyPebbleIcon,
+  OldStampIcon,
+  HairpinIcon,
+  WiltedFlowerIcon,
+  CicadaShellIcon,
+  WhiteDiceIcon,
+  GlassMarbleIcon,
+  DirtyPlushIcon,
+  SingleSockIcon,
+  SunflowerSeedIcon,
 } from './GiftIcon.tsx';
 
 describe('GiftIcon コンポーネント (おくりもののSVGイラスト描画)', () => {
@@ -33,6 +43,16 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       { id: 'old-coin', testId: 'old-coin-icon' },
       { id: 'rainbow-feather', testId: 'rainbow-feather-icon' },
       { id: 'four-leaf-clover', testId: 'four-leaf-clover-icon' },
+      { id: 'mossy-pebble', testId: 'mossy-pebble-icon' },
+      { id: 'old-stamp', testId: 'old-stamp-icon' },
+      { id: 'hairpin', testId: 'hairpin-icon' },
+      { id: 'wilted-flower', testId: 'wilted-flower-icon' },
+      { id: 'cicada-shell', testId: 'cicada-shell-icon' },
+      { id: 'white-dice', testId: 'white-dice-icon' },
+      { id: 'glass-marble', testId: 'glass-marble-icon' },
+      { id: 'dirty-plush', testId: 'dirty-plush-icon' },
+      { id: 'single-sock', testId: 'single-sock-icon' },
+      { id: 'sunflower-seed', testId: 'sunflower-seed-icon' },
     ];
 
     for (const { id, testId } of testCases) {
@@ -80,6 +100,16 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
       OldCoinIcon,
       RainbowFeatherIcon,
       FourLeafCloverIcon,
+      MossyPebbleIcon,
+      OldStampIcon,
+      HairpinIcon,
+      WiltedFlowerIcon,
+      CicadaShellIcon,
+      WhiteDiceIcon,
+      GlassMarbleIcon,
+      DirtyPlushIcon,
+      SingleSockIcon,
+      SunflowerSeedIcon,
     ];
 
     for (const Comp of components) {

@@ -17,8 +17,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catGifts utils (おくりもの計算・インベントリ管理ロジック)', () => {
   describe('CAT_GIFTS 定数', () => {
-    it('合計13種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
-      expect(CAT_GIFTS.length).toBe(13);
+    it('合計23種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
+      expect(CAT_GIFTS.length).toBe(23);
 
       const expectedIds = [
         'pebble',
@@ -31,6 +31,16 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'clover',
         'ribbon',
         'button',
+        'mossy-pebble',
+        'old-stamp',
+        'hairpin',
+        'wilted-flower',
+        'cicada-shell',
+        'white-dice',
+        'glass-marble',
+        'dirty-plush',
+        'single-sock',
+        'sunflower-seed',
         'old-coin',
         'rainbow-feather',
         'four-leaf-clover',
@@ -47,6 +57,24 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(clover?.description).toContain('三つ葉');
       expect(clover?.rarity).toBe('common');
 
+      // 新規追加された通常おくりものの定義確認（こけむした小石、ふるい切手など）
+      const newCommonIds = [
+        'mossy-pebble',
+        'old-stamp',
+        'hairpin',
+        'wilted-flower',
+        'cicada-shell',
+        'white-dice',
+        'glass-marble',
+        'dirty-plush',
+        'single-sock',
+        'sunflower-seed',
+      ];
+      newCommonIds.forEach((id) => {
+        const gift = CAT_GIFTS.find((g) => g.id === id);
+        expect(gift?.rarity).toBe('common');
+      });
+
       // レアアイテム（ふしぎな古銭、なないろの羽根、よつばのクローバー）の定義確認
       const oldCoin = CAT_GIFTS.find((g) => g.id === 'old-coin');
       expect(oldCoin?.name).toBe('ふしぎな古銭');
@@ -62,7 +90,8 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(fourLeafClover?.rarity).toBe('rare');
 
       // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語
-      const hiraganaPrefixPattern = /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの)/;
+      const hiraganaPrefixPattern =
+        /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの|こけむした|ふるい|かわいい|しおれた|せみの|しろい|きらきらした|よごれた|かたっぽの|ひまわりの)/;
       CAT_GIFTS.forEach((gift) => {
         expect(gift.name).toMatch(hiraganaPrefixPattern);
       });

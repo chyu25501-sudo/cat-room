@@ -18,6 +18,16 @@ export type GiftId =
   | 'old-coin'
   | 'rainbow-feather'
   | 'four-leaf-clover'
+  | 'mossy-pebble'
+  | 'old-stamp'
+  | 'hairpin'
+  | 'wilted-flower'
+  | 'cicada-shell'
+  | 'white-dice'
+  | 'glass-marble'
+  | 'dirty-plush'
+  | 'single-sock'
+  | 'sunflower-seed'
   | string;
 
 /**

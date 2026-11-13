@@ -625,6 +625,438 @@ export const RainbowFeatherIcon: React.FC<{ className?: string }> = ({ className
 );
 
 /**
+ * 「こけむした小石」のSVGイラストアイコン
+ * 説明:「湿った日陰で見つけてきた、うっすらと緑の苔が生えた丸い小石。」
+ */
+export const MossyPebbleIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="mossy-pebble-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="mossyStoneGrad" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#CBD5E1" />
+        <stop offset="40%" stopColor="#94A3B8" />
+        <stop offset="100%" stopColor="#475569" />
+      </linearGradient>
+      <linearGradient id="mossGrad" x1="10" y1="12" x2="30" y2="28" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#86EFAC" />
+        <stop offset="60%" stopColor="#22C55E" />
+        <stop offset="100%" stopColor="#15803D" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="40" rx="15" ry="4" fill="#000000" fillOpacity="0.12" />
+    <path
+      d="M14 17C17 10 30 8 36 14C42 20 43 29 37 36C31 42 18 41 12 35C6 29 11 23 14 17Z"
+      fill="url(#mossyStoneGrad)"
+      stroke="#475569"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M16 17C18 12 26 11 30 14C33 17 29 22 25 21C22 20 20 23 18 25C15 26 13 22 16 17Z"
+      fill="url(#mossGrad)"
+    />
+    <path
+      d="M28 22C31 21 34 23 35 26C36 29 33 30 30 29C28 28 27 24 28 22Z"
+      fill="url(#mossGrad)"
+      fillOpacity="0.85"
+    />
+    <circle cx="21" cy="16" r="1.2" fill="#BBF7D0" />
+    <circle cx="26" cy="18" r="1" fill="#BBF7D0" />
+    <circle cx="31" cy="25" r="1" fill="#86EFAC" />
+    <circle cx="17" cy="21" r="0.8" fill="#86EFAC" />
+  </svg>
+);
+
+/**
+ * 「ふるい切手」のSVGイラストアイコン
+ * 説明:「どこかの引き出しの奥から見つけてきた、ギザギザの縁取りがあるレトロな切手。」
+ */
+export const OldStampIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="old-stamp-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="stampPaperGrad" x1="10" y1="8" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFBEB" />
+        <stop offset="100%" stopColor="#FEF3C7" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="14" ry="3" fill="#000000" fillOpacity="0.1" />
+    <rect
+      x="9"
+      y="9"
+      width="30"
+      height="30"
+      rx="1.5"
+      fill="url(#stampPaperGrad)"
+      stroke="#B45309"
+      strokeWidth="2"
+      strokeDasharray="3 1.5"
+    />
+    <rect x="13" y="13" width="22" height="22" rx="1" fill="#FDE68A" stroke="#D97706" strokeWidth="1" />
+    <path d="M15 28C18 23 21 26 24 23C27 20 30 25 33 28H15Z" fill="#B45309" fillOpacity="0.7" />
+    <circle cx="24" cy="18" r="2.5" fill="#DC2626" />
+    <path d="M22 10C24 14 26 14 28 10" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" />
+    <path d="M26 11C28 15 30 15 32 11" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" />
+    <circle cx="30" cy="22" r="5" stroke="#78350F" strokeWidth="1" strokeDasharray="2 1" />
+  </svg>
+);
+
+/**
+ * 「かわいいヘアピン」のSVGイラストアイコン
+ * 説明:「お部屋のすみに落ちていた、小さなお花の飾りがついたかわいいヘアピン。」
+ */
+export const HairpinIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="hairpin-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="hairpinGold" x1="10" y1="36" x2="38" y2="12" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F59E0B" />
+        <stop offset="50%" stopColor="#FDE68A" />
+        <stop offset="100%" stopColor="#D97706" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="14" ry="3" fill="#000000" fillOpacity="0.08" />
+    <path
+      d="M38 12L12 36C10 38 7 35 9 33L35 9"
+      stroke="url(#hairpinGold)"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M17 31L32 16"
+      stroke="url(#hairpinGold)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <circle cx="36" cy="11" r="7" fill="#FBCFE8" stroke="#F472B6" strokeWidth="1.2" />
+    <circle cx="36" cy="11" r="5" fill="#F472B6" />
+    <circle cx="36" cy="11" r="2.5" fill="#FEF08A" stroke="#F59E0B" strokeWidth="0.8" />
+    <circle cx="28" cy="19" r="2.2" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="0.8" />
+    <circle cx="27.5" cy="18.5" r="0.7" fill="#FFFFFF" />
+  </svg>
+);
+
+/**
+ * 「しおれた野花」のSVGイラストアイコン
+ * 説明:「道端から摘んできた、少し首をかしげてしおれた素朴で小さなお花。」
+ */
+export const WiltedFlowerIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="wilted-flower-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="wiltedPetalGrad" x1="16" y1="14" x2="32" y2="30" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FEF08A" />
+        <stop offset="70%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#B45309" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="12" ry="3" fill="#000000" fillOpacity="0.1" />
+    <path
+      d="M20 42C21 34 23 26 21 19C20 15 16 16 16 20"
+      stroke="#65A30D"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M22 28C26 27 29 31 27 35C24 35 22 31 22 28Z"
+      fill="#84CC16"
+      stroke="#4D7C0F"
+      strokeWidth="1"
+    />
+    <g transform="translate(15, 20) rotate(45)">
+      <circle cx="0" cy="0" r="3" fill="#78350F" />
+      <ellipse cx="0" cy="-6" rx="2" ry="4" fill="url(#wiltedPetalGrad)" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="5" cy="-3" rx="2" ry="4" transform="rotate(30 5 -3)" fill="url(#wiltedPetalGrad)" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="-5" cy="-3" rx="2" ry="4" transform="rotate(-30 -5 -3)" fill="url(#wiltedPetalGrad)" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="4" cy="4" rx="2" ry="3.5" transform="rotate(60 4 4)" fill="url(#wiltedPetalGrad)" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="-4" cy="4" rx="2" ry="3.5" transform="rotate(-60 -4 4)" fill="url(#wiltedPetalGrad)" stroke="#B45309" strokeWidth="0.8" />
+    </g>
+  </svg>
+);
+
+/**
+ * 「せみのぬけがら」のSVGイラストアイコン
+ * 説明:「庭の木の幹にくっついていた、琥珀色に透き通った夏のセミの抜け殻。」
+ */
+export const CicadaShellIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="cicada-shell-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="amberShellGrad" x1="16" y1="10" x2="32" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FDE68A" />
+        <stop offset="40%" stopColor="#D97706" />
+        <stop offset="100%" stopColor="#92400E" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="10" ry="3" fill="#000000" fillOpacity="0.12" />
+    <path d="M17 18L10 14M17 23L9 22M18 28L11 31" stroke="#92400E" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M31 18L38 14M31 23L39 22M30 28L37 31" stroke="#92400E" strokeWidth="1.8" strokeLinecap="round" />
+    <ellipse cx="24" cy="14" rx="8" ry="4" fill="url(#amberShellGrad)" stroke="#78350F" strokeWidth="1.2" />
+    <circle cx="17" cy="13" r="2" fill="#B45309" stroke="#78350F" strokeWidth="1" />
+    <circle cx="31" cy="13" r="2" fill="#B45309" stroke="#78350F" strokeWidth="1" />
+    <path
+      d="M17 17C17 23 18 36 24 38C30 36 31 23 31 17Z"
+      fill="url(#amberShellGrad)"
+      stroke="#78350F"
+      strokeWidth="1.5"
+    />
+    <path d="M24 16V29" stroke="#FEF3C7" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M19 28C22 30 26 30 29 28" stroke="#78350F" strokeWidth="1" />
+    <path d="M20 32C22 34 26 34 28 32" stroke="#78350F" strokeWidth="1" />
+  </svg>
+);
+
+/**
+ * 「しろいサイコロ」のSVGイラストアイコン
+ * 説明:「箱のすき間から転がり出てきた、角の取れたつるつると白いサイコロ。」
+ */
+export const WhiteDiceIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="white-dice-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="diceTop" x1="12" y1="12" x2="36" y2="24" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" />
+        <stop offset="100%" stopColor="#F1F5F9" />
+      </linearGradient>
+      <linearGradient id="diceLeft" x1="12" y1="20" x2="24" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#E2E8F0" />
+        <stop offset="100%" stopColor="#CBD5E1" />
+      </linearGradient>
+      <linearGradient id="diceRight" x1="24" y1="20" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#F8FAFC" />
+        <stop offset="100%" stopColor="#E2E8F0" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="13" ry="3.5" fill="#000000" fillOpacity="0.12" />
+    <path
+      d="M24 10L37 17L24 24L11 17L24 10Z"
+      fill="url(#diceTop)"
+      stroke="#94A3B8"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M11 17L24 24V38L11 31V17Z"
+      fill="url(#diceLeft)"
+      stroke="#94A3B8"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M24 24L37 17V31L24 38V24Z"
+      fill="url(#diceRight)"
+      stroke="#94A3B8"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+    <ellipse cx="24" cy="17" rx="3" ry="2" fill="#EF4444" />
+    <circle cx="16" cy="23" r="1.5" fill="#334155" />
+    <circle cx="19" cy="32" r="1.5" fill="#334155" />
+    <circle cx="28" cy="23" r="1.5" fill="#334155" />
+    <circle cx="31" cy="28" r="1.5" fill="#334155" />
+    <circle cx="34" cy="33" r="1.5" fill="#334155" />
+  </svg>
+);
+
+/**
+ * 「きらきらしたおはじき」のSVGイラストアイコン
+ * 説明:「光にかざすときらきらと輝く、平たくて丸いガラスのおはじき。」
+ */
+export const GlassMarbleIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="glass-marble-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="marbleGrad" x1="12" y1="10" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#A5F3FC" />
+        <stop offset="35%" stopColor="#38BDF8" />
+        <stop offset="70%" stopColor="#0284C7" />
+        <stop offset="100%" stopColor="#0369A1" />
+      </linearGradient>
+      <linearGradient id="marbleShine" x1="14" y1="12" x2="28" y2="24" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+        <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="41" rx="14" ry="3.5" fill="#000000" fillOpacity="0.12" />
+    <circle cx="24" cy="24" r="17" fill="url(#marbleGrad)" stroke="#0284C7" strokeWidth="1.8" />
+    <path
+      d="M13 22C17 16 27 16 33 22C36 25 33 31 27 31C20 31 16 26 21 21C24 18 29 20 28 24"
+      stroke="#FDE047"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeOpacity="0.85"
+    />
+    <path
+      d="M15 27C18 33 28 33 33 26"
+      stroke="#F43F5E"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeOpacity="0.75"
+    />
+    <ellipse cx="20" cy="16" rx="5" ry="3" transform="rotate(-25 20 16)" fill="url(#marbleShine)" />
+    <path
+      d="M32 14L33 16.5L35.5 17.5L33 18.5L32 21L31 18.5L28.5 17.5L31 16.5L32 14Z"
+      fill="#FFFFFF"
+      fillOpacity="0.95"
+    />
+  </svg>
+);
+
+/**
+ * 「よごれたぬいぐるみ」のSVGイラストアイコン
+ * 説明:「ずっとくわえて遊んでいたのか、少し土がついて愛着のわく小さなぬいぐるみ。」
+ */
+export const DirtyPlushIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="dirty-plush-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="plushFur" x1="14" y1="10" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#D97706" />
+        <stop offset="60%" stopColor="#B45309" />
+        <stop offset="100%" stopColor="#78350F" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="13" ry="3.5" fill="#000000" fillOpacity="0.12" />
+    <circle cx="16" cy="14" r="5" fill="#B45309" stroke="#78350F" strokeWidth="1.5" />
+    <circle cx="16" cy="14" r="2.5" fill="#FDE68A" />
+    <circle cx="32" cy="14" r="5" fill="#B45309" stroke="#78350F" strokeWidth="1.5" />
+    <circle cx="32" cy="14" r="2.5" fill="#FDE68A" />
+    <ellipse cx="24" cy="32" rx="11" ry="10" fill="url(#plushFur)" stroke="#78350F" strokeWidth="1.5" />
+    <circle cx="24" cy="20" r="10" fill="url(#plushFur)" stroke="#78350F" strokeWidth="1.5" />
+    <ellipse cx="24" cy="23" rx="4.5" ry="3.5" fill="#FEF3C7" />
+    <polygon points="24,21 22,23 26,23" fill="#451A03" />
+    <path d="M24 23V25" stroke="#451A03" strokeWidth="1" />
+    <circle cx="20" cy="18" r="1.5" fill="#1C1917" />
+    <circle cx="28" cy="18" r="1.5" fill="#1C1917" />
+    <path d="M21 31H27M24 28V34" stroke="#451A03" strokeWidth="1.2" strokeLinecap="round" />
+    <ellipse cx="29" cy="33" rx="2" ry="1.2" fill="#57381E" fillOpacity="0.75" />
+    <circle cx="18" cy="24" r="1" fill="#57381E" fillOpacity="0.7" />
+  </svg>
+);
+
+/**
+ * 「かたっぽの靴下」のSVGイラストアイコン
+ * 説明:「洗濯カゴから引っ張り出してきた、しましま模様の片方だけの小さな靴下。」
+ */
+export const SingleSockIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="single-sock-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="sockBlue" x1="16" y1="8" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#38BDF8" />
+        <stop offset="100%" stopColor="#0284C7" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="25" cy="42" rx="14" ry="3.5" fill="#000000" fillOpacity="0.1" />
+    <path
+      d="M24 9H34V24C34 27 32 30 30 32L17 38C13 40 10 36 12 33L21 23V9Z"
+      fill="url(#sockBlue)"
+      stroke="#0369A1"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+    <path d="M22 13H34" stroke="#FFFFFF" strokeWidth="2.5" />
+    <path d="M21 19H34" stroke="#FFFFFF" strokeWidth="2.5" />
+    <path d="M19 26L31 29" stroke="#FFFFFF" strokeWidth="2.5" />
+    <path d="M16 32L26 35" stroke="#FFFFFF" strokeWidth="2.5" />
+    <path d="M30 32C33 30 34 27 34 24L31 29Z" fill="#F8FAFC" />
+    <path d="M12 33C10 36 13 40 17 38L15 34Z" fill="#F8FAFC" />
+    <rect x="23.5" y="7.5" width="11" height="3" rx="1" fill="#F8FAFC" stroke="#0284C7" strokeWidth="1" />
+  </svg>
+);
+
+/**
+ * 「ひまわりの種」のSVGイラストアイコン
+ * 説明:「どこからか一粒だけくわえてきた、白黒のしま模様があるひまわりの種。」
+ */
+export const SunflowerSeedIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
+  <svg
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    data-testid="sunflower-seed-icon"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="seedShell" x1="16" y1="8" x2="32" y2="40" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#44403C" />
+        <stop offset="60%" stopColor="#292524" />
+        <stop offset="100%" stopColor="#1C1917" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="24" cy="42" rx="11" ry="3.5" fill="#000000" fillOpacity="0.12" />
+    <path
+      d="M24 8C20 15 15 24 15 32C15 38 19 41 24 41C29 41 33 38 33 32C33 24 28 15 24 8Z"
+      fill="url(#seedShell)"
+      stroke="#1C1917"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <path d="M24 10V40" stroke="#E7E5E4" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M24 12C20 18 18 26 18 34" stroke="#E7E5E4" strokeWidth="1.3" strokeLinecap="round" />
+    <path d="M24 12C28 18 30 26 30 34" stroke="#E7E5E4" strokeWidth="1.3" strokeLinecap="round" />
+    <path d="M24 16C21 22 20 28 20 37" stroke="#A8A29E" strokeWidth="0.9" strokeLinecap="round" />
+    <path d="M24 16C27 22 28 28 28 37" stroke="#A8A29E" strokeWidth="0.9" strokeLinecap="round" />
+    <circle cx="24" cy="9" r="0.8" fill="#F5F5F4" />
+  </svg>
+);
+
+/**
  * 未獲得（未発見）のおくりもの用プレースホルダーアイコン
  * isRare が true の場合、レアリティの高いおくりものだと分かるように金色背景で「？」を描画します。
  */
@@ -762,6 +1194,26 @@ export const GiftIcon: React.FC<GiftIconProps> = ({
       return <RainbowFeatherIcon className={className} />;
     case 'four-leaf-clover':
       return <FourLeafCloverIcon className={className} />;
+    case 'mossy-pebble':
+      return <MossyPebbleIcon className={className} />;
+    case 'old-stamp':
+      return <OldStampIcon className={className} />;
+    case 'hairpin':
+      return <HairpinIcon className={className} />;
+    case 'wilted-flower':
+      return <WiltedFlowerIcon className={className} />;
+    case 'cicada-shell':
+      return <CicadaShellIcon className={className} />;
+    case 'white-dice':
+      return <WhiteDiceIcon className={className} />;
+    case 'glass-marble':
+      return <GlassMarbleIcon className={className} />;
+    case 'dirty-plush':
+      return <DirtyPlushIcon className={className} />;
+    case 'single-sock':
+      return <SingleSockIcon className={className} />;
+    case 'sunflower-seed':
+      return <SunflowerSeedIcon className={className} />;
     default:
       return <DefaultGiftIcon className={className} />;
   }
