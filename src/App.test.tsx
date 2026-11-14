@@ -2,6 +2,7 @@ import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import App from './App.tsx';
 import { CAT_GIFTS } from './utils/catGifts.ts';
+import * as catSoundModule from './utils/catSound.ts';
 
 describe('App コンポーネント (猫切り替え機能)', () => {
   beforeEach(() => {
@@ -1024,6 +1025,47 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const closeButton = screen.getByRole('button', { name: '設定を閉じる' });
       fireEvent.click(closeButton);
       expect(screen.queryByTestId('settings-modal')).not.toBeInTheDocument();
+    });
+
+    it('設定からサウンドをオフに切り替えると、猫を撫でた時に音が再生されず（任意で切れる）、デフォルトではオンであること', () => {
+      const playSpy = vi.spyOn(catSoundModule, 'playMeowSound').mockImplementation(() => {});
+
+      try {
+        render(<App />);
+
+        // デフォルトではサウンドオンなので、撫でると playMeowSound が呼ばれる
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+        fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+
+        expect(playSpy).toHaveBeenCalledTimes(1);
+        playSpy.mockClear();
+
+        // 設定ボタンを開く
+        const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+        fireEvent.click(settingsButton);
+
+        // サウンドトグルスイッチをクリックしてオフにする（デフォルトはオン）
+        const soundToggle = screen.getByRole('switch', { name: 'サウンドのオン・オフ切り替え' });
+        expect(soundToggle).toHaveAttribute('aria-checked', 'true');
+        fireEvent.click(soundToggle);
+        expect(soundToggle).toHaveAttribute('aria-checked', 'false');
+
+        // 設定を閉じる
+        const closeButton = screen.getByRole('button', { name: '設定を閉じる' });
+        fireEvent.click(closeButton);
+
+        // サウンドオフ状態で撫でる
+        fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+        fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+
+        // 音声再生関数は呼ばれない（音が鳴る演出が切れていること）
+        expect(playSpy).not.toHaveBeenCalled();
+      } finally {
+        playSpy.mockRestore();
+      }
     });
   });
 });

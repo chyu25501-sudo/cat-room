@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Sparkles, Volume2, Info, Heart } from 'lucide-react';
+import { X, Sparkles, Volume2, VolumeX, Info, Heart } from 'lucide-react';
 import { SettingsIcon } from './SettingsButton.tsx';
 
 export interface SettingsModalProps {
@@ -7,13 +7,22 @@ export interface SettingsModalProps {
   isOpen: boolean;
   /** モーダルを閉じるコールバック */
   onClose: () => void;
+  /** サウンド再生が有効かどうか（デフォルト: true） */
+  isSoundEnabled?: boolean;
+  /** サウンド切り替えコールバック */
+  onToggleSound?: (enabled: boolean) => void;
 }
 
 /**
  * 設定画面モーダルコンポーネント
  * おくりもの一覧モーダルと同様のスタイル・デザインで設定やアプリ情報を表示
  */
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({
+  isOpen,
+  onClose,
+  isSoundEnabled = true,
+  onToggleSound,
+}) => {
   if (!isOpen) {
     return null;
   }
@@ -68,14 +77,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         {/* モーダルメインコンテンツ */}
         <div className="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-3.5 text-left">
-          {/* サウンド設定・案内カード */}
+          {/* サウンド設定トグルカード */}
           <div className="bg-amber-50/50 border border-orange-200/80 rounded-2xl p-3.5">
-            <div className="flex items-center gap-2 text-stone-800 font-bold text-sm mb-1.5">
-              <Volume2 className="w-4 h-4 text-orange-600 shrink-0" />
-              <span>サウンド（鳴き声・効果音）</span>
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <div className="flex items-center gap-2 text-stone-800 font-bold text-sm">
+                {isSoundEnabled ? (
+                  <Volume2 className="w-4 h-4 text-orange-600 shrink-0" />
+                ) : (
+                  <VolumeX className="w-4 h-4 text-stone-400 shrink-0" />
+                )}
+                <span>サウンド（鳴き声・効果音）</span>
+              </div>
+
+              {/* トグルスイッチ */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isSoundEnabled}
+                aria-label="サウンドのオン・オフ切り替え"
+                data-testid="sound-toggle-button"
+                onClick={() => onToggleSound?.(!isSoundEnabled)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
+                  isSoundEnabled ? 'bg-orange-500' : 'bg-stone-300'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    isSoundEnabled ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
             </div>
             <p className="text-xs text-stone-600 leading-relaxed">
-              端末のスピーカーから猫ちゃんの鳴き声やふれあい音が再生されます。音量は端末本体のボリュームで調整してください。
+              {isSoundEnabled
+                ? '猫ちゃんをなでたり、ごはん・おもちゃでふれあった時に鳴き声や効果音が鳴ります。'
+                : 'サウンドは現在オフです。静かな場所でも安心して遊べます。'}
             </p>
           </div>
 
@@ -90,20 +127,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </p>
           </div>
 
-          {/* アプリ情報カード */}
+          {/* アプリ情報カード（バージョン表記は削除） */}
           <div className="bg-gradient-to-r from-orange-50/40 via-amber-50/40 to-stone-50 border border-orange-100 rounded-2xl p-3.5">
             <div className="flex items-center gap-2 text-stone-800 font-bold text-sm mb-1.5">
               <Info className="w-4 h-4 text-amber-600 shrink-0" />
               <span>アプリ情報</span>
             </div>
-            <div className="text-xs text-stone-600 space-y-1">
-              <div className="flex justify-between py-0.5 border-b border-stone-200/50">
+            <div className="text-xs text-stone-600">
+              <div className="flex justify-between py-0.5">
                 <span className="text-stone-500">アプリ名</span>
                 <span className="font-bold text-stone-700">ねこっぽい</span>
-              </div>
-              <div className="flex justify-between py-0.5 border-b border-stone-200/50">
-                <span className="text-stone-500">バージョン</span>
-                <span className="font-semibold text-stone-700">0.1.0</span>
               </div>
             </div>
           </div>

@@ -10,6 +10,7 @@ import { useCatAffection } from './hooks/useCatAffection.ts';
 import { useCatGifts } from './hooks/useCatGifts.ts';
 import { useAffectionLevelUp } from './hooks/useAffectionLevelUp.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
+import { useAppSettings } from './hooks/useAppSettings.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
@@ -41,8 +42,9 @@ import { CatId } from './types/cat.ts';
 import { FoodItem, ToyItem, LastCareAction } from './types/care.ts';
 
 export default function App() {
+  const { isSoundEnabled, setSoundEnabled } = useAppSettings();
   const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
-  const { meow, isPlaying } = useCatAudio();
+  const { meow, isPlaying } = useCatAudio({ soundEnabled: isSoundEnabled });
   const { getFullnessScore, getFullnessLevelForCat, feedCatFullness, playCatFullness } = useCatFullness();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood({ getFullnessScore });
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding();
@@ -323,7 +325,11 @@ export default function App() {
 
       {/* フッターエリア */}
       <footer className="w-full max-w-md pb-6 text-center text-xs text-stone-400">
-        <p>※ 音が出ます。端末の音量を調整してご利用ください。</p>
+        <p>
+          {isSoundEnabled
+            ? '※ 音が出ます。端末の音量を調整してご利用ください。'
+            : '※ サウンドはオフに設定されています。設定からいつでもオンにできます。'}
+        </p>
       </footer>
 
       {/* お世話サイドバー（画面端のお世話ボタン・ごはん・おもちゃサブメニュー） */}
@@ -350,6 +356,8 @@ export default function App() {
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
+        isSoundEnabled={isSoundEnabled}
+        onToggleSound={setSoundEnabled}
       />
     </main>
   );
