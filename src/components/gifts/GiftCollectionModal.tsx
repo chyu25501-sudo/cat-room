@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { GiftInventory, GiftItem } from '../../types/gift.ts';
-import { CAT_GIFTS, getTotalGiftCount } from '../../utils/catGifts.ts';
+import { CAT_GIFTS, getTotalGiftCount, getAcquiredGiftTypeCount } from '../../utils/catGifts.ts';
 import { TreasureChestIcon } from './TreasureChestButton.tsx';
 import { GiftIcon } from './GiftIcon.tsx';
 import { CAT_PRESETS } from '../../types/cat.ts';
@@ -39,6 +39,8 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
   }
 
   const totalCount = getTotalGiftCount(inventory);
+  const totalCatalogCount = catalog.length;
+  const acquiredTypeCount = getAcquiredGiftTypeCount(inventory, catalog);
 
   // 現在選択されているギフトの定義情報とインベントリ記録
   const selectedGift = catalog.find((g) => g.id === selectedGiftId) ?? catalog[0];
@@ -70,12 +72,21 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
               <TreasureChestIcon className="w-5 h-5" />
             </div>
             <div>
-              <h2
-                id="gift-collection-title"
-                className="text-base sm:text-lg font-bold text-stone-800 tracking-tight"
-              >
-                猫からのおくりもの
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2
+                  id="gift-collection-title"
+                  className="text-base sm:text-lg font-bold text-stone-800 tracking-tight"
+                >
+                  猫からのおくりもの
+                </h2>
+                <span
+                  data-testid="gift-collection-rate"
+                  aria-label={`収集率: ${totalCatalogCount}種類中${acquiredTypeCount}種類`}
+                  className="text-xs sm:text-sm font-black text-orange-600 bg-orange-100/90 px-2 py-0.5 rounded-full border border-orange-200/90 shadow-2xs leading-none shrink-0"
+                >
+                  {acquiredTypeCount}/{totalCatalogCount}
+                </span>
+              </div>
               <p className="text-[11px] text-stone-500">
                 あつめたおくりもの:{' '}
                 <span data-testid="total-gift-count" className="font-extrabold text-orange-600">

@@ -14,10 +14,11 @@ describe('GiftCollectionModal コンポーネント', () => {
   it('インベントリが空のとき、空状態の案内メッセージが表示され、タイルには 0 と表示されること', () => {
     render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
 
-    expect(screen.getByRole('dialog', { name: '猫からのおくりもの' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: /猫からのおくりもの/ })).toBeInTheDocument();
     expect(screen.getByTestId('gift-collection-empty')).toBeInTheDocument();
     expect(screen.getByText(/まだおくりものがありません/)).toBeInTheDocument();
     expect(screen.getByTestId('total-gift-count')).toHaveTextContent('0個');
+    expect(screen.getByTestId('gift-collection-rate')).toHaveTextContent('0/60');
 
     // 正方形タイルの右下に 0 と表示
     expect(screen.getByTestId('gift-count-pebble')).toHaveTextContent('0');
@@ -233,5 +234,46 @@ describe('GiftCollectionModal コンポーネント', () => {
     expect(rareNameEl).toHaveClass('break-words');
     expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★ レア');
     expect(screen.getByTestId('gift-detail-count-badge')).toHaveTextContent('所持数: 1個');
+  });
+
+  describe('おくりもの収集率の分数表示', () => {
+    it('上部の「猫からのおくりもの」タイトルの右横に、収集率が「受け取った種類数/全種類数」の分数形式で表示されること', () => {
+      // 60種類中2種類受け取っている場合（各アイテムの個数が複数でも種類数は2）
+      const inventory: GiftInventory = {
+        pebble: { giftId: 'pebble', count: 5, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        feather: { giftId: 'feather', count: 2, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+      };
+
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
+
+      const rateBadge = screen.getByTestId('gift-collection-rate');
+      expect(rateBadge).toBeInTheDocument();
+      expect(rateBadge).toHaveTextContent('2/60');
+    });
+
+    it('おくりものの数が今後増減しても、カタログの長さに連動して正確な分数（例: 2/3）が表示されること', () => {
+      const customCatalog = [
+        { id: 'item-a', name: 'アイテムA', description: '説明', icon: '🎁', iconType: 'pebble', themeClass: '', rarity: 'common' as const },
+        { id: 'item-b', name: 'アイテムB', description: '説明', icon: '🎁', iconType: 'feather', themeClass: '', rarity: 'common' as const },
+        { id: 'item-c', name: 'アイテムC', description: '説明', icon: '🎁', iconType: 'acorn', themeClass: '', rarity: 'rare' as const },
+      ];
+
+      const inventory: GiftInventory = {
+        'item-a': { giftId: 'item-a', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        'item-c': { giftId: 'item-c', count: 3, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+      };
+
+      render(
+        <GiftCollectionModal
+          isOpen={true}
+          onClose={vi.fn()}
+          inventory={inventory}
+          catalog={customCatalog}
+        />
+      );
+
+      const rateBadge = screen.getByTestId('gift-collection-rate');
+      expect(rateBadge).toHaveTextContent('2/3');
+    });
   });
 });

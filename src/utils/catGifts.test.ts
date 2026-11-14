@@ -7,6 +7,7 @@ import {
   addGiftToInventory,
   getGiftCount,
   getTotalGiftCount,
+  getAcquiredGiftTypeCount,
   sanitizeGiftInventory,
   getGiftWeight,
   getGiftIconBgClass,
@@ -333,6 +334,50 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(sanitized.pebble).toBeDefined();
       expect(sanitized.pebble.count).toBe(0);
       expect(sanitized.pebble.byCat).toEqual({});
+    });
+  });
+
+  describe('getAcquiredGiftTypeCount (収集種類数の計算純粋関数)', () => {
+    it('インベントリが空のときは0種類であること', () => {
+      expect(getAcquiredGiftTypeCount({})).toBe(0);
+    });
+
+    it('同じおくりものを複数個受け取っていても種類数としては1とカウントされること', () => {
+      const inventory: GiftInventory = {
+        pebble: {
+          giftId: 'pebble',
+          count: 10,
+          firstReceivedAt: 1000,
+          lastReceivedAt: 2000,
+        },
+      };
+      expect(getAcquiredGiftTypeCount(inventory)).toBe(1);
+    });
+
+    it('複数種類のおくりものを受け取っている場合、正確に受け取り済み種類数を算出すること', () => {
+      const inventory: GiftInventory = {
+        pebble: { giftId: 'pebble', count: 3, firstReceivedAt: 1000, lastReceivedAt: 2000 },
+        feather: { giftId: 'feather', count: 1, firstReceivedAt: 1100, lastReceivedAt: 1100 },
+        'old-coin': { giftId: 'old-coin', count: 2, firstReceivedAt: 1200, lastReceivedAt: 1300 },
+        acorn: { giftId: 'acorn', count: 0, firstReceivedAt: 1400, lastReceivedAt: 1400 }, // count 0は未収集
+      };
+      expect(getAcquiredGiftTypeCount(inventory)).toBe(3);
+    });
+
+    it('将来おくりものの数が増加した場合でも、指定したカタログに連動して正確に種類数を算出できること', () => {
+      const customCatalog = [
+        { id: 'item-1', name: 'アイテム1', description: '説明', icon: '🎁', iconType: 'pebble', themeClass: '', rarity: 'common' as const },
+        { id: 'item-2', name: 'アイテム2', description: '説明', icon: '🎁', iconType: 'feather', themeClass: '', rarity: 'common' as const },
+        { id: 'item-3', name: 'アイテム3', description: '説明', icon: '🎁', iconType: 'acorn', themeClass: '', rarity: 'rare' as const },
+      ];
+
+      const inventory: GiftInventory = {
+        'item-1': { giftId: 'item-1', count: 5, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        'item-3': { giftId: 'item-3', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+      };
+
+      // 3種類中2種類収集済み
+      expect(getAcquiredGiftTypeCount(inventory, customCatalog)).toBe(2);
     });
   });
 });

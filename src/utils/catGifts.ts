@@ -674,6 +674,24 @@ export function getTotalGiftCount(inventory: GiftInventory): number {
 }
 
 /**
+ * これまでに受け取ったことがあるおくりものの種類数（収集種類数）を計算する純粋関数
+ * 今後おくりものの総数が増加した場合でも、指定したカタログまたは全カタログに基づいて正確に収集済み種類数をカウントします。
+ *
+ * @param inventory 現在のおくりものインベントリ
+ * @param catalog 対象のおくりものカタログ（デフォルト: CAT_GIFTS）
+ * @returns 1個以上受け取ったことがあるギフトの種類数
+ */
+export function getAcquiredGiftTypeCount(
+  inventory: GiftInventory,
+  catalog: readonly GiftItem[] = CAT_GIFTS
+): number {
+  if (!inventory || typeof inventory !== 'object') {
+    return 0;
+  }
+  return catalog.filter((item) => (inventory[item.id]?.count ?? 0) > 0).length;
+}
+
+/**
  * localStorage から読み込んだ不明なデータを安全な GiftInventory にサニタイズする純粋関数
  * 壊れたデータや古いバージョンからのデータでも安全に復帰します
  */
