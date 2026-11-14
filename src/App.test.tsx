@@ -1067,5 +1067,45 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         playSpy.mockRestore();
       }
     });
+
+    it('設定画面でくろねこに名前（例: クロスケ）を付けた場合、表示されるあらゆるテキストの「くろねこ」がその名前に置き換わること', () => {
+      render(<App />);
+
+      // 初期状態では「くろねこのごきげん」「くろねこのシルエット」「くろねこ（おすわり）を選択」
+      expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /くろねこのシルエット/ })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /くろねこ（おすわり）を選択/ })).toBeInTheDocument();
+
+      // 設定ボタンを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      // くろねこの名前入力欄に「クロスケ」と入力
+      const blackInput = screen.getByTestId('cat-name-input-black');
+      fireEvent.change(blackInput, { target: { value: 'クロスケ' } });
+
+      // 設定モーダルを閉じる
+      const closeButton = screen.getByRole('button', { name: '設定を閉じる' });
+      fireEvent.click(closeButton);
+
+      // 画面上のテキストの「くろねこ」が「クロスケ」に置き換わっていること
+      expect(screen.getByText('クロスケのごきげん')).toBeInTheDocument();
+      expect(screen.queryByText('くろねこのごきげん')).not.toBeInTheDocument();
+
+      expect(screen.getByRole('button', { name: /クロスケのシルエット/ })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /くろねこのシルエット/ })).not.toBeInTheDocument();
+
+      expect(screen.getByRole('radio', { name: /クロスケ（おすわり）を選択/ })).toBeInTheDocument();
+      expect(screen.queryByRole('radio', { name: /くろねこ（おすわり）を選択/ })).not.toBeInTheDocument();
+
+      // 猫を切り替えてから再びクロスケに戻したときも「クロスケにきりかえたよ♪」と表示されること
+      const whiteRadio = screen.getByRole('radio', { name: /しろねこ（ごろん）を選択/ });
+      fireEvent.click(whiteRadio);
+      expect(screen.getByText('しろねこにきりかえたよ♪')).toBeInTheDocument();
+
+      const kuroRadio = screen.getByRole('radio', { name: /クロスケ（おすわり）を選択/ });
+      fireEvent.click(kuroRadio);
+      expect(screen.getByText('クロスケにきりかえたよ♪')).toBeInTheDocument();
+    });
   });
 });

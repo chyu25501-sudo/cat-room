@@ -275,5 +275,30 @@ describe('GiftCollectionModal コンポーネント', () => {
       const rateBadge = screen.getByTestId('gift-collection-rate');
       expect(rateBadge).toHaveTextContent('2/3');
     });
+
+    it('猫の名前設定（catNames）が渡された場合、もらった猫の内訳表示がカスタム名に置き換わること', () => {
+      const inventory: GiftInventory = {
+        pebble: {
+          giftId: 'pebble',
+          count: 2,
+          byCat: { black: 2 },
+          firstReceivedAt: 1000,
+          lastReceivedAt: 1000,
+        },
+      };
+
+      render(
+        <GiftCollectionModal
+          isOpen={true}
+          onClose={vi.fn()}
+          inventory={inventory}
+          catNames={{ black: 'クロスケ' }}
+        />
+      );
+
+      // 初期選択の「きれいな小石」の内訳で「クロスケ: 2個」と表示されること
+      expect(screen.getByText('クロスケ: 2個')).toBeInTheDocument();
+      expect(screen.queryByText('くろねこ: 2個')).not.toBeInTheDocument();
+    });
   });
 });

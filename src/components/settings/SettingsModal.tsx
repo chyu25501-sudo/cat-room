@@ -1,6 +1,8 @@
 import React from 'react';
-import { X, Sparkles, Volume2, VolumeX, Info, Heart } from 'lucide-react';
+import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw } from 'lucide-react';
 import { SettingsIcon } from './SettingsButton.tsx';
+import { CatId, CAT_PRESETS } from '../../types/cat.ts';
+import { DEFAULT_CAT_NAMES, CatCustomNames } from '../../types/settings.ts';
 
 export interface SettingsModalProps {
   /** モーダルが開いているかどうか */
@@ -11,17 +13,26 @@ export interface SettingsModalProps {
   isSoundEnabled?: boolean;
   /** サウンド切り替えコールバック */
   onToggleSound?: (enabled: boolean) => void;
+  /** 猫ごとのカスタム名 */
+  catNames?: CatCustomNames;
+  /** 猫の名前更新コールバック */
+  onUpdateCatName?: (catId: CatId, name: string) => void;
+  /** 猫の名前リセットコールバック */
+  onResetCatNames?: () => void;
 }
 
 /**
  * 設定画面モーダルコンポーネント
- * おくりもの一覧モーダルと同様のスタイル・デザインで設定やアプリ情報を表示
+ * サウンド設定・猫の名前設定・アプリ情報を表示・変更可能
  */
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   isSoundEnabled = true,
   onToggleSound,
+  catNames = DEFAULT_CAT_NAMES,
+  onUpdateCatName,
+  onResetCatNames,
 }) => {
   if (!isOpen) {
     return null;
@@ -58,7 +69,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 設定
               </h2>
               <p className="text-[11px] text-stone-500">
-                アプリの環境や情報を確認できます
+                アプリの環境やお名前を設定できます
               </p>
             </div>
           </div>
@@ -77,6 +88,71 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* モーダルメインコンテンツ */}
         <div className="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-3.5 text-left">
+          {/* 猫の名前設定カード */}
+          <div
+            data-testid="cat-name-section"
+            className="bg-gradient-to-br from-orange-50/60 via-amber-50/40 to-stone-50 border border-orange-200/90 rounded-2xl p-3.5 shadow-2xs"
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-1.5 text-stone-800 font-bold text-sm">
+                <Tag className="w-4 h-4 text-orange-600 shrink-0" />
+                <span>猫ちゃんのお名前</span>
+              </div>
+              {onResetCatNames && (
+                <button
+                  type="button"
+                  onClick={onResetCatNames}
+                  data-testid="reset-cat-names-button"
+                  title="すべての猫の名前を初期値に戻す"
+                  className="text-[11px] text-stone-400 hover:text-orange-600 transition-colors flex items-center gap-1 cursor-pointer focus:outline-hidden focus-visible:underline"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>初期名に戻す</span>
+                </button>
+              )}
+            </div>
+            <p className="text-[11px] text-stone-500 mb-3 leading-relaxed">
+              名前を変更すると、画面上のすべてのテキストの表示がその名前に切り替わります。
+            </p>
+
+            {/* 3匹の猫の名前入力フォーム */}
+            <div className="space-y-2.5">
+              {CAT_PRESETS.map((preset) => {
+                const currentName = catNames[preset.id] ?? '';
+                const defaultName = DEFAULT_CAT_NAMES[preset.id];
+
+                return (
+                  <div
+                    key={preset.id}
+                    className="flex items-center gap-2.5 bg-white/90 p-2 rounded-xl border border-orange-100 shadow-2xs"
+                  >
+                    {/* 猫スウォッチアイコン */}
+                    <div className="flex items-center gap-1.5 shrink-0 min-w-[72px]">
+                      <span
+                        className={`w-4 h-4 rounded-full border ${preset.swatch.bgClass} ${preset.swatch.borderClass} shadow-2xs`}
+                      />
+                      <span className="text-xs font-bold text-stone-600">
+                        {preset.poseName}
+                      </span>
+                    </div>
+
+                    {/* テキスト入力フォーム */}
+                    <input
+                      type="text"
+                      maxLength={12}
+                      value={currentName}
+                      placeholder={defaultName}
+                      data-testid={`cat-name-input-${preset.id}`}
+                      aria-label={`${defaultName}の名前`}
+                      onChange={(e) => onUpdateCatName?.(preset.id, e.target.value)}
+                      className="flex-1 min-w-0 px-2.5 py-1 text-xs sm:text-sm font-bold text-stone-800 bg-amber-50/30 border border-orange-200 rounded-lg focus:outline-hidden focus:border-orange-500 focus:bg-white focus:ring-1 focus:ring-orange-400 transition-all placeholder:text-stone-300 placeholder:font-normal"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* サウンド設定トグルカード */}
           <div className="bg-amber-50/50 border border-orange-200/80 rounded-2xl p-3.5">
             <div className="flex items-center justify-between gap-3 mb-1.5">
@@ -123,7 +199,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>セーブデータについて</span>
             </div>
             <p className="text-xs text-stone-600 leading-relaxed">
-              猫ちゃんたちのごきげん度・まんぷく度・なつき度、および受け取ったおくりものは、お使いのブラウザに自動保存されています。
+              猫ちゃんたちのお名前、ごきげん度、まんぷく度、なつき度、および受け取ったおくりものは、お使いのブラウザに自動保存されています。
             </p>
           </div>
 
@@ -145,7 +221,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* モーダルフッター */}
         <div className="px-5 py-3 border-t border-orange-100 bg-stone-50/80 text-center text-[11px] text-stone-400 flex items-center justify-center gap-1">
           <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span>今後のアップデートで追加項目を拡張予定です</span>
+          <span>設定はいつでも自由に変更できます</span>
         </div>
       </div>
     </div>

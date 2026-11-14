@@ -1,24 +1,93 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeSettings } from './catSettings.ts';
-import { DEFAULT_APP_SETTINGS } from '../types/settings.ts';
+import {
+  sanitizeSettings,
+  getCatDisplayName,
+  resolveCatPreset,
+  resolveCatPresets,
+  replaceCatNames,
+} from './catSettings.ts';
+import { DEFAULT_APP_SETTINGS, DEFAULT_CAT_NAMES } from '../types/settings.ts';
+import { CAT_PRESETS } from '../types/cat.ts';
 
-describe('catSettings ユーティリティ (設定サニタイズ純粋関数テスト)', () => {
-  it('nullや未定義、配列、プリミティブなどの不正データが渡された場合はデフォルト設定を返すこと', () => {
-    expect(sanitizeSettings(null)).toEqual(DEFAULT_APP_SETTINGS);
-    expect(sanitizeSettings(undefined)).toEqual(DEFAULT_APP_SETTINGS);
-    expect(sanitizeSettings('invalid')).toEqual(DEFAULT_APP_SETTINGS);
-    expect(sanitizeSettings(123)).toEqual(DEFAULT_APP_SETTINGS);
-    expect(sanitizeSettings([1, 2, 3])).toEqual(DEFAULT_APP_SETTINGS);
+describe('catSettings ユーティリティ (設定サニタイズ・名前解決純粋関数テスト)', () => {
+  describe('getCatDisplayName', () => {
+    it('カスタム名が未指定または空文字のときはデフォルト名を返すこと', () => {
+      expect(getCatDisplayName('black')).toBe('くろねこ');
+      expect(getCatDisplayName('black', {})).toBe('くろねこ');
+      expect(getCatDisplayName('black', { black: '' })).toBe('くろねこ');
+      expect(getCatDisplayName('black', { black: '   ' })).toBe('くろねこ');
+      expect(getCatDisplayName('white')).toBe('しろねこ');
+      expect(getCatDisplayName('calico')).toBe('みけねこ');
+    });
+
+    it('カスタム名が設定されている場合はトリムしてその名前を返すこと', () => {
+      expect(getCatDisplayName('black', { black: 'クロ' })).toBe('クロ');
+      expect(getCatDisplayName('white', { white: ' ユキ ' })).toBe('ユキ');
+      expect(getCatDisplayName('calico', { calico: 'ミケちゃん' })).toBe('ミケちゃん');
+    });
   });
 
-  it('soundEnabled が正しく boolean で指定されている場合はその値を維持すること', () => {
-    expect(sanitizeSettings({ soundEnabled: false })).toEqual({ soundEnabled: false });
-    expect(sanitizeSettings({ soundEnabled: true })).toEqual({ soundEnabled: true });
+  describe('resolveCatPreset & resolveCatPresets', () => {
+    it('カスタム名で name と label が正しくオーバーライドされること', () => {
+      const black = CAT_PRESETS[0];
+      const resolved = resolveCatPreset(black, { black: 'ノワール' });
+
+      expect(resolved.id).toBe('black');
+      expect(resolved.name).toBe('ノワール');
+      expect(resolved.label).toBe('ノワール（おすわり）');
+    });
+
+    it('resolveCatPresets で全猫のプリセットがカスタム名に解決されること', () => {
+      const customNames = { black: 'クロ', white: 'シロ', calico: 'ミケ' };
+      const resolvedList = resolveCatPresets(CAT_PRESETS, customNames);
+
+      expect(resolvedList[0].name).toBe('クロ');
+      expect(resolvedList[0].label).toBe('クロ（おすわり）');
+      expect(resolvedList[1].name).toBe('シロ');
+      expect(resolvedList[1].label).toBe('シロ（ごろん）');
+      expect(resolvedList[2].name).toBe('ミケ');
+      expect(resolvedList[2].label).toBe('ミケ（たち）');
+    });
   });
 
-  it('soundEnabled が boolean 以外の不正な型の場合はデフォルト値（true）にフォールバックすること', () => {
-    expect(sanitizeSettings({ soundEnabled: 'false' })).toEqual({ soundEnabled: true });
-    expect(sanitizeSettings({ soundEnabled: null })).toEqual({ soundEnabled: true });
-    expect(sanitizeSettings({})).toEqual({ soundEnabled: true });
+  describe('replaceCatNames', () => {
+    it('テキスト内のデフォルト猫名がカスタム名に正しく置き換わること', () => {
+      const customNames = { black: 'クロ', white: 'シロ', calico: 'ミケ' };
+      const text = 'くろねこがお食事中です♪ しろねこもおくりものをくれました！';
+      const replaced = replaceCatNames(text, customNames);
+
+      expect(replaced).toBe('クロがお食事中です♪ シロもおくりものをくれました！');
+    });
+
+    it('未設定時はテキストがそのまま返ること', () => {
+      const text = 'くろねこがお食事中です♪';
+      expect(replaceCatNames(text)).toBe(text);
+      expect(replaceCatNames(text, {})).toBe(text);
+    });
+  });
+
+  describe('sanitizeSettings', () => {
+    it('nullや未定義、不正データの場合はデフォルト設定を返すこと', () => {
+      expect(sanitizeSettings(null)).toEqual(DEFAULT_APP_SETTINGS);
+      expect(sanitizeSettings(undefined)).toEqual(DEFAULT_APP_SETTINGS);
+      expect(sanitizeSettings('invalid')).toEqual(DEFAULT_APP_SETTINGS);
+    });
+
+    it('soundEnabled と catNames が正しくサニタイズされ保持されること', () => {
+      const raw = {
+        soundEnabled: false,
+        catNames: {
+          black: 'ノワール',
+          white: '  ', // 空文字はデフォルトにフォールバック
+          calico: '三毛猫さん',
+        },
+      };
+
+      const sanitized = sanitizeSettings(raw);
+      expect(sanitized.soundEnabled).toBe(false);
+      expect(sanitized.catNames.black).toBe('ノワール');
+      expect(sanitized.catNames.white).toBe('しろねこ');
+      expect(sanitized.catNames.calico).toBe('三毛猫さん');
+    });
   });
 });

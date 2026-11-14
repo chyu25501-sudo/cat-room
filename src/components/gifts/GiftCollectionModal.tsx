@@ -4,7 +4,8 @@ import { GiftInventory, GiftItem } from '../../types/gift.ts';
 import { CAT_GIFTS, getTotalGiftCount, getAcquiredGiftTypeCount } from '../../utils/catGifts.ts';
 import { TreasureChestIcon } from './TreasureChestButton.tsx';
 import { GiftIcon } from './GiftIcon.tsx';
-import { CAT_PRESETS } from '../../types/cat.ts';
+import { CAT_PRESETS, CatId } from '../../types/cat.ts';
+import { getCatDisplayName } from '../../utils/catSettings.ts';
 
 export interface GiftCollectionModalProps {
   /** モーダルが開いているかどうか */
@@ -15,6 +16,8 @@ export interface GiftCollectionModalProps {
   inventory: GiftInventory;
   /** 贈り物カタログ（デフォルト: CAT_GIFTS、将来の種類増加に対応） */
   catalog?: readonly GiftItem[];
+  /** 猫の名前設定（カスタム名反映用） */
+  catNames?: Partial<Record<CatId, string>>;
 }
 
 /**
@@ -30,6 +33,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
   onClose,
   inventory,
   catalog = CAT_GIFTS,
+  catNames,
 }) => {
   // 初期選択はカタログの先頭アイテム（または未選択時は先頭）
   const [selectedGiftId, setSelectedGiftId] = useState<string>(() => catalog[0]?.id ?? 'pebble');
@@ -284,12 +288,13 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                       {CAT_PRESETS.map((preset) => {
                         const catCount = selectedRecord.byCat?.[preset.id];
                         if (!catCount) return null;
+                        const catDisplayName = getCatDisplayName(preset.id, catNames);
                         return (
                           <span
                             key={preset.id}
                             className="bg-white px-1.5 py-0.5 rounded-md border border-orange-100 text-stone-700 font-bold"
                           >
-                            {preset.name}: {catCount}個
+                            {catDisplayName}: {catCount}個
                           </span>
                         );
                       })}

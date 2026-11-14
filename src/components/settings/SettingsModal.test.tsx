@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { SettingsModal } from './SettingsModal.tsx';
+import { DEFAULT_CAT_NAMES } from '../../types/settings.ts';
 
 describe('SettingsModal コンポーネント', () => {
   it('isOpen が false のときは何もレンダリングされないこと', () => {
@@ -61,6 +62,45 @@ describe('SettingsModal コンポーネント', () => {
     // クリックすると true でコールバックが発火すること
     fireEvent.click(toggleButton);
     expect(handleToggle).toHaveBeenCalledWith(true);
+  });
+
+  it('猫ごとに名前を入力できるテキストフォームが表示され、入力で onUpdateCatName が呼ばれること', () => {
+    const handleUpdateCatName = vi.fn();
+    const handleResetCatNames = vi.fn();
+
+    render(
+      <SettingsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        catNames={{ black: 'クロ', white: 'シロ', calico: 'ミケ' }}
+        onUpdateCatName={handleUpdateCatName}
+        onResetCatNames={handleResetCatNames}
+      />
+    );
+
+    expect(screen.getByTestId('cat-name-section')).toBeInTheDocument();
+    expect(screen.getByText('猫ちゃんのお名前')).toBeInTheDocument();
+
+    // 3匹分の名前入力フィールド
+    const blackInput = screen.getByTestId('cat-name-input-black') as HTMLInputElement;
+    const whiteInput = screen.getByTestId('cat-name-input-white') as HTMLInputElement;
+    const calicoInput = screen.getByTestId('cat-name-input-calico') as HTMLInputElement;
+
+    expect(blackInput.value).toBe('クロ');
+    expect(whiteInput.value).toBe('シロ');
+    expect(calicoInput.value).toBe('ミケ');
+
+    // プレースホルダーにはデフォルト名が表示されていること
+    expect(blackInput.placeholder).toBe(DEFAULT_CAT_NAMES.black);
+
+    // テキストを入力すると onUpdateCatName が呼ばれること
+    fireEvent.change(blackInput, { target: { value: 'クロスケ' } });
+    expect(handleUpdateCatName).toHaveBeenCalledWith('black', 'クロスケ');
+
+    // 「初期名に戻す」ボタンをクリックすると onResetCatNames が呼ばれること
+    const resetButton = screen.getByTestId('reset-cat-names-button');
+    fireEvent.click(resetButton);
+    expect(handleResetCatNames).toHaveBeenCalledTimes(1);
   });
 
   it('閉じるボタンやバックドロップのクリックで onClose が呼ばれること', () => {

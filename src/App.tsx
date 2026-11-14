@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
@@ -21,6 +21,7 @@ import { GiftCollectionModal } from './components/gifts/GiftCollectionModal.tsx'
 import { SettingsButton } from './components/settings/SettingsButton.tsx';
 import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
+import { resolveCatPresets } from './utils/catSettings.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
 import {
   DEFAULT_PET_AFFECTION_EXP,
@@ -38,12 +39,29 @@ import {
   MESSAGE_TOO_FULL_TO_EAT,
   MESSAGE_TOO_HUNGRY_TO_PLAY,
 } from './utils/catCare.ts';
-import { CatId } from './types/cat.ts';
+import { CatId, CAT_PRESETS } from './types/cat.ts';
 import { FoodItem, ToyItem, LastCareAction } from './types/care.ts';
 
 export default function App() {
-  const { isSoundEnabled, setSoundEnabled } = useAppSettings();
-  const { currentCatId, currentPreset, nextPreset, switchCat, selectCat } = useCatSelection();
+  const {
+    isSoundEnabled,
+    setSoundEnabled,
+    catNames,
+    setCatName,
+    resetCatNames,
+  } = useAppSettings();
+  const { currentCatId, switchCat, selectCat } = useCatSelection();
+
+  // 猫プリセット一覧および現在・次のプリセットをカスタム名で解決
+  const resolvedPresets = useMemo(
+    () => resolveCatPresets(CAT_PRESETS, catNames),
+    [catNames]
+  );
+  const currentPreset =
+    resolvedPresets.find((p) => p.id === currentCatId) ?? resolvedPresets[0];
+  const currentIndex = resolvedPresets.findIndex((p) => p.id === currentCatId);
+  const nextPreset =
+    resolvedPresets[(currentIndex + 1) % resolvedPresets.length] ?? resolvedPresets[0];
   const { meow, isPlaying } = useCatAudio({ soundEnabled: isSoundEnabled });
   const { getFullnessScore, getFullnessLevelForCat, feedCatFullness, playCatFullness } = useCatFullness();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood({ getFullnessScore });
@@ -236,7 +254,7 @@ export default function App() {
     stopPlaying();
     setLastAction(null);
     selectCat(id);
-    const target = getCatPresetById(id);
+    const target = resolvedPresets.find((p) => p.id === id) ?? getCatPresetById(id);
     showBubble(`${target.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
   };
 
@@ -259,6 +277,7 @@ export default function App() {
         <div className="mt-4 flex justify-center">
           <CatSelector
             currentCatId={currentCatId}
+            presets={resolvedPresets}
             onSelectCat={handleSelectCat}
             onSwitchNext={handleSwitchCat}
           />
@@ -350,6 +369,7 @@ export default function App() {
         isOpen={isGiftModalOpen}
         onClose={() => setIsGiftModalOpen(false)}
         inventory={inventory}
+        catNames={catNames}
       />
 
       {/* 設定モーダル画面 */}
@@ -358,6 +378,9 @@ export default function App() {
         onClose={() => setIsSettingsModalOpen(false)}
         isSoundEnabled={isSoundEnabled}
         onToggleSound={setSoundEnabled}
+        catNames={catNames}
+        onUpdateCatName={setCatName}
+        onResetCatNames={resetCatNames}
       />
     </main>
   );
