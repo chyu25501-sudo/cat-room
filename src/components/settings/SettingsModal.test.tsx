@@ -90,6 +90,16 @@ describe('SettingsModal コンポーネント', () => {
     expect(whiteInput.value).toBe('シロ');
     expect(calicoInput.value).toBe('ミケ');
 
+    // 要件: ポーズ名（おすわり・ごろん・たち）の記述は削除され、カラーサークルと入力フォームのみになっていること
+    expect(screen.queryByText('おすわり')).not.toBeInTheDocument();
+    expect(screen.queryByText('ごろん')).not.toBeInTheDocument();
+    expect(screen.queryByText('たち')).not.toBeInTheDocument();
+
+    // カラーサークルが表示されていること
+    expect(screen.getByTestId('cat-swatch-black')).toBeInTheDocument();
+    expect(screen.getByTestId('cat-swatch-white')).toBeInTheDocument();
+    expect(screen.getByTestId('cat-swatch-calico')).toBeInTheDocument();
+
     // プレースホルダーにはデフォルト名が表示されていること
     expect(blackInput.placeholder).toBe(DEFAULT_CAT_NAMES.black);
 

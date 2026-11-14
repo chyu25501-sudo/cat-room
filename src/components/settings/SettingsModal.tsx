@@ -124,17 +124,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 return (
                   <div
                     key={preset.id}
-                    className="flex items-center gap-2.5 bg-white/90 p-2 rounded-xl border border-orange-100 shadow-2xs"
+                    className="flex items-center gap-3 bg-white/90 p-2 sm:p-2.5 rounded-xl border border-orange-100 shadow-2xs"
                   >
-                    {/* 猫スウォッチアイコン */}
-                    <div className="flex items-center gap-1.5 shrink-0 min-w-[72px]">
-                      <span
-                        className={`w-4 h-4 rounded-full border ${preset.swatch.bgClass} ${preset.swatch.borderClass} shadow-2xs`}
-                      />
-                      <span className="text-xs font-bold text-stone-600">
-                        {preset.poseName}
-                      </span>
-                    </div>
+                    {/* カラーサークル */}
+                    <span
+                      aria-hidden="true"
+                      data-testid={`cat-swatch-${preset.id}`}
+                      className={`w-5 h-5 rounded-full border shrink-0 ${preset.swatch.bgClass} ${preset.swatch.borderClass} shadow-2xs`}
+                    />
 
                     {/* テキスト入力フォーム */}
                     <input
