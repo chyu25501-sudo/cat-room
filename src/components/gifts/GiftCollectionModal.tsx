@@ -221,15 +221,18 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
 
                 {/* 名前と所持個数バッジ */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <h3 className="text-sm sm:text-base font-extrabold text-stone-800 truncate">
+                  <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
+                    <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                      <h3
+                        data-testid="gift-detail-name"
+                        className="text-sm sm:text-base font-extrabold text-stone-800 break-words leading-snug"
+                      >
                         {isSelectedAcquired ? selectedGift.name : '？？？？'}
                       </h3>
                       {selectedGift.rarity === 'rare' && (
                         <span
                           data-testid="gift-detail-rare-badge"
-                          className={`px-1.5 py-0.5 rounded-md text-[10px] font-black shadow-2xs shrink-0 ${
+                          className={`px-1.5 py-0.5 rounded-md text-[10px] font-black shadow-2xs shrink-0 whitespace-nowrap ${
                             isSelectedAcquired
                               ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white'
                               : 'bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 border border-amber-400'
@@ -241,7 +244,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                     </div>
                     <span
                       data-testid="gift-detail-count-badge"
-                      className={`text-xs font-black px-2.5 py-0.5 rounded-full border shadow-2xs shrink-0 ${
+                      className={`text-xs font-black px-2.5 py-0.5 rounded-full border shadow-2xs shrink-0 whitespace-nowrap ml-auto ${
                         isSelectedAcquired
                           ? 'bg-amber-100 text-amber-900 border-amber-300'
                           : 'bg-stone-100 text-stone-400 border-stone-200'
@@ -254,7 +257,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                   {/* 説明文 */}
                   <p
                     data-testid="gift-detail-description"
-                    className="text-xs text-stone-600 mt-1 leading-relaxed"
+                    className="text-xs text-stone-600 mt-1.5 leading-relaxed break-words"
                   >
                     {isSelectedAcquired
                       ? selectedGift.description

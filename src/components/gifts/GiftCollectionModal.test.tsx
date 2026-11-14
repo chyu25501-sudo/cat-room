@@ -195,4 +195,43 @@ describe('GiftCollectionModal コンポーネント', () => {
     fireEvent.click(backdrop);
     expect(handleClose).toHaveBeenCalledTimes(2);
   });
+
+  it('名前が長いおくりものやレアバッジがある場合でも、truncateで省略されずbreak-wordsで全て表示されること', () => {
+    const inventory: GiftInventory = {
+      'plastic-bottle-cap': {
+        giftId: 'plastic-bottle-cap',
+        count: 2,
+        firstReceivedAt: 1000,
+        lastReceivedAt: 1000,
+      },
+      'winning-ice-stick': {
+        giftId: 'winning-ice-stick',
+        count: 1,
+        firstReceivedAt: 2000,
+        lastReceivedAt: 2000,
+      },
+    };
+
+    render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
+
+    // 長い名前のおくりもの「すべすべのプラスチックフタ」をクリック
+    const lidTile = screen.getByTestId('gift-tile-plastic-bottle-cap');
+    fireEvent.click(lidTile);
+
+    const nameEl = screen.getByTestId('gift-detail-name');
+    expect(nameEl).toHaveTextContent('すべすべのプラスチックフタ');
+    expect(nameEl).not.toHaveClass('truncate');
+    expect(nameEl).toHaveClass('break-words');
+
+    // レアで長めの名前のおくりもの「あたりのアイス棒」をクリック
+    const winningStickTile = screen.getByTestId('gift-tile-winning-ice-stick');
+    fireEvent.click(winningStickTile);
+
+    const rareNameEl = screen.getByTestId('gift-detail-name');
+    expect(rareNameEl).toHaveTextContent('あたりのアイス棒');
+    expect(rareNameEl).not.toHaveClass('truncate');
+    expect(rareNameEl).toHaveClass('break-words');
+    expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★ レア');
+    expect(screen.getByTestId('gift-detail-count-badge')).toHaveTextContent('所持数: 1個');
+  });
 });
