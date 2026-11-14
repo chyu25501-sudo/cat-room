@@ -999,5 +999,31 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       fireEvent.click(closeButton);
       expect(screen.queryByTestId('gift-collection-modal')).not.toBeInTheDocument();
     });
+
+    it('画面左上に宝箱ボタンの右横に設定ボタンが表示され、クリックで設定モーダルが開閉できること', () => {
+      render(<App />);
+
+      // 設定ボタンが表示されていること
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      expect(settingsButton).toBeInTheDocument();
+      expect(screen.getByTestId('settings-button')).toBeInTheDocument();
+      expect(screen.getByTestId('settings-icon')).toBeInTheDocument();
+
+      // 初期状態では設定モーダルは非表示
+      expect(screen.queryByTestId('settings-modal')).not.toBeInTheDocument();
+
+      // 設定ボタンをクリック
+      fireEvent.click(settingsButton);
+
+      // 設定モーダルが開くこと
+      expect(screen.getByTestId('settings-modal')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: '設定' })).toBeInTheDocument();
+      expect(screen.getByText('アプリ情報')).toBeInTheDocument();
+
+      // 閉じるボタンをクリックして閉じられること
+      const closeButton = screen.getByRole('button', { name: '設定を閉じる' });
+      fireEvent.click(closeButton);
+      expect(screen.queryByTestId('settings-modal')).not.toBeInTheDocument();
+    });
   });
 });

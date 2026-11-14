@@ -17,6 +17,8 @@ import { CareSidebar } from './components/care/CareSidebar.tsx';
 import { AffectionLevelUpOverlay } from './components/AffectionLevelUpOverlay.tsx';
 import { TreasureChestButton } from './components/gifts/TreasureChestButton.tsx';
 import { GiftCollectionModal } from './components/gifts/GiftCollectionModal.tsx';
+import { SettingsButton } from './components/settings/SettingsButton.tsx';
+import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
 import {
@@ -57,6 +59,9 @@ export default function App() {
 
   // おくりもの一覧モーダルの開閉ステート
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
+
+  // 設定モーダルの開閉ステート
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
   const [lastAction, setLastAction] = useState<LastCareAction | null>(null);
@@ -235,8 +240,9 @@ export default function App() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-between p-6 bg-gradient-to-b from-amber-50 via-orange-50 to-amber-100 selection:bg-orange-200">
-      {/* 画面左上：これまでに受け取ったおくりもの一覧を開く宝箱ボタン */}
+      {/* 画面左上：これまでに受け取ったおくりもの一覧を開く宝箱ボタンと設定ボタン */}
       <TreasureChestButton onClick={() => setIsGiftModalOpen(true)} />
+      <SettingsButton onClick={() => setIsSettingsModalOpen(true)} />
 
       {/* ヘッダーエリア */}
       <header className="w-full max-w-md pt-8 text-center">
@@ -338,6 +344,12 @@ export default function App() {
         isOpen={isGiftModalOpen}
         onClose={() => setIsGiftModalOpen(false)}
         inventory={inventory}
+      />
+
+      {/* 設定モーダル画面 */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
       />
     </main>
   );
