@@ -3,6 +3,7 @@ import {
   DEFAULT_APP_SETTINGS,
   DEFAULT_CAT_NAMES,
   CatCustomNames,
+  GaugeDisplayPosition,
 } from '../types/settings.ts';
 import { CatId, CatPreset, CAT_PRESETS } from '../types/cat.ts';
 
@@ -77,6 +78,7 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     return {
       soundEnabled: DEFAULT_APP_SETTINGS.soundEnabled,
       catNames: { ...DEFAULT_CAT_NAMES },
+      gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
     };
   }
 
@@ -106,8 +108,12 @@ export function sanitizeSettings(raw: unknown): AppSettings {
         : DEFAULT_CAT_NAMES.calico,
   };
 
+  const gaugePosition: GaugeDisplayPosition =
+    obj.gaugePosition === 'side' ? 'side' : 'bottom';
+
   return {
     soundEnabled,
     catNames,
+    gaugePosition,
   };
 }

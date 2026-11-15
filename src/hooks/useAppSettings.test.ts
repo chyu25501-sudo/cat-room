@@ -8,10 +8,23 @@ describe('useAppSettings フック', () => {
     localStorage.clear();
   });
 
-  it('初期状態ではサウンドがオン、猫の名前がデフォルト値であること', () => {
+  it('初期状態ではサウンドがオン、猫の名前がデフォルト値、ゲージ表示位置が bottom（下部・標準）であること', () => {
     const { result } = renderHook(() => useAppSettings());
     expect(result.current.isSoundEnabled).toBe(true);
     expect(result.current.catNames).toEqual(DEFAULT_CAT_NAMES);
+    expect(result.current.gaugePosition).toBe('bottom');
+  });
+
+  it('setGaugePosition でゲージの表示位置を side に変更でき、localStorage にも反映されること', () => {
+    const { result } = renderHook(() => useAppSettings());
+
+    act(() => {
+      result.current.setGaugePosition('side');
+    });
+
+    expect(result.current.gaugePosition).toBe('side');
+    const stored = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
+    expect(stored.gaugePosition).toBe('side');
   });
 
   it('localStorage に保存された猫の名前設定がある場合はそれを読み込むこと', () => {

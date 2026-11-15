@@ -4,6 +4,7 @@ import {
   DEFAULT_APP_SETTINGS,
   DEFAULT_CAT_NAMES,
   CatCustomNames,
+  GaugeDisplayPosition,
   SETTINGS_STORAGE_KEY,
 } from '../types/settings.ts';
 import { CatId } from '../types/cat.ts';
@@ -16,6 +17,8 @@ export interface UseAppSettingsReturn {
   isSoundEnabled: boolean;
   /** 猫ごとの名前設定オブジェクト */
   catNames: CatCustomNames;
+  /** ゲージの表示位置（'bottom': 下部・標準、'side': 横側・シンプル） */
+  gaugePosition: GaugeDisplayPosition;
   /** サウンド再生の有効/無効を更新する関数 */
   setSoundEnabled: (enabled: boolean) => void;
   /** サウンド再生の有効/無効を反転（トグル）する関数 */
@@ -24,6 +27,8 @@ export interface UseAppSettingsReturn {
   setCatName: (catId: CatId, name: string) => void;
   /** 全ての猫の名前をデフォルトに戻す関数 */
   resetCatNames: () => void;
+  /** ゲージの表示位置・スタイルを更新する関数 */
+  setGaugePosition: (position: GaugeDisplayPosition) => void;
 }
 
 /**
@@ -38,6 +43,7 @@ export function useAppSettings(): UseAppSettingsReturn {
         return {
           soundEnabled: DEFAULT_APP_SETTINGS.soundEnabled,
           catNames: { ...DEFAULT_CAT_NAMES },
+          gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
         };
       }
       return sanitizeSettings(JSON.parse(stored));
@@ -45,6 +51,7 @@ export function useAppSettings(): UseAppSettingsReturn {
       return {
         soundEnabled: DEFAULT_APP_SETTINGS.soundEnabled,
         catNames: { ...DEFAULT_CAT_NAMES },
+        gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
       };
     }
   });
@@ -89,13 +96,22 @@ export function useAppSettings(): UseAppSettingsReturn {
     }));
   }, []);
 
+  const setGaugePosition = useCallback((position: GaugeDisplayPosition) => {
+    setSettings((prev) => ({
+      ...prev,
+      gaugePosition: position,
+    }));
+  }, []);
+
   return {
     settings,
     isSoundEnabled: settings.soundEnabled,
     catNames: settings.catNames,
+    gaugePosition: settings.gaugePosition,
     setSoundEnabled,
     toggleSound,
     setCatName,
     resetCatNames,
+    setGaugePosition,
   };
 }

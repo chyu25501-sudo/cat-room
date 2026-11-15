@@ -1,8 +1,8 @@
 import React from 'react';
-import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw } from 'lucide-react';
+import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw, Layout } from 'lucide-react';
 import { SettingsIcon } from './SettingsButton.tsx';
 import { CatId, CAT_PRESETS } from '../../types/cat.ts';
-import { DEFAULT_CAT_NAMES, CatCustomNames } from '../../types/settings.ts';
+import { DEFAULT_CAT_NAMES, CatCustomNames, GaugeDisplayPosition } from '../../types/settings.ts';
 
 export interface SettingsModalProps {
   /** モーダルが開いているかどうか */
@@ -19,6 +19,10 @@ export interface SettingsModalProps {
   onUpdateCatName?: (catId: CatId, name: string) => void;
   /** 猫の名前リセットコールバック */
   onResetCatNames?: () => void;
+  /** ゲージ類の表示位置・スタイル（'bottom': 下部・標準、'side': 横側・シンプル） */
+  gaugePosition?: GaugeDisplayPosition;
+  /** ゲージ類の表示位置切り替えコールバック */
+  onChangeGaugePosition?: (position: GaugeDisplayPosition) => void;
 }
 
 /**
@@ -33,6 +37,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   catNames = DEFAULT_CAT_NAMES,
   onUpdateCatName,
   onResetCatNames,
+  gaugePosition = 'bottom',
+  onChangeGaugePosition,
 }) => {
   if (!isOpen) {
     return null;
@@ -187,6 +193,50 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 ? '猫ちゃんをなでたり、ごはん・おもちゃでふれあった時に鳴き声や効果音が鳴ります。'
                 : 'サウンドは現在オフです。静かな場所でも安心して遊べます。'}
             </p>
+          </div>
+
+          {/* ゲージ表示位置・スタイル設定カード */}
+          <div
+            data-testid="gauge-position-section"
+            className="bg-amber-50/50 border border-orange-200/80 rounded-2xl p-3.5"
+          >
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <div className="flex items-center gap-2 text-stone-800 font-bold text-sm">
+                <Layout className="w-4 h-4 text-orange-600 shrink-0" />
+                <span>ゲージの表示スタイル</span>
+              </div>
+            </div>
+            <p className="text-xs text-stone-600 mb-2.5 leading-relaxed">
+              ごきげん度・まんぷく度・なつき度ゲージの表示位置と見た目を切り替えます。
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                data-testid="gauge-position-bottom-button"
+                aria-pressed={gaugePosition === 'bottom'}
+                onClick={() => onChangeGaugePosition?.('bottom')}
+                className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
+                  gaugePosition === 'bottom'
+                    ? 'bg-orange-500 text-white border-orange-600 shadow-xs'
+                    : 'bg-white text-stone-600 border-stone-200 hover:bg-orange-50/60'
+                }`}
+              >
+                <span>下部（標準）</span>
+              </button>
+              <button
+                type="button"
+                data-testid="gauge-position-side-button"
+                aria-pressed={gaugePosition === 'side'}
+                onClick={() => onChangeGaugePosition?.('side')}
+                className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
+                  gaugePosition === 'side'
+                    ? 'bg-orange-500 text-white border-orange-600 shadow-xs'
+                    : 'bg-white text-stone-600 border-stone-200 hover:bg-orange-50/60'
+                }`}
+              >
+                <span>横側（シンプル）</span>
+              </button>
+            </div>
           </div>
 
           {/* セーブデータ案内カード */}

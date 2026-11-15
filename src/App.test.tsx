@@ -1107,5 +1107,43 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       fireEvent.click(kuroRadio);
       expect(screen.getByText('クロスケにきりかえたよ♪')).toBeInTheDocument();
     });
+
+    it('デフォルトでは下部に標準ゲージが表示され、設定画面で「横側（シンプル）」に変更すると猫の横にシンプルゲージが表示されること', () => {
+      render(<App />);
+
+      // 初期状態（デフォルト）: 下部に詳細ゲージが表示されていること
+      const initialIndicator = screen.getByTestId('cat-mood-indicator');
+      expect(initialIndicator).not.toHaveAttribute('data-layout', 'side');
+      expect(screen.getByText('くろねこのごきげん')).toBeInTheDocument();
+
+      // 設定ボタンを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      // ゲージの表示スタイルを「横側（シンプル）」に切り替える
+      const sideButton = screen.getByTestId('gauge-position-side-button');
+      fireEvent.click(sideButton);
+
+      // 設定モーダルを閉じる
+      const closeButton = screen.getByRole('button', { name: '設定を閉じる' });
+      fireEvent.click(closeButton);
+
+      // 横側（シンプル）ゲージが表示されていること
+      const sideIndicator = screen.getByTestId('cat-mood-indicator');
+      expect(sideIndicator).toHaveAttribute('data-layout', 'side');
+      expect(screen.getByTestId('side-mood-section')).toBeInTheDocument();
+      expect(screen.getByTestId('side-fullness-section')).toBeInTheDocument();
+      expect(screen.getByTestId('side-affection-section')).toBeInTheDocument();
+
+      // 再度設定を開いて「下部（標準）」に戻す
+      fireEvent.click(settingsButton);
+      const bottomButton = screen.getByTestId('gauge-position-bottom-button');
+      fireEvent.click(bottomButton);
+      fireEvent.click(closeButton);
+
+      // 下部（標準）表示に戻っていること
+      const restoredIndicator = screen.getByTestId('cat-mood-indicator');
+      expect(restoredIndicator).not.toHaveAttribute('data-layout', 'side');
+    });
   });
 });

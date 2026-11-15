@@ -49,6 +49,8 @@ export default function App() {
     catNames,
     setCatName,
     resetCatNames,
+    gaugePosition,
+    setGaugePosition,
   } = useAppSettings();
   const { currentCatId, switchCat, selectCat } = useCatSelection();
 
@@ -285,7 +287,11 @@ export default function App() {
       </header>
 
       {/* メインアクションエリア */}
-      <section className="flex flex-col items-center justify-center my-auto w-full max-w-sm">
+      <section
+        className={`flex flex-col items-center justify-center my-auto w-full transition-all duration-300 ${
+          gaugePosition === 'side' ? 'max-w-md' : 'max-w-sm'
+        }`}
+      >
         {/* 鳴き声・切り替え吹き出し */}
         <div className="h-14 flex items-center justify-center mb-1 transition-all duration-300">
           {bubbleText ? (
@@ -310,36 +316,61 @@ export default function App() {
           )}
         </div>
 
-        {/* 猫のシルエット（猫切り替えボタンのすぐ下に配置：ドラッグ操作でなでる・ごはんのお食事・おもちゃ遊び） */}
-        <CatSilhouette
-          preset={currentPreset}
-          isReacting={isPlaying}
-          moodLevel={currentMoodLevel}
-          activeFood={activeFood}
-          isEating={isEating}
-          activeToy={activeToy}
-          isPlayingToy={isPlayingToy}
-          lastAction={lastAction}
-          onPet={handleInteractCat}
-        />
-
-        {/* ごきげん＆まんぷく・なつき度インジケーター（猫の下・画面下部へ配置） */}
-        <div className="w-full max-w-xs mt-3 mb-2">
-          <CatMoodIndicator
-            moodScore={currentMoodScore}
+        {/* 猫エリア（サイド表示設定時は猫とシンプルゲージを横並びに配置） */}
+        <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 w-full">
+          {/* 猫のシルエット（猫切り替えボタンのすぐ下に配置：ドラッグ操作でなでる・ごはんのお食事・おもちゃ遊び） */}
+          <CatSilhouette
+            preset={currentPreset}
+            isReacting={isPlaying}
             moodLevel={currentMoodLevel}
-            fullnessScore={currentFullnessScore}
-            fullnessLevel={currentFullnessLevel}
-            affectionLevel={currentAffectionLevel}
-            affectionProgress={currentAffectionProgress}
-            affectionExp={{
-              current: currentAffectionState.currentExp,
-              required: currentAffectionState.requiredExp,
-            }}
+            activeFood={activeFood}
+            isEating={isEating}
+            activeToy={activeToy}
+            isPlayingToy={isPlayingToy}
             lastAction={lastAction}
-            catName={currentPreset.name}
+            onPet={handleInteractCat}
           />
+
+          {/* 猫の横側（シンプル簡略化）ゲージ表示 */}
+          {gaugePosition === 'side' && (
+            <CatMoodIndicator
+              moodScore={currentMoodScore}
+              moodLevel={currentMoodLevel}
+              fullnessScore={currentFullnessScore}
+              fullnessLevel={currentFullnessLevel}
+              affectionLevel={currentAffectionLevel}
+              affectionProgress={currentAffectionProgress}
+              affectionExp={{
+                current: currentAffectionState.currentExp,
+                required: currentAffectionState.requiredExp,
+              }}
+              lastAction={lastAction}
+              catName={currentPreset.name}
+              layout="side"
+            />
+          )}
         </div>
+
+        {/* ごきげん＆まんぷく・なつき度インジケーター（デフォルト: 猫の下・画面下部へ配置） */}
+        {gaugePosition === 'bottom' && (
+          <div className="w-full max-w-xs mt-3 mb-2">
+            <CatMoodIndicator
+              moodScore={currentMoodScore}
+              moodLevel={currentMoodLevel}
+              fullnessScore={currentFullnessScore}
+              fullnessLevel={currentFullnessLevel}
+              affectionLevel={currentAffectionLevel}
+              affectionProgress={currentAffectionProgress}
+              affectionExp={{
+                current: currentAffectionState.currentExp,
+                required: currentAffectionState.requiredExp,
+              }}
+              lastAction={lastAction}
+              catName={currentPreset.name}
+              layout="bottom"
+            />
+          </div>
+        )}
       </section>
 
       {/* フッターエリア */}
@@ -381,6 +412,8 @@ export default function App() {
         catNames={catNames}
         onUpdateCatName={setCatName}
         onResetCatNames={resetCatNames}
+        gaugePosition={gaugePosition}
+        onChangeGaugePosition={setGaugePosition}
       />
     </main>
   );

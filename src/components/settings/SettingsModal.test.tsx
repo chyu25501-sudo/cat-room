@@ -113,6 +113,32 @@ describe('SettingsModal コンポーネント', () => {
     expect(handleResetCatNames).toHaveBeenCalledTimes(1);
   });
 
+  it('ゲージ表示位置の切り替えボタン（下部・横側）が表示され、クリックで onChangeGaugePosition が呼ばれること', () => {
+    const handleChangeGaugePosition = vi.fn();
+
+    render(
+      <SettingsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        gaugePosition="bottom"
+        onChangeGaugePosition={handleChangeGaugePosition}
+      />
+    );
+
+    expect(screen.getByTestId('gauge-position-section')).toBeInTheDocument();
+    expect(screen.getByText('ゲージの表示スタイル')).toBeInTheDocument();
+
+    const bottomButton = screen.getByTestId('gauge-position-bottom-button');
+    const sideButton = screen.getByTestId('gauge-position-side-button');
+
+    expect(bottomButton).toHaveAttribute('aria-pressed', 'true');
+    expect(sideButton).toHaveAttribute('aria-pressed', 'false');
+
+    // 「横側（シンプル）」をクリックすると side でコールバックが呼ばれること
+    fireEvent.click(sideButton);
+    expect(handleChangeGaugePosition).toHaveBeenCalledWith('side');
+  });
+
   it('閉じるボタンやバックドロップのクリックで onClose が呼ばれること', () => {
     const handleClose = vi.fn();
     render(<SettingsModal isOpen={true} onClose={handleClose} />);

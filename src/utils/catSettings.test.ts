@@ -73,7 +73,7 @@ describe('catSettings ユーティリティ (設定サニタイズ・名前解�
       expect(sanitizeSettings('invalid')).toEqual(DEFAULT_APP_SETTINGS);
     });
 
-    it('soundEnabled と catNames が正しくサニタイズされ保持されること', () => {
+    it('soundEnabled と catNames と gaugePosition が正しくサニタイズされ保持されること', () => {
       const raw = {
         soundEnabled: false,
         catNames: {
@@ -81,6 +81,7 @@ describe('catSettings ユーティリティ (設定サニタイズ・名前解�
           white: '  ', // 空文字はデフォルトにフォールバック
           calico: '三毛猫さん',
         },
+        gaugePosition: 'side',
       };
 
       const sanitized = sanitizeSettings(raw);
@@ -88,6 +89,12 @@ describe('catSettings ユーティリティ (設定サニタイズ・名前解�
       expect(sanitized.catNames.black).toBe('ノワール');
       expect(sanitized.catNames.white).toBe('しろねこ');
       expect(sanitized.catNames.calico).toBe('三毛猫さん');
+      expect(sanitized.gaugePosition).toBe('side');
+    });
+
+    it('gaugePosition が不正な値の場合はデフォルトの bottom にフォールバックすること', () => {
+      const sanitized = sanitizeSettings({ gaugePosition: 'invalid' });
+      expect(sanitized.gaugePosition).toBe('bottom');
     });
   });
 });

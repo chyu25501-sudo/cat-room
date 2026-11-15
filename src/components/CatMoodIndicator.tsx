@@ -26,6 +26,8 @@ export interface CatMoodIndicatorProps {
   lastAction?: LastCareAction | null;
   /** 対象の猫の名称（表示用） */
   catName?: string;
+  /** ゲージの表示スタイル（'bottom': 猫の下・標準、'side': 猫の横・シンプル簡略化） */
+  layout?: 'bottom' | 'side';
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
   affectionExp,
   lastAction = null,
   catName = 'ねこ',
+  layout = 'bottom',
   className = '',
 }) => {
   const info = getMoodInfo(moodLevel);
@@ -76,6 +79,131 @@ export const CatMoodIndicator: React.FC<CatMoodIndicatorProps> = ({
       : fullnessInfo.level === 'hungry'
       ? 'from-amber-400 via-orange-400 to-amber-500'
       : 'from-rose-400 to-amber-500';
+
+  // ===== 猫の横側（シンプル簡略化）表示レイアウト =====
+  if (layout === 'side') {
+    return (
+      <div
+        className={`bg-white/85 backdrop-blur-xs border border-orange-200/80 rounded-2xl p-2 sm:p-2.5 shadow-xs select-none w-28 sm:w-32 flex flex-col gap-2 transition-all duration-300 ${className}`}
+        data-testid="cat-mood-indicator"
+        data-layout="side"
+      >
+        {/* ごきげん度（シンプル） */}
+        <div data-testid="side-mood-section" className="flex flex-col gap-1">
+          <div className="flex items-center justify-between text-[11px] font-bold text-stone-700">
+            <div className="flex items-center gap-1 min-w-0">
+              {moodLevel === 'annoyed' && (
+                <Zap className="w-3 h-3 fill-rose-500 text-rose-500 shrink-0" />
+              )}
+              {moodLevel === 'ecstatic' && (
+                <Heart className="w-3 h-3 fill-rose-500 text-rose-500 shrink-0" />
+              )}
+              {moodLevel === 'happy' && (
+                <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
+              )}
+              {moodLevel === 'normal' && (
+                <Heart className="w-3 h-3 text-stone-400 shrink-0" />
+              )}
+              <span className="truncate">ごきげん</span>
+            </div>
+            <span data-testid="mood-score-percentage" className="text-orange-600 font-extrabold text-[10px]">
+              {moodScore}%
+            </span>
+          </div>
+          {/* ミニゲージ */}
+          <div
+            role="progressbar"
+            aria-valuenow={moodScore}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${catName}のごきげん度: ${moodScore}% (${info.label})`}
+            className="w-full bg-orange-100/90 h-2 rounded-full overflow-hidden p-0.5 border border-orange-200/60 shadow-inner"
+          >
+            <div
+              data-testid="mood-gauge-fill"
+              className={`h-full rounded-full bg-gradient-to-r ${moodGaugeGradientClass} transition-all duration-500 ease-out`}
+              style={{ width: `${Math.max(4, Math.min(100, moodScore))}%` }}
+            />
+          </div>
+          {/* 状態ラベル */}
+          <div className="flex justify-between items-center text-[10px] text-stone-500">
+            <span className="truncate text-stone-600 font-medium">{info.label}</span>
+          </div>
+        </div>
+
+        {/* まんぷく度（シンプル） */}
+        {typeof fullnessScore === 'number' && (
+          <div data-testid="side-fullness-section" className="flex flex-col gap-1 pt-1.5 border-t border-orange-100/80">
+            <div className="flex items-center justify-between text-[11px] font-bold text-stone-700">
+              <div className="flex items-center gap-1 min-w-0">
+                <Utensils className="w-3 h-3 text-emerald-600 shrink-0" />
+                <span className="truncate">まんぷく</span>
+              </div>
+              <span data-testid="fullness-score-percentage" className="text-emerald-600 font-extrabold text-[10px]">
+                {fullnessScore}%
+              </span>
+            </div>
+            {/* ミニゲージ */}
+            <div
+              role="progressbar"
+              aria-valuenow={fullnessScore}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`${catName}のまんぷく度: ${fullnessScore}% (${fullnessInfo.label})`}
+              className="w-full bg-emerald-100/80 h-2 rounded-full overflow-hidden p-0.5 border border-emerald-200/60 shadow-inner"
+            >
+              <div
+                data-testid="fullness-gauge-fill"
+                className={`h-full rounded-full bg-gradient-to-r ${fullnessGaugeGradientClass} transition-all duration-500 ease-out`}
+                style={{ width: `${Math.max(4, Math.min(100, fullnessScore))}%` }}
+              />
+            </div>
+            {/* 状態ラベル */}
+            <div className="flex justify-between items-center text-[10px] text-stone-500">
+              <span className="truncate text-stone-600 font-medium">{fullnessInfo.label}</span>
+            </div>
+          </div>
+        )}
+
+        {/* なつき度（シンプル） */}
+        {typeof affectionLevel === 'number' && (
+          <div data-testid="side-affection-section" className="flex flex-col gap-1 pt-1.5 border-t border-orange-100/80">
+            <div className="flex items-center justify-between text-[11px] font-bold text-stone-700">
+              <div className="flex items-center gap-1 min-w-0">
+                <HeartHandshake className="w-3 h-3 text-pink-500 shrink-0" />
+                <span className="truncate">なつき</span>
+              </div>
+              <span data-testid="affection-level-badge" className="text-pink-600 font-extrabold text-[10px]">
+                {affectionLevel >= MAX_AFFECTION_LEVEL ? 'Lv.MAX' : `Lv.${affectionLevel}`}
+              </span>
+            </div>
+            {/* ミニゲージ */}
+            <div
+              role="progressbar"
+              aria-valuenow={affectionProgress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`${catName}のなつき度: Lv.${affectionLevel} (${affectionProgress}%)`}
+              className="w-full bg-pink-100/80 h-2 rounded-full overflow-hidden p-0.5 border border-pink-200/60 shadow-inner"
+            >
+              <div
+                data-testid="affection-gauge-fill"
+                className="h-full rounded-full bg-gradient-to-r from-pink-400 via-rose-400 to-purple-400 transition-all duration-500 ease-out"
+                style={{ width: `${Math.max(4, Math.min(100, affectionProgress))}%` }}
+              />
+            </div>
+            {/* 進捗数値 */}
+            <div className="flex justify-between items-center text-[10px] text-stone-500">
+              <span className="truncate text-stone-500">進捗</span>
+              <span data-testid="affection-progress-percentage" className="font-semibold text-stone-600">
+                {affectionLevel >= MAX_AFFECTION_LEVEL ? 'MAX' : `${affectionProgress}%`}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

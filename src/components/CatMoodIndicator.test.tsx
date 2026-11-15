@@ -213,5 +213,38 @@ describe('CatMoodIndicator コンポーネント (第4週: ごきげん視覚表
       expect(screen.queryByTestId('cat-affection-section')).not.toBeInTheDocument();
     });
   });
+
+  describe('layout="side"（猫の横側・シンプル簡略化表示）', () => {
+    it('サイド表示モードのとき、長文説明文が省略され、コンパクトなゲージと数値がレンダリングされること', () => {
+      render(
+        <CatMoodIndicator
+          moodScore={75}
+          moodLevel="happy"
+          fullnessScore={60}
+          affectionLevel={3}
+          affectionProgress={40}
+          catName="くろねこ"
+          layout="side"
+        />
+      );
+
+      const indicator = screen.getByTestId('cat-mood-indicator');
+      expect(indicator).toHaveAttribute('data-layout', 'side');
+
+      // ごきげん・まんぷく・なつきの各シンプルセクションが存在すること
+      expect(screen.getByTestId('side-mood-section')).toBeInTheDocument();
+      expect(screen.getByTestId('side-fullness-section')).toBeInTheDocument();
+      expect(screen.getByTestId('side-affection-section')).toBeInTheDocument();
+
+      // 各数値が正しく表示されていること
+      expect(screen.getByTestId('mood-score-percentage')).toHaveTextContent('75%');
+      expect(screen.getByTestId('fullness-score-percentage')).toHaveTextContent('60%');
+      expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.3');
+
+      // 簡略化要件: 長文説明テキスト（まったり落ち着いているよ、お腹いっぱい、など）は非表示
+      expect(screen.queryByText('なでられて嬉しそうにしているよ♪')).not.toBeInTheDocument();
+      expect(screen.queryByText('お腹いっぱい満足しているよ')).not.toBeInTheDocument();
+    });
+  });
 });
 
