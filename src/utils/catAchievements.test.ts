@@ -10,8 +10,8 @@ import { AchievementItem, UnlockedAchievements } from '../types/achievement.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('初期実績として5種類の実績が定義されており、すべて通常の実績(isHidden: false)であること', () => {
-      expect(ACHIEVEMENTS.length).toBe(5);
+    it('全35種類の実績が定義されており、すべて通常の実績(isHidden: false)であること', () => {
+      expect(ACHIEVEMENTS.length).toBe(35);
 
       const expectedIds = [
         'first-pet',
@@ -19,6 +19,36 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'first-play',
         'mood-ecstatic',
         'first-gift',
+        'fullness-full',
+        'streak-3',
+        'streak-7',
+        'streak-14',
+        'streak-30',
+        'total-days-7',
+        'total-days-14',
+        'total-days-30',
+        'pet-count-100',
+        'pet-count-500',
+        'pet-count-1000',
+        'pet-count-5000',
+        'pet-count-10000',
+        'feed-count-100',
+        'feed-count-500',
+        'feed-count-1000',
+        'feed-count-5000',
+        'feed-count-10000',
+        'play-count-100',
+        'play-count-500',
+        'play-count-1000',
+        'play-count-5000',
+        'play-count-10000',
+        'gift-count-20',
+        'gift-count-100',
+        'gift-count-222',
+        'gift-count-500',
+        'gift-count-1000',
+        'first-rare-gift',
+        'first-rename-cat',
       ];
       expect(ACHIEVEMENTS.map((a) => a.id)).toEqual(expectedIds);
 
@@ -99,6 +129,116 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
       );
 
       expect(newItems.map((a) => a.id)).toEqual(['first-feed', 'mood-ecstatic']);
+    });
+
+    it('まんぷく度最高（100またはfull）になった時に fullness-full 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const newItems = checkNewAchievements(
+        { fullnessScore: 100, fullnessLevel: 'full' },
+        unlocked
+      );
+
+      expect(newItems.map((a) => a.id)).toContain('fullness-full');
+    });
+
+    it('連続ふれあい日数（Streak）に応じて streak-3, streak-7, streak-14, streak-30 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const dummyStats = {
+        firstInteractionAt: 1000,
+        lastInteractionAt: 2000,
+        lastInteractionDateStr: '2026-11-15',
+        totalPetCount: 10,
+        totalFeedCount: 5,
+        totalPlayCount: 3,
+        currentStreakDays: 7,
+        maxStreakDays: 7,
+        totalActiveDays: 7,
+        interactionsByCat: { black: 10, white: 5, calico: 3 },
+      };
+
+      const newItems = checkNewAchievements({ careStats: dummyStats }, unlocked);
+      const newIds = newItems.map((a) => a.id);
+
+      expect(newIds).toContain('streak-3');
+      expect(newIds).toContain('streak-7');
+      expect(newIds).toContain('total-days-7');
+      expect(newIds).not.toContain('streak-14');
+      expect(newIds).not.toContain('total-days-14');
+    });
+
+    it('お世話の累計回数（なでる・ごはん・おもちゃ）に応じて各回数実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const dummyStats = {
+        firstInteractionAt: 1000,
+        lastInteractionAt: 2000,
+        lastInteractionDateStr: '2026-11-15',
+        totalPetCount: 150, // 100回達成
+        totalFeedCount: 550, // 100回, 500回達成
+        totalPlayCount: 1200, // 100回, 500回, 1000回達成
+        currentStreakDays: 1,
+        maxStreakDays: 1,
+        totalActiveDays: 1,
+        interactionsByCat: { black: 100, white: 50, calico: 0 },
+      };
+
+      const newItems = checkNewAchievements({ careStats: dummyStats }, unlocked);
+      const newIds = newItems.map((a) => a.id);
+
+      // なでる
+      expect(newIds).toContain('pet-count-100');
+      expect(newIds).not.toContain('pet-count-500');
+
+      // ごはん
+      expect(newIds).toContain('feed-count-100');
+      expect(newIds).toContain('feed-count-500');
+      expect(newIds).not.toContain('feed-count-1000');
+
+      // おもちゃ
+      expect(newIds).toContain('play-count-100');
+      expect(newIds).toContain('play-count-500');
+      expect(newIds).toContain('play-count-1000');
+      expect(newIds).not.toContain('play-count-5000');
+    });
+
+    it('おくりものの総数に応じて gift-count-20, 100, 222, 500, 1000 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const newItems = checkNewAchievements({ totalGifts: 250 }, unlocked);
+      const newIds = newItems.map((a) => a.id);
+
+      expect(newIds).toContain('gift-count-20');
+      expect(newIds).toContain('gift-count-100');
+      expect(newIds).toContain('gift-count-222');
+      expect(newIds).not.toContain('gift-count-500');
+      expect(newIds).not.toContain('gift-count-1000');
+    });
+
+    it('レアなおくりものを受け取った時に first-rare-gift 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const rareItem = {
+        id: 'rainbow-feather',
+        name: 'なないろの羽根',
+        description: '虹色の羽根',
+        icon: '🪶',
+        iconType: 'rainbow-feather',
+        themeClass: '',
+        rarity: 'rare' as const,
+      };
+
+      const newItems = checkNewAchievements({ receivedGift: rareItem }, unlocked);
+      expect(newItems.map((a) => a.id)).toContain('first-rare-gift');
+
+      // hasRareGift フラグでも解除されること
+      const newItems2 = checkNewAchievements({ hasRareGift: true }, unlocked);
+      expect(newItems2.map((a) => a.id)).toContain('first-rare-gift');
+    });
+
+    it('猫の名前を変更した時に first-rename-cat 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const newItems = checkNewAchievements({ action: 'rename' }, unlocked);
+      expect(newItems.map((a) => a.id)).toContain('first-rename-cat');
+
+      const newItems2 = checkNewAchievements({ isCatRenamed: true }, unlocked);
+      expect(newItems2.map((a) => a.id)).toContain('first-rename-cat');
     });
   });
 

@@ -1247,10 +1247,26 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByTestId('achievement-title-first-pet')).toHaveTextContent('はじめまして！');
         // 未達成の実績は伏せ字「？？？」のままであること
         expect(screen.getByTestId('achievement-title-first-feed')).toHaveTextContent('？？？');
-        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/5');
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/35');
       } finally {
         vi.useRealTimers();
       }
+    });
+
+    it('設定画面で猫の名前を変更すると実績「あたらしいお名前」が獲得できること', () => {
+      render(<App />);
+
+      // 設定ボタンを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      // 黒猫の名前入力フィールドを変更
+      const blackCatInput = screen.getByTestId('cat-name-input-black');
+      fireEvent.change(blackCatInput, { target: { value: 'クロちゃん' } });
+
+      // 実績トースト「あたらしいお名前」が表示されること
+      expect(screen.getByTestId('achievement-toast-first-rename-cat')).toBeInTheDocument();
+      expect(screen.getByTestId('achievement-toast-title')).toHaveTextContent('あたらしいお名前');
     });
   });
 });

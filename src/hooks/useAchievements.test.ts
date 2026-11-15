@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useAchievements } from './useAchievements.ts';
-import { ACHIEVEMENTS_STORAGE_KEY } from '../utils/catAchievements.ts';
+import { ACHIEVEMENTS, ACHIEVEMENTS_STORAGE_KEY } from '../utils/catAchievements.ts';
 
 describe('useAchievements hook', () => {
   beforeEach(() => {
@@ -16,7 +16,7 @@ describe('useAchievements hook', () => {
   it('初期状態では解除実績が0件で、トーストも空であること', () => {
     const { result } = renderHook(() => useAchievements());
     expect(result.current.unlockedCount).toBe(0);
-    expect(result.current.totalCount).toBe(5);
+    expect(result.current.totalCount).toBe(ACHIEVEMENTS.length);
     expect(result.current.toasts).toHaveLength(0);
   });
 

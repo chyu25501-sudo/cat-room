@@ -30,6 +30,8 @@ import { JournalModal } from './components/journal/JournalModal.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { resolveCatPresets } from './utils/catSettings.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
+import { getTotalGiftCount, CAT_GIFTS } from './utils/catGifts.ts';
+import { GiftItem } from './types/gift.ts';
 import {
   DEFAULT_PET_AFFECTION_EXP,
   FOOD_AFFECTION_EXP_MAP,
@@ -126,12 +128,14 @@ export default function App() {
     // 不機嫌でない正常なふれあい時に、猫のごきげん度に応じたなつき度Expを獲得
     // ごきげん度が高ければ高いほど上昇幅が大きくなり、ごきげん度と同様に±1〜5%（±1〜5pt）ランダムで変動します
     let hasReceivedGift = false;
+    let receivedGiftItem: GiftItem | null = null;
     if (!isAnnoyed && nextLevel !== 'annoyed') {
       const baseAffectionExp = calculatePetAffectionExp(nextScore);
       const variedAffectionExp = calculateVariedAffectionExp(baseAffectionExp);
       const affRes = gainAffection(currentCatId, variedAffectionExp);
       if (affRes.isLevelUp) {
         const gift = receiveGift(currentCatId);
+        receivedGiftItem = gift;
         hasReceivedGift = true;
         triggerLevelUp({
           level: affRes.nextLevel,
@@ -146,12 +150,20 @@ export default function App() {
     // ふり返り手帳に撫でた記録を追加
     const updatedJournalStats = recordCareAction('pet', currentCatId);
 
+    // インベントリの合計受取個数とレアギフト所持判定
+    const currentTotalGifts = getTotalGiftCount(inventory) + (hasReceivedGift ? 1 : 0);
+    const hasRareGift =
+      receivedGiftItem?.rarity === 'rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'rare');
+
     // 実績判定（なでる・機嫌・ギフト・手帳統計）
     checkAchievements({
       action: 'pet',
       moodScore: nextScore,
       moodLevel: nextLevel,
-      totalGifts: hasReceivedGift ? 1 : undefined,
+      totalGifts: currentTotalGifts,
+      receivedGift: receivedGiftItem,
+      hasRareGift,
       careStats: updatedJournalStats,
     });
 
@@ -188,7 +200,10 @@ export default function App() {
     const { nextScore, nextLevel } = feedCat(currentCatId, food.moodBoost);
 
     // ごはんを与えてまんぷく度を上昇
-    feedCatFullness(currentCatId, food.fullnessBoost);
+    const { nextScore: nextFullnessScore, nextLevel: nextFullnessLevel } = feedCatFullness(
+      currentCatId,
+      food.fullnessBoost
+    );
 
     // ごはんをあげることでなつき度ゲージを増加
     const foodExp = FOOD_AFFECTION_EXP_MAP[food.id] ?? 25;
@@ -207,8 +222,10 @@ export default function App() {
 
     // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
     let hasReceivedGift = false;
+    let receivedGiftItem: GiftItem | null = null;
     if (affRes.isLevelUp) {
       const gift = receiveGift(currentCatId);
+      receivedGiftItem = gift;
       hasReceivedGift = true;
       triggerLevelUp({
         level: affRes.nextLevel,
@@ -222,12 +239,22 @@ export default function App() {
     // ふり返り手帳にごはんの記録を追加
     const updatedJournalStats = recordCareAction('feed', currentCatId);
 
-    // 実績判定（ごはん・機嫌・ギフト・手帳統計）
+    // インベントリの合計受取個数とレアギフト所持判定
+    const currentTotalGifts = getTotalGiftCount(inventory) + (hasReceivedGift ? 1 : 0);
+    const hasRareGift =
+      receivedGiftItem?.rarity === 'rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'rare');
+
+    // 実績判定（ごはん・機嫌・まんぷく度・ギフト・手帳統計）
     checkAchievements({
       action: 'feed',
       moodScore: nextScore,
       moodLevel: nextLevel,
-      totalGifts: hasReceivedGift ? 1 : undefined,
+      fullnessScore: nextFullnessScore,
+      fullnessLevel: nextFullnessLevel,
+      totalGifts: currentTotalGifts,
+      receivedGift: receivedGiftItem,
+      hasRareGift,
       careStats: updatedJournalStats,
     });
 
@@ -275,8 +302,10 @@ export default function App() {
 
     // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
     let hasReceivedGift = false;
+    let receivedGiftItem: GiftItem | null = null;
     if (affRes.isLevelUp) {
       const gift = receiveGift(currentCatId);
+      receivedGiftItem = gift;
       hasReceivedGift = true;
       triggerLevelUp({
         level: affRes.nextLevel,
@@ -290,12 +319,20 @@ export default function App() {
     // ふり返り手帳におもちゃ遊びの記録を追加
     const updatedJournalStats = recordCareAction('play', currentCatId);
 
+    // インベントリの合計受取個数とレアギフト所持判定
+    const currentTotalGifts = getTotalGiftCount(inventory) + (hasReceivedGift ? 1 : 0);
+    const hasRareGift =
+      receivedGiftItem?.rarity === 'rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'rare');
+
     // 実績判定（おもちゃ・機嫌・ギフト・手帳統計）
     checkAchievements({
       action: 'play',
       moodScore: nextScore,
       moodLevel: nextLevel,
-      totalGifts: hasReceivedGift ? 1 : undefined,
+      totalGifts: currentTotalGifts,
+      receivedGift: receivedGiftItem,
+      hasRareGift,
       careStats: updatedJournalStats,
     });
 
@@ -320,6 +357,15 @@ export default function App() {
     selectCat(id);
     const target = resolvedPresets.find((p) => p.id === id) ?? getCatPresetById(id);
     showBubble(`${target.name}にきりかえたよ♪`, { force: true, durationMs: 1600 });
+  };
+
+  const handleUpdateCatName = (catId: CatId, name: string) => {
+    setCatName(catId, name);
+    // 猫の名前を変更したときの実績判定
+    checkAchievements({
+      action: 'rename',
+      isCatRenamed: true,
+    });
   };
 
   return (
@@ -477,7 +523,7 @@ export default function App() {
         isSoundEnabled={isSoundEnabled}
         onToggleSound={setSoundEnabled}
         catNames={catNames}
-        onUpdateCatName={setCatName}
+        onUpdateCatName={handleUpdateCatName}
         onResetCatNames={resetCatNames}
         gaugePosition={gaugePosition}
         onChangeGaugePosition={setGaugePosition}

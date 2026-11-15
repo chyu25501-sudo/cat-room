@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Sparkles, CheckCircle2, Lock, Utensils, Heart, Gift } from 'lucide-react';
+import { X, Sparkles, CheckCircle2, Lock, Utensils, Heart, Gift, Calendar } from 'lucide-react';
 import { AchievementItem, UnlockedAchievements } from '../../types/achievement.ts';
 import { ACHIEVEMENTS, getAchievementDisplayInfo } from '../../utils/catAchievements.ts';
 import { TrophyIcon } from './AchievementButton.tsx';
@@ -39,6 +39,8 @@ const AchievementItemIcon: React.FC<{ iconType: string; isUnlocked: boolean }> =
       return <Sparkles className={`${iconClass} text-yellow-500 fill-yellow-400`} />;
     case 'gift':
       return <Gift className={`${iconClass} text-orange-500`} />;
+    case 'calendar':
+      return <Calendar className={`${iconClass} text-teal-600`} />;
     default:
       return <TrophyIcon className={`${iconClass} text-amber-500`} />;
   }

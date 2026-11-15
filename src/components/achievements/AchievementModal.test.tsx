@@ -20,7 +20,7 @@ describe('AchievementModal コンポーネント', () => {
     render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
 
     expect(screen.getByRole('dialog', { name: /実績/ })).toBeInTheDocument();
-    expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('2/5');
+    expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('2/35');
 
     // 達成済み実績: 「達成！」バッジが表示され、名前と説明文が表示されていること
     expect(screen.getByTestId('achievement-title-first-pet')).toHaveTextContent('はじめまして！');
