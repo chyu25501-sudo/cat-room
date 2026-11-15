@@ -48,6 +48,8 @@ import {
   getPlayMessage,
   canFeedCat,
   canPlayWithCat,
+  isFoodUnlocked,
+  isToyUnlocked,
   MESSAGE_TOO_FULL_TO_EAT,
   MESSAGE_TOO_HUNGRY_TO_PLAY,
 } from './utils/catCare.ts';
@@ -232,6 +234,9 @@ export default function App() {
   };
 
   const handleFeed = (food: FoodItem) => {
+    // なつき度レベルが不足している場合は給餌できない
+    if (!isFoodUnlocked(food, currentAffectionLevel)) return;
+
     // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
     if (isEating || isPlayingToy) return;
 
@@ -328,6 +333,9 @@ export default function App() {
   };
 
   const handlePlay = (toy: ToyItem) => {
+    // なつき度レベルが不足している場合は遊べない
+    if (!isToyUnlocked(toy, currentAffectionLevel)) return;
+
     // すでに食事中または遊び中なら新しいお世話アクションを受け付けない
     if (isEating || isPlayingToy) return;
 
@@ -582,6 +590,7 @@ export default function App() {
         isEating={isEating}
         isPlayingToy={isPlayingToy}
         currentFullnessScore={currentFullnessScore}
+        currentAffectionLevel={currentAffectionLevel}
         onFeed={handleFeed}
         onPlay={handlePlay}
       />

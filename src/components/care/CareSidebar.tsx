@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2, Sparkles, AlertCircle } from 'lucide-react';
+import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2, Sparkles, AlertCircle, Lock } from 'lucide-react';
 import { FoodItem, ToyItem } from '../../types/care.ts';
 import {
   FOOD_ITEMS,
@@ -8,6 +8,9 @@ import {
   canPlayWithCat,
   MESSAGE_TOO_FULL_TO_EAT,
   MESSAGE_TOO_HUNGRY_TO_PLAY,
+  isFoodUnlocked,
+  isToyUnlocked,
+  getUnlockRequirementText,
 } from '../../utils/catCare.ts';
 
 export interface CareSidebarProps {
@@ -25,6 +28,8 @@ export interface CareSidebarProps {
   isBusy?: boolean;
   /** 現在選択されている猫のまんぷく度スコア（90%以上で給餌不可、10%以下で遊び不可） */
   currentFullnessScore?: number;
+  /** 現在選択されている猫のなつき度レベル（未指定時は全解禁扱い） */
+  currentAffectionLevel?: number;
   /** サイドバーの開閉状態（制御プロパティ、未指定時は内部ステート） */
   isOpen?: boolean;
   /** 開閉状態が変更されたときのコールバック */
@@ -39,6 +44,7 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   isPlayingToy = false,
   isBusy: controlledIsBusy,
   currentFullnessScore,
+  currentAffectionLevel = 10,
   isOpen: controlledIsOpen,
   onToggleOpen,
 }) => {
@@ -63,16 +69,16 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   };
 
   const handleFeedClick = (food: FoodItem) => {
-    // 食事中・遊び中、または満腹（90%以上）の場合は給餌不可
-    if (isBusy || isTooFull) return;
+    // なつき度不足、食事中・遊び中、または満腹（90%以上）の場合は給餌不可
+    if (!isFoodUnlocked(food, currentAffectionLevel) || isBusy || isTooFull) return;
     onFeed(food);
     // ごはんをあげた直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
   };
 
   const handlePlayClick = (toy: ToyItem) => {
-    // 食事中・遊び中、または空腹（10%以下）の場合は遊び不可
-    if (isBusy || isTooHungry) return;
+    // なつき度不足、食事中・遊び中、または空腹（10%以下）の場合は遊び不可
+    if (!isToyUnlocked(toy, currentAffectionLevel) || isBusy || isTooHungry) return;
     onPlay(toy);
     // おもちゃで遊んだ直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
@@ -212,74 +218,110 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                   </div>
                 )}
 
-                {FOOD_ITEMS.map((food) => (
-                  <div
-                    key={food.id}
-                    className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
-                      isBusy || isTooFull ? 'opacity-80' : 'hover:border-orange-300 hover:shadow-sm'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <span
-                          data-testid={`food-badge-icon-${food.id}`}
-                          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-amber-50 border border-amber-200 shadow-2xs select-none shrink-0"
-                          role="img"
-                          aria-label={food.name}
-                        >
-                          {food.icon}
-                        </span>
-                        <div>
-                          <h3 className="font-bold text-stone-800 text-sm leading-tight">
-                            {food.name}
-                          </h3>
-                          <p className="text-xs text-stone-500 mt-0.5">
-                            {food.subtitle}
-                          </p>
+                {FOOD_ITEMS.map((food) => {
+                  const unlocked = isFoodUnlocked(food, currentAffectionLevel);
+                  return (
+                    <div
+                      key={food.id}
+                      data-testid={`food-item-card-${food.id}`}
+                      className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
+                        !unlocked
+                          ? 'opacity-85 bg-stone-50/70 border-dashed'
+                          : isBusy || isTooFull
+                          ? 'opacity-80'
+                          : 'hover:border-orange-300 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            data-testid={`food-badge-icon-${food.id}`}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl border shadow-2xs select-none shrink-0 ${
+                              !unlocked
+                                ? 'bg-stone-100 border-stone-300 text-stone-400'
+                                : 'bg-amber-50 border-amber-200'
+                            }`}
+                            role="img"
+                            aria-label={food.name}
+                          >
+                            {food.icon}
+                          </span>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="font-bold text-stone-800 text-sm leading-tight">
+                                {food.name}
+                              </h3>
+                              {!unlocked && (
+                                <span
+                                  data-testid={`food-lock-badge-${food.id}`}
+                                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-stone-100 text-stone-500 border border-stone-200 select-none"
+                                >
+                                  <Lock className="w-2.5 h-2.5" />
+                                  Lv.{food.requiredAffectionLevel}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-stone-500 mt-0.5">
+                              {food.subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* 上昇バッジ群（ごきげん度・まんぷく度） */}
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          {/* 機嫌上昇バッジ */}
+                          <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
+                            <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
+                            +{food.moodBoost}%
+                          </span>
+                          {/* まんぷく度上昇バッジ */}
+                          <span
+                            data-testid={`food-fullness-boost-${food.id}`}
+                            className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap"
+                          >
+                            <Utensils className="w-2.5 h-2.5 text-emerald-600" />
+                            +{food.fullnessBoost}%
+                          </span>
                         </div>
                       </div>
 
-                      {/* 上昇バッジ群（ごきげん度・まんぷく度） */}
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        {/* 機嫌上昇バッジ */}
-                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
-                          <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
-                          +{food.moodBoost}%
-                        </span>
-                        {/* まんぷく度上昇バッジ */}
-                        <span
-                          data-testid={`food-fullness-boost-${food.id}`}
-                          className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap"
+                      {/* あげるボタン／未解禁ボタン */}
+                      {!unlocked ? (
+                        <button
+                          type="button"
+                          disabled={true}
+                          aria-label={`${food.name}（なつき度${food.requiredAffectionLevel}で解禁されるよ！）`}
+                          data-testid={`food-locked-button-${food.id}`}
+                          className="mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed select-none shadow-none"
                         >
-                          <Utensils className="w-2.5 h-2.5 text-emerald-600" />
-                          +{food.fullnessBoost}%
-                        </span>
-                      </div>
+                          <Lock className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                          <span>なつき度{food.requiredAffectionLevel}で解禁されるよ！</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={isBusy || isTooFull}
+                          onClick={() => handleFeedClick(food)}
+                          aria-label={`${food.name}をあげる`}
+                          className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
+                            isBusy || isTooFull
+                              ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
+                              : 'cursor-pointer bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs'
+                          }`}
+                        >
+                          <Utensils className="w-3.5 h-3.5" />
+                          <span>
+                            {isBusy
+                              ? (isEating ? 'お食事中…' : 'あそび中…')
+                              : isTooFull
+                              ? MESSAGE_TOO_FULL_TO_EAT
+                              : 'あげる'}
+                          </span>
+                        </button>
+                      )}
                     </div>
-
-                    {/* あげるボタン（食事中・遊び中・満腹90%以上は無効化） */}
-                    <button
-                      type="button"
-                      disabled={isBusy || isTooFull}
-                      onClick={() => handleFeedClick(food)}
-                      aria-label={`${food.name}をあげる`}
-                      className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
-                        isBusy || isTooFull
-                          ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
-                          : 'cursor-pointer bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs'
-                      }`}
-                    >
-                      <Utensils className="w-3.5 h-3.5" />
-                      <span>
-                        {isBusy
-                          ? (isEating ? 'お食事中…' : 'あそび中…')
-                          : isTooFull
-                          ? MESSAGE_TOO_FULL_TO_EAT
-                          : 'あげる'}
-                      </span>
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
@@ -334,63 +376,99 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                   </div>
                 )}
 
-                {TOY_ITEMS.map((toy) => (
-                  <div
-                    key={toy.id}
-                    className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
-                      isBusy || isTooHungry ? 'opacity-80' : 'hover:border-amber-300 hover:shadow-sm'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <span
-                          data-testid={`toy-badge-icon-${toy.id}`}
-                          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-amber-50 border border-amber-200 shadow-2xs select-none shrink-0"
-                          role="img"
-                          aria-label={toy.name}
-                        >
-                          {toy.icon}
-                        </span>
-                        <div>
-                          <h3 className="font-bold text-stone-800 text-sm leading-tight">
-                            {toy.name}
-                          </h3>
-                          <p className="text-xs text-stone-500 mt-0.5">
-                            {toy.subtitle}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* 機嫌上昇バッジ */}
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
-                        <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
-                        +{toy.moodBoost}%
-                      </span>
-                    </div>
-
-                    {/* あそぶボタン（食事中・遊び中・空腹10%以下は無効化） */}
-                    <button
-                      type="button"
-                      disabled={isBusy || isTooHungry}
-                      onClick={() => handlePlayClick(toy)}
-                      aria-label={`${toy.name}であそぶ`}
-                      className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
-                        isBusy || isTooHungry
-                          ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
-                          : 'cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white active:scale-98 shadow-xs'
+                {TOY_ITEMS.map((toy) => {
+                  const unlocked = isToyUnlocked(toy, currentAffectionLevel);
+                  return (
+                    <div
+                      key={toy.id}
+                      data-testid={`toy-item-card-${toy.id}`}
+                      className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
+                        !unlocked
+                          ? 'opacity-85 bg-stone-50/70 border-dashed'
+                          : isBusy || isTooHungry
+                          ? 'opacity-80'
+                          : 'hover:border-amber-300 hover:shadow-sm'
                       }`}
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>
-                        {isBusy
-                          ? (isPlayingToy ? 'あそび中…' : 'お食事中…')
-                          : isTooHungry
-                          ? MESSAGE_TOO_HUNGRY_TO_PLAY
-                          : 'あそぶ'}
-                      </span>
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            data-testid={`toy-badge-icon-${toy.id}`}
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl border shadow-2xs select-none shrink-0 ${
+                              !unlocked
+                                ? 'bg-stone-100 border-stone-300 text-stone-400'
+                                : 'bg-amber-50 border-amber-200'
+                            }`}
+                            role="img"
+                            aria-label={toy.name}
+                          >
+                            {toy.icon}
+                          </span>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="font-bold text-stone-800 text-sm leading-tight">
+                                {toy.name}
+                              </h3>
+                              {!unlocked && (
+                                <span
+                                  data-testid={`toy-lock-badge-${toy.id}`}
+                                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-stone-100 text-stone-500 border border-stone-200 select-none"
+                                >
+                                  <Lock className="w-2.5 h-2.5" />
+                                  Lv.{toy.requiredAffectionLevel}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-stone-500 mt-0.5">
+                              {toy.subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* 機嫌上昇バッジ */}
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 whitespace-nowrap">
+                          <Heart className="w-3 h-3 fill-amber-500 text-amber-500" />
+                          +{toy.moodBoost}%
+                        </span>
+                      </div>
+
+                      {/* あそぶボタン／未解禁ボタン */}
+                      {!unlocked ? (
+                        <button
+                          type="button"
+                          disabled={true}
+                          aria-label={`${toy.name}（なつき度${toy.requiredAffectionLevel}で解禁されるよ！）`}
+                          data-testid={`toy-locked-button-${toy.id}`}
+                          className="mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed select-none shadow-none"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                          <span>なつき度{toy.requiredAffectionLevel}で解禁されるよ！</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={isBusy || isTooHungry}
+                          onClick={() => handlePlayClick(toy)}
+                          aria-label={`${toy.name}であそぶ`}
+                          className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
+                            isBusy || isTooHungry
+                              ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
+                              : 'cursor-pointer bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white active:scale-98 shadow-xs'
+                          }`}
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>
+                            {isBusy
+                              ? (isPlayingToy ? 'あそび中…' : 'お食事中…')
+                              : isTooHungry
+                              ? MESSAGE_TOO_HUNGRY_TO_PLAY
+                              : 'あそぶ'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>

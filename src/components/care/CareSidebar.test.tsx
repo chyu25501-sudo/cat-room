@@ -315,4 +315,90 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
       expect(btn).toBeEnabled();
     }
   });
+
+  it('なつき度が条件を満たしていないとき、名前は表示されるがボタンは非活性で「なつき度nで解禁されるよ！」と明記されること', () => {
+    const handleFeed = vi.fn();
+    const handlePlay = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="くろねこ"
+        onFeed={handleFeed}
+        onPlay={handlePlay}
+        isOpen={true}
+        currentAffectionLevel={1}
+      />
+    );
+
+    // ごはん・おもちゃの名前は全て表示されていること
+    expect(screen.getByText('カリカリ')).toBeInTheDocument();
+    expect(screen.getByText('ねこ缶（まぐろ）')).toBeInTheDocument();
+    expect(screen.getByText('おやつピューレ')).toBeInTheDocument();
+    expect(screen.getByText('ねこじゃらし')).toBeInTheDocument();
+    expect(screen.getByText('毛糸ボール')).toBeInTheDocument();
+    expect(screen.getByText('レーザーポインター')).toBeInTheDocument();
+
+    // それぞれ「なつき度nで解禁されるよ！」と明記された非活性ボタンが表示されること
+    const kibbleBtn = screen.getByTestId('food-locked-button-kibble');
+    expect(kibbleBtn).toBeDisabled();
+    expect(kibbleBtn).toHaveTextContent('なつき度2で解禁されるよ！');
+    fireEvent.click(kibbleBtn);
+    expect(handleFeed).not.toHaveBeenCalled();
+
+    const cannedBtn = screen.getByTestId('food-locked-button-canned');
+    expect(cannedBtn).toBeDisabled();
+    expect(cannedBtn).toHaveTextContent('なつき度4で解禁されるよ！');
+
+    const treatBtn = screen.getByTestId('food-locked-button-treat');
+    expect(treatBtn).toBeDisabled();
+    expect(treatBtn).toHaveTextContent('なつき度6で解禁されるよ！');
+
+    const teaserBtn = screen.getByTestId('toy-locked-button-teaser');
+    expect(teaserBtn).toBeDisabled();
+    expect(teaserBtn).toHaveTextContent('なつき度3で解禁されるよ！');
+    fireEvent.click(teaserBtn);
+    expect(handlePlay).not.toHaveBeenCalled();
+
+    const ballBtn = screen.getByTestId('toy-locked-button-ball');
+    expect(ballBtn).toBeDisabled();
+    expect(ballBtn).toHaveTextContent('なつき度5で解禁されるよ！');
+
+    const laserBtn = screen.getByTestId('toy-locked-button-laser');
+    expect(laserBtn).toBeDisabled();
+    expect(laserBtn).toHaveTextContent('なつき度7で解禁されるよ！');
+
+    // 「あげる」「あそぶ」の有効ボタンは存在しないこと
+    expect(screen.queryByRole('button', { name: 'カリカリをあげる' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'ねこじゃらしであそぶ' })).not.toBeInTheDocument();
+  });
+
+  it('なつき度に応じて対象アイテムのみ順次解禁されること（例: なつき度3でカリカリとねこじゃらしが解禁）', () => {
+    const handleFeed = vi.fn();
+    const handlePlay = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="くろねこ"
+        onFeed={handleFeed}
+        onPlay={handlePlay}
+        isOpen={true}
+        currentAffectionLevel={3}
+      />
+    );
+
+    // カリカリ (Lv.2) -> 解禁
+    const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+    expect(feedKibbleBtn).toBeEnabled();
+    fireEvent.click(feedKibbleBtn);
+    expect(handleFeed).toHaveBeenCalledWith(FOOD_ITEMS[0]);
+
+    // ねこじゃらし (Lv.3) -> 解禁
+    const playTeaserBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
+    expect(playTeaserBtn).toBeEnabled();
+    fireEvent.click(playTeaserBtn);
+    expect(handlePlay).toHaveBeenCalledWith(TOY_ITEMS[0]);
+
+    // ねこ缶 (Lv.4) -> まだ未解禁
+    expect(screen.getByTestId('food-locked-button-canned')).toHaveTextContent('なつき度4で解禁されるよ！');
+    // 毛糸ボール (Lv.5) -> まだ未解禁
+    expect(screen.getByTestId('toy-locked-button-ball')).toHaveTextContent('なつき度5で解禁されるよ！');
+  });
 });

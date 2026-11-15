@@ -18,6 +18,9 @@ import {
   MESSAGE_TOO_HUNGRY_TO_PLAY,
   canFeedCat,
   canPlayWithCat,
+  isFoodUnlocked,
+  isToyUnlocked,
+  getUnlockRequirementText,
 } from './catCare.ts';
 
 describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関数テスト)', () => {
@@ -280,6 +283,53 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
       expect(canPlayWithCat(11)).toBe(true);
       expect(canPlayWithCat(50)).toBe(true);
       expect(canPlayWithCat(100)).toBe(true);
+    });
+
+    it('ごはんアイテムにお世話解禁なつき度レベル（カリカリ:2, ねこ缶:4, おやつピューレ:6）が設定されていること', () => {
+      const kibble = getFoodById('kibble');
+      const canned = getFoodById('canned');
+      const treat = getFoodById('treat');
+
+      expect(kibble.requiredAffectionLevel).toBe(2);
+      expect(canned.requiredAffectionLevel).toBe(4);
+      expect(treat.requiredAffectionLevel).toBe(6);
+
+      // isFoodUnlocked の検証
+      expect(isFoodUnlocked(kibble, 1)).toBe(false);
+      expect(isFoodUnlocked(kibble, 2)).toBe(true);
+      expect(isFoodUnlocked(kibble, 3)).toBe(true);
+
+      expect(isFoodUnlocked(canned, 3)).toBe(false);
+      expect(isFoodUnlocked(canned, 4)).toBe(true);
+
+      expect(isFoodUnlocked(treat, 5)).toBe(false);
+      expect(isFoodUnlocked(treat, 6)).toBe(true);
+    });
+
+    it('おもちゃアイテムにお世話解禁なつき度レベル（ねこじゃらし:3, 毛糸ボール:5, レーザーポインター:7）が設定されていること', () => {
+      const teaser = getToyById('teaser');
+      const ball = getToyById('ball');
+      const laser = getToyById('laser');
+
+      expect(teaser.requiredAffectionLevel).toBe(3);
+      expect(ball.requiredAffectionLevel).toBe(5);
+      expect(laser.requiredAffectionLevel).toBe(7);
+
+      // isToyUnlocked の検証
+      expect(isToyUnlocked(teaser, 2)).toBe(false);
+      expect(isToyUnlocked(teaser, 3)).toBe(true);
+
+      expect(isToyUnlocked(ball, 4)).toBe(false);
+      expect(isToyUnlocked(ball, 5)).toBe(true);
+
+      expect(isToyUnlocked(laser, 6)).toBe(false);
+      expect(isToyUnlocked(laser, 7)).toBe(true);
+    });
+
+    it('getUnlockRequirementText: 「なつき度nで解禁されるよ！」というテキストを生成すること', () => {
+      expect(getUnlockRequirementText(2)).toBe('なつき度2で解禁されるよ！');
+      expect(getUnlockRequirementText(3)).toBe('なつき度3で解禁されるよ！');
+      expect(getUnlockRequirementText(7)).toBe('なつき度7で解禁されるよ！');
     });
   });
 });

@@ -158,7 +158,54 @@ describe('App コンポーネント (猫切り替え機能)', () => {
   });
 
   describe('第6週: お世話機能（サイドバー＆ごはん給餌）', () => {
+    const setupMaxAffection = () => {
+      localStorage.setItem(
+        'nekoppoi_cats_affection',
+        JSON.stringify({
+          black: { level: 10, currentExp: 0, requiredExp: 600 },
+          white: { level: 10, currentExp: 0, requiredExp: 600 },
+          calico: { level: 10, currentExp: 0, requiredExp: 600 },
+        })
+      );
+    };
+
+    it('なつき度が初期状態（Lv.1）のとき、ごはんやおもちゃは未解禁で「なつき度nで解禁されるよ！」と明記されること', () => {
+      render(<App />);
+
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careButton);
+
+      // ごはん・おもちゃの名前は表示される
+      expect(screen.getByText('カリカリ')).toBeInTheDocument();
+      expect(screen.getByText('ねこ缶（まぐろ）')).toBeInTheDocument();
+      expect(screen.getByText('おやつピューレ')).toBeInTheDocument();
+      expect(screen.getByText('ねこじゃらし')).toBeInTheDocument();
+      expect(screen.getByText('毛糸ボール')).toBeInTheDocument();
+      expect(screen.getByText('レーザーポインター')).toBeInTheDocument();
+
+      // カリカリ（必要Lv.2）
+      expect(screen.getByTestId('food-locked-button-kibble')).toHaveTextContent('なつき度2で解禁されるよ！');
+      expect(screen.getByTestId('food-locked-button-kibble')).toBeDisabled();
+
+      // ねこ缶（必要Lv.4）
+      expect(screen.getByTestId('food-locked-button-canned')).toHaveTextContent('なつき度4で解禁されるよ！');
+
+      // おやつピューレ（必要Lv.6）
+      expect(screen.getByTestId('food-locked-button-treat')).toHaveTextContent('なつき度6で解禁されるよ！');
+
+      // ねこじゃらし（必要Lv.3）
+      expect(screen.getByTestId('toy-locked-button-teaser')).toHaveTextContent('なつき度3で解禁されるよ！');
+      expect(screen.getByTestId('toy-locked-button-teaser')).toBeDisabled();
+
+      // 毛糸ボール（必要Lv.5）
+      expect(screen.getByTestId('toy-locked-button-ball')).toHaveTextContent('なつき度5で解禁されるよ！');
+
+      // レーザーポインター（必要Lv.7）
+      expect(screen.getByTestId('toy-locked-button-laser')).toHaveTextContent('なつき度7で解禁されるよ！');
+    });
+
     it('お世話ボタンを押してサイドバーを開き、カリカリを与えるとごきげん度が上昇してもぐもぐメッセージが表示されること', () => {
+      setupMaxAffection();
       render(<App />);
 
       const indicator = screen.getByTestId('cat-mood-indicator');
@@ -191,6 +238,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     it('撫ですぎで不機嫌（ごきげんななめ）になった猫に、ごはんを与えると即座に不機嫌が解消され機嫌が回復すること', () => {
+      setupMaxAffection();
       vi.useFakeTimers();
       try {
         render(<App />);
@@ -241,6 +289,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     it('お世話ボタンからおもちゃ（ねこじゃらし）を選んで遊ばせると、ごきげん度が上昇し遊びセリフとおもちゃイラストが描画されること', () => {
+      setupMaxAffection();
       render(<App />);
 
       const indicator = screen.getByTestId('cat-mood-indicator');
@@ -275,6 +324,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     it('撫ですぎで不機嫌になった猫に、おもちゃ（毛糸ボール）で遊んであげると不機嫌が即座に解消されること', () => {
+      setupMaxAffection();
       vi.useFakeTimers();
       try {
         render(<App />);
@@ -321,6 +371,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     it('猫が食事中または遊び中の間、サイドバーから新しいごはんやおもちゃを選択できず、終了後に再び選択可能になること', () => {
+      setupMaxAffection();
       vi.useFakeTimers();
       try {
         render(<App />);
@@ -368,7 +419,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     it('画面上にまんぷく度が表示され、ごはんを与えると上昇し、時間経過でごきげん度よりゆっくり減少すること', () => {
       vi.useFakeTimers();
       try {
-        localStorage.clear();
+        setupMaxAffection();
         let currentTime = 1000000;
         vi.setSystemTime(currentTime);
 
@@ -404,7 +455,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     it('おもちゃで遊ぶとまんぷく度が5〜10%微減すること', () => {
-      localStorage.clear();
+      setupMaxAffection();
       render(<App />);
 
       // 初期状態でまんぷく度は 50%
@@ -436,7 +487,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     it('猫にあげるごはんは、まんぷく度回復量が多いほど食べる時間が少しだけ長くなること', () => {
       vi.useFakeTimers();
       try {
-        localStorage.clear();
+        setupMaxAffection();
         render(<App />);
 
         const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
@@ -491,7 +542,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     it('まんぷく度が0〜39％のとき、ごきげん度が最大10%まで下がり、ごはん回復後は平常通り20%までしか下がらないこと', () => {
       vi.useFakeTimers();
       try {
-        localStorage.clear();
+        setupMaxAffection();
         // 黒猫のまんぷく度を30%（空腹）、ごきげん度20%で初期化
         localStorage.setItem(
           'nekoppoi_cats_fullness',
@@ -544,7 +595,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     it('まんぷく度が90%以上のときは「まんぷくで食べられない！」と表示されごはんをあげられないこと', () => {
-      localStorage.clear();
+      setupMaxAffection();
       // 黒猫のまんぷく度を 95%（90%以上）に設定
       localStorage.setItem(
         'nekoppoi_cats_fullness',
@@ -578,7 +629,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     it('まんぷく度が10%以下のときは「お腹が空いて遊べない！」と表示されおもちゃで遊べないこと', () => {
-      localStorage.clear();
+      setupMaxAffection();
       // 黒猫のまんぷく度を 8%（10%以下）に設定
       localStorage.setItem(
         'nekoppoi_cats_fullness',
@@ -630,21 +681,29 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       vi.useFakeTimers();
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
       try {
+        // カリカリ(Lv.2)とねこじゃらし(Lv.3)が解禁されているLv.3で初期化
+        localStorage.setItem(
+          'nekoppoi_cats_affection',
+          JSON.stringify({
+            black: { level: 3, currentExp: 0, requiredExp: 240 },
+          })
+        );
+
         render(<App />);
 
         const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
 
-        // 1. 撫でる (+10pt / 120pt = 8%)
+        // 1. 撫でる (+10pt / 240pt = 4%)
         act(() => {
           fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
           fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
           fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
         });
 
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('8%');
-        expect(screen.getByText(/次のLvまで あと 110pt/)).toBeInTheDocument();
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('4%');
+        expect(screen.getByText(/次のLvまで あと 230pt/)).toBeInTheDocument();
 
-        // 2. ごはん（カリカリ: +25pt -> 35pt / 120pt = 29%）
+        // 2. ごはん（カリカリ: +25pt -> 35pt / 240pt = 15%）
         const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
         fireEvent.click(careButton);
         const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
@@ -652,22 +711,22 @@ describe('App コンポーネント (猫切り替え機能)', () => {
           fireEvent.click(feedKibbleBtn);
         });
 
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('29%');
-        expect(screen.getByText(/次のLvまで あと 85pt/)).toBeInTheDocument();
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('15%');
+        expect(screen.getByText(/次のLvまで あと 205pt/)).toBeInTheDocument();
 
         // 食事完了（カリカリは3400ms）までタイマーを進めて次のアクションを受け付け可能にする
         act(() => {
           vi.advanceTimersByTime(4000);
         });
 
-        // 3. おもちゃ（ねこじゃらし: +20pt -> 55pt / 120pt = 46%）
+        // 3. おもちゃ（ねこじゃらし: +20pt -> 55pt / 240pt = 23%）
         const playFeatherBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
         act(() => {
           fireEvent.click(playFeatherBtn);
         });
 
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('46%');
-        expect(screen.getByText(/次のLvまで あと 65pt/)).toBeInTheDocument();
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('23%');
+        expect(screen.getByText(/次のLvまで あと 185pt/)).toBeInTheDocument();
       } finally {
         randomSpy.mockRestore();
         vi.useRealTimers();

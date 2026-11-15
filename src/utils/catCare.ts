@@ -21,6 +21,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
       calico: ['カリカリ…クルル♪', 'サクサク…ミャオ！', 'カリッ…ゴロゴロ…♪'],
     },
     themeClass: 'from-amber-400 to-orange-400 text-amber-700 bg-amber-50 border-amber-200',
+    requiredAffectionLevel: 2,
   },
   {
     id: 'canned',
@@ -36,6 +37,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
       calico: ['ペロペロ…みゃあ〜♡', 'ハフハフ…クルルル♡', 'ニャムニャム…ゴロゴロ…♡'],
     },
     themeClass: 'from-sky-400 to-blue-400 text-sky-700 bg-sky-50 border-sky-200',
+    requiredAffectionLevel: 4,
   },
   {
     id: 'treat',
@@ -51,6 +53,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
       calico: ['ペロペロ…！みゃあぁ〜〜♡', 'クルル〜…ペロペロ♡', 'ミャ〜〜♡ ゴロゴロゴロ…！'],
     },
     themeClass: 'from-rose-400 to-pink-500 text-rose-700 bg-rose-50 border-rose-200',
+    requiredAffectionLevel: 6,
   },
 ] as const;
 
@@ -136,6 +139,7 @@ export const TOY_ITEMS: readonly ToyItem[] = [
       ],
     },
     themeClass: 'from-amber-400 to-yellow-500 text-amber-700 bg-amber-50 border-amber-200',
+    requiredAffectionLevel: 3,
   },
   {
     id: 'ball',
@@ -165,6 +169,7 @@ export const TOY_ITEMS: readonly ToyItem[] = [
       ],
     },
     themeClass: 'from-emerald-400 to-teal-500 text-emerald-700 bg-emerald-50 border-emerald-200',
+    requiredAffectionLevel: 5,
   },
   {
     id: 'laser',
@@ -194,6 +199,7 @@ export const TOY_ITEMS: readonly ToyItem[] = [
       ],
     },
     themeClass: 'from-rose-400 to-red-500 text-rose-700 bg-rose-50 border-rose-200',
+    requiredAffectionLevel: 7,
   },
 ] as const;
 
@@ -318,5 +324,26 @@ export function getFootBadgeMessage(params: FootBadgeParams): string {
     default:
       return 'なでなで（ドラッグ）してふれあう';
   }
+}
+
+/**
+ * 指定されたごはんが、猫のなつき度レベルを満たして解禁されているかを判定する純粋関数
+ */
+export function isFoodUnlocked(food: FoodItem, affectionLevel: number): boolean {
+  return affectionLevel >= food.requiredAffectionLevel;
+}
+
+/**
+ * 指定されたおもちゃが、猫のなつき度レベルを満たして解禁されているかを判定する純粋関数
+ */
+export function isToyUnlocked(toy: ToyItem, affectionLevel: number): boolean {
+  return affectionLevel >= toy.requiredAffectionLevel;
+}
+
+/**
+ * なつき度レベルが不足しているときの解禁予告メッセージを返す純粋関数
+ */
+export function getUnlockRequirementText(requiredLevel: number): string {
+  return `なつき度${requiredLevel}で解禁されるよ！`;
 }
 

@@ -21,6 +21,8 @@ export interface FoodItem {
   eatingMessages: Record<CatId, readonly string[]>;
   /** アイコン背景・バッジ用カラー（Tailwindクラス） */
   themeClass: string;
+  /** 解禁に必要な猫のなつき度レベル */
+  requiredAffectionLevel: number;
 }
 
 export type ToyId = 'teaser' | 'ball' | 'laser';
@@ -42,6 +44,8 @@ export interface ToyItem {
   playMessages: Record<CatId, readonly string[]>;
   /** アイコン背景・バッジ用カラー（Tailwindクラス） */
   themeClass: string;
+  /** 解禁に必要な猫のなつき度レベル */
+  requiredAffectionLevel: number;
 }
 
 /** お世話メニューのカテゴリ（第6週: ごはん・おもちゃ） */
