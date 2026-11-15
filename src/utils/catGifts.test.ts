@@ -72,18 +72,18 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'jelly-cup',
         'blue-can',
         'empty-bottle',
-        // 【レア】日常の珍品・幸運・宝石 (8)
+        // 【レア】日常の珍品・幸運・宝石 (7)
         'important-paper',
         'winning-ice-stick',
         'old-coin',
         'four-leaf-clover',
-        'rainbow-feather',
         'red-gem',
         'blue-gem',
         'yellow-gem',
-        // 【レア】ファンタジー・神秘・古代・伝説 (7)
+        // 【レア】ファンタジー・神秘・古代・伝説 (8)
         'splendid-branch',
         'glowing-moss-stone',
+        'rainbow-feather',
         'ancient-gear',
         'curious-magatama',
         'star-fragment',
@@ -105,9 +105,18 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(clover?.description).toContain('三つ葉');
       expect(clover?.rarity).toBe('common');
 
+      // 「かたっぽの靴下」の説明文が「部屋のどこかから持ってきた」になっていること
+      const singleSock = CAT_GIFTS.find((g) => g.id === 'single-sock');
+      expect(singleSock?.description).toContain('部屋のどこかから持ってきた');
+      expect(singleSock?.description).not.toContain('洗濯カゴ');
+      expect(singleSock?.rarity).toBe('common');
+
       // 「だいじそうな紙」の説明文が指定通りで、レアリティがレアであること
       const importantPaper = CAT_GIFTS.find((g) => g.id === 'important-paper');
-      expect(importantPaper?.description).toBe('よくわからないが請求書と書かれている。');
+      expect(importantPaper?.description).toContain('よくわからないが請求書と書かれている。');
+      expect(importantPaper?.description).toBe(
+        'よくわからないが請求書と書かれている。机の上から見つけてきたらしく、得意げな顔で足元へ差し出してきた。'
+      );
       expect(importantPaper?.rarity).toBe('rare');
 
       // 「りゅうの鱗」「りゅうの爪」の「りゅう」がドラゴンであること
@@ -143,24 +152,24 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
     it('レアアイテムの中でファンタジー・神秘世界観のもの（神木、古代文明、星、ドラゴン等）が下方に並んでいること', () => {
       const rareGifts = CAT_GIFTS.slice(45);
 
-      // 前半8種: 日常・幸運・宝石
-      const everydayAndLuckyIds = rareGifts.slice(0, 8).map((g) => g.id);
+      // 前半7種: 日常・幸運・宝石
+      const everydayAndLuckyIds = rareGifts.slice(0, 7).map((g) => g.id);
       expect(everydayAndLuckyIds).toEqual([
         'important-paper',
         'winning-ice-stick',
         'old-coin',
         'four-leaf-clover',
-        'rainbow-feather',
         'red-gem',
         'blue-gem',
         'yellow-gem',
       ]);
 
-      // 後半7種: ファンタジー・神秘・古代・伝説
-      const fantasyIds = rareGifts.slice(8).map((g) => g.id);
+      // 後半8種: ファンタジー・神秘・古代・伝説
+      const fantasyIds = rareGifts.slice(7).map((g) => g.id);
       expect(fantasyIds).toEqual([
         'splendid-branch',
         'glowing-moss-stone',
+        'rainbow-feather',
         'ancient-gear',
         'curious-magatama',
         'star-fragment',

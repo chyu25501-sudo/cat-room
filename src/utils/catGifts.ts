@@ -300,7 +300,7 @@ export const CAT_GIFTS: readonly GiftItem[] = [
   {
     id: 'single-sock',
     name: 'かたっぽの靴下',
-    description: '洗濯カゴから引っ張り出してきた、しましま模様の片方だけの小さな靴下。',
+    description: '部屋のどこかから持ってきた、しましま模様の片方だけの小さな靴下。',
     icon: '🧦',
     iconType: 'single-sock',
     themeClass: 'from-indigo-100 to-sky-100 border-indigo-300 text-indigo-700',
@@ -443,7 +443,7 @@ export const CAT_GIFTS: readonly GiftItem[] = [
   {
     id: 'important-paper',
     name: 'だいじそうな紙',
-    description: 'よくわからないが請求書と書かれている。',
+    description: 'よくわからないが請求書と書かれている。机の上から見つけてきたらしく、得意げな顔で足元へ差し出してきた。',
     icon: '📄',
     iconType: 'important-paper',
     themeClass: 'from-amber-100 to-yellow-200 border-amber-400 text-amber-950',
@@ -474,15 +474,6 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     icon: '🍀',
     iconType: 'four-leaf-clover',
     themeClass: 'from-emerald-200 to-green-300 border-emerald-400 text-emerald-900',
-    rarity: 'rare',
-  },
-  {
-    id: 'rainbow-feather',
-    name: 'なないろの羽根',
-    description: '光に透かすと虹色にきらめく、伝説の鳥が落としていったような奇跡の羽根。',
-    icon: '🪶',
-    iconType: 'rainbow-feather',
-    themeClass: 'from-pink-200 via-sky-200 to-amber-200 border-purple-300 text-purple-900',
     rarity: 'rare',
   },
   {
@@ -532,6 +523,15 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     icon: '🪨',
     iconType: 'glowing-moss-stone',
     themeClass: 'from-teal-200 via-emerald-200 to-cyan-200 border-teal-400 text-teal-950',
+    rarity: 'rare',
+  },
+  {
+    id: 'rainbow-feather',
+    name: 'なないろの羽根',
+    description: '光に透かすと虹色にきらめく、伝説の鳥が落としていったような奇跡の羽根。',
+    icon: '🪶',
+    iconType: 'rainbow-feather',
+    themeClass: 'from-pink-200 via-sky-200 to-amber-200 border-purple-300 text-purple-900',
     rarity: 'rare',
   },
   {

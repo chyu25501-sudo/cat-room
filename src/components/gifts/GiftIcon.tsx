@@ -984,7 +984,7 @@ export const DirtyPlushIcon: React.FC<{ className?: string }> = ({ className = '
 
 /**
  * 「かたっぽの靴下」のSVGイラストアイコン
- * 説明:「洗濯カゴから引っ張り出してきた、しましま模様の片方だけの小さな靴下。」
+ * 説明:「部屋のどこかから持ってきた、しましま模様の片方だけの小さな靴下。」
  */
 export const SingleSockIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
   <svg
@@ -1185,7 +1185,7 @@ export const IceStickIcon: React.FC<{ className?: string }> = ({ className = 'w-
 
 /**
  * 「だいじそうな紙」のSVGイラストアイコン
- * 説明:「よくわからないが請求書と書かれている。」
+ * 説明:「よくわからないが請求書と書かれている。机の上から見つけてきたらしく、得意げな顔で足元へ差し出してきた。」
  */
 export const ImportantPaperIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
   <svg
