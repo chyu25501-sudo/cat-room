@@ -38,9 +38,10 @@ describe('useCatGifts hook', () => {
 
   it('指定したギフトを受け取れること（猫別内訳もカウントされる）', () => {
     const { result } = renderHook(() => useCatGifts());
+    const featherGift = CAT_GIFTS.find((g) => g.id === 'feather')!;
 
     act(() => {
-      result.current.receiveGift('white', CAT_GIFTS[1]); // ふわふわの羽根
+      result.current.receiveGift('white', featherGift); // ふわふわの羽根
     });
 
     expect(result.current.getGiftCount('feather')).toBe(1);
@@ -48,7 +49,7 @@ describe('useCatGifts hook', () => {
 
     // 同じ猫からもう一度羽根を受け取る
     act(() => {
-      result.current.receiveGift('white', CAT_GIFTS[1]);
+      result.current.receiveGift('white', featherGift);
     });
 
     expect(result.current.getGiftCount('feather')).toBe(2);

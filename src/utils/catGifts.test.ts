@@ -22,67 +22,77 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(CAT_GIFTS.length).toBe(60);
 
       const expectedIds = [
+        // 【通常】自然・植物・木の実 (12)
         'pebble',
-        'feather',
-        'acorn',
+        'mossy-pebble',
         'twig',
         'seashell',
         'fallen-leaf',
+        'acorn',
         'pinecone',
         'clover',
+        'wilted-flower',
+        'soft-dandelion',
+        'withered-foxtail',
+        'sunflower-seed',
+        // 【通常】昆虫・生き物・痕跡 (4)
+        'cicada-shell',
+        'cicada-wing',
+        'lizard-tail',
+        'cat-whisker',
+        // 【通常】おもちゃ・遊び道具・布・毛糸 (9)
+        'super-ball',
+        'dented-pingpong-ball',
+        'glass-marble',
+        'white-dice',
+        'small-bell',
         'ribbon',
-        'button',
-        'mossy-pebble',
+        'yarn-scrap',
+        'hairball',
+        'dirty-plush',
+        // 【通常】日用品・身の回りの小物 (7)
+        'feather',
         'old-stamp',
         'hairpin',
-        'wilted-flower',
-        'cicada-shell',
-        'white-dice',
-        'glass-marble',
-        'dirty-plush',
-        'single-sock',
-        'sunflower-seed',
-        'snack-wrapper',
-        'skewer',
-        'ice-stick',
-        'important-paper',
-        'blue-can',
-        'empty-bottle',
+        'button',
         'pink-handkerchief',
-        'candy-wrapper',
-        'bento-baran',
-        'super-ball',
-        'small-bell',
+        'single-sock',
         'broken-rubber-band',
+        // 【通常】パッケージ・ゴミ・空き容器 (13)
+        'twisted-wire',
         'crumpled-aluminum',
         'cardboard-scrap',
-        'cat-whisker',
         'torn-receipt',
-        'hairball',
-        'twisted-wire',
-        'withered-foxtail',
-        'dented-pingpong-ball',
-        'lizard-tail',
-        'soft-dandelion',
-        'jelly-cup',
+        'candy-wrapper',
+        'snack-wrapper',
+        'bento-baran',
+        'skewer',
+        'ice-stick',
         'plastic-bottle-cap',
-        'cicada-wing',
-        'yarn-scrap',
+        'jelly-cup',
+        'blue-can',
+        'empty-bottle',
+        // 【レア】日常の珍品・幸運・宝石 (8)
+        'important-paper',
+        'winning-ice-stick',
         'old-coin',
-        'rainbow-feather',
         'four-leaf-clover',
+        'rainbow-feather',
         'red-gem',
         'blue-gem',
         'yellow-gem',
-        'winning-ice-stick',
+        // 【レア】ファンタジー・神秘・古代・伝説 (7)
+        'splendid-branch',
+        'glowing-moss-stone',
+        'ancient-gear',
+        'curious-magatama',
+        'star-fragment',
         'dragon-scale',
         'dragon-claw',
-        'star-fragment',
-        'ancient-gear',
-        'splendid-branch',
-        'curious-magatama',
-        'glowing-moss-stone',
       ];
+
+      expect(CAT_GIFTS.map((g) => g.id)).toEqual(expectedIds);
+
       expectedIds.forEach((id) => {
         const gift = CAT_GIFTS.find((g) => g.id === id);
         expect(gift).toBeDefined();
@@ -100,62 +110,6 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(importantPaper?.description).toBe('よくわからないが請求書と書かれている。');
       expect(importantPaper?.rarity).toBe('rare');
 
-      // 通常おくりものの定義確認（だいじそうな紙を除く通常25種）
-      const newCommonIds = [
-        'snack-wrapper',
-        'skewer',
-        'ice-stick',
-        'blue-can',
-        'empty-bottle',
-        'pink-handkerchief',
-        'candy-wrapper',
-        'bento-baran',
-        'super-ball',
-        'small-bell',
-        'broken-rubber-band',
-        'crumpled-aluminum',
-        'cardboard-scrap',
-        'cat-whisker',
-        'torn-receipt',
-        'hairball',
-        'twisted-wire',
-        'withered-foxtail',
-        'dented-pingpong-ball',
-        'lizard-tail',
-        'soft-dandelion',
-        'jelly-cup',
-        'plastic-bottle-cap',
-        'cicada-wing',
-        'yarn-scrap',
-      ];
-      newCommonIds.forEach((id) => {
-        const gift = CAT_GIFTS.find((g) => g.id === id);
-        expect(gift?.rarity).toBe('common');
-      });
-
-      // レアアイテム（ふしぎな古銭、なないろの羽根、よつばのクローバー、新規11種＋だいじそうな紙）の定義確認
-      const rareIds = [
-        'old-coin',
-        'rainbow-feather',
-        'four-leaf-clover',
-        'important-paper',
-        'red-gem',
-        'blue-gem',
-        'yellow-gem',
-        'winning-ice-stick',
-        'dragon-scale',
-        'dragon-claw',
-        'star-fragment',
-        'ancient-gear',
-        'splendid-branch',
-        'curious-magatama',
-        'glowing-moss-stone',
-      ];
-      rareIds.forEach((id) => {
-        const gift = CAT_GIFTS.find((g) => g.id === id);
-        expect(gift?.rarity).toBe('rare');
-      });
-
       // 「りゅうの鱗」「りゅうの爪」の「りゅう」がドラゴンであること
       const dragonScale = CAT_GIFTS.find((g) => g.id === 'dragon-scale');
       expect(dragonScale?.description).toContain('ドラゴン');
@@ -168,6 +122,51 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       CAT_GIFTS.forEach((gift) => {
         expect(gift.name).toMatch(hiraganaPrefixPattern);
       });
+    });
+
+    it('通常のレアリティ（common: 45種）が上（前方）に、レア（rare: 15種）が下（後方）に並んでいること', () => {
+      const commonGifts = CAT_GIFTS.slice(0, 45);
+      const rareGifts = CAT_GIFTS.slice(45);
+
+      expect(commonGifts.length).toBe(45);
+      expect(rareGifts.length).toBe(15);
+
+      commonGifts.forEach((gift) => {
+        expect(gift.rarity).toBe('common');
+      });
+
+      rareGifts.forEach((gift) => {
+        expect(gift.rarity).toBe('rare');
+      });
+    });
+
+    it('レアアイテムの中でファンタジー・神秘世界観のもの（神木、古代文明、星、ドラゴン等）が下方に並んでいること', () => {
+      const rareGifts = CAT_GIFTS.slice(45);
+
+      // 前半8種: 日常・幸運・宝石
+      const everydayAndLuckyIds = rareGifts.slice(0, 8).map((g) => g.id);
+      expect(everydayAndLuckyIds).toEqual([
+        'important-paper',
+        'winning-ice-stick',
+        'old-coin',
+        'four-leaf-clover',
+        'rainbow-feather',
+        'red-gem',
+        'blue-gem',
+        'yellow-gem',
+      ]);
+
+      // 後半7種: ファンタジー・神秘・古代・伝説
+      const fantasyIds = rareGifts.slice(8).map((g) => g.id);
+      expect(fantasyIds).toEqual([
+        'splendid-branch',
+        'glowing-moss-stone',
+        'ancient-gear',
+        'curious-magatama',
+        'star-fragment',
+        'dragon-scale',
+        'dragon-claw',
+      ]);
     });
   });
 
@@ -205,13 +204,13 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
 
   describe('pickRandomGift', () => {
     it('randomFn に応じて指定したギフトが選出されること', () => {
-      // randomFn が 0 のときは先頭アイテム（pebble）
+      // randomFn が 0 のときは先頭アイテム（pebble: きれいな小石）
       const item0 = pickRandomGift(CAT_GIFTS, () => 0.0);
       expect(item0.id).toBe('pebble');
 
-      // randomFn が 0.999 のときは最後のアイテム（glowing-moss-stone）
+      // randomFn が 0.999 のときは最後のアイテム（dragon-claw: りゅうの爪）
       const itemLast = pickRandomGift(CAT_GIFTS, () => 0.999);
-      expect(itemLast.id).toBe('glowing-moss-stone');
+      expect(itemLast.id).toBe('dragon-claw');
     });
 
     it('カタログが空の場合はデフォルトギフトを返すこと', () => {
