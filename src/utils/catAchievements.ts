@@ -7,11 +7,10 @@ import {
 import { CatMoodLevel } from '../types/mood.ts';
 import { CatFullnessLevel } from '../types/fullness.ts';
 import { CareStats } from '../types/journal.ts';
-import { GiftItem } from '../types/gift.ts';
+import { GiftItem, GiftInventory } from '../types/gift.ts';
 
 /**
- * 実績マスターデータリスト（全35種類）
- * すべて「通常の実績（isHidden: false）」として定義されています。
+ * 実績マスターデータリスト（全43種類: 通常実績35種類 + 隠し実績8種類）
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
   // --- 初期ふれあい実績 ---
@@ -278,6 +277,66 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     iconType: 'paw',
     isHidden: false,
   },
+
+  // ==========================================
+  // 【隠し実績（isHidden: true）】特定のおくりもの収集セット
+  // ==========================================
+  {
+    id: 'hidden-pebble-set',
+    title: '石ころマニア',
+    description: '「きれいな小石」「こけむした小石」「ひかる苔石」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-branch-set',
+    title: '枝拾いの達人',
+    description: '「ほそい小枝」「りっぱな枝」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-clover-set',
+    title: '幸運を呼ぶしっぽ',
+    description: '「みどりのクローバー」「よつばのクローバー」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-cicada-set',
+    title: '夏のおとしもの',
+    description: '「せみのぬけがら」「かわいた蝉の羽」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-ice-stick-set',
+    title: 'もう一本たべたい！',
+    description: '「はずれのアイス棒」「あたりのアイス棒」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-feather-set',
+    title: '大空のきらめき',
+    description: '「ふわふわの羽根」「なないろの羽根」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-gem-set',
+    title: 'ジュエルキャッツ',
+    description: '「あかいろの宝石」「あおいろの宝石」「きいろの宝石」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-dragon-set',
+    title: '竜の伝説',
+    description: '「りゅうの鱗」「りゅうの爪」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
 ] as const;
 
 /** localStorage 保存用キー */
@@ -364,6 +423,23 @@ export interface AchievementCheckContext {
   hasRareGift?: boolean;
   /** 猫の名前を変更したか */
   isCatRenamed?: boolean;
+  /** 現在のおくりものインベントリ（セット収集判定用） */
+  giftInventory?: GiftInventory;
+}
+
+/**
+ * 指定したすべてのおくりものを1個以上所持しているか（または直前に受け取ったか）判定する純粋関数
+ */
+export function hasAllGifts(
+  inventory: GiftInventory | undefined,
+  targetIds: readonly string[],
+  receivedGiftId?: string
+): boolean {
+  return targetIds.every((id) => {
+    const inInv = (inventory?.[id]?.count ?? 0) >= 1;
+    const isJustReceived = id === receivedGiftId;
+    return inInv || isJustReceived;
+  });
 }
 
 /**
@@ -625,6 +701,103 @@ export function checkNewAchievements(
       // --- 猫の名前変更系 ---
       case 'first-rename-cat':
         if (context.action === 'rename' || context.isCatRenamed === true) {
+          isMet = true;
+        }
+        break;
+
+      // --- 隠し実績：おくりもの収集セット ---
+      case 'hidden-pebble-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['pebble', 'mossy-pebble', 'glowing-moss-stone'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-branch-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['twig', 'splendid-branch'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-clover-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['clover', 'four-leaf-clover'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-cicada-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['cicada-shell', 'cicada-wing'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-ice-stick-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['ice-stick', 'winning-ice-stick'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-feather-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['feather', 'rainbow-feather'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-gem-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['red-gem', 'blue-gem', 'yellow-gem'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-dragon-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['dragon-scale', 'dragon-claw'],
+            context.receivedGift?.id
+          )
+        ) {
           isMet = true;
         }
         break;

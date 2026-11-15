@@ -37,6 +37,14 @@ export type AchievementId =
   | 'gift-count-1000'
   | 'first-rare-gift'
   | 'first-rename-cat'
+  | 'hidden-pebble-set'
+  | 'hidden-branch-set'
+  | 'hidden-clover-set'
+  | 'hidden-cicada-set'
+  | 'hidden-ice-stick-set'
+  | 'hidden-feather-set'
+  | 'hidden-gem-set'
+  | 'hidden-dragon-set'
   | string;
 
 /**

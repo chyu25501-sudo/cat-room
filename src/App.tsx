@@ -164,6 +164,7 @@ export default function App() {
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
+      giftInventory: inventory,
       careStats: updatedJournalStats,
     });
 
@@ -255,6 +256,7 @@ export default function App() {
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
+      giftInventory: inventory,
       careStats: updatedJournalStats,
     });
 
@@ -333,6 +335,7 @@ export default function App() {
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
+      giftInventory: inventory,
       careStats: updatedJournalStats,
     });
 

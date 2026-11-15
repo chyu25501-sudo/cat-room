@@ -7,11 +7,12 @@ import {
   getAchievementDisplayInfo,
 } from './catAchievements.ts';
 import { AchievementItem, UnlockedAchievements } from '../types/achievement.ts';
+import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全35種類の実績が定義されており、すべて通常の実績(isHidden: false)であること', () => {
-      expect(ACHIEVEMENTS.length).toBe(35);
+    it('全43種類の実績が定義されており、通常35種(isHidden: false)と隠し実績8種(isHidden: true)があること', () => {
+      expect(ACHIEVEMENTS.length).toBe(43);
 
       const expectedIds = [
         'first-pet',
@@ -49,6 +50,14 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'gift-count-1000',
         'first-rare-gift',
         'first-rename-cat',
+        'hidden-pebble-set',
+        'hidden-branch-set',
+        'hidden-clover-set',
+        'hidden-cicada-set',
+        'hidden-ice-stick-set',
+        'hidden-feather-set',
+        'hidden-gem-set',
+        'hidden-dragon-set',
       ];
       expect(ACHIEVEMENTS.map((a) => a.id)).toEqual(expectedIds);
 
@@ -56,7 +65,11 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         expect(achievement.title).toBeTruthy();
         expect(achievement.description).toBeTruthy();
         expect(achievement.iconType).toBeTruthy();
-        expect(achievement.isHidden).toBe(false);
+        if (achievement.id.startsWith('hidden-')) {
+          expect(achievement.isHidden).toBe(true);
+        } else {
+          expect(achievement.isHidden).toBe(false);
+        }
       });
     });
   });
@@ -239,6 +252,104 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
 
       const newItems2 = checkNewAchievements({ isCatRenamed: true }, unlocked);
       expect(newItems2.map((a) => a.id)).toContain('first-rename-cat');
+    });
+
+    describe('隠し実績（おくりもの収集セット8種）', () => {
+      const makeInventory = (ids: string[]): GiftInventory => {
+        const inv: GiftInventory = {};
+        ids.forEach((id) => {
+          inv[id] = { id, count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 };
+        });
+        return inv;
+      };
+
+      it('小石セット（きれいな小石・こけむした小石・ひかる苔石）を所持したときに hidden-pebble-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        // 2つだけでは解除されない
+        const partialInv = makeInventory(['pebble', 'mossy-pebble']);
+        expect(
+          checkNewAchievements({ giftInventory: partialInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-pebble-set');
+
+        // 3つ揃うと解除される
+        const fullInv = makeInventory(['pebble', 'mossy-pebble', 'glowing-moss-stone']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-pebble-set');
+
+        // 直前に受け取ったギフトを含めて3つ揃う場合も解除されること
+        const justReceived = {
+          id: 'glowing-moss-stone',
+          name: 'ひかる苔石',
+          description: '',
+          icon: '🪨',
+          iconType: 'glowing-moss-stone',
+          themeClass: '',
+          rarity: 'rare' as const,
+        };
+        expect(
+          checkNewAchievements(
+            { giftInventory: partialInv, receivedGift: justReceived },
+            unlocked
+          ).map((a) => a.id)
+        ).toContain('hidden-pebble-set');
+      });
+
+      it('小枝セット（ほそい小枝・りっぱな枝）を所持したときに hidden-branch-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['twig', 'splendid-branch']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-branch-set');
+      });
+
+      it('クローバーセット（みどりのクローバー・よつばのクローバー）を所持したときに hidden-clover-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['clover', 'four-leaf-clover']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-clover-set');
+      });
+
+      it('セミセット（せみのぬけがら・かわいた蝉の羽）を所持したときに hidden-cicada-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['cicada-shell', 'cicada-wing']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-cicada-set');
+      });
+
+      it('アイス棒セット（はずれのアイス棒・あたりのアイス棒）を所持したときに hidden-ice-stick-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['ice-stick', 'winning-ice-stick']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-ice-stick-set');
+      });
+
+      it('羽根セット（ふわふわの羽根・なないろの羽根）を所持したときに hidden-feather-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['feather', 'rainbow-feather']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-feather-set');
+      });
+
+      it('宝石セット（あかいろ・あおいろ・きいろの宝石）を所持したときに hidden-gem-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['red-gem', 'blue-gem', 'yellow-gem']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-gem-set');
+      });
+
+      it('竜セット（りゅうの鱗・りゅうの爪）を所持したときに hidden-dragon-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['dragon-scale', 'dragon-claw']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-dragon-set');
+      });
     });
   });
 

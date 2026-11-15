@@ -1245,9 +1245,17 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
         expect(screen.getByTestId('achievement-badge-first-pet')).toHaveTextContent('達成！');
         expect(screen.getByTestId('achievement-title-first-pet')).toHaveTextContent('はじめまして！');
-        // 未達成の実績は伏せ字「？？？」のままであること
+        // 未達成の通常実績は名前のみ伏せ字「？？？」で説明文は見えること
         expect(screen.getByTestId('achievement-title-first-feed')).toHaveTextContent('？？？');
-        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/35');
+        expect(screen.getByTestId('achievement-desc-first-feed')).toHaveTextContent(
+          '猫ちゃんに初めてごはんを食べさせてあげた。'
+        );
+
+        // 未達成の隠し実績は名前「？？？」かつ説明文も「？？？？？？」と伏せ字であること
+        expect(screen.getByTestId('achievement-title-hidden-pebble-set')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-hidden-pebble-set')).toHaveTextContent('？？？？？？');
+
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/43');
       } finally {
         vi.useRealTimers();
       }
