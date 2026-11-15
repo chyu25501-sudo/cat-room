@@ -135,6 +135,18 @@ export default function App() {
     );
   };
 
+  // 全猫の中の最低なつき度レベルを算出するヘルパー
+  const getMinAffectionLevel = (overrideCatId?: CatId, overrideLevel?: number) => {
+    return Math.min(
+      ...resolvedPresets.map((p) => {
+        if (p.id === overrideCatId && typeof overrideLevel === 'number') {
+          return overrideLevel;
+        }
+        return getAffectionLevel(p.id);
+      })
+    );
+  };
+
   const handleInteractCat = () => {
     setLastAction('pet');
     // 撫でることで選択中の猫の機嫌を更新（過剰撫で時は愛撫誘発性攻撃により不機嫌になる）
@@ -182,13 +194,16 @@ export default function App() {
       receivedGiftItem?.rarity === 'ultra-rare' ||
       Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare');
 
-    // 実績判定（なでる・機嫌・ギフト・手帳統計・なつき度）
+    // 実績判定（なでる・機嫌・まんぷく度・ギフト・手帳統計・なつき度）
     checkAchievements({
       action: 'pet',
       moodScore: nextScore,
       moodLevel: nextLevel,
+      fullnessScore: currentFullnessScore,
+      fullnessLevel: currentFullnessLevel,
       affectionLevel: updatedAffectionLevel,
       maxAffectionLevel: getMaxAffectionLevel(currentCatId, updatedAffectionLevel),
+      minAffectionLevel: getMinAffectionLevel(currentCatId, updatedAffectionLevel),
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
@@ -218,6 +233,12 @@ export default function App() {
     // まんぷく度が90%以上の時は「まんぷくで食べられない！」と表示し、ごはんをあげられない
     if (!canFeedCat(currentFullnessScore)) {
       showBubble(MESSAGE_TOO_FULL_TO_EAT, { force: true, durationMs: 2400 });
+      checkAchievements({
+        action: 'feed-refused',
+        isTooFull: true,
+        fullnessScore: currentFullnessScore,
+        fullnessLevel: currentFullnessLevel,
+      });
       return;
     }
 
@@ -292,6 +313,7 @@ export default function App() {
       fullnessLevel: nextFullnessLevel,
       affectionLevel: affRes.nextLevel,
       maxAffectionLevel: getMaxAffectionLevel(currentCatId, affRes.nextLevel),
+      minAffectionLevel: getMinAffectionLevel(currentCatId, affRes.nextLevel),
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
@@ -380,8 +402,11 @@ export default function App() {
       action: 'play',
       moodScore: nextScore,
       moodLevel: nextLevel,
+      fullnessScore: currentFullnessScore,
+      fullnessLevel: currentFullnessLevel,
       affectionLevel: affRes.nextLevel,
       maxAffectionLevel: getMaxAffectionLevel(currentCatId, affRes.nextLevel),
+      minAffectionLevel: getMinAffectionLevel(currentCatId, affRes.nextLevel),
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,

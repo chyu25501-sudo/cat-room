@@ -38,12 +38,12 @@ export function getAchievementCategoryLabel(category: AchievementCategory): stri
 }
 
 /**
- * 実績マスターデータリスト（全52種類: 通常実績39種類 + 隠し実績13種類）
+ * 実績マスターデータリスト（全60種類: 通常実績45種類 + 隠し実績15種類）
  * カテゴリごとにグループ化して整列（ふれあい -> お世話 -> おくりもの）
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
   // ==========================================
-  // 【ふれあい】カテゴリ（計17種類）
+  // 【ふれあい】カテゴリ（計19種類）
   // ==========================================
   {
     id: 'first-pet',
@@ -118,6 +118,22 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     isHidden: false,
   },
   {
+    id: 'all-cats-loved',
+    title: 'みんな大好き',
+    description: 'くろねこ・しろねこ・みけねこの3匹みんなとふれあった。',
+    iconType: 'paw',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'all-cats-affection-3',
+    title: 'みんななかよし',
+    description: 'くろねこ・しろねこ・みけねこの3匹すべてのなつき度レベルを3以上にした。',
+    iconType: 'paw',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
     id: 'streak-3',
     title: 'まいにちのおともだち',
     description: '3日連続で猫ちゃんとふれあった。',
@@ -183,7 +199,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
   },
 
   // ==========================================
-  // 【お世話】カテゴリ（計13種類）
+  // 【お世話】カテゴリ（計15種類）
   // ==========================================
   {
     id: 'first-feed',
@@ -197,6 +213,22 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     id: 'fullness-full',
     title: 'おなかいっぱい！',
     description: '猫ちゃんのまんぷく度を最高（まんぷく）にした。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'perfect-satisfaction',
+    title: '至福のひととき',
+    description: '猫ちゃんのごきげん度とまんぷく度の両方を同時にMAX（100%）にした。',
+    iconType: 'sparkle',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'too-full-to-eat',
+    title: 'もう食べられないよ〜',
+    description: 'おなかがいっぱいでごはんを食べられない猫ちゃんの姿を見守った。',
     iconType: 'food',
     category: 'care',
     isHidden: false,
@@ -291,12 +323,28 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
   },
 
   // ==========================================
-  // 【おくりもの】カテゴリ（計9種類）
+  // 【おくりもの】カテゴリ（計26種類: 通常11種類 + 隠し15種類）
   // ==========================================
   {
     id: 'first-gift',
     title: '小さなプレゼント',
     description: '猫ちゃんから初めておくりものを受け取った。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'unique-gifts-10',
+    title: '小さなおくりもの図鑑',
+    description: '異なる種類のおくりものを10種類以上集めた。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'unique-gifts-40',
+    title: 'おくりもの大百科',
+    description: '異なる種類のおくりものを40種類以上集めた。',
     iconType: 'gift',
     category: 'gift',
     isHidden: false,
@@ -367,7 +415,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
   },
 
   // ==========================================
-  // 【おくりもの】隠し実績（計13種類、isHidden: true）
+  // 【おくりもの】隠し実績（計15種類、isHidden: true）
   // ==========================================
   {
     id: 'hidden-pebble-set',
@@ -473,6 +521,22 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     category: 'gift',
     isHidden: true,
   },
+  {
+    id: 'hidden-cat-treasures-set',
+    title: 'ねこのひみつコレクション',
+    description: '「まるまった毛玉」「ぬけたじぶんのヒゲ」をすべて集めた。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-shiny-shiny-set',
+    title: '光の収集家',
+    description: '「きらきらしたおはじき」「ちいさな鈴」「ほしのかけら」をすべて集めた。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: true,
+  },
 ] as const;
 
 /** localStorage 保存用キー */
@@ -540,7 +604,9 @@ export function getAchievementById(
  */
 export interface AchievementCheckContext {
   /** 直前に実行したアクション */
-  action?: 'pet' | 'feed' | 'play' | 'gift' | 'rename';
+  action?: 'pet' | 'feed' | 'play' | 'gift' | 'rename' | 'feed-refused';
+  /** まんぷく度が90%以上でお腹いっぱいで食べられなかったか */
+  isTooFull?: boolean;
   /** 現在のごきげんスコア（0 〜 100） */
   moodScore?: number;
   /** 現在のごきげんレベル */
@@ -567,6 +633,8 @@ export interface AchievementCheckContext {
   affectionLevel?: number;
   /** 全猫の中の最高なつき度レベル */
   maxAffectionLevel?: number;
+  /** 全猫の中の最低なつき度レベル（全員なかよし判定用） */
+  minAffectionLevel?: number;
   /** 現在のおくりものインベントリ（セット収集判定用） */
   giftInventory?: GiftInventory;
 }
@@ -656,12 +724,66 @@ export function checkNewAchievements(
         }
         break;
 
+      case 'unique-gifts-10': {
+        const uniqueIds = new Set<string>();
+        if (context.giftInventory) {
+          for (const [id, record] of Object.entries(context.giftInventory)) {
+            if (record && record.count > 0) {
+              uniqueIds.add(id);
+            }
+          }
+        }
+        if (context.receivedGift) {
+          uniqueIds.add(context.receivedGift.id);
+        }
+        if (uniqueIds.size >= 10) {
+          isMet = true;
+        }
+        break;
+      }
+
+      case 'unique-gifts-40': {
+        const uniqueIds = new Set<string>();
+        if (context.giftInventory) {
+          for (const [id, record] of Object.entries(context.giftInventory)) {
+            if (record && record.count > 0) {
+              uniqueIds.add(id);
+            }
+          }
+        }
+        if (context.receivedGift) {
+          uniqueIds.add(context.receivedGift.id);
+        }
+        if (uniqueIds.size >= 40) {
+          isMet = true;
+        }
+        break;
+      }
+
       // --- まんぷく系 ---
       case 'fullness-full':
         if (
           context.fullnessLevel === 'full' ||
           (typeof context.fullnessScore === 'number' && context.fullnessScore >= 100)
         ) {
+          isMet = true;
+        }
+        break;
+
+      // --- お世話・状態連携系 ---
+      case 'perfect-satisfaction':
+        if (
+          typeof context.moodScore === 'number' &&
+          context.moodScore >= 100 &&
+          typeof context.fullnessScore === 'number' &&
+          context.fullnessScore >= 100
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'too-full-to-eat':
+        if (context.isTooFull === true || context.action === 'feed-refused') {
           isMet = true;
         }
         break;
@@ -910,6 +1032,25 @@ export function checkNewAchievements(
         }
         break;
 
+      case 'all-cats-loved':
+        if (context.careStats?.interactionsByCat) {
+          const byCat = context.careStats.interactionsByCat;
+          if (
+            (byCat['black'] ?? 0) > 0 &&
+            (byCat['white'] ?? 0) > 0 &&
+            (byCat['calico'] ?? 0) > 0
+          ) {
+            isMet = true;
+          }
+        }
+        break;
+
+      case 'all-cats-affection-3':
+        if (typeof context.minAffectionLevel === 'number' && context.minAffectionLevel >= 3) {
+          isMet = true;
+        }
+        break;
+
       // --- 隠し実績：おくりもの収集セット ---
       case 'hidden-pebble-set':
         if (
@@ -1071,6 +1212,30 @@ export function checkNewAchievements(
             context.giftInventory,
             'single-sock',
             2,
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-cat-treasures-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['hairball', 'cat-whisker'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-shiny-shiny-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['glass-marble', 'small-bell', 'star-fragment'],
             context.receivedGift?.id
           )
         ) {

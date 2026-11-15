@@ -20,7 +20,7 @@ describe('AchievementModal コンポーネント', () => {
     render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
 
     expect(screen.getByRole('dialog', { name: /実績/ })).toBeInTheDocument();
-    expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('2/52');
+    expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('2/60');
 
     // 達成済み実績: 「達成！」バッジが表示され、名前と説明文が表示されていること
     expect(screen.getByTestId('achievement-title-first-pet')).toHaveTextContent('はじめまして！');
@@ -127,10 +127,10 @@ describe('AchievementModal コンポーネント', () => {
     const careFilterBtn = screen.getByTestId('filter-category-care');
     const giftFilterBtn = screen.getByTestId('filter-category-gift');
 
-    expect(allFilterBtn).toHaveTextContent('すべて (52)');
-    expect(interactionFilterBtn).toHaveTextContent('ふれあい (17)');
-    expect(careFilterBtn).toHaveTextContent('お世話 (13)');
-    expect(giftFilterBtn).toHaveTextContent('おくりもの (22)');
+    expect(allFilterBtn).toHaveTextContent('すべて (60)');
+    expect(interactionFilterBtn).toHaveTextContent('ふれあい (19)');
+    expect(careFilterBtn).toHaveTextContent('お世話 (15)');
+    expect(giftFilterBtn).toHaveTextContent('おくりもの (26)');
     // 「隠し実績」独立ボタンは存在しない
     expect(screen.queryByTestId('filter-category-hidden')).not.toBeInTheDocument();
 

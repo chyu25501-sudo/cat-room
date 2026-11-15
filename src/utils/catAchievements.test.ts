@@ -13,11 +13,11 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全52種類の実績が定義されており、3カテゴリ（ふれあい17件、お世話13件、おくりもの22件）に分類され、通常39種(isHidden: false)と隠し実績13種(isHidden: true)があること', () => {
-      expect(ACHIEVEMENTS.length).toBe(52);
+    it('全60種類の実績が定義されており、3カテゴリ（ふれあい19件、お世話15件、おくりもの26件）に分類され、通常45種(isHidden: false)と隠し実績15種(isHidden: true)があること', () => {
+      expect(ACHIEVEMENTS.length).toBe(60);
 
       const expectedIds = [
-        // interaction (17)
+        // interaction (19)
         'first-pet',
         'mood-ecstatic',
         'pet-count-100',
@@ -27,6 +27,8 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'pet-count-10000',
         'affection-level-5',
         'affection-level-10',
+        'all-cats-loved',
+        'all-cats-affection-3',
         'streak-3',
         'streak-7',
         'streak-14',
@@ -35,9 +37,11 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'total-days-14',
         'total-days-30',
         'first-rename-cat',
-        // care (13)
+        // care (15)
         'first-feed',
         'fullness-full',
+        'perfect-satisfaction',
+        'too-full-to-eat',
         'feed-count-100',
         'feed-count-500',
         'feed-count-1000',
@@ -49,8 +53,10 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'play-count-1000',
         'play-count-5000',
         'play-count-10000',
-        // gift (9 + 13 = 22)
+        // gift (11 + 15 = 26)
         'first-gift',
+        'unique-gifts-10',
+        'unique-gifts-40',
         'gift-count-20',
         'gift-count-100',
         'gift-count-222',
@@ -59,7 +65,7 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'first-rare-gift',
         'first-super-rare-gift',
         'first-ultra-rare-gift',
-        // hidden gift items (13)
+        // hidden gift items (15)
         'hidden-pebble-set',
         'hidden-branch-set',
         'hidden-clover-set',
@@ -73,6 +79,8 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'hidden-ultra-rare-set',
         'hidden-rainbow-colors-set',
         'hidden-pair-socks',
+        'hidden-cat-treasures-set',
+        'hidden-shiny-shiny-set',
       ];
       expect(ACHIEVEMENTS.map((a) => a.id)).toEqual(expectedIds);
 
@@ -571,6 +579,130 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
             unlocked
           ).map((a) => a.id)
         ).toContain('hidden-pair-socks');
+      });
+
+      it('「まるまった毛玉」と「ぬけたじぶんのヒゲ」をすべて集めたときに hidden-cat-treasures-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const partialInv: GiftInventory = {
+          hairball: { giftId: 'hairball', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: partialInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-cat-treasures-set');
+
+        const fullInv: GiftInventory = {
+          hairball: { giftId: 'hairball', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'cat-whisker': { giftId: 'cat-whisker', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-cat-treasures-set');
+      });
+
+      it('「きらきらしたおはじき」「ちいさな鈴」「ほしのかけら」をすべて集めたときに hidden-shiny-shiny-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv: GiftInventory = {
+          'glass-marble': { giftId: 'glass-marble', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'small-bell': { giftId: 'small-bell', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'star-fragment': { giftId: 'star-fragment', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-shiny-shiny-set');
+      });
+    });
+
+    describe('新通常実績の解除判定', () => {
+      it('ごきげん度とまんぷく度の両方が100になった時に perfect-satisfaction が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        // 片方だけ100では解除されない
+        expect(
+          checkNewAchievements({ moodScore: 100, fullnessScore: 80 }, unlocked).map((a) => a.id)
+        ).not.toContain('perfect-satisfaction');
+        expect(
+          checkNewAchievements({ moodScore: 80, fullnessScore: 100 }, unlocked).map((a) => a.id)
+        ).not.toContain('perfect-satisfaction');
+
+        // 両方100で解除される
+        expect(
+          checkNewAchievements({ moodScore: 100, fullnessScore: 100 }, unlocked).map((a) => a.id)
+        ).toContain('perfect-satisfaction');
+      });
+
+      it('まんぷくでお腹いっぱいで食べられない時に too-full-to-eat が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        expect(
+          checkNewAchievements({ isTooFull: true }, unlocked).map((a) => a.id)
+        ).toContain('too-full-to-eat');
+
+        expect(
+          checkNewAchievements({ action: 'feed-refused' }, unlocked).map((a) => a.id)
+        ).toContain('too-full-to-eat');
+      });
+
+      it('3匹みんなとふれあった時に all-cats-loved が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const twoCatsStats: any = {
+          interactionsByCat: { black: 5, white: 3, calico: 0 },
+        };
+        expect(
+          checkNewAchievements({ careStats: twoCatsStats }, unlocked).map((a) => a.id)
+        ).not.toContain('all-cats-loved');
+
+        const allCatsStats: any = {
+          interactionsByCat: { black: 5, white: 3, calico: 1 },
+        };
+        expect(
+          checkNewAchievements({ careStats: allCatsStats }, unlocked).map((a) => a.id)
+        ).toContain('all-cats-loved');
+      });
+
+      it('全猫のなつき度レベルが3以上になった時に all-cats-affection-3 が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        expect(
+          checkNewAchievements({ minAffectionLevel: 2 }, unlocked).map((a) => a.id)
+        ).not.toContain('all-cats-affection-3');
+
+        expect(
+          checkNewAchievements({ minAffectionLevel: 3 }, unlocked).map((a) => a.id)
+        ).toContain('all-cats-affection-3');
+        expect(
+          checkNewAchievements({ minAffectionLevel: 5 }, unlocked).map((a) => a.id)
+        ).toContain('all-cats-affection-3');
+      });
+
+      it('異なるおくりものを10種類以上集めた時に unique-gifts-10 が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const nineGiftsInv: GiftInventory = {};
+        for (let i = 1; i <= 9; i++) {
+          nineGiftsInv[`gift-${i}`] = { giftId: `gift-${i}`, count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 };
+        }
+        expect(
+          checkNewAchievements({ giftInventory: nineGiftsInv }, unlocked).map((a) => a.id)
+        ).not.toContain('unique-gifts-10');
+
+        const tenGiftsInv: GiftInventory = { ...nineGiftsInv };
+        tenGiftsInv['gift-10'] = { giftId: 'gift-10', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 };
+        expect(
+          checkNewAchievements({ giftInventory: tenGiftsInv }, unlocked).map((a) => a.id)
+        ).toContain('unique-gifts-10');
+      });
+
+      it('異なるおくりものを40種類以上集めた時に unique-gifts-40 が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const thirtyNineInv: GiftInventory = {};
+        for (let i = 1; i <= 39; i++) {
+          thirtyNineInv[`gift-${i}`] = { giftId: `gift-${i}`, count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 };
+        }
+        expect(
+          checkNewAchievements({ giftInventory: thirtyNineInv }, unlocked).map((a) => a.id)
+        ).not.toContain('unique-gifts-40');
+
+        const fortyInv: GiftInventory = { ...thirtyNineInv };
+        fortyInv['gift-40'] = { giftId: 'gift-40', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 };
+        expect(
+          checkNewAchievements({ giftInventory: fortyInv }, unlocked).map((a) => a.id)
+        ).toContain('unique-gifts-40');
       });
     });
   });

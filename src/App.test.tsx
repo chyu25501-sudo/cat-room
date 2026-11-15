@@ -308,7 +308,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
         // 不機嫌（5%）から 5 + 26 = 31% に回復
         expect(screen.queryByText('ごきげんななめ')).not.toBeInTheDocument();
-        expect(screen.getByText('31%')).toBeInTheDocument();
+        expect(screen.getByTestId('mood-score-percentage')).toHaveTextContent('31%');
         expect(screen.getByText('おだやか')).toBeInTheDocument();
 
         // 毛糸ボールのイラストが描画されること
@@ -1291,7 +1291,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByTestId('achievement-title-hidden-pair-socks')).toHaveTextContent('？？？');
         expect(screen.getByTestId('achievement-desc-hidden-pair-socks')).toHaveTextContent('？？？？？？');
 
-        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/52');
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/60');
       } finally {
         vi.useRealTimers();
       }

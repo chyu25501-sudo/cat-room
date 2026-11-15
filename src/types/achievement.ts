@@ -41,6 +41,12 @@ export type AchievementId =
   | 'first-rename-cat'
   | 'affection-level-5'
   | 'affection-level-10'
+  | 'all-cats-loved'
+  | 'all-cats-affection-3'
+  | 'perfect-satisfaction'
+  | 'too-full-to-eat'
+  | 'unique-gifts-10'
+  | 'unique-gifts-40'
   | 'hidden-pebble-set'
   | 'hidden-branch-set'
   | 'hidden-clover-set'
@@ -54,6 +60,8 @@ export type AchievementId =
   | 'hidden-ultra-rare-set'
   | 'hidden-rainbow-colors-set'
   | 'hidden-pair-socks'
+  | 'hidden-cat-treasures-set'
+  | 'hidden-shiny-shiny-set'
   | string;
 
 /**
