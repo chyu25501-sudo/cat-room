@@ -128,8 +128,8 @@ describe('AchievementModal コンポーネント', () => {
     const giftFilterBtn = screen.getByTestId('filter-category-gift');
 
     expect(allFilterBtn).toHaveTextContent('すべて (60)');
-    expect(interactionFilterBtn).toHaveTextContent('ふれあい (19)');
-    expect(careFilterBtn).toHaveTextContent('お世話 (15)');
+    expect(interactionFilterBtn).toHaveTextContent('ふれあい (20)');
+    expect(careFilterBtn).toHaveTextContent('お世話 (14)');
     expect(giftFilterBtn).toHaveTextContent('おくりもの (26)');
     // 「隠し実績」独立ボタンは存在しない
     expect(screen.queryByTestId('filter-category-hidden')).not.toBeInTheDocument();

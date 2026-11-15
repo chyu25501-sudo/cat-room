@@ -13,11 +13,11 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全60種類の実績が定義されており、3カテゴリ（ふれあい19件、お世話15件、おくりもの26件）に分類され、通常45種(isHidden: false)と隠し実績15種(isHidden: true)があること', () => {
+    it('全60種類の実績が定義されており、3カテゴリ（ふれあい20件、お世話14件、おくりもの26件）に分類され、通常45種(isHidden: false)と隠し実績15種(isHidden: true)があること', () => {
       expect(ACHIEVEMENTS.length).toBe(60);
 
       const expectedIds = [
-        // interaction (19)
+        // interaction (20)
         'first-pet',
         'mood-ecstatic',
         'pet-count-100',
@@ -29,6 +29,7 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'affection-level-10',
         'all-cats-loved',
         'all-cats-affection-3',
+        'all-cats-affection-10',
         'streak-3',
         'streak-7',
         'streak-14',
@@ -37,11 +38,10 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'total-days-14',
         'total-days-30',
         'first-rename-cat',
-        // care (15)
+        // care (14)
         'first-feed',
         'fullness-full',
         'perfect-satisfaction',
-        'too-full-to-eat',
         'feed-count-100',
         'feed-count-500',
         'feed-count-1000',
@@ -629,17 +629,6 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         ).toContain('perfect-satisfaction');
       });
 
-      it('まんぷくでお腹いっぱいで食べられない時に too-full-to-eat が解除されること', () => {
-        const unlocked: UnlockedAchievements = {};
-        expect(
-          checkNewAchievements({ isTooFull: true }, unlocked).map((a) => a.id)
-        ).toContain('too-full-to-eat');
-
-        expect(
-          checkNewAchievements({ action: 'feed-refused' }, unlocked).map((a) => a.id)
-        ).toContain('too-full-to-eat');
-      });
-
       it('3匹みんなとふれあった時に all-cats-loved が解除されること', () => {
         const unlocked: UnlockedAchievements = {};
         const twoCatsStats: any = {
@@ -669,6 +658,17 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         expect(
           checkNewAchievements({ minAffectionLevel: 5 }, unlocked).map((a) => a.id)
         ).toContain('all-cats-affection-3');
+      });
+
+      it('全猫のなつき度レベルが10になった時に all-cats-affection-10 が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        expect(
+          checkNewAchievements({ minAffectionLevel: 9 }, unlocked).map((a) => a.id)
+        ).not.toContain('all-cats-affection-10');
+
+        expect(
+          checkNewAchievements({ minAffectionLevel: 10 }, unlocked).map((a) => a.id)
+        ).toContain('all-cats-affection-10');
       });
 
       it('異なるおくりものを10種類以上集めた時に unique-gifts-10 が解除されること', () => {

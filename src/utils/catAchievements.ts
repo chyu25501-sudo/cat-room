@@ -43,7 +43,7 @@ export function getAchievementCategoryLabel(category: AchievementCategory): stri
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
   // ==========================================
-  // 【ふれあい】カテゴリ（計19種類）
+  // 【ふれあい】カテゴリ（計20種類）
   // ==========================================
   {
     id: 'first-pet',
@@ -134,6 +134,14 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     isHidden: false,
   },
   {
+    id: 'all-cats-affection-10',
+    title: 'みんなずっと一緒♡',
+    description: 'くろねこ・しろねこ・みけねこの3匹すべてのなつき度レベルを10にした。',
+    iconType: 'sparkle',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
     id: 'streak-3',
     title: 'まいにちのおともだち',
     description: '3日連続で猫ちゃんとふれあった。',
@@ -199,7 +207,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
   },
 
   // ==========================================
-  // 【お世話】カテゴリ（計15種類）
+  // 【お世話】カテゴリ（計14種類）
   // ==========================================
   {
     id: 'first-feed',
@@ -222,14 +230,6 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '至福のひととき',
     description: '猫ちゃんのごきげん度とまんぷく度の両方を同時にMAX（100%）にした。',
     iconType: 'sparkle',
-    category: 'care',
-    isHidden: false,
-  },
-  {
-    id: 'too-full-to-eat',
-    title: 'もう食べられないよ〜',
-    description: 'おなかがいっぱいでごはんを食べられない猫ちゃんの姿を見守った。',
-    iconType: 'food',
     category: 'care',
     isHidden: false,
   },
@@ -604,9 +604,7 @@ export function getAchievementById(
  */
 export interface AchievementCheckContext {
   /** 直前に実行したアクション */
-  action?: 'pet' | 'feed' | 'play' | 'gift' | 'rename' | 'feed-refused';
-  /** まんぷく度が90%以上でお腹いっぱいで食べられなかったか */
-  isTooFull?: boolean;
+  action?: 'pet' | 'feed' | 'play' | 'gift' | 'rename';
   /** 現在のごきげんスコア（0 〜 100） */
   moodScore?: number;
   /** 現在のごきげんレベル */
@@ -778,12 +776,6 @@ export function checkNewAchievements(
           typeof context.fullnessScore === 'number' &&
           context.fullnessScore >= 100
         ) {
-          isMet = true;
-        }
-        break;
-
-      case 'too-full-to-eat':
-        if (context.isTooFull === true || context.action === 'feed-refused') {
           isMet = true;
         }
         break;
@@ -1047,6 +1039,12 @@ export function checkNewAchievements(
 
       case 'all-cats-affection-3':
         if (typeof context.minAffectionLevel === 'number' && context.minAffectionLevel >= 3) {
+          isMet = true;
+        }
+        break;
+
+      case 'all-cats-affection-10':
+        if (typeof context.minAffectionLevel === 'number' && context.minAffectionLevel >= 10) {
           isMet = true;
         }
         break;

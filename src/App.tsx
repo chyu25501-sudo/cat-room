@@ -233,12 +233,6 @@ export default function App() {
     // まんぷく度が90%以上の時は「まんぷくで食べられない！」と表示し、ごはんをあげられない
     if (!canFeedCat(currentFullnessScore)) {
       showBubble(MESSAGE_TOO_FULL_TO_EAT, { force: true, durationMs: 2400 });
-      checkAchievements({
-        action: 'feed-refused',
-        isTooFull: true,
-        fullnessScore: currentFullnessScore,
-        fullnessLevel: currentFullnessLevel,
-      });
       return;
     }
 
