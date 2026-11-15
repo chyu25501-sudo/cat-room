@@ -124,4 +124,60 @@ describe('AffectionLevelUpOverlay コンポーネント', () => {
     expect(screen.getByTestId('old-coin-icon')).toBeInTheDocument();
     expect(screen.getByTestId('gift-overlay-rare-badge')).toHaveTextContent('★ レア');
   });
+
+  it('スーパーレアやおくりものを受け取ったとき、アイコン背景が紫色になりSRバッジが表示されること', () => {
+    render(
+      <AffectionLevelUpOverlay
+        state={{
+          level: 10,
+          catName: 'くろねこ',
+          title: '最高の相棒',
+          isFading: false,
+          isMaxBonus: true,
+          gift: {
+            id: 'four-leaf-clover',
+            name: 'よつばのクローバー',
+            description: '草むらの中で奇跡的に見つけた、特別な幸運をもたらす四つ葉のクローバー。',
+            icon: '🍀',
+            iconType: 'four-leaf-clover',
+            rarity: 'super-rare',
+          },
+        }}
+      />
+    );
+
+    const iconBox = screen.getByTestId('gift-item-icon');
+    expect(iconBox.className).toContain('from-purple-300');
+    expect(iconBox.className).not.toContain('amber');
+    expect(screen.getByTestId('four-leaf-clover-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('gift-overlay-rare-badge')).toHaveTextContent('★★ スーパーレア');
+  });
+
+  it('ウルトラレアなおくりものを受け取ったとき、アイコン背景がオーロラになりURバッジが表示されること', () => {
+    render(
+      <AffectionLevelUpOverlay
+        state={{
+          level: 10,
+          catName: 'くろねこ',
+          title: '最高の相棒',
+          isFading: false,
+          isMaxBonus: true,
+          gift: {
+            id: 'rainbow-feather',
+            name: 'なないろの羽根',
+            description: '光に透かすと虹色にきらめく、伝説の鳥が落としていったような奇跡の羽根。',
+            icon: '🪶',
+            iconType: 'rainbow-feather',
+            rarity: 'ultra-rare',
+          },
+        }}
+      />
+    );
+
+    const iconBox = screen.getByTestId('gift-item-icon');
+    expect(iconBox.className).toContain('from-cyan-300');
+    expect(iconBox.className).not.toContain('amber');
+    expect(screen.getByTestId('rainbow-feather-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('gift-overlay-rare-badge')).toHaveTextContent('★★★ ウルトラレア');
+  });
 });

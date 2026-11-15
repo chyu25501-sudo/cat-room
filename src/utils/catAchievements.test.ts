@@ -11,8 +11,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全43種類の実績が定義されており、通常35種(isHidden: false)と隠し実績8種(isHidden: true)があること', () => {
-      expect(ACHIEVEMENTS.length).toBe(43);
+    it('全45種類の実績が定義されており、通常37種(isHidden: false)と隠し実績8種(isHidden: true)があること', () => {
+      expect(ACHIEVEMENTS.length).toBe(45);
 
       const expectedIds = [
         'first-pet',
@@ -49,6 +49,8 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'gift-count-500',
         'gift-count-1000',
         'first-rare-gift',
+        'first-super-rare-gift',
+        'first-ultra-rare-gift',
         'first-rename-cat',
         'hidden-pebble-set',
         'hidden-branch-set',
@@ -225,14 +227,14 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
       expect(newIds).not.toContain('gift-count-1000');
     });
 
-    it('レアなおくりものを受け取った時に first-rare-gift 実績が解除されること', () => {
+    it('レア・スーパーレア・ウルトラレアなおくりものを受け取った時に first-rare-gift 実績が解除されること', () => {
       const unlocked: UnlockedAchievements = {};
       const rareItem = {
-        id: 'rainbow-feather',
-        name: 'なないろの羽根',
-        description: '虹色の羽根',
-        icon: '🪶',
-        iconType: 'rainbow-feather',
+        id: 'old-coin',
+        name: 'ふしぎな古銭',
+        description: '',
+        icon: '🪙',
+        iconType: 'old-coin',
         themeClass: '',
         rarity: 'rare' as const,
       };
@@ -240,9 +242,77 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
       const newItems = checkNewAchievements({ receivedGift: rareItem }, unlocked);
       expect(newItems.map((a) => a.id)).toContain('first-rare-gift');
 
+      // スーパーレアでも解除されること
+      const srItem = {
+        id: 'four-leaf-clover',
+        name: 'よつばのクローバー',
+        description: '',
+        icon: '🍀',
+        iconType: 'four-leaf-clover',
+        themeClass: '',
+        rarity: 'super-rare' as const,
+      };
+      expect(checkNewAchievements({ receivedGift: srItem }, unlocked).map((a) => a.id)).toContain(
+        'first-rare-gift'
+      );
+
+      // ウルトラレアでも解除されること
+      const urItem = {
+        id: 'rainbow-feather',
+        name: 'なないろの羽根',
+        description: '',
+        icon: '🪶',
+        iconType: 'rainbow-feather',
+        themeClass: '',
+        rarity: 'ultra-rare' as const,
+      };
+      expect(checkNewAchievements({ receivedGift: urItem }, unlocked).map((a) => a.id)).toContain(
+        'first-rare-gift'
+      );
+
       // hasRareGift フラグでも解除されること
       const newItems2 = checkNewAchievements({ hasRareGift: true }, unlocked);
       expect(newItems2.map((a) => a.id)).toContain('first-rare-gift');
+    });
+
+    it('スーパーレアなおくりものを受け取った時に first-super-rare-gift 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const srItem = {
+        id: 'four-leaf-clover',
+        name: 'よつばのクローバー',
+        description: '',
+        icon: '🍀',
+        iconType: 'four-leaf-clover',
+        themeClass: '',
+        rarity: 'super-rare' as const,
+      };
+
+      const newItems = checkNewAchievements({ receivedGift: srItem }, unlocked);
+      expect(newItems.map((a) => a.id)).toContain('first-super-rare-gift');
+
+      // hasSuperRareGift フラグでも解除されること
+      const newItems2 = checkNewAchievements({ hasSuperRareGift: true }, unlocked);
+      expect(newItems2.map((a) => a.id)).toContain('first-super-rare-gift');
+    });
+
+    it('ウルトラレアなおくりものを受け取った時に first-ultra-rare-gift 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      const urItem = {
+        id: 'rainbow-feather',
+        name: 'なないろの羽根',
+        description: '',
+        icon: '🪶',
+        iconType: 'rainbow-feather',
+        themeClass: '',
+        rarity: 'ultra-rare' as const,
+      };
+
+      const newItems = checkNewAchievements({ receivedGift: urItem }, unlocked);
+      expect(newItems.map((a) => a.id)).toContain('first-ultra-rare-gift');
+
+      // hasUltraRareGift フラグでも解除されること
+      const newItems2 = checkNewAchievements({ hasUltraRareGift: true }, unlocked);
+      expect(newItems2.map((a) => a.id)).toContain('first-ultra-rare-gift');
     });
 
     it('猫の名前を変更した時に first-rename-cat 実績が解除されること', () => {

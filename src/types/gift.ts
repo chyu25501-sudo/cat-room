@@ -69,11 +69,12 @@ export type GiftId =
 
 /**
  * 贈り物のレアリティ
- * common: 通常のおくりもの
- * rare: レアリティの高いおくりもの（もらえる確率が低く、背景が金色）
- * 将来追加される可能性のあるレアリティ（例: 'epic', 'legendary' 等）にも対応可能な拡張型
+ * common: 通常のおくりもの（背景が白色）
+ * rare: レアなおくりもの（背景が金色）
+ * super-rare: スーパーレアなおくりもの（レアより希少、背景が紫色）
+ * ultra-rare: ウルトラレアなおくりもの（最高峰の希少度、背景がオーロラ・虹色）
  */
-export type GiftRarity = 'common' | 'rare' | string;
+export type GiftRarity = 'common' | 'rare' | 'super-rare' | 'ultra-rare' | string;
 
 /**
  * 贈り物の定義情報

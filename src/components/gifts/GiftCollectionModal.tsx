@@ -201,7 +201,55 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 const record = inventory[gift.id];
                 const count = record?.count ?? 0;
                 const isAcquired = count > 0;
-                const isRare = gift.rarity === 'rare';
+                const { rarity = 'common' } = gift;
+                const isRareOrAbove = rarity === 'rare' || rarity === 'super-rare' || rarity === 'ultra-rare';
+
+                const ariaLabelUnacquired =
+                  rarity === 'ultra-rare'
+                    ? '未受取のウルトラレアおくりもの'
+                    : rarity === 'super-rare'
+                    ? '未受取のスーパーレアおくりもの'
+                    : rarity === 'rare'
+                    ? '未受取のレアおくりもの'
+                    : '未受取のおくりもの';
+
+                // タイルの背景・枠線スタイル（レア度ごとに色分け）
+                let tileClass = 'bg-stone-50/70 border-stone-200/70 opacity-60 hover:opacity-90';
+                if (isSelected) {
+                  if (rarity === 'ultra-rare') {
+                    tileClass = isAcquired
+                      ? 'ring-2 ring-pink-500 border-pink-500 bg-gradient-to-br from-cyan-200/95 via-fuchsia-100/90 to-rose-300/95 shadow-md scale-102 z-10'
+                      : 'ring-2 ring-pink-500 border-pink-400 bg-gradient-to-br from-cyan-100/95 via-fuchsia-50/95 to-rose-200/95 shadow-md scale-102 z-10';
+                  } else if (rarity === 'super-rare') {
+                    tileClass = isAcquired
+                      ? 'ring-2 ring-purple-500 border-purple-500 bg-gradient-to-br from-purple-200/95 via-fuchsia-100/90 to-violet-300/95 shadow-md scale-102 z-10'
+                      : 'ring-2 ring-purple-500 border-purple-400 bg-gradient-to-br from-purple-100/95 via-fuchsia-50/95 to-violet-200/95 shadow-md scale-102 z-10';
+                  } else if (rarity === 'rare') {
+                    tileClass = isAcquired
+                      ? 'ring-2 ring-amber-500 border-amber-500 bg-gradient-to-br from-amber-200/95 via-yellow-100/90 to-amber-300/95 shadow-md scale-102 z-10'
+                      : 'ring-2 ring-amber-500 border-amber-400 bg-gradient-to-br from-amber-100/95 via-yellow-50/95 to-amber-200/95 shadow-md scale-102 z-10';
+                  } else {
+                    tileClass = 'ring-2 ring-orange-400 border-orange-400 bg-gradient-to-b from-orange-50/90 to-amber-100/70 shadow-md scale-102 z-10';
+                  }
+                } else if (isAcquired) {
+                  if (rarity === 'ultra-rare') {
+                    tileClass = 'bg-gradient-to-br from-cyan-200 via-fuchsia-100 to-rose-300 border-pink-400 hover:border-pink-500 shadow-2xs hover:shadow-xs hover:scale-101';
+                  } else if (rarity === 'super-rare') {
+                    tileClass = 'bg-gradient-to-br from-purple-200 via-fuchsia-100 to-violet-300 border-purple-400 hover:border-purple-500 shadow-2xs hover:shadow-xs hover:scale-101';
+                  } else if (rarity === 'rare') {
+                    tileClass = 'bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-amber-400 hover:border-amber-500 shadow-2xs hover:shadow-xs hover:scale-101';
+                  } else {
+                    tileClass = 'bg-white border-orange-200/90 hover:border-orange-300 hover:shadow-xs shadow-2xs hover:scale-101';
+                  }
+                } else {
+                  if (rarity === 'ultra-rare') {
+                    tileClass = 'bg-gradient-to-br from-cyan-100/90 via-fuchsia-50/90 to-rose-200/90 border-pink-300/90 hover:border-pink-400 shadow-2xs hover:shadow-xs opacity-90 hover:opacity-100';
+                  } else if (rarity === 'super-rare') {
+                    tileClass = 'bg-gradient-to-br from-purple-100/90 via-fuchsia-50/90 to-violet-200/90 border-purple-300/90 hover:border-purple-400 shadow-2xs hover:shadow-xs opacity-90 hover:opacity-100';
+                  } else if (rarity === 'rare') {
+                    tileClass = 'bg-gradient-to-br from-amber-100/90 via-yellow-50/90 to-amber-200/90 border-amber-400/90 hover:border-amber-500 shadow-2xs hover:shadow-xs opacity-90 hover:opacity-100';
+                  }
+                }
 
                 return (
                   <button
@@ -210,34 +258,28 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                     onClick={() => setSelectedGiftId(gift.id)}
                     data-testid={`gift-tile-${gift.id}`}
                     aria-selected={isSelected}
-                    aria-label={`${isAcquired ? gift.name : isRare ? '未受取のレアおくりもの' : '未受取のおくりもの'}: ${count}個`}
-                    className={`relative aspect-square rounded-2xl border flex items-center justify-center transition-all duration-200 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
-                      isSelected
-                        ? isRare
-                          ? isAcquired
-                            ? 'ring-2 ring-amber-500 border-amber-500 bg-gradient-to-br from-amber-200/95 via-yellow-100/90 to-amber-300/95 shadow-md scale-102 z-10'
-                            : 'ring-2 ring-amber-500 border-amber-400 bg-gradient-to-br from-amber-100/95 via-yellow-50/95 to-amber-200/95 shadow-md scale-102 z-10'
-                          : 'ring-2 ring-orange-400 border-orange-400 bg-gradient-to-b from-orange-50/90 to-amber-100/70 shadow-md scale-102 z-10'
-                        : isAcquired
-                        ? isRare
-                          ? 'bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-amber-400 hover:border-amber-500 shadow-2xs hover:shadow-xs hover:scale-101'
-                          : 'bg-white border-orange-200/90 hover:border-orange-300 hover:shadow-xs shadow-2xs hover:scale-101'
-                        : isRare
-                        ? 'bg-gradient-to-br from-amber-100/90 via-yellow-50/90 to-amber-200/90 border-amber-400/90 hover:border-amber-500 shadow-2xs hover:shadow-xs opacity-90 hover:opacity-100'
-                        : 'bg-stone-50/70 border-stone-200/70 opacity-60 hover:opacity-90'
-                    }`}
+                    aria-label={`${isAcquired ? gift.name : ariaLabelUnacquired}: ${count}個`}
+                    className={`relative aspect-square rounded-2xl border flex items-center justify-center transition-all duration-200 cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${tileClass}`}
                   >
-                    {/* レアアイコンバッジ（レアおくりものの場合、未入手でも表示） */}
-                    {isRare && (
+                    {/* レアアイコンバッジ（レア以上の場合は未入手でも表示） */}
+                    {isRareOrAbove && (
                       <span
                         data-testid={`rare-badge-${gift.id}`}
                         className={`absolute top-1.5 left-1.5 text-[9px] font-black px-1 rounded-sm border leading-tight ${
-                          isAcquired
+                          rarity === 'ultra-rare'
+                            ? isAcquired
+                              ? 'text-rose-900 bg-pink-100/90 border-pink-300/80'
+                              : 'text-rose-950 bg-pink-200/90 border-pink-400/80'
+                            : rarity === 'super-rare'
+                            ? isAcquired
+                              ? 'text-purple-800 bg-purple-100/90 border-purple-300/80'
+                              : 'text-purple-900 bg-purple-200/90 border-purple-400/80'
+                            : isAcquired
                             ? 'text-amber-700 bg-amber-100/90 border-amber-300/80'
                             : 'text-amber-800 bg-amber-200/90 border-amber-400/80'
                         }`}
                       >
-                        ★
+                        {rarity === 'ultra-rare' ? '★★★' : rarity === 'super-rare' ? '★★' : '★'}
                       </span>
                     )}
 
@@ -296,7 +338,15 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 <div
                   data-testid="gift-detail-icon-box"
                   className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border p-1 ${
-                    selectedGift.rarity === 'rare'
+                    selectedGift.rarity === 'ultra-rare'
+                      ? isSelectedAcquired
+                        ? 'bg-gradient-to-br from-cyan-300 via-fuchsia-200 to-rose-300 border-pink-500 shadow-pink-300/50'
+                        : 'bg-gradient-to-br from-cyan-100 via-fuchsia-50 to-rose-200 border-pink-400 shadow-pink-200/40'
+                      : selectedGift.rarity === 'super-rare'
+                      ? isSelectedAcquired
+                        ? 'bg-gradient-to-br from-purple-300 via-fuchsia-100 to-violet-400 border-purple-500 shadow-purple-300/50'
+                        : 'bg-gradient-to-br from-purple-100 via-fuchsia-50 to-violet-200 border-purple-400 shadow-purple-200/40'
+                      : selectedGift.rarity === 'rare'
                       ? isSelectedAcquired
                         ? 'bg-gradient-to-br from-amber-300 via-yellow-100 to-amber-400 border-amber-500 shadow-amber-300/50'
                         : 'bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 border-amber-400 shadow-amber-200/40'
@@ -323,6 +373,30 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                       >
                         {isSelectedAcquired ? selectedGift.name : '？？？？'}
                       </h3>
+                      {selectedGift.rarity === 'ultra-rare' && (
+                        <span
+                          data-testid="gift-detail-rare-badge"
+                          className={`px-1.5 py-0.5 rounded-md text-[10px] font-black shadow-2xs shrink-0 whitespace-nowrap ${
+                            isSelectedAcquired
+                              ? 'bg-gradient-to-r from-rose-500 via-fuchsia-500 to-indigo-500 text-white'
+                              : 'bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-400 text-rose-950 border border-rose-400'
+                          }`}
+                        >
+                          ★★★ ウルトラレア
+                        </span>
+                      )}
+                      {selectedGift.rarity === 'super-rare' && (
+                        <span
+                          data-testid="gift-detail-rare-badge"
+                          className={`px-1.5 py-0.5 rounded-md text-[10px] font-black shadow-2xs shrink-0 whitespace-nowrap ${
+                            isSelectedAcquired
+                              ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
+                              : 'bg-gradient-to-r from-purple-400 to-violet-400 text-purple-950 border border-purple-400'
+                          }`}
+                        >
+                          ★★ スーパーレア
+                        </span>
+                      )}
                       {selectedGift.rarity === 'rare' && (
                         <span
                           data-testid="gift-detail-rare-badge"
@@ -355,6 +429,10 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                   >
                     {isSelectedAcquired
                       ? selectedGift.description
+                      : selectedGift.rarity === 'ultra-rare'
+                      ? '幻のように出づらい、最高峰のウルトラレアおくりものです。猫ちゃんと運命的な絆が結ばれると貰えるかも…？'
+                      : selectedGift.rarity === 'super-rare'
+                      ? 'めったに出会えない、非常に希少なスーパーレアおくりものです。猫ちゃんと奇跡的な絆が結ばれると貰えるかも…？'
                       : selectedGift.rarity === 'rare'
                       ? 'めったにもらえない、とても貴重なレアおくりものです。猫ちゃんとたくさんふれあうと貰えるかも…？'
                       : 'まだ受け取っていないおくりものです。猫ちゃんとたくさんふれあうと貰えるかも…？'}

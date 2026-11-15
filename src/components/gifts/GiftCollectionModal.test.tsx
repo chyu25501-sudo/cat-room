@@ -132,7 +132,7 @@ describe('GiftCollectionModal コンポーネント', () => {
     expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★ レア');
   });
 
-  it('レアリティの高いおくりもの（ふしぎな古銭・なないろの羽根・よつばのクローバー）は、背景が白色ではなく金色になること', () => {
+  it('レアリティの高いおくりものは背景が白色ではなく、レアは金色、スーパーレアは紫色、ウルトラレアは虹色/オーロラになること', () => {
     const inventory: GiftInventory = {
       pebble: {
         giftId: 'pebble',
@@ -154,12 +154,20 @@ describe('GiftCollectionModal コンポーネント', () => {
         firstReceivedAt: 1300,
         lastReceivedAt: 1300,
       },
+      'rainbow-feather': {
+        giftId: 'rainbow-feather',
+        count: 1,
+        byCat: { white: 1 },
+        firstReceivedAt: 1400,
+        lastReceivedAt: 1400,
+      },
     };
 
     render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
 
     const oldCoinTile = screen.getByTestId('gift-tile-old-coin');
     const fourLeafTile = screen.getByTestId('gift-tile-four-leaf-clover');
+    const rainbowFeatherTile = screen.getByTestId('gift-tile-rainbow-feather');
     const pebbleTile = screen.getByTestId('gift-tile-pebble');
 
     // 古銭をクリックして選択状態にする（小石は非選択状態になる）
@@ -172,16 +180,31 @@ describe('GiftCollectionModal コンポーネント', () => {
     expect(oldCoinTile.className).toContain('from-amber-200');
     expect(oldCoinTile.className).toContain('border-amber-500');
 
-    // レアのよつばのクローバーも金色系
-    expect(fourLeafTile.className).toContain('from-amber-200');
+    // スーパーレアのよつばのクローバーは紫色系（白でも金でもない）
+    expect(fourLeafTile.className).toContain('from-purple-200');
+    expect(fourLeafTile.className).not.toContain('amber');
 
-    // 詳細パネルのアイコン背景ボックスが金色であること
+    // ウルトラレアのなないろの羽根はオーロラ/虹色系（白でも金でもない）
+    expect(rainbowFeatherTile.className).toContain('from-cyan-200');
+    expect(rainbowFeatherTile.className).not.toContain('amber');
+
+    // 詳細パネルのアイコン背景ボックスが金色であること（レア選択中）
     const detailIconBox = screen.getByTestId('gift-detail-icon-box');
     expect(detailIconBox.className).toContain('from-amber-300');
     expect(detailIconBox.className).toContain('border-amber-500');
 
     // レアバッジが表示されること
     expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★ レア');
+
+    // スーパーレアをクリックすると詳細パネルに「★★ スーパーレア」と紫色アイコンが表示されること
+    fireEvent.click(fourLeafTile);
+    expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★★ スーパーレア');
+    expect(screen.getByTestId('gift-detail-icon-box').className).toContain('from-purple-300');
+
+    // ウルトラレアをクリックすると詳細パネルに「★★★ ウルトラレア」とオーロラアイコンが表示されること
+    fireEvent.click(rainbowFeatherTile);
+    expect(screen.getByTestId('gift-detail-rare-badge')).toHaveTextContent('★★★ ウルトラレア');
+    expect(screen.getByTestId('gift-detail-icon-box').className).toContain('from-cyan-300');
   });
 
   it('閉じるボタンやバックドロップのクリックで onClose が呼ばれること', () => {
@@ -303,7 +326,7 @@ describe('GiftCollectionModal コンポーネント', () => {
   });
 
   describe('ウィンドウ上部のレアリティ絞り込みフィルター', () => {
-    it('上部に「すべて」「通常」「レア」のフィルターボタンが表示され、件数が表示されること', () => {
+    it('上部に「すべて」「通常」「レア」「スーパーレア」「ウルトラレア」のフィルターボタンが表示され、件数が表示されること', () => {
       render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
 
       const filterBar = screen.getByTestId('gift-rarity-filter');
@@ -312,18 +335,24 @@ describe('GiftCollectionModal コンポーネント', () => {
       const allButton = screen.getByTestId('filter-rarity-all');
       const commonButton = screen.getByTestId('filter-rarity-common');
       const rareButton = screen.getByTestId('filter-rarity-rare');
+      const superRareButton = screen.getByTestId('filter-rarity-super-rare');
+      const ultraRareButton = screen.getByTestId('filter-rarity-ultra-rare');
 
       expect(allButton).toHaveTextContent('すべて (60)');
       expect(commonButton).toHaveTextContent('通常 (45)');
-      expect(rareButton).toHaveTextContent('レア (15)');
+      expect(rareButton).toHaveTextContent('レア (7)');
+      expect(superRareButton).toHaveTextContent('スーパーレア (5)');
+      expect(ultraRareButton).toHaveTextContent('ウルトラレア (3)');
 
       // 初期状態では「すべて」が選択されている
       expect(allButton).toHaveAttribute('aria-pressed', 'true');
       expect(commonButton).toHaveAttribute('aria-pressed', 'false');
       expect(rareButton).toHaveAttribute('aria-pressed', 'false');
+      expect(superRareButton).toHaveAttribute('aria-pressed', 'false');
+      expect(ultraRareButton).toHaveAttribute('aria-pressed', 'false');
     });
 
-    it('「通常」ボタンをクリックするとレアアイテムが非表示になり、通常アイテムのみ表示されること', () => {
+    it('「通常」ボタンをクリックするとレア以上のアイテムが非表示になり、通常アイテムのみ表示されること', () => {
       render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
 
       const commonButton = screen.getByTestId('filter-rarity-common');
@@ -334,12 +363,13 @@ describe('GiftCollectionModal コンポーネント', () => {
 
       // 通常アイテム（きれいな小石）は表示
       expect(screen.getByTestId('gift-tile-pebble')).toBeInTheDocument();
-      // レアアイテム（ふしぎな古銭・なないろの羽根など）は非表示
+      // レア以上のアイテムは非表示
       expect(screen.queryByTestId('gift-tile-old-coin')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-four-leaf-clover')).not.toBeInTheDocument();
       expect(screen.queryByTestId('gift-tile-rainbow-feather')).not.toBeInTheDocument();
     });
 
-    it('「レア」ボタンをクリックすると通常アイテムが非表示になり、レアアイテムのみ表示されること', () => {
+    it('「レア」ボタンをクリックするとレアアイテムのみ表示されること', () => {
       render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
 
       const rareButton = screen.getByTestId('filter-rarity-rare');
@@ -347,14 +377,47 @@ describe('GiftCollectionModal コンポーネント', () => {
 
       expect(rareButton).toHaveAttribute('aria-pressed', 'true');
 
-      // レアアイテム（ふしぎな古銭・なないろの羽根）は表示
+      // レアアイテム（ふしぎな古銭）は表示
       expect(screen.getByTestId('gift-tile-old-coin')).toBeInTheDocument();
-      expect(screen.getByTestId('gift-tile-rainbow-feather')).toBeInTheDocument();
-      // 通常アイテム（きれいな小石）は非表示
+      // 通常、スーパーレア、ウルトラレアは非表示
       expect(screen.queryByTestId('gift-tile-pebble')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-four-leaf-clover')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-rainbow-feather')).not.toBeInTheDocument();
     });
 
-    it('将来新しいレアリティ（例: super-rare, legendary）が追加された場合でも、自動的にフィルターボタンが生成され絞り込みが機能すること', () => {
+    it('「スーパーレア」ボタンをクリックするとスーパーレアアイテムのみ表示されること', () => {
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
+
+      const superRareButton = screen.getByTestId('filter-rarity-super-rare');
+      fireEvent.click(superRareButton);
+
+      expect(superRareButton).toHaveAttribute('aria-pressed', 'true');
+
+      // スーパーレアアイテム（よつばのクローバー）は表示
+      expect(screen.getByTestId('gift-tile-four-leaf-clover')).toBeInTheDocument();
+      // 他は非表示
+      expect(screen.queryByTestId('gift-tile-pebble')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-old-coin')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-rainbow-feather')).not.toBeInTheDocument();
+    });
+
+    it('「ウルトラレア」ボタンをクリックするとウルトラレアアイテムのみ表示されること', () => {
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
+
+      const ultraRareButton = screen.getByTestId('filter-rarity-ultra-rare');
+      fireEvent.click(ultraRareButton);
+
+      expect(ultraRareButton).toHaveAttribute('aria-pressed', 'true');
+
+      // ウルトラレアアイテム（なないろの羽根）は表示
+      expect(screen.getByTestId('gift-tile-rainbow-feather')).toBeInTheDocument();
+      // 他は非表示
+      expect(screen.queryByTestId('gift-tile-pebble')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-old-coin')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-four-leaf-clover')).not.toBeInTheDocument();
+    });
+
+    it('将来新しいレアリティ（例: legendary）が追加された場合でも、自動的にフィルターボタンが生成され絞り込みが機能すること', () => {
       const futureCatalog = [
         { id: 'item-common', name: '通常の石', description: '説明', icon: '🪨', iconType: 'pebble', themeClass: '', rarity: 'common' as const },
         { id: 'item-rare', name: 'レアの石', description: '説明', icon: '💎', iconType: 'pebble', themeClass: '', rarity: 'rare' as const },
@@ -375,17 +438,17 @@ describe('GiftCollectionModal コンポーネント', () => {
       expect(screen.getByTestId('filter-rarity-all')).toHaveTextContent('すべて (4)');
       expect(screen.getByTestId('filter-rarity-common')).toHaveTextContent('通常 (1)');
       expect(screen.getByTestId('filter-rarity-rare')).toHaveTextContent('レア (1)');
-      expect(screen.getByTestId('filter-rarity-super-rare')).toHaveTextContent('super-rare (1)');
+      expect(screen.getByTestId('filter-rarity-super-rare')).toHaveTextContent('スーパーレア (1)');
       expect(screen.getByTestId('filter-rarity-legendary')).toHaveTextContent('legendary (1)');
 
-      // 新しいレアリティ「super-rare」をクリック
-      fireEvent.click(screen.getByTestId('filter-rarity-super-rare'));
+      // 新しいレアリティ「legendary」をクリック
+      fireEvent.click(screen.getByTestId('filter-rarity-legendary'));
 
-      // super-rare アイテムのみ表示され、他は非表示になること
-      expect(screen.getByTestId('gift-tile-item-super-rare')).toBeInTheDocument();
+      // legendary アイテムのみ表示され、他は非表示になること
+      expect(screen.getByTestId('gift-tile-item-legendary')).toBeInTheDocument();
       expect(screen.queryByTestId('gift-tile-item-common')).not.toBeInTheDocument();
       expect(screen.queryByTestId('gift-tile-item-rare')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('gift-tile-item-legendary')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-item-super-rare')).not.toBeInTheDocument();
     });
   });
 });

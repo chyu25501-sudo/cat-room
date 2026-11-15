@@ -117,7 +117,11 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
                 <div
                   data-testid="gift-item-icon"
                   className={`w-11 h-11 rounded-xl shadow-xs border flex items-center justify-center shrink-0 p-1 ${
-                    gift.rarity === 'rare'
+                    gift.rarity === 'ultra-rare'
+                      ? 'bg-gradient-to-br from-cyan-300 via-fuchsia-200 to-rose-300 border-pink-500 shadow-pink-300/50'
+                      : gift.rarity === 'super-rare'
+                      ? 'bg-gradient-to-br from-purple-300 via-fuchsia-100 to-violet-400 border-purple-500 shadow-purple-300/50'
+                      : gift.rarity === 'rare'
                       ? 'bg-gradient-to-br from-amber-300 via-yellow-100 to-amber-400 border-amber-500 shadow-amber-300/50'
                       : 'bg-white border-orange-200'
                   }`}
@@ -128,6 +132,22 @@ export const AffectionLevelUpOverlay: React.FC<AffectionLevelUpOverlayProps> = (
                   <span className="text-[10px] font-bold text-orange-600 flex items-center gap-1">
                     <span>🎁</span>
                     <span>{catName}からのおくりもの</span>
+                    {gift.rarity === 'ultra-rare' && (
+                      <span
+                        data-testid="gift-overlay-rare-badge"
+                        className="ml-1 px-1.5 py-0.2 rounded-sm text-[9px] font-black bg-gradient-to-r from-rose-500 via-fuchsia-500 to-indigo-500 text-white shadow-2xs"
+                      >
+                        ★★★ ウルトラレア
+                      </span>
+                    )}
+                    {gift.rarity === 'super-rare' && (
+                      <span
+                        data-testid="gift-overlay-rare-badge"
+                        className="ml-1 px-1.5 py-0.2 rounded-sm text-[9px] font-black bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-2xs"
+                      >
+                        ★★ スーパーレア
+                      </span>
+                    )}
                     {gift.rarity === 'rare' && (
                       <span
                         data-testid="gift-overlay-rare-badge"

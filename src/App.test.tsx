@@ -85,8 +85,9 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     });
 
     // 吹き出しメッセージが表示される
-    const bubbleElement = screen.getByText(/ニャ〜ン♪|ゴロゴロ…♪|にゃあ〜♡|すりすり…|ミャオ！/);
+    const bubbleElement = screen.getByTestId('speech-bubble');
     expect(bubbleElement).toBeInTheDocument();
+    expect(bubbleElement).toHaveTextContent(/ニャ〜ン|ゴロゴロ|にゃあ|すりすり|ミャオ|ンニャ/);
   });
 
   it('撫でるとごきげんゲージが上昇し、猫ごとに機嫌が独立して管理されること (第4週)', () => {
@@ -1251,11 +1252,21 @@ describe('App コンポーネント (猫切り替え機能)', () => {
           '猫ちゃんに初めてごはんを食べさせてあげた。'
         );
 
+        // 通常の実績として追加されたSR・UR実績は未獲得時に名前が「？？？」で条件が見えること
+        expect(screen.getByTestId('achievement-title-first-super-rare-gift')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-first-super-rare-gift')).toHaveTextContent(
+          'はじめてスーパーレアなおくりものを受け取った。'
+        );
+        expect(screen.getByTestId('achievement-title-first-ultra-rare-gift')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-first-ultra-rare-gift')).toHaveTextContent(
+          'はじめてウルトラレアなおくりものを受け取った。'
+        );
+
         // 未達成の隠し実績は名前「？？？」かつ説明文も「？？？？？？」と伏せ字であること
         expect(screen.getByTestId('achievement-title-hidden-pebble-set')).toHaveTextContent('？？？');
         expect(screen.getByTestId('achievement-desc-hidden-pebble-set')).toHaveTextContent('？？？？？？');
 
-        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/43');
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/45');
       } finally {
         vi.useRealTimers();
       }

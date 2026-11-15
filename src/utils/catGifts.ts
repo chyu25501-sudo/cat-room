@@ -2,12 +2,13 @@ import { GiftId, GiftItem, GiftRecord, GiftInventory, GiftRarity } from '../type
 import { CatId } from '../types/cat.ts';
 
 /**
- * 猫から貰えるおくりもののマスターデータリスト
+ * 猫から貰えるおくりもののマスターデータリスト（全60種）
  *
  * 並び順の設計方針:
- * 1. 通常レアリティ（common: 45種）を前半、レア（rare: 15種）を後半に配置
- * 2. 同レアリティ内では、似た種類のアイテム（自然物、生き物痕跡、おもちゃ、日用小物、空き容器・ゴミなど）を近くにグループ化
- * 3. レアアイテム内では、日常・幸運・宝石系を先に、ファンタジー・神秘・伝説系（神木・古代・星・ドラゴン）を下方に配置
+ * 1. 通常（common: 45種）
+ * 2. レア（rare: 7種）
+ * 3. スーパーレア（super-rare: 5種）
+ * 4. ウルトラレア（ultra-rare: 3種）
  *
  * 今後贈り物を増やす際はこの配列に追加するだけで拡張可能です。
  */
@@ -438,7 +439,7 @@ export const CAT_GIFTS: readonly GiftItem[] = [
   },
 
   // ==========================================
-  // 【レア（rare）】日常の珍品・幸運・宝石
+  // 【レア（rare: 7種）】日常の珍品・幸運・古代・伝説
   // ==========================================
   {
     id: 'important-paper',
@@ -468,46 +469,6 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     rarity: 'rare',
   },
   {
-    id: 'four-leaf-clover',
-    name: 'よつばのクローバー',
-    description: '草むらの中で奇跡的に見つけた、特別な幸運をもたらす四つ葉のクローバー。',
-    icon: '🍀',
-    iconType: 'four-leaf-clover',
-    themeClass: 'from-emerald-200 to-green-300 border-emerald-400 text-emerald-900',
-    rarity: 'rare',
-  },
-  {
-    id: 'red-gem',
-    name: 'あかいろの宝石',
-    description: '深紅に輝くカットが美しい、どこかの宝飾品から落ちたような小さな赤い宝石。',
-    icon: '💎',
-    iconType: 'red-gem',
-    themeClass: 'from-red-200 via-rose-200 to-amber-200 border-red-400 text-red-900',
-    rarity: 'rare',
-  },
-  {
-    id: 'blue-gem',
-    name: 'あおいろの宝石',
-    description: '夜空や深い海を閉じ込めたように澄み渡る、吸い込まれそうな青い宝石。',
-    icon: '💎',
-    iconType: 'blue-gem',
-    themeClass: 'from-blue-200 via-sky-200 to-indigo-200 border-blue-400 text-blue-900',
-    rarity: 'rare',
-  },
-  {
-    id: 'yellow-gem',
-    name: 'きいろの宝石',
-    description: '陽だまりの光を閉じ込めたように明るくきらめく、黄金色に澄んだ黄色い宝石。',
-    icon: '💎',
-    iconType: 'yellow-gem',
-    themeClass: 'from-amber-200 via-yellow-200 to-amber-300 border-yellow-400 text-amber-900',
-    rarity: 'rare',
-  },
-
-  // ==========================================
-  // 【レア（rare）】ファンタジー・神秘・古代・伝説
-  // ==========================================
-  {
     id: 'splendid-branch',
     name: 'りっぱな枝',
     description: 'どこかの神木から落ちたのか、見事な枝振りと小さな金の芽をつけた立派な木の枝。',
@@ -526,39 +487,12 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     rarity: 'rare',
   },
   {
-    id: 'rainbow-feather',
-    name: 'なないろの羽根',
-    description: '光に透かすと虹色にきらめく、伝説の鳥が落としていったような奇跡の羽根。',
-    icon: '🪶',
-    iconType: 'rainbow-feather',
-    themeClass: 'from-pink-200 via-sky-200 to-amber-200 border-purple-300 text-purple-900',
-    rarity: 'rare',
-  },
-  {
-    id: 'ancient-gear',
-    name: 'いにしえの歯車',
-    description: '古代の高度な文明で作られたと思われる、決して錆びることのない真鍮の精密な歯車。',
-    icon: '⚙️',
-    iconType: 'ancient-gear',
-    themeClass: 'from-amber-200 via-stone-200 to-yellow-300 border-amber-500 text-amber-950',
-    rarity: 'rare',
-  },
-  {
     id: 'curious-magatama',
     name: 'きみょうな勾玉',
     description: '翡翠のように淡く緑色に透き通る、古い儀式で使われていたような形の不思議な勾玉。',
     icon: '📿',
     iconType: 'curious-magatama',
     themeClass: 'from-emerald-200 via-teal-100 to-cyan-200 border-emerald-400 text-teal-900',
-    rarity: 'rare',
-  },
-  {
-    id: 'star-fragment',
-    name: 'ほしのかけら',
-    description: '夜空から落ちてきた流れ星の欠片。手のひらで淡く温かく明滅している。',
-    icon: '⭐',
-    iconType: 'star-fragment',
-    themeClass: 'from-yellow-200 via-amber-200 to-indigo-200 border-yellow-400 text-amber-900',
     rarity: 'rare',
   },
   {
@@ -570,14 +504,85 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     themeClass: 'from-emerald-200 via-teal-200 to-cyan-300 border-teal-400 text-emerald-950',
     rarity: 'rare',
   },
+
+  // ==========================================
+  // 【スーパーレア（super-rare: 5種）】宝石・天体・奇跡の幸運
+  // ==========================================
+  {
+    id: 'four-leaf-clover',
+    name: 'よつばのクローバー',
+    description: '草むらの中で奇跡的に見つけた、特別な幸運をもたらす四つ葉のクローバー。',
+    icon: '🍀',
+    iconType: 'four-leaf-clover',
+    themeClass: 'from-purple-200 via-fuchsia-100 to-violet-300 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'red-gem',
+    name: 'あかいろの宝石',
+    description: '深紅に輝くカットが美しい、どこかの宝飾品から落ちたような小さな赤い宝石。',
+    icon: '💎',
+    iconType: 'red-gem',
+    themeClass: 'from-purple-200 via-rose-200 to-fuchsia-200 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'blue-gem',
+    name: 'あおいろの宝石',
+    description: '夜空や深い海を閉じ込めたように澄み渡る、吸い込まれそうな青い宝石。',
+    icon: '💎',
+    iconType: 'blue-gem',
+    themeClass: 'from-violet-200 via-sky-200 to-purple-200 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'yellow-gem',
+    name: 'きいろの宝石',
+    description: '陽だまりの光を閉じ込めたように明るくきらめく、黄金色に澄んだ黄色い宝石。',
+    icon: '💎',
+    iconType: 'yellow-gem',
+    themeClass: 'from-purple-200 via-yellow-100 to-fuchsia-200 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'star-fragment',
+    name: 'ほしのかけら',
+    description: '夜空から落ちてきた流れ星の欠片。手のひらで淡く温かく明滅している。',
+    icon: '⭐',
+    iconType: 'star-fragment',
+    themeClass: 'from-purple-200 via-violet-200 to-indigo-200 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+
+  // ==========================================
+  // 【ウルトラレア（ultra-rare: 3種）】伝説・古代の遺物・神話
+  // ==========================================
+  {
+    id: 'rainbow-feather',
+    name: 'なないろの羽根',
+    description: '光に透かすと虹色にきらめく、伝説の鳥が落としていったような奇跡の羽根。',
+    icon: '🪶',
+    iconType: 'rainbow-feather',
+    themeClass: 'from-cyan-200 via-fuchsia-200 to-rose-200 border-fuchsia-400 text-slate-900',
+    rarity: 'ultra-rare',
+  },
+  {
+    id: 'ancient-gear',
+    name: 'いにしえの歯車',
+    description: '古代の高度な文明で作られたと思われる、決して錆びることのない真鍮の精密な歯車。',
+    icon: '⚙️',
+    iconType: 'ancient-gear',
+    themeClass: 'from-cyan-200 via-amber-200 to-rose-200 border-fuchsia-400 text-slate-900',
+    rarity: 'ultra-rare',
+  },
   {
     id: 'dragon-claw',
     name: 'りゅうの爪',
     description: '鋼よりも鋭く湾曲した、古のドラゴンが残したとされる神秘的な黒金の爪。',
     icon: '🐉',
     iconType: 'dragon-claw',
-    themeClass: 'from-stone-300 via-amber-200 to-yellow-300 border-amber-500 text-amber-950',
-    rarity: 'rare',
+    themeClass: 'from-cyan-200 via-rose-200 to-violet-300 border-fuchsia-400 text-slate-900',
+    rarity: 'ultra-rare',
   },
 ] as const;
 
@@ -597,8 +602,14 @@ export function getGiftById(
 /** 通常アイテムの抽選重み（デフォルト） */
 export const DEFAULT_COMMON_GIFT_WEIGHT = 10;
 
-/** レアアイテムの抽選重み（通常の1/5の確率、出にくく希少） */
-export const DEFAULT_RARE_GIFT_WEIGHT = 2;
+/** レアアイテムの抽選重み（以前の2から5に引き上げ、少し出やすく設定） */
+export const DEFAULT_RARE_GIFT_WEIGHT = 5;
+
+/** スーパーレアアイテムの抽選重み（レアより出づらい） */
+export const DEFAULT_SUPER_RARE_GIFT_WEIGHT = 2;
+
+/** ウルトラレアアイテムの抽選重み（スーパーレアよりさらに出づらい、最高峰の希少度） */
+export const DEFAULT_ULTRA_RARE_GIFT_WEIGHT = 1;
 
 /**
  * ギフトの抽選確率計算用重みを取得する純粋関数
@@ -607,14 +618,33 @@ export function getGiftWeight(gift: GiftItem): number {
   if (typeof gift.weight === 'number' && gift.weight > 0) {
     return gift.weight;
   }
-  return gift.rarity === 'rare' ? DEFAULT_RARE_GIFT_WEIGHT : DEFAULT_COMMON_GIFT_WEIGHT;
+  switch (gift.rarity) {
+    case 'ultra-rare':
+      return DEFAULT_ULTRA_RARE_GIFT_WEIGHT;
+    case 'super-rare':
+      return DEFAULT_SUPER_RARE_GIFT_WEIGHT;
+    case 'rare':
+      return DEFAULT_RARE_GIFT_WEIGHT;
+    case 'common':
+    default:
+      return DEFAULT_COMMON_GIFT_WEIGHT;
+  }
 }
 
 /**
  * ギフトのレアリティに応じたアイコン背景Tailwindクラスを返す純粋関数
- * レアリティの高いおくりものは金色、通常のおくりものは白色
+ * ウルトラレア: 虹色・オーロラグラデーション（白でも金でもない）
+ * スーパーレア: 紫色グラデーション（白でも金でもない）
+ * レア: 金色グラデーション
+ * 通常: 白色
  */
 export function getGiftIconBgClass(rarity?: GiftRarity): string {
+  if (rarity === 'ultra-rare') {
+    return 'bg-gradient-to-br from-cyan-300 via-fuchsia-200 to-rose-300 border-fuchsia-400 text-fuchsia-950 shadow-fuchsia-300/60';
+  }
+  if (rarity === 'super-rare') {
+    return 'bg-gradient-to-br from-purple-300 via-fuchsia-100 to-violet-300 border-purple-400 text-purple-900 shadow-purple-300/50';
+  }
   if (rarity === 'rare') {
     return 'bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-300 border-amber-400 text-amber-900 shadow-amber-200/60';
   }
@@ -792,6 +822,16 @@ export const GIFT_RARITY_METAS: Record<string, GiftRarityMeta> = {
     label: 'レア',
     badgeClass: 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300',
   },
+  'super-rare': {
+    id: 'super-rare',
+    label: 'スーパーレア',
+    badgeClass: 'bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 border-purple-300',
+  },
+  'ultra-rare': {
+    id: 'ultra-rare',
+    label: 'ウルトラレア',
+    badgeClass: 'bg-gradient-to-r from-pink-100 via-purple-100 to-cyan-100 text-rose-900 border-rose-300',
+  },
 };
 
 /**
@@ -821,8 +861,13 @@ export function getAvailableRarities(
     }
   }
 
-  // 優先順位（common -> rare -> その他登録順）
-  const orderMap: Record<string, number> = { common: 0, rare: 1 };
+  // 優先順位（common -> rare -> super-rare -> ultra-rare -> その他登録順）
+  const orderMap: Record<string, number> = {
+    common: 0,
+    rare: 1,
+    'super-rare': 2,
+    'ultra-rare': 3,
+  };
   return rarities.sort((a, b) => {
     const orderA = orderMap[a] ?? 99;
     const orderB = orderMap[b] ?? 99;

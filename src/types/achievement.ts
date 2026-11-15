@@ -36,6 +36,8 @@ export type AchievementId =
   | 'gift-count-500'
   | 'gift-count-1000'
   | 'first-rare-gift'
+  | 'first-super-rare-gift'
+  | 'first-ultra-rare-gift'
   | 'first-rename-cat'
   | 'hidden-pebble-set'
   | 'hidden-branch-set'

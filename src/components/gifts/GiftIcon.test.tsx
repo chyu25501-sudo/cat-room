@@ -158,6 +158,20 @@ describe('GiftIcon コンポーネント (おくりもののSVGイラスト描�
     const paperUnknown = screen.getAllByTestId('unknown-gift-icon')[1];
     expect(paperUnknown).toHaveAttribute('data-rare', 'true');
     unmountPaper();
+
+    // 「よつばのクローバー」（スーパーレア）の未受取: 紫色グラデーション（白でも金でもない）
+    const { unmount: unmountClover } = render(<GiftIcon giftId="four-leaf-clover" isAcquired={false} />);
+    const srUnknown = screen.getAllByTestId('unknown-gift-icon')[1];
+    expect(srUnknown).toHaveAttribute('data-rarity', 'super-rare');
+    expect(srUnknown.querySelector('defs linearGradient#unknownSuperRareGrad')).toBeInTheDocument();
+    unmountClover();
+
+    // 「なないろの羽根」（ウルトラレア）の未受取: オーロラ/虹色グラデーション（白でも金でもない）
+    const { unmount: unmountFeather } = render(<GiftIcon giftId="rainbow-feather" isAcquired={false} />);
+    const urUnknown = screen.getAllByTestId('unknown-gift-icon')[1];
+    expect(urUnknown).toHaveAttribute('data-rarity', 'ultra-rare');
+    expect(urUnknown.querySelector('defs linearGradient#unknownUltraRareGrad')).toBeInTheDocument();
+    unmountFeather();
   });
 
   it('未定義のIDが渡されたとき、デフォルトギフトのSVG（default-gift-icon）が描画されること', () => {

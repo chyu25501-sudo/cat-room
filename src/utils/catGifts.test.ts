@@ -13,6 +13,8 @@ import {
   getGiftIconBgClass,
   DEFAULT_COMMON_GIFT_WEIGHT,
   DEFAULT_RARE_GIFT_WEIGHT,
+  DEFAULT_SUPER_RARE_GIFT_WEIGHT,
+  DEFAULT_ULTRA_RARE_GIFT_WEIGHT,
   getGiftRarityLabel,
   getAvailableRarities,
   GIFT_RARITY_METAS,
@@ -75,22 +77,23 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'jelly-cup',
         'blue-can',
         'empty-bottle',
-        // 【レア】日常の珍品・幸運・宝石 (7)
+        // 【レア】日常の珍品・古代・伝説 (7)
         'important-paper',
         'winning-ice-stick',
         'old-coin',
+        'splendid-branch',
+        'glowing-moss-stone',
+        'curious-magatama',
+        'dragon-scale',
+        // 【スーパーレア】宝石・天体・奇跡の幸運 (5)
         'four-leaf-clover',
         'red-gem',
         'blue-gem',
         'yellow-gem',
-        // 【レア】ファンタジー・神秘・古代・伝説 (8)
-        'splendid-branch',
-        'glowing-moss-stone',
+        'star-fragment',
+        // 【ウルトラレア】伝説・古代の遺物・神話 (3)
         'rainbow-feather',
         'ancient-gear',
-        'curious-magatama',
-        'star-fragment',
-        'dragon-scale',
         'dragon-claw',
       ];
 
@@ -136,12 +139,16 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       });
     });
 
-    it('通常のレアリティ（common: 45種）が上（前方）に、レア（rare: 15種）が下（後方）に並んでいること', () => {
+    it('レアリティごとに並んでいること（通常45種、レア7種、スーパーレア5種、ウルトラレア3種）', () => {
       const commonGifts = CAT_GIFTS.slice(0, 45);
-      const rareGifts = CAT_GIFTS.slice(45);
+      const rareGifts = CAT_GIFTS.slice(45, 52);
+      const superRareGifts = CAT_GIFTS.slice(52, 57);
+      const ultraRareGifts = CAT_GIFTS.slice(57, 60);
 
       expect(commonGifts.length).toBe(45);
-      expect(rareGifts.length).toBe(15);
+      expect(rareGifts.length).toBe(7);
+      expect(superRareGifts.length).toBe(5);
+      expect(ultraRareGifts.length).toBe(3);
 
       commonGifts.forEach((gift) => {
         expect(gift.rarity).toBe('common');
@@ -150,55 +157,72 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       rareGifts.forEach((gift) => {
         expect(gift.rarity).toBe('rare');
       });
-    });
 
-    it('レアアイテムの中でファンタジー・神秘世界観のもの（神木、古代文明、星、ドラゴン等）が下方に並んでいること', () => {
-      const rareGifts = CAT_GIFTS.slice(45);
+      superRareGifts.forEach((gift) => {
+        expect(gift.rarity).toBe('super-rare');
+      });
 
-      // 前半7種: 日常・幸運・宝石
-      const everydayAndLuckyIds = rareGifts.slice(0, 7).map((g) => g.id);
-      expect(everydayAndLuckyIds).toEqual([
-        'important-paper',
-        'winning-ice-stick',
-        'old-coin',
+      ultraRareGifts.forEach((gift) => {
+        expect(gift.rarity).toBe('ultra-rare');
+      });
+
+      // スーパーレアに指定された5種
+      expect(superRareGifts.map((g) => g.id)).toEqual([
         'four-leaf-clover',
         'red-gem',
         'blue-gem',
         'yellow-gem',
+        'star-fragment',
       ]);
 
-      // 後半8種: ファンタジー・神秘・古代・伝説
-      const fantasyIds = rareGifts.slice(7).map((g) => g.id);
-      expect(fantasyIds).toEqual([
-        'splendid-branch',
-        'glowing-moss-stone',
+      // ウルトラレアに指定された3種
+      expect(ultraRareGifts.map((g) => g.id)).toEqual([
         'rainbow-feather',
         'ancient-gear',
-        'curious-magatama',
-        'star-fragment',
-        'dragon-scale',
         'dragon-claw',
       ]);
     });
   });
 
   describe('レアリティと重み計算 (getGiftWeight & getGiftIconBgClass)', () => {
-    it('レアアイテムは通常アイテムより重みが小さく、もらえる確率が低くなっていること', () => {
+    it('レアリティごとに重みが設定され、common > rare > super-rare > ultra-rare の順に出現率が低くなること', () => {
       expect(DEFAULT_RARE_GIFT_WEIGHT).toBeLessThan(DEFAULT_COMMON_GIFT_WEIGHT);
+      expect(DEFAULT_SUPER_RARE_GIFT_WEIGHT).toBeLessThan(DEFAULT_RARE_GIFT_WEIGHT);
+      expect(DEFAULT_ULTRA_RARE_GIFT_WEIGHT).toBeLessThan(DEFAULT_SUPER_RARE_GIFT_WEIGHT);
 
       const commonGift = CAT_GIFTS.find((g) => g.id === 'pebble')!;
       const rareGift = CAT_GIFTS.find((g) => g.id === 'old-coin')!;
+      const superRareGift = CAT_GIFTS.find((g) => g.id === 'four-leaf-clover')!;
+      const ultraRareGift = CAT_GIFTS.find((g) => g.id === 'rainbow-feather')!;
 
       expect(getGiftWeight(commonGift)).toBe(DEFAULT_COMMON_GIFT_WEIGHT);
       expect(getGiftWeight(rareGift)).toBe(DEFAULT_RARE_GIFT_WEIGHT);
-      expect(getGiftWeight(rareGift)).toBeLessThan(getGiftWeight(commonGift));
+      expect(getGiftWeight(superRareGift)).toBe(DEFAULT_SUPER_RARE_GIFT_WEIGHT);
+      expect(getGiftWeight(ultraRareGift)).toBe(DEFAULT_ULTRA_RARE_GIFT_WEIGHT);
     });
 
-    it('getGiftIconBgClass がレアリティに応じて金色または白色の背景クラスを返すこと', () => {
-      expect(getGiftIconBgClass('rare')).toContain('from-amber-200');
-      expect(getGiftIconBgClass('rare')).toContain('border-amber-400');
+    it('getGiftIconBgClass がレアリティに応じて適切な背景クラスを返し、SR・URは白でも金でもないこと', () => {
+      // 通常: 白色
       expect(getGiftIconBgClass('common')).toContain('bg-white');
       expect(getGiftIconBgClass(undefined)).toContain('bg-white');
+
+      // レア: 金色
+      expect(getGiftIconBgClass('rare')).toContain('from-amber-200');
+      expect(getGiftIconBgClass('rare')).toContain('border-amber-400');
+
+      // スーパーレア: 紫色（白でも金でもない）
+      const srBg = getGiftIconBgClass('super-rare');
+      expect(srBg).toContain('from-purple-300');
+      expect(srBg).toContain('border-purple-400');
+      expect(srBg).not.toContain('bg-white');
+      expect(srBg).not.toContain('amber');
+
+      // ウルトラレア: オーロラ/虹色（白でも金でもない）
+      const urBg = getGiftIconBgClass('ultra-rare');
+      expect(urBg).toContain('from-cyan-300');
+      expect(urBg).toContain('border-fuchsia-400');
+      expect(urBg).not.toContain('bg-white');
+      expect(urBg).not.toContain('amber');
     });
   });
 
@@ -396,15 +420,17 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
     it('getGiftRarityLabel が既知のレアリティに対応する日本語ラベルを返し、未登録時はフォールバックすること', () => {
       expect(getGiftRarityLabel('common')).toBe('通常');
       expect(getGiftRarityLabel('rare')).toBe('レア');
+      expect(getGiftRarityLabel('super-rare')).toBe('スーパーレア');
+      expect(getGiftRarityLabel('ultra-rare')).toBe('ウルトラレア');
       expect(getGiftRarityLabel(undefined)).toBe('通常');
       // 将来の未登録レアリティでも安全にフォールバックすること
-      expect(getGiftRarityLabel('super-rare')).toBe('super-rare');
+      expect(getGiftRarityLabel('legendary')).toBe('legendary');
     });
 
     it('getAvailableRarities がカタログ内に存在するユニークなレアリティ一覧を順番通りに返すこと', () => {
-      // デフォルトカタログには common と rare が存在
+      // デフォルトカタログには common, rare, super-rare, ultra-rare が存在
       const rarities = getAvailableRarities(CAT_GIFTS);
-      expect(rarities).toEqual(['common', 'rare']);
+      expect(rarities).toEqual(['common', 'rare', 'super-rare', 'ultra-rare']);
 
       // 将来新しいレアリティが追加されたカスタムカタログの場合
       const extendedCatalog = [

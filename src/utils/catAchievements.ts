@@ -8,9 +8,10 @@ import { CatMoodLevel } from '../types/mood.ts';
 import { CatFullnessLevel } from '../types/fullness.ts';
 import { CareStats } from '../types/journal.ts';
 import { GiftItem, GiftInventory } from '../types/gift.ts';
+import { CAT_GIFTS } from './catGifts.ts';
 
 /**
- * 実績マスターデータリスト（全43種類: 通常実績35種類 + 隠し実績8種類）
+ * 実績マスターデータリスト（全45種類: 通常実績37種類 + 隠し実績8種類）
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
   // --- 初期ふれあい実績 ---
@@ -268,6 +269,20 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     iconType: 'sparkle',
     isHidden: false,
   },
+  {
+    id: 'first-super-rare-gift',
+    title: 'とっておきの宝物',
+    description: 'はじめてスーパーレアなおくりものを受け取った。',
+    iconType: 'sparkle',
+    isHidden: false,
+  },
+  {
+    id: 'first-ultra-rare-gift',
+    title: '奇跡のめぐり逢い',
+    description: 'はじめてウルトラレアなおくりものを受け取った。',
+    iconType: 'sparkle',
+    isHidden: false,
+  },
 
   // --- 猫の名前変更実績 ---
   {
@@ -421,6 +436,10 @@ export interface AchievementCheckContext {
   receivedGift?: GiftItem | null;
   /** レアなおくりものを所持しているか（インベントリ全体の判定） */
   hasRareGift?: boolean;
+  /** スーパーレアなおくりものを所持しているか（インベントリ全体の判定） */
+  hasSuperRareGift?: boolean;
+  /** ウルトラレアなおくりものを所持しているか（インベントリ全体の判定） */
+  hasUltraRareGift?: boolean;
   /** 猫の名前を変更したか */
   isCatRenamed?: boolean;
   /** 現在のおくりものインベントリ（セット収集判定用） */
@@ -692,7 +711,35 @@ export function checkNewAchievements(
       case 'first-rare-gift':
         if (
           context.receivedGift?.rarity === 'rare' ||
+          context.receivedGift?.rarity === 'super-rare' ||
+          context.receivedGift?.rarity === 'ultra-rare' ||
           context.hasRareGift === true
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'first-super-rare-gift':
+        if (
+          context.receivedGift?.rarity === 'super-rare' ||
+          context.hasSuperRareGift === true ||
+          (context.giftInventory &&
+            Object.keys(context.giftInventory).some(
+              (id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'super-rare'
+            ))
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'first-ultra-rare-gift':
+        if (
+          context.receivedGift?.rarity === 'ultra-rare' ||
+          context.hasUltraRareGift === true ||
+          (context.giftInventory &&
+            Object.keys(context.giftInventory).some(
+              (id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare'
+            ))
         ) {
           isMet = true;
         }

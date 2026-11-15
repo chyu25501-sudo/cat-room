@@ -150,11 +150,18 @@ export default function App() {
     // ふり返り手帳に撫でた記録を追加
     const updatedJournalStats = recordCareAction('pet', currentCatId);
 
-    // インベントリの合計受取個数とレアギフト所持判定
+    // インベントリの合計受取個数とレアギフト所持判定（レア以上の判定）
+    const isRareOrAbove = (r?: string) => r === 'rare' || r === 'super-rare' || r === 'ultra-rare';
     const currentTotalGifts = getTotalGiftCount(inventory) + (hasReceivedGift ? 1 : 0);
     const hasRareGift =
-      receivedGiftItem?.rarity === 'rare' ||
-      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'rare');
+      isRareOrAbove(receivedGiftItem?.rarity) ||
+      Object.keys(inventory).some((id) => isRareOrAbove(CAT_GIFTS.find((g) => g.id === id)?.rarity));
+    const hasSuperRareGift =
+      receivedGiftItem?.rarity === 'super-rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'super-rare');
+    const hasUltraRareGift =
+      receivedGiftItem?.rarity === 'ultra-rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare');
 
     // 実績判定（なでる・機嫌・ギフト・手帳統計）
     checkAchievements({
@@ -164,6 +171,8 @@ export default function App() {
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
+      hasSuperRareGift,
+      hasUltraRareGift,
       giftInventory: inventory,
       careStats: updatedJournalStats,
     });
@@ -240,11 +249,18 @@ export default function App() {
     // ふり返り手帳にごはんの記録を追加
     const updatedJournalStats = recordCareAction('feed', currentCatId);
 
-    // インベントリの合計受取個数とレアギフト所持判定
+    // インベントリの合計受取個数とレアギフト所持判定（レア以上の判定）
+    const isRareOrAbove = (r?: string) => r === 'rare' || r === 'super-rare' || r === 'ultra-rare';
     const currentTotalGifts = getTotalGiftCount(inventory) + (hasReceivedGift ? 1 : 0);
     const hasRareGift =
-      receivedGiftItem?.rarity === 'rare' ||
-      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'rare');
+      isRareOrAbove(receivedGiftItem?.rarity) ||
+      Object.keys(inventory).some((id) => isRareOrAbove(CAT_GIFTS.find((g) => g.id === id)?.rarity));
+    const hasSuperRareGift =
+      receivedGiftItem?.rarity === 'super-rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'super-rare');
+    const hasUltraRareGift =
+      receivedGiftItem?.rarity === 'ultra-rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare');
 
     // 実績判定（ごはん・機嫌・まんぷく度・ギフト・手帳統計）
     checkAchievements({
@@ -256,6 +272,8 @@ export default function App() {
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
+      hasSuperRareGift,
+      hasUltraRareGift,
       giftInventory: inventory,
       careStats: updatedJournalStats,
     });
@@ -321,11 +339,18 @@ export default function App() {
     // ふり返り手帳におもちゃ遊びの記録を追加
     const updatedJournalStats = recordCareAction('play', currentCatId);
 
-    // インベントリの合計受取個数とレアギフト所持判定
+    // インベントリの合計受取個数とレアギフト所持判定（レア以上の判定）
+    const isRareOrAbove = (r?: string) => r === 'rare' || r === 'super-rare' || r === 'ultra-rare';
     const currentTotalGifts = getTotalGiftCount(inventory) + (hasReceivedGift ? 1 : 0);
     const hasRareGift =
-      receivedGiftItem?.rarity === 'rare' ||
-      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'rare');
+      isRareOrAbove(receivedGiftItem?.rarity) ||
+      Object.keys(inventory).some((id) => isRareOrAbove(CAT_GIFTS.find((g) => g.id === id)?.rarity));
+    const hasSuperRareGift =
+      receivedGiftItem?.rarity === 'super-rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'super-rare');
+    const hasUltraRareGift =
+      receivedGiftItem?.rarity === 'ultra-rare' ||
+      Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare');
 
     // 実績判定（おもちゃ・機嫌・ギフト・手帳統計）
     checkAchievements({
@@ -335,6 +360,8 @@ export default function App() {
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
+      hasSuperRareGift,
+      hasUltraRareGift,
       giftInventory: inventory,
       careStats: updatedJournalStats,
     });
@@ -412,6 +439,7 @@ export default function App() {
         <div className="h-14 flex items-center justify-center mb-1 transition-all duration-300">
           {bubbleText ? (
             <div
+              data-testid="speech-bubble"
               className={`animate-bounce bg-white px-4 py-2 rounded-2xl shadow-md border font-bold text-base flex items-center gap-1.5 ${
                 currentMoodLevel === 'annoyed'
                   ? 'border-rose-300 text-rose-700'

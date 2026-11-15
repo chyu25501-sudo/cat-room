@@ -2943,68 +2943,140 @@ export const YarnScrapIcon: React.FC<{ className?: string }> = ({ className = 'w
 
 /**
  * 未獲得（未発見）のおくりもの用プレースホルダーアイコン
- * isRare が true の場合、レアリティの高いおくりものだと分かるように金色背景で「？」を描画します。
+ * レアリティに応じて白（通常）、金（レア）、紫（スーパーレア）、オーロラ/虹色（ウルトラレア）で「？」を描画します。
  */
-export const UnknownGiftIcon: React.FC<{ className?: string; isRare?: boolean }> = ({
-  className = 'w-8 h-8',
-  isRare = false,
-}) => (
-  <svg
-    viewBox="0 0 48 48"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    data-testid="unknown-gift-icon"
-    data-rare={isRare ? 'true' : 'false'}
-    aria-hidden="true"
-  >
-    <defs>
-      {isRare ? (
-        <>
-          <linearGradient id="unknownRareGrad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FEF08A" />
-            <stop offset="45%" stopColor="#FDE047" />
-            <stop offset="80%" stopColor="#F59E0B" />
-            <stop offset="100%" stopColor="#D97706" />
-          </linearGradient>
-          <linearGradient id="unknownRareShine" x1="12" y1="10" x2="36" y2="24" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-          </linearGradient>
-        </>
-      ) : null}
-    </defs>
-    <rect
-      x="8"
-      y="8"
-      width="32"
-      height="32"
-      rx="10"
-      fill={isRare ? 'url(#unknownRareGrad)' : '#F1F5F9'}
-      stroke={isRare ? '#D97706' : '#CBD5E1'}
-      strokeWidth={isRare ? '1.8' : '1.5'}
-      strokeDasharray="3 3"
-    />
-    {isRare && (
-      <>
-        {/* レア感を引き立てるツヤ光沢と小さなきらめき星 */}
-        <path d="M12 12C15 9 24 9 28 11" stroke="url(#unknownRareShine)" strokeWidth="2" strokeLinecap="round" />
-        <path d="M34 14L35 16L37 17L35 18L34 20L33 18L31 17L33 16L34 14Z" fill="#FFFFFF" fillOpacity="0.9" />
-      </>
-    )}
-    <text
-      x="24"
-      y="31"
-      textAnchor="middle"
-      fill={isRare ? '#78350F' : '#94A3B8'}
-      fontSize="20"
-      fontWeight="900"
-      fontFamily="sans-serif"
+export const UnknownGiftIcon: React.FC<{
+  className?: string;
+  isRare?: boolean;
+  rarity?: GiftRarity;
+}> = ({ className = 'w-8 h-8', isRare = false, rarity }) => {
+  const resolvedRarity = rarity ?? (isRare ? 'rare' : 'common');
+  const isRarityRare = resolvedRarity === 'rare' || isRare;
+  const isSuperRare = resolvedRarity === 'super-rare';
+  const isUltraRare = resolvedRarity === 'ultra-rare';
+  const isSpecial = isRarityRare || isSuperRare || isUltraRare;
+
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      data-testid="unknown-gift-icon"
+      data-rare={isRarityRare ? 'true' : 'false'}
+      data-rarity={resolvedRarity}
+      aria-hidden="true"
     >
-      ?
-    </text>
-  </svg>
-);
+      <defs>
+        {isRarityRare && (
+          <>
+            <linearGradient id="unknownRareGrad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FEF08A" />
+              <stop offset="45%" stopColor="#FDE047" />
+              <stop offset="80%" stopColor="#F59E0B" />
+              <stop offset="100%" stopColor="#D97706" />
+            </linearGradient>
+            <linearGradient id="unknownRareShine" x1="12" y1="10" x2="36" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+            </linearGradient>
+          </>
+        )}
+        {isSuperRare && (
+          <>
+            <linearGradient id="unknownSuperRareGrad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#F5D0FE" />
+              <stop offset="40%" stopColor="#E879F9" />
+              <stop offset="75%" stopColor="#C084FC" />
+              <stop offset="100%" stopColor="#9333EA" />
+            </linearGradient>
+            <linearGradient id="unknownSuperRareShine" x1="12" y1="10" x2="36" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+            </linearGradient>
+          </>
+        )}
+        {isUltraRare && (
+          <>
+            <linearGradient id="unknownUltraRareGrad" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#67E8F9" />
+              <stop offset="35%" stopColor="#F472B6" />
+              <stop offset="70%" stopColor="#FBBF24" />
+              <stop offset="100%" stopColor="#FB7185" />
+            </linearGradient>
+            <linearGradient id="unknownUltraRareShine" x1="12" y1="10" x2="36" y2="24" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+            </linearGradient>
+          </>
+        )}
+      </defs>
+      <rect
+        x="8"
+        y="8"
+        width="32"
+        height="32"
+        rx="10"
+        fill={
+          isUltraRare
+            ? 'url(#unknownUltraRareGrad)'
+            : isSuperRare
+            ? 'url(#unknownSuperRareGrad)'
+            : isRarityRare
+            ? 'url(#unknownRareGrad)'
+            : '#F1F5F9'
+        }
+        stroke={
+          isUltraRare
+            ? '#E11D48'
+            : isSuperRare
+            ? '#9333EA'
+            : isRarityRare
+            ? '#D97706'
+            : '#CBD5E1'
+        }
+        strokeWidth={isSpecial ? '1.8' : '1.5'}
+        strokeDasharray="3 3"
+      />
+      {isSpecial && (
+        <>
+          <path
+            d="M12 12C15 9 24 9 28 11"
+            stroke={
+              isUltraRare
+                ? 'url(#unknownUltraRareShine)'
+                : isSuperRare
+                ? 'url(#unknownSuperRareShine)'
+                : 'url(#unknownRareShine)'
+            }
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <path d="M34 14L35 16L37 17L35 18L34 20L33 18L31 17L33 16L34 14Z" fill="#FFFFFF" fillOpacity="0.9" />
+        </>
+      )}
+      <text
+        x="24"
+        y="31"
+        textAnchor="middle"
+        fill={
+          isUltraRare
+            ? '#881337'
+            : isSuperRare
+            ? '#581C87'
+            : isRarityRare
+            ? '#78350F'
+            : '#94A3B8'
+        }
+        fontSize="20"
+        fontWeight="900"
+        fontFamily="sans-serif"
+      >
+        ?
+      </text>
+    </svg>
+  );
+};
 
 /**
  * 汎用フォールバック用ギフトアイコン
@@ -3044,12 +3116,12 @@ export const GiftIcon: React.FC<GiftIconProps> = ({
   isAcquired = true,
   rarity,
 }) => {
-  const isRare =
-    rarity === 'rare' ||
-    (giftId ? CAT_GIFTS.find((g) => g.id === giftId)?.rarity === 'rare' : false);
+  const targetGift = giftId ? CAT_GIFTS.find((g) => g.id === giftId) : undefined;
+  const resolvedRarity = rarity ?? targetGift?.rarity ?? 'common';
+  const isRare = resolvedRarity === 'rare';
 
   if (!isAcquired) {
-    return <UnknownGiftIcon className={className} isRare={isRare} />;
+    return <UnknownGiftIcon className={className} isRare={isRare} rarity={resolvedRarity} />;
   }
 
   switch (giftId) {
