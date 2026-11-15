@@ -11,6 +11,7 @@ import { useCatGifts } from './hooks/useCatGifts.ts';
 import { useAffectionLevelUp } from './hooks/useAffectionLevelUp.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { useAppSettings } from './hooks/useAppSettings.ts';
+import { useAchievements } from './hooks/useAchievements.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
@@ -20,6 +21,9 @@ import { TreasureChestButton } from './components/gifts/TreasureChestButton.tsx'
 import { GiftCollectionModal } from './components/gifts/GiftCollectionModal.tsx';
 import { SettingsButton } from './components/settings/SettingsButton.tsx';
 import { SettingsModal } from './components/settings/SettingsModal.tsx';
+import { AchievementButton } from './components/achievements/AchievementButton.tsx';
+import { AchievementToastOverlay } from './components/achievements/AchievementToastOverlay.tsx';
+import { AchievementModal } from './components/achievements/AchievementModal.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { resolveCatPresets } from './utils/catSettings.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
@@ -78,12 +82,21 @@ export default function App() {
   const { inventory, receiveGift } = useCatGifts();
   const { levelUpState, triggerLevelUp } = useAffectionLevelUp();
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
+  const {
+    unlocked: unlockedAchievements,
+    toasts: achievementToasts,
+    checkAndUnlock: checkAchievements,
+    dismissToast: dismissAchievementToast,
+  } = useAchievements();
 
   // おくりもの一覧モーダルの開閉ステート
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
   // 設定モーダルの開閉ステート
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  // 実績モーダルの開閉ステート
+  const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
 
   // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
   const [lastAction, setLastAction] = useState<LastCareAction | null>(null);
@@ -105,12 +118,14 @@ export default function App() {
 
     // 不機嫌でない正常なふれあい時に、猫のごきげん度に応じたなつき度Expを獲得
     // ごきげん度が高ければ高いほど上昇幅が大きくなり、ごきげん度と同様に±1〜5%（±1〜5pt）ランダムで変動します
+    let hasReceivedGift = false;
     if (!isAnnoyed && nextLevel !== 'annoyed') {
       const baseAffectionExp = calculatePetAffectionExp(nextScore);
       const variedAffectionExp = calculateVariedAffectionExp(baseAffectionExp);
       const affRes = gainAffection(currentCatId, variedAffectionExp);
       if (affRes.isLevelUp) {
         const gift = receiveGift(currentCatId);
+        hasReceivedGift = true;
         triggerLevelUp({
           level: affRes.nextLevel,
           catName: currentPreset.name,
@@ -120,6 +135,14 @@ export default function App() {
         });
       }
     }
+
+    // 実績判定（なでる・機嫌・ギフト）
+    checkAchievements({
+      action: 'pet',
+      moodScore: nextScore,
+      moodLevel: nextLevel,
+      totalGifts: hasReceivedGift ? 1 : undefined,
+    });
 
     // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生（不機嫌時は低く鋭い威嚇音）
     const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
@@ -151,7 +174,7 @@ export default function App() {
     stopPlaying();
 
     // ごはんを与えて機嫌を大きく上昇させ、不機嫌も即時解消
-    const { nextLevel } = feedCat(currentCatId, food.moodBoost);
+    const { nextScore, nextLevel } = feedCat(currentCatId, food.moodBoost);
 
     // ごはんを与えてまんぷく度を上昇
     feedCatFullness(currentCatId, food.fullnessBoost);
@@ -172,8 +195,10 @@ export default function App() {
     });
 
     // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
+    let hasReceivedGift = false;
     if (affRes.isLevelUp) {
       const gift = receiveGift(currentCatId);
+      hasReceivedGift = true;
       triggerLevelUp({
         level: affRes.nextLevel,
         catName: currentPreset.name,
@@ -182,6 +207,14 @@ export default function App() {
         gift,
       });
     }
+
+    // 実績判定（ごはん・機嫌・ギフト）
+    checkAchievements({
+      action: 'feed',
+      moodScore: nextScore,
+      moodLevel: nextLevel,
+      totalGifts: hasReceivedGift ? 1 : undefined,
+    });
 
     // ごはんもぐもぐメッセージを吹き出しに表示
     const msg = getEatingMessage(food, currentCatId);
@@ -205,7 +238,7 @@ export default function App() {
     stopFeeding();
 
     // おもちゃで遊んで機嫌を大きく上昇させ、不機嫌も即時解消
-    const { nextLevel } = playCat(currentCatId, toy.moodBoost);
+    const { nextScore, nextLevel } = playCat(currentCatId, toy.moodBoost);
 
     // おもちゃで遊んで運動し、まんぷく度を微減（5〜10%）
     playCatFullness(currentCatId);
@@ -226,8 +259,10 @@ export default function App() {
     });
 
     // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
+    let hasReceivedGift = false;
     if (affRes.isLevelUp) {
       const gift = receiveGift(currentCatId);
+      hasReceivedGift = true;
       triggerLevelUp({
         level: affRes.nextLevel,
         catName: currentPreset.name,
@@ -236,6 +271,14 @@ export default function App() {
         gift,
       });
     }
+
+    // 実績判定（おもちゃ・機嫌・ギフト）
+    checkAchievements({
+      action: 'play',
+      moodScore: nextScore,
+      moodLevel: nextLevel,
+      totalGifts: hasReceivedGift ? 1 : undefined,
+    });
 
     // おもちゃメッセージを吹き出しに表示
     const msg = getPlayMessage(toy, currentCatId);
@@ -262,8 +305,12 @@ export default function App() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-between p-6 bg-gradient-to-b from-amber-50 via-orange-50 to-amber-100 selection:bg-orange-200">
-      {/* 画面左上：これまでに受け取ったおくりもの一覧を開く宝箱ボタンと設定ボタン */}
+      {/* メイン画面上部の実績獲得トースト通知（複数同時獲得時は縦並び表示） */}
+      <AchievementToastOverlay toasts={achievementToasts} onDismiss={dismissAchievementToast} />
+
+      {/* 画面左上：おくりもの一覧ボタン・実績ボタン・設定ボタン */}
       <TreasureChestButton onClick={() => setIsGiftModalOpen(true)} />
+      <AchievementButton onClick={() => setIsAchievementModalOpen(true)} />
       <SettingsButton onClick={() => setIsSettingsModalOpen(true)} />
 
       {/* ヘッダーエリア */}
@@ -414,6 +461,13 @@ export default function App() {
         onResetCatNames={resetCatNames}
         gaugePosition={gaugePosition}
         onChangeGaugePosition={setGaugePosition}
+      />
+
+      {/* 実績一覧モーダル画面 */}
+      <AchievementModal
+        isOpen={isAchievementModalOpen}
+        onClose={() => setIsAchievementModalOpen(false)}
+        unlocked={unlockedAchievements}
       />
     </main>
   );

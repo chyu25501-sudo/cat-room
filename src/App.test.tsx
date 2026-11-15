@@ -1145,5 +1145,79 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const restoredIndicator = screen.getByTestId('cat-mood-indicator');
       expect(restoredIndicator).not.toHaveAttribute('data-layout', 'side');
     });
+
+    it('画面左上におくりもの・実績・設定の順にボタンが並び、実績ボタンをクリックすると実績モーダルが開閉できること', () => {
+      render(<App />);
+
+      const giftButton = screen.getByRole('button', { name: /これまでに受け取ったおくりもの一覧/ });
+      const achievementButton = screen.getByRole('button', { name: '実績一覧を開く' });
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+
+      expect(giftButton).toBeInTheDocument();
+      expect(achievementButton).toBeInTheDocument();
+      expect(settingsButton).toBeInTheDocument();
+
+      // 実績ボタンがおくりものボタンと設定ボタンの間に配置されていること
+      expect(giftButton).toHaveClass('left-4');
+      expect(achievementButton).toHaveClass('left-[4.25rem]');
+      expect(settingsButton).toHaveClass('left-[7.5rem]');
+
+      // クリックで実績モーダルが開くこと
+      fireEvent.click(achievementButton);
+      expect(screen.getByRole('dialog', { name: /実績/ })).toBeInTheDocument();
+      expect(screen.getByTestId('achievement-rate-badge')).toBeInTheDocument();
+
+      // 未達成の通常実績は名前が伏せ字「？？？」で獲得条件が表示されていること
+      expect(screen.getByTestId('achievement-title-first-pet')).toHaveTextContent('？？？');
+      expect(screen.getByTestId('achievement-desc-first-pet')).toHaveTextContent(
+        '猫ちゃんを初めてなでなでしてふれあった。'
+      );
+
+      // 閉じるボタンで閉じること
+      const closeButton = screen.getByRole('button', { name: '実績を閉じる' });
+      fireEvent.click(closeButton);
+      expect(screen.queryByRole('dialog', { name: /実績/ })).not.toBeInTheDocument();
+    });
+
+    it('猫を初めてなでると画面上部に「実績を獲得！」と実績名が表示され、実績画面にも反映されること', () => {
+      vi.useFakeTimers();
+      try {
+        render(<App />);
+
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+
+        // 初めてなでる
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        // 画面上部に実績トーストが表示されること
+        const toastContainer = screen.getByTestId('achievement-toast-container');
+        expect(toastContainer).toBeInTheDocument();
+        expect(screen.getByTestId('achievement-toast-first-pet')).toBeInTheDocument();
+        expect(screen.getByTestId('achievement-toast-message')).toHaveTextContent('実績を獲得！');
+        expect(screen.getByTestId('achievement-toast-title')).toHaveTextContent('はじめまして！');
+
+        // 3.5秒後に自動消滅すること
+        act(() => {
+          vi.advanceTimersByTime(3500);
+        });
+        expect(screen.queryByTestId('achievement-toast-first-pet')).not.toBeInTheDocument();
+
+        // 実績モーダルを開くと「はじめまして！」が達成！になっていること
+        const achievementButton = screen.getByRole('button', { name: '実績一覧を開く' });
+        fireEvent.click(achievementButton);
+
+        expect(screen.getByTestId('achievement-badge-first-pet')).toHaveTextContent('達成！');
+        expect(screen.getByTestId('achievement-title-first-pet')).toHaveTextContent('はじめまして！');
+        // 未達成の実績は伏せ字「？？？」のままであること
+        expect(screen.getByTestId('achievement-title-first-feed')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/5');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });
