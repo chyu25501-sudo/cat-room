@@ -286,26 +286,8 @@ export default function App() {
 
       {/* メインアクションエリア */}
       <section className="flex flex-col items-center justify-center my-auto w-full max-w-sm">
-        {/* ごきげん＆まんぷくインジケーター（機嫌・満腹ゲージ＆ステータスバッジ） */}
-        <div className="w-full max-w-xs mb-2">
-          <CatMoodIndicator
-            moodScore={currentMoodScore}
-            moodLevel={currentMoodLevel}
-            fullnessScore={currentFullnessScore}
-            fullnessLevel={currentFullnessLevel}
-            affectionLevel={currentAffectionLevel}
-            affectionProgress={currentAffectionProgress}
-            affectionExp={{
-              current: currentAffectionState.currentExp,
-              required: currentAffectionState.requiredExp,
-            }}
-            lastAction={lastAction}
-            catName={currentPreset.name}
-          />
-        </div>
-
         {/* 鳴き声・切り替え吹き出し */}
-        <div className="h-14 flex items-center justify-center mb-2 transition-all duration-300">
+        <div className="h-14 flex items-center justify-center mb-1 transition-all duration-300">
           {bubbleText ? (
             <div
               className={`animate-bounce bg-white px-4 py-2 rounded-2xl shadow-md border font-bold text-base flex items-center gap-1.5 ${
@@ -328,7 +310,7 @@ export default function App() {
           )}
         </div>
 
-        {/* 猫のシルエット（ドラッグ操作でなでる・ごはんのお食事・おもちゃ遊び） */}
+        {/* 猫のシルエット（猫切り替えボタンのすぐ下に配置：ドラッグ操作でなでる・ごはんのお食事・おもちゃ遊び） */}
         <CatSilhouette
           preset={currentPreset}
           isReacting={isPlaying}
@@ -340,6 +322,24 @@ export default function App() {
           lastAction={lastAction}
           onPet={handleInteractCat}
         />
+
+        {/* ごきげん＆まんぷく・なつき度インジケーター（猫の下・画面下部へ配置） */}
+        <div className="w-full max-w-xs mt-3 mb-2">
+          <CatMoodIndicator
+            moodScore={currentMoodScore}
+            moodLevel={currentMoodLevel}
+            fullnessScore={currentFullnessScore}
+            fullnessLevel={currentFullnessLevel}
+            affectionLevel={currentAffectionLevel}
+            affectionProgress={currentAffectionProgress}
+            affectionExp={{
+              current: currentAffectionState.currentExp,
+              required: currentAffectionState.requiredExp,
+            }}
+            lastAction={lastAction}
+            catName={currentPreset.name}
+          />
+        </div>
       </section>
 
       {/* フッターエリア */}
