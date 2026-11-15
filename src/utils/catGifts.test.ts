@@ -77,20 +77,20 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'jelly-cup',
         'blue-can',
         'empty-bottle',
-        // 【レア】日常の珍品・古代・伝説 (7)
+        // 【レア】日常の珍品・古代・伝説 (6)
         'important-paper',
         'winning-ice-stick',
         'old-coin',
         'splendid-branch',
         'glowing-moss-stone',
         'curious-magatama',
-        'dragon-scale',
-        // 【スーパーレア】宝石・天体・奇跡の幸運 (5)
+        // 【スーパーレア】宝石・天体・奇跡の幸運・竜の遺物 (6)
         'four-leaf-clover',
         'red-gem',
         'blue-gem',
         'yellow-gem',
         'star-fragment',
+        'dragon-scale',
         // 【ウルトラレア】伝説・古代の遺物・神話 (3)
         'rainbow-feather',
         'ancient-gear',
@@ -139,15 +139,15 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       });
     });
 
-    it('レアリティごとに並んでいること（通常45種、レア7種、スーパーレア5種、ウルトラレア3種）', () => {
+    it('レアリティごとに並んでいること（通常45種、レア6種、スーパーレア6種、ウルトラレア3種）', () => {
       const commonGifts = CAT_GIFTS.slice(0, 45);
-      const rareGifts = CAT_GIFTS.slice(45, 52);
-      const superRareGifts = CAT_GIFTS.slice(52, 57);
+      const rareGifts = CAT_GIFTS.slice(45, 51);
+      const superRareGifts = CAT_GIFTS.slice(51, 57);
       const ultraRareGifts = CAT_GIFTS.slice(57, 60);
 
       expect(commonGifts.length).toBe(45);
-      expect(rareGifts.length).toBe(7);
-      expect(superRareGifts.length).toBe(5);
+      expect(rareGifts.length).toBe(6);
+      expect(superRareGifts.length).toBe(6);
       expect(ultraRareGifts.length).toBe(3);
 
       commonGifts.forEach((gift) => {
@@ -166,13 +166,14 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         expect(gift.rarity).toBe('ultra-rare');
       });
 
-      // スーパーレアに指定された5種
+      // スーパーレアに指定された6種
       expect(superRareGifts.map((g) => g.id)).toEqual([
         'four-leaf-clover',
         'red-gem',
         'blue-gem',
         'yellow-gem',
         'star-fragment',
+        'dragon-scale',
       ]);
 
       // ウルトラレアに指定された3種

@@ -340,8 +340,8 @@ describe('GiftCollectionModal コンポーネント', () => {
 
       expect(allButton).toHaveTextContent('すべて (60)');
       expect(commonButton).toHaveTextContent('通常 (45)');
-      expect(rareButton).toHaveTextContent('レア (7)');
-      expect(superRareButton).toHaveTextContent('スーパーレア (5)');
+      expect(rareButton).toHaveTextContent('レア (6)');
+      expect(superRareButton).toHaveTextContent('スーパーレア (6)');
       expect(ultraRareButton).toHaveTextContent('ウルトラレア (3)');
 
       // 初期状態では「すべて」が選択されている

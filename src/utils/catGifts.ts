@@ -6,8 +6,8 @@ import { CatId } from '../types/cat.ts';
  *
  * 並び順の設計方針:
  * 1. 通常（common: 45種）
- * 2. レア（rare: 7種）
- * 3. スーパーレア（super-rare: 5種）
+ * 2. レア（rare: 6種）
+ * 3. スーパーレア（super-rare: 6種）
  * 4. ウルトラレア（ultra-rare: 3種）
  *
  * 今後贈り物を増やす際はこの配列に追加するだけで拡張可能です。
@@ -439,7 +439,7 @@ export const CAT_GIFTS: readonly GiftItem[] = [
   },
 
   // ==========================================
-  // 【レア（rare: 7種）】日常の珍品・幸運・古代・伝説
+  // 【レア（rare: 6種）】日常の珍品・幸運・古代・伝説
   // ==========================================
   {
     id: 'important-paper',
@@ -495,18 +495,9 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     themeClass: 'from-emerald-200 via-teal-100 to-cyan-200 border-emerald-400 text-teal-900',
     rarity: 'rare',
   },
-  {
-    id: 'dragon-scale',
-    name: 'りゅうの鱗',
-    description: '伝説のドラゴンから剥がれ落ちたと伝わる、虹色に光る硬質で神聖なウロコ。',
-    icon: '🐉',
-    iconType: 'dragon-scale',
-    themeClass: 'from-emerald-200 via-teal-200 to-cyan-300 border-teal-400 text-emerald-950',
-    rarity: 'rare',
-  },
 
   // ==========================================
-  // 【スーパーレア（super-rare: 5種）】宝石・天体・奇跡の幸運
+  // 【スーパーレア（super-rare: 6種）】宝石・天体・奇跡の幸運・竜の遺物
   // ==========================================
   {
     id: 'four-leaf-clover',
@@ -551,6 +542,15 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     icon: '⭐',
     iconType: 'star-fragment',
     themeClass: 'from-purple-200 via-violet-200 to-indigo-200 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'dragon-scale',
+    name: 'りゅうの鱗',
+    description: '伝説のドラゴンから剥がれ落ちたと伝わる、虹色に光る硬質で神聖なウロコ。',
+    icon: '🐉',
+    iconType: 'dragon-scale',
+    themeClass: 'from-purple-200 via-teal-200 to-indigo-300 border-purple-400 text-purple-950',
     rarity: 'super-rare',
   },
 

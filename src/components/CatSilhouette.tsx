@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Heart, Sparkles } from 'lucide-react';
 import { CatPreset, CAT_PRESETS, CatId } from '../types/cat.ts';
 import { BlackCat, CatShapeProps } from './cats/BlackCat.tsx';
@@ -77,6 +77,15 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
   // 画面中央から湧き上がるエフェクトバーストのリスト（常に最新の1バーストのみを保持）
   const [bursts, setBursts] = useState<PetEffectBurst[]>([]);
   const lastEffectTimeRef = useRef<number>(0);
+  const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  // アンマウント時に保留中のエフェクト消去タイマーを確実に解除
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((t) => clearTimeout(t));
+      timeoutsRef.current.clear();
+    };
+  }, []);
 
   // なでたカーソル位置（origin）の周辺から湧き上がるエフェクトを発生（機嫌が良いほど華やか、不機嫌時は抑止）
   const triggerPetEffect = useCallback(
@@ -101,9 +110,11 @@ export const CatSilhouette: React.FC<CatSilhouetteProps> = ({
       setBursts([{ id: burstId, particles }]);
 
       // アニメーション完了（約1.5秒）後に古いバーストを消去
-      setTimeout(() => {
+      const timer = setTimeout(() => {
+        timeoutsRef.current.delete(timer);
         setBursts((prev) => prev.filter((b) => b.id !== burstId));
       }, 1500);
+      timeoutsRef.current.add(timer);
     },
     [effectiveCooldownMs, moodLevel]
   );
