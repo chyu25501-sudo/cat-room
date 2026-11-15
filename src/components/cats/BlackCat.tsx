@@ -4,11 +4,15 @@ import { CatMoodLevel } from '../../types/mood.ts';
 export interface CatShapeProps {
   isReacting?: boolean;
   moodLevel?: CatMoodLevel;
+  className?: string;
+  testId?: string;
 }
 
 export const BlackCat: React.FC<CatShapeProps> = ({
   isReacting = false,
   moodLevel = 'normal',
+  className,
+  testId = 'black-cat-svg',
 }) => {
   const isEcstatic = moodLevel === 'ecstatic';
   const isHappy = moodLevel === 'happy';
@@ -17,9 +21,12 @@ export const BlackCat: React.FC<CatShapeProps> = ({
   return (
     <svg
       viewBox="0 0 210 240"
-      className="w-56 h-64 sm:w-64 sm:h-72 drop-shadow-xl transition-all duration-300"
+      className={
+        className ??
+        'w-56 h-64 sm:w-64 sm:h-72 drop-shadow-xl transition-all duration-300'
+      }
       aria-hidden="true"
-      data-testid="black-cat-svg"
+      data-testid={testId}
     >
       {/* 地面の影 */}
       <ellipse

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { X, Heart, Utensils, Sparkles, Trophy, BookOpen, Settings, Smile } from 'lucide-react';
 import { HowToPlayIcon } from './HowToPlayButton.tsx';
+import { BlackCat } from '../cats/BlackCat.tsx';
 
 export interface HowToPlayModalProps {
   /** モーダルが開いているかどうか */
@@ -146,40 +147,66 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({
       />
 
       {/* モーダル本体カード */}
-      <div className="relative z-10 w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-sky-100 overflow-hidden flex flex-col max-h-[88vh]">
-        {/* モーダルヘッダー */}
-        <div className="px-5 py-3.5 border-b border-sky-100 flex items-center justify-between bg-gradient-to-r from-sky-50/80 via-blue-50/60 to-sky-50/80">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-white shadow-2xs border border-sky-200 flex items-center justify-center text-sky-600 shrink-0">
-              <HowToPlayIcon className="w-5 h-5" />
-            </div>
-            <div>
-              <h2
-                id="how-to-play-modal-title"
-                className="text-base sm:text-lg font-bold text-stone-800 tracking-tight"
-              >
-                あそびかた
-              </h2>
-              <p className="text-[11px] text-stone-500">
-                「ねこっぽい」の楽しみ方ガイド
-              </p>
-            </div>
-          </div>
-
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-amber-100/90 overflow-hidden flex flex-col max-h-[88vh]">
+        {/* モーダル最上部：黒猫イラストバナー＆ヘッダー */}
+        <div className="pt-4 pb-3 px-5 border-b border-amber-100/80 bg-gradient-to-b from-amber-50/90 via-orange-50/40 to-white flex flex-col items-center justify-center relative shrink-0">
           {/* 閉じるボタン */}
           <button
             type="button"
             onClick={onClose}
             aria-label="あそびかたを閉じる"
             data-testid="how-to-play-modal-close-button"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400 z-10"
           >
             <X className="w-5 h-5" />
           </button>
+
+          {/* ウィンドウ最上部の黒猫SVGイラスト */}
+          <div
+            data-testid="how-to-play-cat-banner"
+            className="w-20 h-24 sm:w-24 sm:h-28 flex items-center justify-center mb-1 drop-shadow-md select-none"
+          >
+            <BlackCat
+              moodLevel="happy"
+              className="w-full h-full"
+              testId="how-to-play-black-cat-svg"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-white shadow-2xs border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
+              <HowToPlayIcon className="w-3.5 h-3.5" />
+            </div>
+            <h2
+              id="how-to-play-modal-title"
+              className="text-base sm:text-lg font-bold text-stone-800 tracking-tight"
+            >
+              あそびかた
+            </h2>
+          </div>
+          <p className="text-[11px] text-stone-500 mt-0.5">
+            「ねこっぽい」の楽しみ方ガイド
+          </p>
         </div>
 
         {/* スクロールコンテンツエリア */}
-        <div className="overflow-y-auto px-5 py-4 space-y-4">
+        <div className="overflow-y-auto px-5 py-4 space-y-3.5">
+          {/* 画面左上のボタンからいつでも確認できることの明記バナー */}
+          <div
+            data-testid="how-to-play-reopen-notice"
+            className="bg-amber-50/90 border border-amber-200/90 rounded-2xl p-3 flex items-start gap-2.5 text-xs text-amber-950 leading-relaxed shadow-2xs"
+          >
+            <div className="w-7 h-7 rounded-lg bg-white border border-amber-200 shadow-2xs text-amber-700 flex items-center justify-center shrink-0">
+              <HowToPlayIcon className="w-4 h-4" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-amber-900 mb-0.5">いつでも確認できます</p>
+              <p className="text-[11px] sm:text-xs text-amber-800 leading-snug">
+                このウィンドウを閉じても、画面左上のボタン（<span className="font-semibold text-amber-950">あそびかたアイコン 📖</span>）からいつでも何度でも確認できます。
+              </p>
+            </div>
+          </div>
+
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed bg-sky-50/60 p-3 rounded-2xl border border-sky-100/80">
             「ねこっぽい」へようこそ！このアプリでは、個性豊かな3匹の猫ちゃんたちをなでたり、ごはんをあげたり、おもちゃで遊んだりしながら、のんびり触れ合うことができます。
           </p>
@@ -221,11 +248,15 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({
         </div>
 
         {/* モーダルフッター */}
-        <div className="px-5 py-3 border-t border-sky-100 bg-stone-50/60 flex items-center justify-end">
+        <div className="px-5 py-3 border-t border-amber-100/80 bg-stone-50/60 flex items-center justify-between gap-2">
+          <p className="text-[11px] text-stone-500 flex items-center gap-1.5 min-w-0">
+            <HowToPlayIcon className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+            <span className="truncate">画面左上のボタンからいつでも見られます</span>
+          </p>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs sm:text-sm font-semibold text-stone-700 bg-white border border-stone-200 rounded-xl hover:bg-stone-50 hover:border-stone-300 transition-colors shadow-2xs cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="px-4 py-2 text-xs sm:text-sm font-semibold text-stone-700 bg-white border border-stone-200 rounded-xl hover:bg-stone-50 hover:border-stone-300 transition-colors shadow-2xs cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400 shrink-0"
           >
             とじる
           </button>

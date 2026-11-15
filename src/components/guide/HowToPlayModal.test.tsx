@@ -19,6 +19,17 @@ describe('HowToPlayModal コンポーネント', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'あそびかた' })).toBeInTheDocument();
     expect(screen.getByText('「ねこっぽい」の楽しみ方ガイド')).toBeInTheDocument();
 
+    // ウィンドウ最上部に黒猫のSVG画像が描画されていること
+    expect(screen.getByTestId('how-to-play-cat-banner')).toBeInTheDocument();
+    expect(screen.getByTestId('how-to-play-black-cat-svg')).toBeInTheDocument();
+
+    // 画面左上のボタンからいつでも確認できる旨が明記されていること
+    const reopenNotice = screen.getByTestId('how-to-play-reopen-notice');
+    expect(reopenNotice).toHaveTextContent('いつでも確認できます');
+    expect(reopenNotice).toHaveTextContent('画面左上のボタン');
+    expect(reopenNotice).toHaveTextContent('いつでも何度でも確認できます');
+    expect(screen.getByText('画面左上のボタンからいつでも見られます')).toBeInTheDocument();
+
     // 楽しみ方の各セクションが存在すること
     expect(screen.getByTestId('guide-section-pet')).toBeInTheDocument();
     expect(screen.getByText('1. 猫ちゃんをなでなでしよう')).toBeInTheDocument();
