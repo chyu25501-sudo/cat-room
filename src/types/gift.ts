@@ -71,8 +71,9 @@ export type GiftId =
  * 贈り物のレアリティ
  * common: 通常のおくりもの
  * rare: レアリティの高いおくりもの（もらえる確率が低く、背景が金色）
+ * 将来追加される可能性のあるレアリティ（例: 'epic', 'legendary' 等）にも対応可能な拡張型
  */
-export type GiftRarity = 'common' | 'rare';
+export type GiftRarity = 'common' | 'rare' | string;
 
 /**
  * 贈り物の定義情報

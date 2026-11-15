@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { GiftInventory, GiftItem } from '../../types/gift.ts';
-import { CAT_GIFTS, getTotalGiftCount, getAcquiredGiftTypeCount } from '../../utils/catGifts.ts';
+import {
+  CAT_GIFTS,
+  getTotalGiftCount,
+  getAcquiredGiftTypeCount,
+  getAvailableRarities,
+  getGiftRarityLabel,
+} from '../../utils/catGifts.ts';
 import { TreasureChestIcon } from './TreasureChestButton.tsx';
 import { GiftIcon } from './GiftIcon.tsx';
 import { CAT_PRESETS, CatId } from '../../types/cat.ts';
@@ -37,6 +43,19 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
 }) => {
   // 初期選択はカタログの先頭アイテム（または未選択時は先頭）
   const [selectedGiftId, setSelectedGiftId] = useState<string>(() => catalog[0]?.id ?? 'pebble');
+  // 選択中のレアリティフィルター（'all' または各レアリティ文字列）
+  const [selectedRarity, setSelectedRarity] = useState<string>('all');
+
+  // カタログからユニークなレアリティ一覧を動的抽出（今後レアリティが増加しても自動対応）
+  const availableRarities = useMemo(() => getAvailableRarities(catalog), [catalog]);
+
+  // レアリティ絞り込み後のカタログ
+  const filteredCatalog = useMemo(() => {
+    if (selectedRarity === 'all') {
+      return catalog;
+    }
+    return catalog.filter((item) => (item.rarity ?? 'common') === selectedRarity);
+  }, [catalog, selectedRarity]);
 
   if (!isOpen) {
     return null;
@@ -46,8 +65,12 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
   const totalCatalogCount = catalog.length;
   const acquiredTypeCount = getAcquiredGiftTypeCount(inventory, catalog);
 
-  // 現在選択されているギフトの定義情報とインベントリ記録
-  const selectedGift = catalog.find((g) => g.id === selectedGiftId) ?? catalog[0];
+  // 現在選択されているギフトの定義情報（絞り込みリスト内にあればそれを、無ければ絞り込みリストの先頭アイテム）
+  const selectedGift =
+    filteredCatalog.find((g) => g.id === selectedGiftId) ??
+    filteredCatalog[0] ??
+    catalog.find((g) => g.id === selectedGiftId) ??
+    catalog[0];
   const selectedRecord = selectedGift ? inventory[selectedGift.id] : undefined;
   const selectedCount = selectedRecord?.count ?? 0;
   const isSelectedAcquired = selectedCount > 0;
@@ -113,7 +136,53 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
         </div>
 
         {/* モーダルメインコンテンツ（表グリッドと下部詳細パネル） */}
-        <div className="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-4">
+        <div className="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-3.5">
+          {/* ウィンドウ上部：レアリティ絞り込みフィルター（今後レアリティが増加しても動的拡張可能） */}
+          <div
+            data-testid="gift-rarity-filter"
+            aria-label="レアリティ絞り込み"
+            className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar shrink-0"
+          >
+            {/* すべて */}
+            <button
+              type="button"
+              data-testid="filter-rarity-all"
+              aria-pressed={selectedRarity === 'all'}
+              onClick={() => setSelectedRarity('all')}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+                selectedRarity === 'all'
+                  ? 'bg-orange-500 text-white border-orange-600 shadow-2xs'
+                  : 'bg-white/90 text-stone-600 border-orange-200/80 hover:bg-orange-50'
+              }`}
+            >
+              すべて ({catalog.length})
+            </button>
+
+            {/* 動的抽出された各レアリティ（通常、レア、今後追加されるレアリティ） */}
+            {availableRarities.map((rarity) => {
+              const isSelected = selectedRarity === rarity;
+              const label = getGiftRarityLabel(rarity);
+              const count = catalog.filter((item) => (item.rarity ?? 'common') === rarity).length;
+
+              return (
+                <button
+                  key={rarity}
+                  type="button"
+                  data-testid={`filter-rarity-${rarity}`}
+                  aria-pressed={isSelected}
+                  onClick={() => setSelectedRarity(rarity)}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+                    isSelected
+                      ? 'bg-orange-500 text-white border-orange-600 shadow-2xs'
+                      : 'bg-white/90 text-stone-600 border-orange-200/80 hover:bg-orange-50'
+                  }`}
+                >
+                  {label} ({count})
+                </button>
+              );
+            })}
+          </div>
+
           {/* おくりものの表（グリッド並び）：角丸正方形の中にアイコン、右下に個数を表示 */}
           <div className="flex flex-col">
             <div className="flex items-center justify-between mb-2 px-1">
@@ -127,7 +196,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
               data-testid="gift-grid-table"
               className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 sm:gap-3 p-1"
             >
-              {catalog.map((gift) => {
+              {filteredCatalog.map((gift) => {
                 const isSelected = selectedGift?.id === gift.id;
                 const record = inventory[gift.id];
                 const count = record?.count ?? 0;
@@ -204,6 +273,16 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 );
               })}
             </div>
+
+            {/* 絞り込み結果が0件の時の案内 */}
+            {filteredCatalog.length === 0 && (
+              <div
+                data-testid="gift-filter-empty"
+                className="py-8 text-center text-xs text-stone-400 font-medium"
+              >
+                該当するおくりものがありません
+              </div>
+            )}
           </div>
 
           {/* ウィンドウ下側の詳細な説明エリア */}

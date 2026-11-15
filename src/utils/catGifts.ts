@@ -770,3 +770,62 @@ export function sanitizeGiftInventory(raw: unknown): GiftInventory {
 
   return result;
 }
+
+/**
+ * レアリティごとの表示定義（ラベル・バッジスタイル）
+ * 今後新しいレアリティが増加した場合もここに追加または動的フォールバックで対応可能
+ */
+export interface GiftRarityMeta {
+  id: string;
+  label: string;
+  badgeClass: string;
+}
+
+export const GIFT_RARITY_METAS: Record<string, GiftRarityMeta> = {
+  common: {
+    id: 'common',
+    label: '通常',
+    badgeClass: 'bg-stone-100 text-stone-700 border-stone-200',
+  },
+  rare: {
+    id: 'rare',
+    label: 'レア',
+    badgeClass: 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300',
+  },
+};
+
+/**
+ * レアリティの日本語表示名を取得する純粋関数
+ * 未登録の新しいレアリティが来た場合でもフォールバックして安全に表示します
+ */
+export function getGiftRarityLabel(rarity?: string): string {
+  if (!rarity) return '通常';
+  return GIFT_RARITY_METAS[rarity]?.label ?? rarity;
+}
+
+/**
+ * カタログ内に含まれるユニークなレアリティ一覧を標準の表示順で取得する純粋関数
+ * 今後新しいレアリティがカタログに追加された場合でも自動的に抽出されます
+ */
+export function getAvailableRarities(
+  catalog: readonly GiftItem[] = CAT_GIFTS
+): string[] {
+  const seen = new Set<string>();
+  const rarities: string[] = [];
+
+  for (const item of catalog) {
+    const r = item.rarity ?? 'common';
+    if (!seen.has(r)) {
+      seen.add(r);
+      rarities.push(r);
+    }
+  }
+
+  // 優先順位（common -> rare -> その他登録順）
+  const orderMap: Record<string, number> = { common: 0, rare: 1 };
+  return rarities.sort((a, b) => {
+    const orderA = orderMap[a] ?? 99;
+    const orderB = orderMap[b] ?? 99;
+    return orderA - orderB;
+  });
+}

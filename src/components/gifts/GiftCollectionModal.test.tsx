@@ -301,4 +301,91 @@ describe('GiftCollectionModal コンポーネント', () => {
       expect(screen.queryByText('くろねこ: 2個')).not.toBeInTheDocument();
     });
   });
+
+  describe('ウィンドウ上部のレアリティ絞り込みフィルター', () => {
+    it('上部に「すべて」「通常」「レア」のフィルターボタンが表示され、件数が表示されること', () => {
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
+
+      const filterBar = screen.getByTestId('gift-rarity-filter');
+      expect(filterBar).toBeInTheDocument();
+
+      const allButton = screen.getByTestId('filter-rarity-all');
+      const commonButton = screen.getByTestId('filter-rarity-common');
+      const rareButton = screen.getByTestId('filter-rarity-rare');
+
+      expect(allButton).toHaveTextContent('すべて (60)');
+      expect(commonButton).toHaveTextContent('通常 (45)');
+      expect(rareButton).toHaveTextContent('レア (15)');
+
+      // 初期状態では「すべて」が選択されている
+      expect(allButton).toHaveAttribute('aria-pressed', 'true');
+      expect(commonButton).toHaveAttribute('aria-pressed', 'false');
+      expect(rareButton).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('「通常」ボタンをクリックするとレアアイテムが非表示になり、通常アイテムのみ表示されること', () => {
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
+
+      const commonButton = screen.getByTestId('filter-rarity-common');
+      fireEvent.click(commonButton);
+
+      expect(commonButton).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByTestId('filter-rarity-all')).toHaveAttribute('aria-pressed', 'false');
+
+      // 通常アイテム（きれいな小石）は表示
+      expect(screen.getByTestId('gift-tile-pebble')).toBeInTheDocument();
+      // レアアイテム（ふしぎな古銭・なないろの羽根など）は非表示
+      expect(screen.queryByTestId('gift-tile-old-coin')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-rainbow-feather')).not.toBeInTheDocument();
+    });
+
+    it('「レア」ボタンをクリックすると通常アイテムが非表示になり、レアアイテムのみ表示されること', () => {
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
+
+      const rareButton = screen.getByTestId('filter-rarity-rare');
+      fireEvent.click(rareButton);
+
+      expect(rareButton).toHaveAttribute('aria-pressed', 'true');
+
+      // レアアイテム（ふしぎな古銭・なないろの羽根）は表示
+      expect(screen.getByTestId('gift-tile-old-coin')).toBeInTheDocument();
+      expect(screen.getByTestId('gift-tile-rainbow-feather')).toBeInTheDocument();
+      // 通常アイテム（きれいな小石）は非表示
+      expect(screen.queryByTestId('gift-tile-pebble')).not.toBeInTheDocument();
+    });
+
+    it('将来新しいレアリティ（例: super-rare, legendary）が追加された場合でも、自動的にフィルターボタンが生成され絞り込みが機能すること', () => {
+      const futureCatalog = [
+        { id: 'item-common', name: '通常の石', description: '説明', icon: '🪨', iconType: 'pebble', themeClass: '', rarity: 'common' as const },
+        { id: 'item-rare', name: 'レアの石', description: '説明', icon: '💎', iconType: 'pebble', themeClass: '', rarity: 'rare' as const },
+        { id: 'item-super-rare', name: '激レアの石', description: '説明', icon: '⭐', iconType: 'pebble', themeClass: '', rarity: 'super-rare' },
+        { id: 'item-legendary', name: '伝説の石', description: '説明', icon: '🐉', iconType: 'pebble', themeClass: '', rarity: 'legendary' },
+      ];
+
+      render(
+        <GiftCollectionModal
+          isOpen={true}
+          onClose={vi.fn()}
+          inventory={{}}
+          catalog={futureCatalog}
+        />
+      );
+
+      // 4種類すべてのフィルターボタンが自動生成されること
+      expect(screen.getByTestId('filter-rarity-all')).toHaveTextContent('すべて (4)');
+      expect(screen.getByTestId('filter-rarity-common')).toHaveTextContent('通常 (1)');
+      expect(screen.getByTestId('filter-rarity-rare')).toHaveTextContent('レア (1)');
+      expect(screen.getByTestId('filter-rarity-super-rare')).toHaveTextContent('super-rare (1)');
+      expect(screen.getByTestId('filter-rarity-legendary')).toHaveTextContent('legendary (1)');
+
+      // 新しいレアリティ「super-rare」をクリック
+      fireEvent.click(screen.getByTestId('filter-rarity-super-rare'));
+
+      // super-rare アイテムのみ表示され、他は非表示になること
+      expect(screen.getByTestId('gift-tile-item-super-rare')).toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-item-common')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-item-rare')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-item-legendary')).not.toBeInTheDocument();
+    });
+  });
 });

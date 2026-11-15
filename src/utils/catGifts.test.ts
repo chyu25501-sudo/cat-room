@@ -13,6 +13,9 @@ import {
   getGiftIconBgClass,
   DEFAULT_COMMON_GIFT_WEIGHT,
   DEFAULT_RARE_GIFT_WEIGHT,
+  getGiftRarityLabel,
+  getAvailableRarities,
+  GIFT_RARITY_METAS,
 } from './catGifts.ts';
 import { GiftInventory } from '../types/gift.ts';
 
@@ -386,6 +389,33 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
 
       // 3種類中2種類収集済み
       expect(getAcquiredGiftTypeCount(inventory, customCatalog)).toBe(2);
+    });
+  });
+
+  describe('レアリティ絞り込み・表示純粋関数 (getGiftRarityLabel & getAvailableRarities)', () => {
+    it('getGiftRarityLabel が既知のレアリティに対応する日本語ラベルを返し、未登録時はフォールバックすること', () => {
+      expect(getGiftRarityLabel('common')).toBe('通常');
+      expect(getGiftRarityLabel('rare')).toBe('レア');
+      expect(getGiftRarityLabel(undefined)).toBe('通常');
+      // 将来の未登録レアリティでも安全にフォールバックすること
+      expect(getGiftRarityLabel('super-rare')).toBe('super-rare');
+    });
+
+    it('getAvailableRarities がカタログ内に存在するユニークなレアリティ一覧を順番通りに返すこと', () => {
+      // デフォルトカタログには common と rare が存在
+      const rarities = getAvailableRarities(CAT_GIFTS);
+      expect(rarities).toEqual(['common', 'rare']);
+
+      // 将来新しいレアリティが追加されたカスタムカタログの場合
+      const extendedCatalog = [
+        { id: 'item-1', name: 'アイテム1', description: '説明', icon: '🎁', iconType: 'pebble', themeClass: '', rarity: 'common' as const },
+        { id: 'item-2', name: 'アイテム2', description: '説明', icon: '🎁', iconType: 'feather', themeClass: '', rarity: 'rare' as const },
+        { id: 'item-3', name: 'アイテム3', description: '説明', icon: '🎁', iconType: 'acorn', themeClass: '', rarity: 'super-rare' as const },
+        { id: 'item-4', name: 'アイテム4', description: '説明', icon: '🎁', iconType: 'twig', themeClass: '', rarity: 'legendary' as const },
+      ];
+
+      const extendedRarities = getAvailableRarities(extendedCatalog);
+      expect(extendedRarities).toEqual(['common', 'rare', 'super-rare', 'legendary']);
     });
   });
 });
