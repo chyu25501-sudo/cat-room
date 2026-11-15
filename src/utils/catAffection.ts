@@ -9,10 +9,10 @@ export const MIN_AFFECTION_LEVEL = 1;
 export const MAX_AFFECTION_LEVEL = 10;
 
 /** なつき度Lv.1のときにゲージ満タン（Lv.2上昇）に必要な基礎ふれあい経験値 */
-export const BASE_AFFECTION_EXP = 100;
+export const BASE_AFFECTION_EXP = 120;
 
-/** なつき度が1レベル上がるごとに増加する追加必要経験値 */
-export const AFFECTION_EXP_PER_LEVEL = 25;
+/** なつき度が1レベル上がるごとに増加する追加必要経験値（Lv.9->10で600ptになるよう調整） */
+export const AFFECTION_EXP_PER_LEVEL = 60;
 
 /** 1回のなでなでで獲得する基準なつき度Exp（おだやか時） */
 export const DEFAULT_PET_AFFECTION_EXP = 10;
@@ -121,7 +121,7 @@ export const TOY_AFFECTION_EXP_MAP: Record<ToyId, number> = {
 /**
  * 指定したなつき度レベルにおけるゲージ満タンに必要な経験値を計算する純粋関数
  * レベルが上がるほど必要な「ふれあい」の量が少しずつ増加します
- * （Lv.1: 100pt, Lv.2: 125pt, Lv.3: 150pt, ... Lv.9: 300pt, Lv.10: 300pt）
+ * （Lv.1: 120pt, Lv.2: 180pt, Lv.3: 240pt, ... Lv.9: 600pt, Lv.10: 600pt）
  */
 export function calculateRequiredExp(level: number): number {
   const effectiveLevel = Math.max(
@@ -168,7 +168,7 @@ export function calculateAffectionGain(
     Math.min(MAX_AFFECTION_LEVEL, Math.floor(currentLevel))
   );
 
-  // すでに最大レベル（Lv.10）に達している場合: 同じ必要量（300pt）でゲージを溜め、満タンでリセット＆演出トリガー
+  // すでに最大レベル（Lv.10）に達している場合: 同じ必要量（600pt）でゲージを溜め、満タンでリセット＆演出トリガー
   if (startLevel >= MAX_AFFECTION_LEVEL) {
     const required = calculateRequiredExp(MAX_AFFECTION_LEVEL);
     let exp = Math.max(0, currentExp) + safeGained;
@@ -207,7 +207,7 @@ export function calculateAffectionGain(
     required = calculateRequiredExp(level);
   }
 
-  // 最大レベルに到達した場合、さらにLv.10の必要量（300pt）を超えている場合はループボーナス
+  // 最大レベルに到達した場合、さらにLv.10の必要量（600pt）を超えている場合はループボーナス
   if (level >= MAX_AFFECTION_LEVEL) {
     while (exp >= required) {
       exp -= required;

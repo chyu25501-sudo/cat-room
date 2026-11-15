@@ -25,8 +25,8 @@ describe('catAffection ユーティリティ (第7週: なつき度純粋関数�
     // 初期値は1、最大値は一旦10
     expect(MIN_AFFECTION_LEVEL).toBe(1);
     expect(MAX_AFFECTION_LEVEL).toBe(10);
-    expect(BASE_AFFECTION_EXP).toBe(100);
-    expect(AFFECTION_EXP_PER_LEVEL).toBe(25);
+    expect(BASE_AFFECTION_EXP).toBe(120);
+    expect(AFFECTION_EXP_PER_LEVEL).toBe(60);
 
     // ごはんとおもちゃのExp設定
     expect(FOOD_AFFECTION_EXP_MAP.kibble).toBe(25);
@@ -39,111 +39,111 @@ describe('catAffection ユーティリティ (第7週: なつき度純粋関数�
   });
 
   describe('calculateRequiredExp (レベルが上がるほど必要なふれあいの量が増えること)', () => {
-    it('レベル1のときは100ptで、レベルが上がるごとに25ptずつ必要量が増加すること', () => {
-      expect(calculateRequiredExp(1)).toBe(100);
-      expect(calculateRequiredExp(2)).toBe(125);
-      expect(calculateRequiredExp(3)).toBe(150);
-      expect(calculateRequiredExp(4)).toBe(175);
-      expect(calculateRequiredExp(5)).toBe(200);
-      expect(calculateRequiredExp(6)).toBe(225);
-      expect(calculateRequiredExp(7)).toBe(250);
-      expect(calculateRequiredExp(8)).toBe(275);
-      expect(calculateRequiredExp(9)).toBe(300);
-      expect(calculateRequiredExp(10)).toBe(300); // MAX時
+    it('レベル1のときは120ptで、レベルが上がるごとに60ptずつ必要量が増加しLv.9->10で600ptになること', () => {
+      expect(calculateRequiredExp(1)).toBe(120);
+      expect(calculateRequiredExp(2)).toBe(180);
+      expect(calculateRequiredExp(3)).toBe(240);
+      expect(calculateRequiredExp(4)).toBe(300);
+      expect(calculateRequiredExp(5)).toBe(360);
+      expect(calculateRequiredExp(6)).toBe(420);
+      expect(calculateRequiredExp(7)).toBe(480);
+      expect(calculateRequiredExp(8)).toBe(540);
+      expect(calculateRequiredExp(9)).toBe(600);
+      expect(calculateRequiredExp(10)).toBe(600); // MAX時
     });
   });
 
   describe('calculateAffectionProgress (ゲージパーセンテージ計算)', () => {
     it('現在のExpと必要Expから正しいパーセンテージを計算すること', () => {
-      // 100pt中0pt -> 0%
-      expect(calculateAffectionProgress(0, 100, 1)).toBe(0);
-      // 100pt中50pt -> 50%
-      expect(calculateAffectionProgress(50, 100, 1)).toBe(50);
-      // 125pt中25pt -> 20%
-      expect(calculateAffectionProgress(25, 125, 2)).toBe(20);
-      // Lv.10（MAX）のときもゲージ進捗を計算（300pt中150pt -> 50%, 0pt -> 0%）
-      expect(calculateAffectionProgress(150, 300, 10)).toBe(50);
-      expect(calculateAffectionProgress(0, 300, 10)).toBe(0);
-      expect(calculateAffectionProgress(300, 300, 10)).toBe(100);
+      // 120pt中0pt -> 0%
+      expect(calculateAffectionProgress(0, 120, 1)).toBe(0);
+      // 120pt中60pt -> 50%
+      expect(calculateAffectionProgress(60, 120, 1)).toBe(50);
+      // 180pt中36pt -> 20%
+      expect(calculateAffectionProgress(36, 180, 2)).toBe(20);
+      // Lv.10（MAX）のときもゲージ進捗を計算（600pt中300pt -> 50%, 0pt -> 0%）
+      expect(calculateAffectionProgress(300, 600, 10)).toBe(50);
+      expect(calculateAffectionProgress(0, 600, 10)).toBe(0);
+      expect(calculateAffectionProgress(600, 600, 10)).toBe(100);
     });
   });
 
   describe('calculateAffectionGain (経験値獲得とレベルアップ・ゲージリセット)', () => {
     it('ゲージが満タン未満のときはレベルは上がらず、Expのみ加算されること', () => {
-      // Lv.1（必要100pt）, 現在0pt, +30pt 獲得 -> Lv.1, 現在30pt, isLevelUp: false
+      // Lv.1（必要120pt）, 現在0pt, +30pt 獲得 -> Lv.1, 現在30pt, isLevelUp: false
       const res = calculateAffectionGain(1, 0, 30);
       expect(res.previousLevel).toBe(1);
       expect(res.nextLevel).toBe(1);
       expect(res.isLevelUp).toBe(false);
       expect(res.currentExp).toBe(30);
-      expect(res.requiredExp).toBe(100);
-      expect(res.progressPercentage).toBe(30);
+      expect(res.requiredExp).toBe(120);
+      expect(res.progressPercentage).toBe(25); // 30 / 120 = 25%
     });
 
     it('ゲージが1回満タンになるとレベルが+1上昇し、ゲージがリセットされること（仕様: 初期値1 -> 満タンで2に上昇しゲージリセット）', () => {
-      // Lv.1（必要100pt）, 現在80pt, +20pt 獲得 -> ちょうど満タンで Lv.2, ゲージ0ptにリセット
-      const res = calculateAffectionGain(1, 80, 20);
+      // Lv.1（必要120pt）, 現在100pt, +20pt 獲得 -> ちょうど満タンで Lv.2, ゲージ0ptにリセット
+      const res = calculateAffectionGain(1, 100, 20);
       expect(res.previousLevel).toBe(1);
       expect(res.nextLevel).toBe(2);
       expect(res.isLevelUp).toBe(true);
       expect(res.currentExp).toBe(0);
-      expect(res.requiredExp).toBe(125); // Lv.2の必要Exp
+      expect(res.requiredExp).toBe(180); // Lv.2の必要Exp
       expect(res.progressPercentage).toBe(0);
     });
 
     it('満タンを超えた余剰Expは次のレベルのゲージに引き継がれること', () => {
-      // Lv.1（必要100pt）, 現在80pt, +35pt 獲得 -> 合計115pt -> Lv.2 に上がり、余剰15ptが次のゲージへ
-      const res = calculateAffectionGain(1, 80, 35);
+      // Lv.1（必要120pt）, 現在100pt, +38pt 獲得 -> 合計138pt -> Lv.2 に上がり、余剰18ptが次のゲージへ
+      const res = calculateAffectionGain(1, 100, 38);
       expect(res.previousLevel).toBe(1);
       expect(res.nextLevel).toBe(2);
       expect(res.isLevelUp).toBe(true);
-      expect(res.currentExp).toBe(15);
-      expect(res.requiredExp).toBe(125);
-      // 15 / 125 = 12%
-      expect(res.progressPercentage).toBe(12);
+      expect(res.currentExp).toBe(18);
+      expect(res.requiredExp).toBe(180);
+      // 18 / 180 = 10%
+      expect(res.progressPercentage).toBe(10);
     });
 
     it('大量のExpを獲得した場合、複数レベルアップが正しく行われること', () => {
-      // Lv.1（100pt）+ Lv.2（125pt） = 225pt
-      // Lv.1, 0pt から +235pt 獲得 -> Lv.3, 余剰10pt
-      const res = calculateAffectionGain(1, 0, 235);
+      // Lv.1（120pt）+ Lv.2（180pt） = 300pt
+      // Lv.1, 0pt から +310pt 獲得 -> Lv.3, 余剰10pt
+      const res = calculateAffectionGain(1, 0, 310);
       expect(res.previousLevel).toBe(1);
       expect(res.nextLevel).toBe(3);
       expect(res.isLevelUp).toBe(true);
       expect(res.currentExp).toBe(10);
-      expect(res.requiredExp).toBe(150);
+      expect(res.requiredExp).toBe(240);
     });
 
-    it('最大値（Lv.10）到達後も同じ必要量（300pt）でゲージを溜められ、満タンになるたびに演出トリガーが発生してゲージがループすること', () => {
-      // Lv.9（必要300pt）, 現在290pt, +50pt 獲得 -> Lv.10（MAX）に到達（余剰40ptがLv.10ゲージへ）
-      const res = calculateAffectionGain(9, 290, 50);
+    it('最大値（Lv.10）到達後も同じ必要量（600pt）でゲージを溜められ、満タンになるたびに演出トリガーが発生してゲージがループすること', () => {
+      // Lv.9（必要600pt）, 現在590pt, +50pt 獲得 -> Lv.10（MAX）に到達（余剰40ptがLv.10ゲージへ）
+      const res = calculateAffectionGain(9, 590, 50);
       expect(res.previousLevel).toBe(9);
       expect(res.nextLevel).toBe(10);
       expect(res.isLevelUp).toBe(true);
       expect(res.isMaxBonus).toBe(false);
       expect(res.currentExp).toBe(40);
-      expect(res.requiredExp).toBe(300);
-      expect(res.progressPercentage).toBe(13); // 40 / 300 = 13%
+      expect(res.requiredExp).toBe(600);
+      expect(res.progressPercentage).toBe(7); // 40 / 600 = 6.66% -> 7%
 
-      // すでにLv.10の猫がさらにふれあい（+100pt）-> 140/300pt（47%）、レベルは10のまま、まだ満タン演出は出ない
-      const resProgress = calculateAffectionGain(10, 40, 100);
+      // すでにLv.10の猫がさらにふれあい（+200pt）-> 240/600pt（40%）、レベルは10のまま、まだ満タン演出は出ない
+      const resProgress = calculateAffectionGain(10, 40, 200);
       expect(resProgress.previousLevel).toBe(10);
       expect(resProgress.nextLevel).toBe(10);
       expect(resProgress.isLevelUp).toBe(false);
-      expect(resProgress.currentExp).toBe(140);
-      expect(resProgress.requiredExp).toBe(300);
-      expect(resProgress.progressPercentage).toBe(47);
+      expect(resProgress.currentExp).toBe(240);
+      expect(resProgress.requiredExp).toBe(600);
+      expect(resProgress.progressPercentage).toBe(40);
 
-      // さらにふれあい（現在280ptから+30pt = 310pt）-> 満タン（300pt）達成！
+      // さらにふれあい（現在580ptから+30pt = 610pt）-> 満タン（600pt）達成！
       // レベルは10のままで、演出トリガー（isLevelUp & isMaxBonus）が発火し、余剰10ptでゲージがリセットされる
-      const resLoop = calculateAffectionGain(10, 280, 30);
+      const resLoop = calculateAffectionGain(10, 580, 30);
       expect(resLoop.previousLevel).toBe(10);
       expect(resLoop.nextLevel).toBe(10);
       expect(resLoop.isLevelUp).toBe(true);
       expect(resLoop.isMaxBonus).toBe(true);
       expect(resLoop.currentExp).toBe(10);
-      expect(resLoop.requiredExp).toBe(300);
-      expect(resLoop.progressPercentage).toBe(3); // 10 / 300 = 3%
+      expect(resLoop.requiredExp).toBe(600);
+      expect(resLoop.progressPercentage).toBe(2); // 10 / 600 = 1.66% -> 2%
     });
   });
 

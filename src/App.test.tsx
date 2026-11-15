@@ -622,7 +622,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(screen.getByTestId('cat-affection-section')).toBeInTheDocument();
       expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
       expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('0%');
-      expect(screen.getByText(/次のLvまで あと 100pt/)).toBeInTheDocument();
+      expect(screen.getByText(/次のLvまで あと 120pt/)).toBeInTheDocument();
     });
 
     it('撫でる・ごはん・おもちゃの「ふれあい」でなつき度Expが増加すること', () => {
@@ -633,17 +633,17 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
         const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
 
-        // 1. 撫でる (+10pt / 100pt = 10%)
+        // 1. 撫でる (+10pt / 120pt = 8%)
         act(() => {
           fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
           fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
           fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
         });
 
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('10%');
-        expect(screen.getByText(/次のLvまで あと 90pt/)).toBeInTheDocument();
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('8%');
+        expect(screen.getByText(/次のLvまで あと 110pt/)).toBeInTheDocument();
 
-        // 2. ごはん（カリカリ: +25pt -> 35pt / 100pt = 35%）
+        // 2. ごはん（カリカリ: +25pt -> 35pt / 120pt = 29%）
         const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
         fireEvent.click(careButton);
         const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
@@ -651,22 +651,22 @@ describe('App コンポーネント (猫切り替え機能)', () => {
           fireEvent.click(feedKibbleBtn);
         });
 
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('35%');
-        expect(screen.getByText(/次のLvまで あと 65pt/)).toBeInTheDocument();
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('29%');
+        expect(screen.getByText(/次のLvまで あと 85pt/)).toBeInTheDocument();
 
         // 食事完了（カリカリは3400ms）までタイマーを進めて次のアクションを受け付け可能にする
         act(() => {
           vi.advanceTimersByTime(4000);
         });
 
-        // 3. おもちゃ（ねこじゃらし: +20pt -> 55pt / 100pt = 55%）
+        // 3. おもちゃ（ねこじゃらし: +20pt -> 55pt / 120pt = 46%）
         const playFeatherBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
         act(() => {
           fireEvent.click(playFeatherBtn);
         });
 
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('55%');
-        expect(screen.getByText(/次のLvまで あと 45pt/)).toBeInTheDocument();
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('46%');
+        expect(screen.getByText(/次のLvまで あと 65pt/)).toBeInTheDocument();
       } finally {
         randomSpy.mockRestore();
         vi.useRealTimers();
@@ -677,24 +677,24 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       vi.useFakeTimers();
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
       try {
-        // 事前に黒猫のExpを95pt（Lv.1の残り5pt）に設定
+        // 事前に黒猫のExpを115pt（Lv.1の残り5pt）に設定
         localStorage.setItem(
           'nekoppoi_cats_affection',
           JSON.stringify({
-            black: { level: 1, currentExp: 95, requiredExp: 100 },
-            white: { level: 1, currentExp: 0, requiredExp: 100 },
+            black: { level: 1, currentExp: 115, requiredExp: 120 },
+            white: { level: 1, currentExp: 0, requiredExp: 120 },
           })
         );
 
         render(<App />);
 
         expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.1 はじめまして');
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('95%');
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('96%');
 
         // レベルアップ前は中央演出は表示されていないこと
         expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
 
-        // 撫でる (+10pt -> 95 + 10 = 105pt, 100ptでレベルアップしLv.2へ。余剰5pt / 125pt = 4%)
+        // 撫でる (+10pt -> 115 + 10 = 125pt, 120ptでレベルアップしLv.2へ。余剰5pt / 180pt = 3%)
         const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
         act(() => {
           fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
@@ -704,8 +704,8 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
         // インジケーター側: レベル2（ちょっと気になる）に上昇し、ゲージがリセット
         expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.2 ちょっと気になる');
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('4%');
-        expect(screen.getByText(/次のLvまで あと 120pt/)).toBeInTheDocument();
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('3%');
+        expect(screen.getByText(/次のLvまで あと 175pt/)).toBeInTheDocument();
 
         // 画面中央に大きくレベルアップ演出が表示されること
         const overlay = screen.getByTestId('affection-levelup-overlay');
@@ -753,22 +753,22 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       vi.useFakeTimers();
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
       try {
-        // 黒猫のなつき度を最大（Lv.10, ゲージ290pt / 必要300pt、あと10ptで満タン）に設定
+        // 黒猫のなつき度を最大（Lv.10, ゲージ590pt / 必要600pt、あと10ptで満タン）に設定
         localStorage.setItem(
           'nekoppoi_cats_affection',
           JSON.stringify({
-            black: { level: 10, currentExp: 290, requiredExp: 300 },
+            black: { level: 10, currentExp: 590, requiredExp: 600 },
           })
         );
 
         render(<App />);
 
-        // レベルバッジは「Lv.10 MAX♡」、ゲージは 290/300 = 97%
+        // レベルバッジは「Lv.10 MAX♡」、ゲージは 590/600 = 98%
         expect(screen.getByTestId('affection-level-badge')).toHaveTextContent('Lv.10 MAX♡');
-        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('97%');
+        expect(screen.getByTestId('affection-progress-percentage')).toHaveTextContent('98%');
         expect(screen.getByText(/ハートまで あと 10pt/)).toBeInTheDocument();
 
-        // 撫でる（おだやか状態なので +10pt -> 300/300 満タン達成！）
+        // 撫でる（おだやか状態なので +10pt -> 600/600 満タン達成！）
         const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
         act(() => {
           fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
@@ -832,14 +832,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         fireEvent.pointerMove(catSilhouette1, { clientX: 160, clientY: 100, isPrimary: true });
         fireEvent.pointerUp(catSilhouette1, { clientX: 160, clientY: 100, isPrimary: true });
       });
-      // 機嫌スコアが35点以下（おだやか）に留まるため基準10pt、±5%の変動により5〜15%
+      // 機嫌スコアが35点以下（おだやか）に留まるため基準10pt、±5%の変動により4〜15% (120pt基準)
       const progressText1 = screen.getByTestId('affection-progress-percentage').textContent;
       const progressNum1 = parseInt(progressText1?.replace('%', '') || '0', 10);
-      expect(progressNum1).toBeGreaterThanOrEqual(5);
+      expect(progressNum1).toBeGreaterThanOrEqual(4);
       expect(progressNum1).toBeLessThanOrEqual(15);
       unmount();
 
-      // 2. ごきげんMAX（スコア85点）の猫を撫でた場合: 基準44pt、±5%変動により35%以上大幅に上昇
+      // 2. ごきげんMAX（スコア85点）の猫を撫でた場合: 基準44pt、±5%変動により30%以上大幅に上昇
       localStorage.clear();
       localStorage.setItem(
         'nekoppoi_cats_mood',
@@ -857,10 +857,10 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         fireEvent.pointerUp(catSilhouette2, { clientX: 160, clientY: 100, isPrimary: true });
       });
 
-      // ごきげんMAXの時は基準44ptに±5%変動するため、おだやか時（最大15%）よりも明らかに高い35%以上まで一気に上昇すること
+      // ごきげんMAXの時は基準44ptに±5%変動するため、おだやか時（最大15%）よりも明らかに高い30%以上まで一気に上昇すること
       const progressText2 = screen.getByTestId('affection-progress-percentage').textContent;
       const progressNum2 = parseInt(progressText2?.replace('%', '') || '0', 10);
-      expect(progressNum2).toBeGreaterThanOrEqual(35);
+      expect(progressNum2).toBeGreaterThanOrEqual(30);
       expect(progressNum2).toBeGreaterThan(progressNum1);
     });
 
@@ -878,7 +878,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
       const blackExpPercentage = screen.getByTestId('affection-progress-percentage').textContent;
       const blackExpNum = parseInt(blackExpPercentage?.replace('%', '') || '0', 10);
-      expect(blackExpNum).toBeGreaterThanOrEqual(5);
+      expect(blackExpNum).toBeGreaterThanOrEqual(4);
       expect(blackExpNum).toBeLessThanOrEqual(25);
 
       // 白猫に切り替える
@@ -899,8 +899,8 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       localStorage.setItem(
         'nekoppoi_cats_affection',
         JSON.stringify({
-          black: { level: 10, currentExp: 300, requiredExp: 300 },
-          white: { level: 1, currentExp: 0, requiredExp: 100 },
+          black: { level: 10, currentExp: 600, requiredExp: 600 },
+          white: { level: 1, currentExp: 0, requiredExp: 120 },
         })
       );
 
@@ -915,17 +915,17 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     it('なつき度が上がったときや満タン時に猫からおくりものが貰え、演出上に表示されてlocalStorageに記録されること', () => {
       vi.useFakeTimers();
       try {
-        // レベルアップ直前の状態（Lv.1, 95/100pt）を設定
+        // レベルアップ直前の状態（Lv.1, 115/120pt）を設定
         localStorage.setItem(
           'nekoppoi_cats_affection',
           JSON.stringify({
-            black: { level: 1, currentExp: 95, requiredExp: 100 },
+            black: { level: 1, currentExp: 115, requiredExp: 120 },
           })
         );
 
         render(<App />);
 
-        // 撫でる (+10pt -> 100pt到達でLv.2へレベルアップ)
+        // 撫でる (+10pt -> 120pt到達でLv.2へレベルアップ)
         const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
         act(() => {
           fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });

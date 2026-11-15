@@ -16,7 +16,7 @@ describe('useCatAffection フック (第7週: なつき度機能テスト)', () 
     const blackState = result.current.getAffectionState('black');
     expect(blackState.level).toBe(1);
     expect(blackState.currentExp).toBe(0);
-    expect(blackState.requiredExp).toBe(100);
+    expect(blackState.requiredExp).toBe(120);
 
     // 白猫
     expect(result.current.getAffectionLevel('white')).toBe(1);
@@ -27,16 +27,16 @@ describe('useCatAffection フック (第7週: なつき度機能テスト)', () 
     const { result } = renderHook(() => useCatAffection());
 
     act(() => {
-      // 30pt獲得
+      // 30pt獲得（30 / 120 = 25%）
       const res = result.current.gainAffection('black', 30);
       expect(res.previousLevel).toBe(1);
       expect(res.nextLevel).toBe(1);
       expect(res.isLevelUp).toBe(false);
       expect(res.currentExp).toBe(30);
-      expect(res.progressPercentage).toBe(30);
+      expect(res.progressPercentage).toBe(25);
     });
 
-    expect(result.current.getAffectionProgress('black')).toBe(30);
+    expect(result.current.getAffectionProgress('black')).toBe(25);
     // 白猫は影響を受けないこと（猫ごとの独立管理）
     expect(result.current.getAffectionProgress('white')).toBe(0);
   });
@@ -45,13 +45,13 @@ describe('useCatAffection フック (第7週: なつき度機能テスト)', () 
     const { result } = renderHook(() => useCatAffection());
 
     act(() => {
-      // 100pt獲得してLv.1が満タンになる
-      const res = result.current.gainAffection('black', 100);
+      // 120pt獲得してLv.1が満タンになる
+      const res = result.current.gainAffection('black', 120);
       expect(res.previousLevel).toBe(1);
       expect(res.nextLevel).toBe(2);
       expect(res.isLevelUp).toBe(true);
       expect(res.currentExp).toBe(0);
-      expect(res.requiredExp).toBe(125); // Lv.2の必要Expは125ptに増える
+      expect(res.requiredExp).toBe(180); // Lv.2の必要Expは180ptに増える
       expect(res.progressPercentage).toBe(0);
     });
 
@@ -63,25 +63,25 @@ describe('useCatAffection フック (第7週: なつき度機能テスト)', () 
     const { result } = renderHook(() => useCatAffection());
 
     act(() => {
-      // 120pt獲得（必要100pt + 余剰20pt）
-      const res = result.current.gainAffection('black', 120);
+      // 140pt獲得（必要120pt + 余剰20pt）
+      const res = result.current.gainAffection('black', 140);
       expect(res.nextLevel).toBe(2);
       expect(res.isLevelUp).toBe(true);
       expect(res.currentExp).toBe(20);
-      expect(res.requiredExp).toBe(125);
-      // 20 / 125 = 16%
-      expect(res.progressPercentage).toBe(16);
+      expect(res.requiredExp).toBe(180);
+      // 20 / 180 = 11%
+      expect(res.progressPercentage).toBe(11);
     });
 
     expect(result.current.getAffectionLevel('black')).toBe(2);
-    expect(result.current.getAffectionProgress('black')).toBe(16);
+    expect(result.current.getAffectionProgress('black')).toBe(11);
   });
 
   it('localStorageに保存され、再読み込み後もなつき度とゲージが維持されること', () => {
     const { result: firstRender, unmount } = renderHook(() => useCatAffection());
 
     act(() => {
-      firstRender.current.gainAffection('black', 110); // Lv.2, 10pt
+      firstRender.current.gainAffection('black', 130); // Lv.2, 10pt (必要120pt+余剰10pt)
       firstRender.current.gainAffection('white', 50);  // Lv.1, 50pt
     });
 
@@ -123,30 +123,30 @@ describe('useCatAffection フック (第7週: なつき度機能テスト)', () 
     expect(result.current.getAffectionLevel('calico')).toBe(10);
     expect(result.current.getAffectionProgress('calico')).toBe(0);
 
-    // 100pt獲得（必要300pt中100pt = 33%）-> レベルは10のまま、演出はまだ出ない
+    // 100pt獲得（必要600pt中100pt = 17%）-> レベルは10のまま、演出はまだ出ない
     act(() => {
       const res = result.current.gainAffection('calico', 100);
       expect(res.nextLevel).toBe(10);
       expect(res.isLevelUp).toBe(false);
       expect(res.isMaxBonus).toBe(false);
       expect(res.currentExp).toBe(100);
-      expect(res.progressPercentage).toBe(33);
+      expect(res.progressPercentage).toBe(17);
     });
 
-    expect(result.current.getAffectionProgress('calico')).toBe(33);
+    expect(result.current.getAffectionProgress('calico')).toBe(17);
 
-    // さらに230pt獲得（100 + 230 = 330pt >= 300pt）-> 満タン達成！
-    // レベルは10のまま、演出トリガー (isLevelUp & isMaxBonus) が発火、余剰30ptでゲージが再スタート (30/300 = 10%)
+    // さらに530pt獲得（100 + 530 = 630pt >= 600pt）-> 満タン達成！
+    // レベルは10のまま、演出トリガー (isLevelUp & isMaxBonus) が発火、余剰30ptでゲージが再スタート (30/600 = 5%)
     act(() => {
-      const res = result.current.gainAffection('calico', 230);
+      const res = result.current.gainAffection('calico', 530);
       expect(res.nextLevel).toBe(10);
       expect(res.isLevelUp).toBe(true);
       expect(res.isMaxBonus).toBe(true);
       expect(res.currentExp).toBe(30);
-      expect(res.progressPercentage).toBe(10);
+      expect(res.progressPercentage).toBe(5);
     });
 
     expect(result.current.getAffectionLevel('calico')).toBe(10);
-    expect(result.current.getAffectionProgress('calico')).toBe(10);
+    expect(result.current.getAffectionProgress('calico')).toBe(5);
   });
 });
