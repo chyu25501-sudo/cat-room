@@ -285,17 +285,17 @@ describe('catCare ユーティリティ (第6週: お世話・ごはん純粋関
       expect(canPlayWithCat(100)).toBe(true);
     });
 
-    it('ごはんアイテムにお世話解禁なつき度レベル（カリカリ:2, ねこ缶:4, おやつピューレ:6）が設定されていること', () => {
+    it('ごはんアイテムにお世話解禁なつき度レベル（カリカリ:1, ねこ缶:4, おやつピューレ:6）が設定されていること', () => {
       const kibble = getFoodById('kibble');
       const canned = getFoodById('canned');
       const treat = getFoodById('treat');
 
-      expect(kibble.requiredAffectionLevel).toBe(2);
+      expect(kibble.requiredAffectionLevel).toBe(1);
       expect(canned.requiredAffectionLevel).toBe(4);
       expect(treat.requiredAffectionLevel).toBe(6);
 
       // isFoodUnlocked の検証
-      expect(isFoodUnlocked(kibble, 1)).toBe(false);
+      expect(isFoodUnlocked(kibble, 1)).toBe(true);
       expect(isFoodUnlocked(kibble, 2)).toBe(true);
       expect(isFoodUnlocked(kibble, 3)).toBe(true);
 

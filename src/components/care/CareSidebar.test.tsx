@@ -316,7 +316,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     }
   });
 
-  it('なつき度が条件を満たしていないとき、名前は表示されるがボタンは非活性で「なつき度nで解禁されるよ！」と明記されること', () => {
+  it('初期状態（なつき度1）のとき、カリカリは最初から解禁され、その他のアイテムは「なつき度nで解禁されるよ！」と明記されること', () => {
     const handleFeed = vi.fn();
     const handlePlay = vi.fn();
     render(
@@ -337,13 +337,14 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(screen.getByText('毛糸ボール')).toBeInTheDocument();
     expect(screen.getByText('レーザーポインター')).toBeInTheDocument();
 
-    // それぞれ「なつき度nで解禁されるよ！」と明記された非活性ボタンが表示されること
-    const kibbleBtn = screen.getByTestId('food-locked-button-kibble');
-    expect(kibbleBtn).toBeDisabled();
-    expect(kibbleBtn).toHaveTextContent('なつき度2で解禁されるよ！');
+    // カリカリはLv.1（最初）から解禁されていること
+    const kibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+    expect(kibbleBtn).toBeEnabled();
     fireEvent.click(kibbleBtn);
-    expect(handleFeed).not.toHaveBeenCalled();
+    expect(handleFeed).toHaveBeenCalledWith(FOOD_ITEMS[0]);
+    expect(screen.queryByTestId('food-locked-button-kibble')).not.toBeInTheDocument();
 
+    // 他の未解禁アイテムには「なつき度nで解禁されるよ！」と明記された非活性ボタンが表示されること
     const cannedBtn = screen.getByTestId('food-locked-button-canned');
     expect(cannedBtn).toBeDisabled();
     expect(cannedBtn).toHaveTextContent('なつき度4で解禁されるよ！');
@@ -366,8 +367,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     expect(laserBtn).toBeDisabled();
     expect(laserBtn).toHaveTextContent('なつき度7で解禁されるよ！');
 
-    // 「あげる」「あそぶ」の有効ボタンは存在しないこと
-    expect(screen.queryByRole('button', { name: 'カリカリをあげる' })).not.toBeInTheDocument();
+    // 未解禁のおもちゃの有効ボタンは存在しないこと
     expect(screen.queryByRole('button', { name: 'ねこじゃらしであそぶ' })).not.toBeInTheDocument();
   });
 

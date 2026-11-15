@@ -169,7 +169,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       );
     };
 
-    it('なつき度が初期状態（Lv.1）のとき、ごはんやおもちゃは未解禁で「なつき度nで解禁されるよ！」と明記されること', () => {
+    it('なつき度が初期状態（Lv.1）のとき、カリカリは最初から解禁され、他のアイテムは「なつき度nで解禁されるよ！」と明記されること', () => {
       render(<App />);
 
       const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
@@ -183,9 +183,10 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(screen.getByText('毛糸ボール')).toBeInTheDocument();
       expect(screen.getByText('レーザーポインター')).toBeInTheDocument();
 
-      // カリカリ（必要Lv.2）
-      expect(screen.getByTestId('food-locked-button-kibble')).toHaveTextContent('なつき度2で解禁されるよ！');
-      expect(screen.getByTestId('food-locked-button-kibble')).toBeDisabled();
+      // カリカリはLv.1（最初）から解禁されていること
+      const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+      expect(feedKibbleBtn).toBeEnabled();
+      expect(screen.queryByTestId('food-locked-button-kibble')).not.toBeInTheDocument();
 
       // ねこ缶（必要Lv.4）
       expect(screen.getByTestId('food-locked-button-canned')).toHaveTextContent('なつき度4で解禁されるよ！');

@@ -36,7 +36,7 @@ describe('HowToPlayModal コンポーネント', () => {
 
     expect(screen.getByTestId('guide-section-care-food')).toBeInTheDocument();
     expect(screen.getByText('2. ごはんをあげよう（まんぷく度）')).toBeInTheDocument();
-    expect(screen.getByText(/なつき度2で「カリカリ」/)).toBeInTheDocument();
+    expect(screen.getByText(/「カリカリ」は最初から/)).toBeInTheDocument();
 
     expect(screen.getByTestId('guide-section-care-toy')).toBeInTheDocument();
     expect(screen.getByText('3. おもちゃで一緒にあそぼう')).toBeInTheDocument();

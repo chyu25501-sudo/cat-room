@@ -21,7 +21,7 @@ export const FOOD_ITEMS: readonly FoodItem[] = [
       calico: ['カリカリ…クルル♪', 'サクサク…ミャオ！', 'カリッ…ゴロゴロ…♪'],
     },
     themeClass: 'from-amber-400 to-orange-400 text-amber-700 bg-amber-50 border-amber-200',
-    requiredAffectionLevel: 2,
+    requiredAffectionLevel: 1,
   },
   {
     id: 'canned',
