@@ -11,9 +11,9 @@ describe('AchievementButton コンポーネント', () => {
     expect(button).toBeInTheDocument();
     expect(button).toHaveAttribute('data-testid', 'achievement-button');
 
-    // おくりものボタンと設定ボタンの間（left-[4.25rem] sm:left-[4.875rem]）に配置されていること
-    expect(button).toHaveClass('left-[4.25rem]');
-    expect(button).toHaveClass('sm:left-[4.875rem]');
+    // おくりものボタンと手帳ボタンの間（left-[7.5rem] sm:left-[8.75rem]）に配置されていること
+    expect(button).toHaveClass('left-[7.5rem]');
+    expect(button).toHaveClass('sm:left-[8.75rem]');
 
     const icon = screen.getByTestId('trophy-icon');
     expect(icon).toBeInTheDocument();

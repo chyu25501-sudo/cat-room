@@ -18,6 +18,8 @@ import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
 import { CareSidebar } from './components/care/CareSidebar.tsx';
 import { AffectionLevelUpOverlay } from './components/AffectionLevelUpOverlay.tsx';
+import { HowToPlayButton } from './components/guide/HowToPlayButton.tsx';
+import { HowToPlayModal } from './components/guide/HowToPlayModal.tsx';
 import { TreasureChestButton } from './components/gifts/TreasureChestButton.tsx';
 import { GiftCollectionModal } from './components/gifts/GiftCollectionModal.tsx';
 import { SettingsButton } from './components/settings/SettingsButton.tsx';
@@ -94,6 +96,9 @@ export default function App() {
     dismissToast: dismissAchievementToast,
   } = useAchievements();
   const { stats: careJournalStats, recordCareAction } = useCareJournal();
+
+  // あそびかたモーダルの開閉ステート
+  const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
 
   // おくりもの一覧モーダルの開閉ステート
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
@@ -403,7 +408,8 @@ export default function App() {
       {/* メイン画面上部の実績獲得トースト通知（複数同時獲得時は縦並び表示） */}
       <AchievementToastOverlay toasts={achievementToasts} onDismiss={dismissAchievementToast} />
 
-      {/* 画面左上：おくりもの一覧ボタン・実績ボタン・ふり返り手帳ボタン・設定ボタン */}
+      {/* 画面左上：あそびかたボタン・おくりもの一覧ボタン・実績ボタン・ふり返り手帳ボタン・設定ボタン */}
+      <HowToPlayButton onClick={() => setIsHowToPlayModalOpen(true)} />
       <TreasureChestButton onClick={() => setIsGiftModalOpen(true)} />
       <AchievementButton onClick={() => setIsAchievementModalOpen(true)} />
       <JournalButton onClick={() => setIsJournalModalOpen(true)} />
@@ -538,6 +544,12 @@ export default function App() {
 
       {/* なつき度レベルアップ時の中央巨大ハート＆祝うメッセージ演出オーバーレイ */}
       <AffectionLevelUpOverlay state={levelUpState} />
+
+      {/* あそびかた（ガイド）モーダル画面 */}
+      <HowToPlayModal
+        isOpen={isHowToPlayModalOpen}
+        onClose={() => setIsHowToPlayModalOpen(false)}
+      />
 
       {/* これまでに受け取ったおくりもの一覧モーダル画面 */}
       <GiftCollectionModal

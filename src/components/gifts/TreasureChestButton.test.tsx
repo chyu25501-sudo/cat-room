@@ -13,6 +13,10 @@ describe('TreasureChestButton コンポーネント', () => {
     // 正方形・角丸クラス
     expect(button).toHaveClass('rounded-2xl');
 
+    // あそびかたボタンの右側（left-[4.25rem] sm:left-[4.875rem]）に配置されていること
+    expect(button).toHaveClass('left-[4.25rem]');
+    expect(button).toHaveClass('sm:left-[4.875rem]');
+
     // 内部に宝箱アイコンSVGが存在すること
     expect(screen.getByTestId('treasure-chest-icon')).toBeInTheDocument();
 

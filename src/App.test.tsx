@@ -1147,24 +1147,39 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(restoredIndicator).not.toHaveAttribute('data-layout', 'side');
     });
 
-    it('画面左上におくりもの・実績・手帳・設定の順にボタンが並び、実績ボタンをクリックすると実績モーダルが開閉できること', () => {
+    it('画面左上にあそびかた・おくりもの・実績・手帳・設定の順にボタンが並び、あそびかた・実績モーダルが開閉できること', () => {
       render(<App />);
 
+      const howToPlayButton = screen.getByRole('button', { name: 'あそびかたを開く' });
       const giftButton = screen.getByRole('button', { name: /これまでに受け取ったおくりもの一覧/ });
       const achievementButton = screen.getByRole('button', { name: '実績一覧を開く' });
       const journalButton = screen.getByRole('button', { name: 'ふり返り手帳を開く' });
       const settingsButton = screen.getByRole('button', { name: '設定を開く' });
 
+      expect(howToPlayButton).toBeInTheDocument();
       expect(giftButton).toBeInTheDocument();
       expect(achievementButton).toBeInTheDocument();
       expect(journalButton).toBeInTheDocument();
       expect(settingsButton).toBeInTheDocument();
 
-      // 各ボタンがおくりもの・実績・手帳・設定の順に等間隔で配置されていること
-      expect(giftButton).toHaveClass('left-4');
-      expect(achievementButton).toHaveClass('left-[4.25rem]');
-      expect(journalButton).toHaveClass('left-[7.5rem]');
-      expect(settingsButton).toHaveClass('left-[10.75rem]');
+      // 各ボタンがあそびかた・おくりもの・実績・手帳・設定の順に等間隔で配置されていること
+      expect(howToPlayButton).toHaveClass('left-4');
+      expect(giftButton).toHaveClass('left-[4.25rem]');
+      expect(achievementButton).toHaveClass('left-[7.5rem]');
+      expect(journalButton).toHaveClass('left-[10.75rem]');
+      expect(settingsButton).toHaveClass('left-[14rem]');
+
+      // あそびかたボタンをクリックすると、あそびかたモーダルが開き楽しみ方のテキストが閲覧できること
+      fireEvent.click(howToPlayButton);
+      expect(screen.getByRole('dialog', { name: 'あそびかた' })).toBeInTheDocument();
+      expect(screen.getByText('「ねこっぽい」の楽しみ方ガイド')).toBeInTheDocument();
+      expect(screen.getByText('1. 猫ちゃんをなでなでしよう')).toBeInTheDocument();
+      expect(screen.getByText('4. なつき度を上げておくりものを集めよう')).toBeInTheDocument();
+
+      // あそびかたモーダルを閉じる
+      const closeHowToPlayButton = screen.getByRole('button', { name: 'あそびかたを閉じる' });
+      fireEvent.click(closeHowToPlayButton);
+      expect(screen.queryByRole('dialog', { name: 'あそびかた' })).not.toBeInTheDocument();
 
       // クリックで実績モーダルが開くこと
       fireEvent.click(achievementButton);

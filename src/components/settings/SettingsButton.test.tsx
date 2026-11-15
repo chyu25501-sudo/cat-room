@@ -13,9 +13,9 @@ describe('SettingsButton コンポーネント', () => {
     // 正方形・角丸クラス
     expect(button).toHaveClass('rounded-2xl');
 
-    // ふり返り手帳ボタンの右側（left-[10.75rem] sm:left-[12.625rem]）に配置されていること
-    expect(button).toHaveClass('left-[10.75rem]');
-    expect(button).toHaveClass('sm:left-[12.625rem]');
+    // ふり返り手帳ボタンの右側（left-[14rem] sm:left-[16.5rem]）に配置されていること
+    expect(button).toHaveClass('left-[14rem]');
+    expect(button).toHaveClass('sm:left-[16.5rem]');
 
     // 内部に歯車アイコンSVGが存在すること
     expect(screen.getByTestId('settings-icon')).toBeInTheDocument();
