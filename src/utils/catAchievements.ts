@@ -1,4 +1,5 @@
 import {
+  AchievementCategory,
   AchievementId,
   AchievementItem,
   AchievementRecord,
@@ -11,29 +12,45 @@ import { GiftItem, GiftInventory } from '../types/gift.ts';
 import { CAT_GIFTS } from './catGifts.ts';
 
 /**
+ * 実績カテゴリ情報
+ */
+export interface AchievementCategoryInfo {
+  id: AchievementCategory;
+  label: string;
+}
+
+/**
+ * 実績のカテゴリ一覧（全3種類）
+ * 画面上部の絞り込みタブ用
+ */
+export const ACHIEVEMENT_CATEGORIES: readonly AchievementCategoryInfo[] = [
+  { id: 'interaction', label: 'ふれあい' },
+  { id: 'care', label: 'お世話' },
+  { id: 'gift', label: 'おくりもの' },
+];
+
+/**
+ * カテゴリIDから日本語表示ラベルを取得するヘルパー関数
+ */
+export function getAchievementCategoryLabel(category: AchievementCategory): string {
+  const match = ACHIEVEMENT_CATEGORIES.find((c) => c.id === category);
+  return match ? match.label : 'その他';
+}
+
+/**
  * 実績マスターデータリスト（全52種類: 通常実績39種類 + 隠し実績13種類）
+ * カテゴリごとにグループ化して整列（ふれあい -> お世話 -> おくりもの）
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
-  // --- 初期ふれあい実績 ---
+  // ==========================================
+  // 【ふれあい】カテゴリ（計17種類）
+  // ==========================================
   {
     id: 'first-pet',
     title: 'はじめまして！',
     description: '猫ちゃんを初めてなでなでしてふれあった。',
     iconType: 'paw',
-    isHidden: false,
-  },
-  {
-    id: 'first-feed',
-    title: 'ごはんの時間',
-    description: '猫ちゃんに初めてごはんを食べさせてあげた。',
-    iconType: 'food',
-    isHidden: false,
-  },
-  {
-    id: 'first-play',
-    title: 'あそぼうよ！',
-    description: '猫ちゃんと初めておもちゃを使って遊んだ。',
-    iconType: 'toy',
+    category: 'interaction',
     isHidden: false,
   },
   {
@@ -41,84 +58,15 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: 'ゴロゴロごきげん',
     description: '猫ちゃんのごきげん度を最高（大よろこび）にした。',
     iconType: 'sparkle',
+    category: 'interaction',
     isHidden: false,
   },
-  {
-    id: 'first-gift',
-    title: '小さなプレゼント',
-    description: '猫ちゃんから初めておくりものを受け取った。',
-    iconType: 'gift',
-    isHidden: false,
-  },
-
-  // --- まんぷく実績 ---
-  {
-    id: 'fullness-full',
-    title: 'おなかいっぱい！',
-    description: '猫ちゃんのまんぷく度を最高（まんぷく）にした。',
-    iconType: 'food',
-    isHidden: false,
-  },
-
-  // --- 連続ふれあい日数実績（Streak） ---
-  {
-    id: 'streak-3',
-    title: 'まいにちのおともだち',
-    description: '3日連続で猫ちゃんとふれあった。',
-    iconType: 'calendar',
-    isHidden: false,
-  },
-  {
-    id: 'streak-7',
-    title: 'いっしゅうかん一緒',
-    description: '7日連続で猫ちゃんとふれあった。',
-    iconType: 'calendar',
-    isHidden: false,
-  },
-  {
-    id: 'streak-14',
-    title: 'ふたしゅうかんの絆',
-    description: '14日連続で猫ちゃんとふれあった。',
-    iconType: 'calendar',
-    isHidden: false,
-  },
-  {
-    id: 'streak-30',
-    title: 'まいにち猫日和',
-    description: '30日連続で猫ちゃんとふれあった。',
-    iconType: 'calendar',
-    isHidden: false,
-  },
-
-  // --- ふれあい合計日数実績 ---
-  {
-    id: 'total-days-7',
-    title: '7日間の思い出',
-    description: 'ふれあった合計日数が7日になった。',
-    iconType: 'calendar',
-    isHidden: false,
-  },
-  {
-    id: 'total-days-14',
-    title: '14日間の積み重ね',
-    description: 'ふれあった合計日数が14日になった。',
-    iconType: 'calendar',
-    isHidden: false,
-  },
-  {
-    id: 'total-days-30',
-    title: 'ひと月のかけがえのない時間',
-    description: 'ふれあった合計日数が30日になった。',
-    iconType: 'calendar',
-    isHidden: false,
-  },
-
-  // --- 猫を撫でた総回数実績 ---
   {
     id: 'pet-count-100',
     title: 'なでなでマスター',
     description: '猫を撫でた総回数が100回を超えた。',
     iconType: 'paw',
+    category: 'interaction',
     isHidden: false,
   },
   {
@@ -126,6 +74,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: 'なでなで名人',
     description: '猫を撫でた総回数が500回を超えた。',
     iconType: 'paw',
+    category: 'interaction',
     isHidden: false,
   },
   {
@@ -133,6 +82,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '極上のなでなで職人',
     description: '猫を撫でた総回数が1000回を超えた。',
     iconType: 'paw',
+    category: 'interaction',
     isHidden: false,
   },
   {
@@ -140,6 +90,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '神の手を持つ撫で手',
     description: '猫を撫でた総回数が5000回を超えた。',
     iconType: 'paw',
+    category: 'interaction',
     isHidden: false,
   },
   {
@@ -147,158 +98,15 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '伝説のなでなで愛好家',
     description: '猫を撫でた総回数が10000回を超えた。',
     iconType: 'paw',
+    category: 'interaction',
     isHidden: false,
   },
-
-  // --- ごはんをあげた総回数実績 ---
-  {
-    id: 'feed-count-100',
-    title: 'もぐもぐシェフ',
-    description: 'ごはんをあげた総回数が100回を超えた。',
-    iconType: 'food',
-    isHidden: false,
-  },
-  {
-    id: 'feed-count-500',
-    title: 'グルメのごちそう番',
-    description: 'ごはんをあげた総回数が500回を超えた。',
-    iconType: 'food',
-    isHidden: false,
-  },
-  {
-    id: 'feed-count-1000',
-    title: '三ツ星ごはんマイスター',
-    description: 'ごはんをあげた総回数が1000回を超えた。',
-    iconType: 'food',
-    isHidden: false,
-  },
-  {
-    id: 'feed-count-5000',
-    title: '愛の宮廷料理人',
-    description: 'ごはんをあげた総回数が5000回を超えた。',
-    iconType: 'food',
-    isHidden: false,
-  },
-  {
-    id: 'feed-count-10000',
-    title: '満腹の守護神',
-    description: 'ごはんをあげた総回数が10000回を超えた。',
-    iconType: 'food',
-    isHidden: false,
-  },
-
-  // --- おもちゃで遊んだ総回数実績 ---
-  {
-    id: 'play-count-100',
-    title: 'あそびの天才',
-    description: 'おもちゃで遊んだ総回数が100回を超えた。',
-    iconType: 'toy',
-    isHidden: false,
-  },
-  {
-    id: 'play-count-500',
-    title: 'じゃらしのエキスパート',
-    description: 'おもちゃで遊んだ総回数が500回を超えた。',
-    iconType: 'toy',
-    isHidden: false,
-  },
-  {
-    id: 'play-count-1000',
-    title: '熱狂のエンターテイナー',
-    description: 'おもちゃで遊んだ総回数が1000回を超えた。',
-    iconType: 'toy',
-    isHidden: false,
-  },
-  {
-    id: 'play-count-5000',
-    title: '奇跡のプレイメーカー',
-    description: 'おもちゃで遊んだ総回数が5000回を超えた。',
-    iconType: 'toy',
-    isHidden: false,
-  },
-  {
-    id: 'play-count-10000',
-    title: '無限のあそび王',
-    description: 'おもちゃで遊んだ総回数が10000回を超えた。',
-    iconType: 'toy',
-    isHidden: false,
-  },
-
-  // --- おくりものの総数実績 ---
-  {
-    id: 'gift-count-20',
-    title: 'たからもの集め',
-    description: '受け取ったおくりものの総数が20個を超えた。',
-    iconType: 'gift',
-    isHidden: false,
-  },
-  {
-    id: 'gift-count-100',
-    title: 'おくりものコレクター',
-    description: '受け取ったおくりものの総数が100個を超えた。',
-    iconType: 'gift',
-    isHidden: false,
-  },
-  {
-    id: 'gift-count-222',
-    title: 'にゃんにゃんトレジャー',
-    description: '受け取ったおくりものの総数が222個を超えた。',
-    iconType: 'gift',
-    isHidden: false,
-  },
-  {
-    id: 'gift-count-500',
-    title: '大富豪の宝箱',
-    description: '受け取ったおくりものの総数が500個を超えた。',
-    iconType: 'gift',
-    isHidden: false,
-  },
-  {
-    id: 'gift-count-1000',
-    title: '伝説のギフトマスター',
-    description: '受け取ったおくりものの総数が1000個を超えた。',
-    iconType: 'gift',
-    isHidden: false,
-  },
-
-  // --- レアおくりもの実績 ---
-  {
-    id: 'first-rare-gift',
-    title: '特別なめぐり逢い',
-    description: 'はじめてレアなおくりものを受け取った。',
-    iconType: 'sparkle',
-    isHidden: false,
-  },
-  {
-    id: 'first-super-rare-gift',
-    title: 'とっておきの宝物',
-    description: 'はじめてスーパーレアなおくりものを受け取った。',
-    iconType: 'sparkle',
-    isHidden: false,
-  },
-  {
-    id: 'first-ultra-rare-gift',
-    title: '奇跡のめぐり逢い',
-    description: 'はじめてウルトラレアなおくりものを受け取った。',
-    iconType: 'sparkle',
-    isHidden: false,
-  },
-
-  // --- 猫の名前変更実績 ---
-  {
-    id: 'first-rename-cat',
-    title: 'あたらしいお名前',
-    description: 'いずれかの猫の名前をはじめて変更した。',
-    iconType: 'paw',
-    isHidden: false,
-  },
-
-  // --- なつき度レベル実績 ---
   {
     id: 'affection-level-5',
     title: '大のなかよし',
     description: 'いずれかの猫がはじめてなつき度レベル5になった。',
     iconType: 'paw',
+    category: 'interaction',
     isHidden: false,
   },
   {
@@ -306,17 +114,267 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: 'ずっと一緒♡',
     description: 'いずれかの猫がはじめてなつき度レベル10になった。',
     iconType: 'sparkle',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'streak-3',
+    title: 'まいにちのおともだち',
+    description: '3日連続で猫ちゃんとふれあった。',
+    iconType: 'calendar',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'streak-7',
+    title: 'いっしゅうかん一緒',
+    description: '7日連続で猫ちゃんとふれあった。',
+    iconType: 'calendar',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'streak-14',
+    title: 'ふたしゅうかんの絆',
+    description: '14日連続で猫ちゃんとふれあった。',
+    iconType: 'calendar',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'streak-30',
+    title: 'まいにち猫日和',
+    description: '30日連続で猫ちゃんとふれあった。',
+    iconType: 'calendar',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'total-days-7',
+    title: '7日間の思い出',
+    description: 'ふれあった合計日数が7日になった。',
+    iconType: 'calendar',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'total-days-14',
+    title: '14日間の積み重ね',
+    description: 'ふれあった合計日数が14日になった。',
+    iconType: 'calendar',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'total-days-30',
+    title: 'ひと月のかけがえのない時間',
+    description: 'ふれあった合計日数が30日になった。',
+    iconType: 'calendar',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'first-rename-cat',
+    title: 'あたらしいお名前',
+    description: 'いずれかの猫の名前をはじめて変更した。',
+    iconType: 'paw',
+    category: 'interaction',
     isHidden: false,
   },
 
   // ==========================================
-  // 【隠し実績（isHidden: true）】特定のおくりもの収集セット
+  // 【お世話】カテゴリ（計13種類）
+  // ==========================================
+  {
+    id: 'first-feed',
+    title: 'ごはんの時間',
+    description: '猫ちゃんに初めてごはんを食べさせてあげた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'fullness-full',
+    title: 'おなかいっぱい！',
+    description: '猫ちゃんのまんぷく度を最高（まんぷく）にした。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'feed-count-100',
+    title: 'もぐもぐシェフ',
+    description: 'ごはんをあげた総回数が100回を超えた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'feed-count-500',
+    title: 'グルメのごちそう番',
+    description: 'ごはんをあげた総回数が500回を超えた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'feed-count-1000',
+    title: '三ツ星ごはんマイスター',
+    description: 'ごはんをあげた総回数が1000回を超えた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'feed-count-5000',
+    title: '愛の宮廷料理人',
+    description: 'ごはんをあげた総回数が5000回を超えた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'feed-count-10000',
+    title: '満腹の守護神',
+    description: 'ごはんをあげた総回数が10000回を超えた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'first-play',
+    title: 'あそぼうよ！',
+    description: '猫ちゃんと初めておもちゃを使って遊んだ。',
+    iconType: 'toy',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'play-count-100',
+    title: 'あそびの天才',
+    description: 'おもちゃで遊んだ総回数が100回を超えた。',
+    iconType: 'toy',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'play-count-500',
+    title: 'じゃらしのエキスパート',
+    description: 'おもちゃで遊んだ総回数が500回を超えた。',
+    iconType: 'toy',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'play-count-1000',
+    title: '熱狂のエンターテイナー',
+    description: 'おもちゃで遊んだ総回数が1000回を超えた。',
+    iconType: 'toy',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'play-count-5000',
+    title: '奇跡のプレイメーカー',
+    description: 'おもちゃで遊んだ総回数が5000回を超えた。',
+    iconType: 'toy',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'play-count-10000',
+    title: '無限のあそび王',
+    description: 'おもちゃで遊んだ総回数が10000回を超えた。',
+    iconType: 'toy',
+    category: 'care',
+    isHidden: false,
+  },
+
+  // ==========================================
+  // 【おくりもの】カテゴリ（計9種類）
+  // ==========================================
+  {
+    id: 'first-gift',
+    title: '小さなプレゼント',
+    description: '猫ちゃんから初めておくりものを受け取った。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'gift-count-20',
+    title: 'たからもの集め',
+    description: '受け取ったおくりものの総数が20個を超えた。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'gift-count-100',
+    title: 'おくりものコレクター',
+    description: '受け取ったおくりものの総数が100個を超えた。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'gift-count-222',
+    title: 'にゃんにゃんトレジャー',
+    description: '受け取ったおくりものの総数が222個を超えた。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'gift-count-500',
+    title: '大富豪の宝箱',
+    description: '受け取ったおくりものの総数が500個を超えた。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'gift-count-1000',
+    title: '伝説のギフトマスター',
+    description: '受け取ったおくりものの総数が1000個を超えた。',
+    iconType: 'gift',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'first-rare-gift',
+    title: '特別なめぐり逢い',
+    description: 'はじめてレアなおくりものを受け取った。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'first-super-rare-gift',
+    title: 'とっておきの宝物',
+    description: 'はじめてスーパーレアなおくりものを受け取った。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: false,
+  },
+  {
+    id: 'first-ultra-rare-gift',
+    title: '奇跡のめぐり逢い',
+    description: 'はじめてウルトラレアなおくりものを受け取った。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: false,
+  },
+
+  // ==========================================
+  // 【おくりもの】隠し実績（計13種類、isHidden: true）
   // ==========================================
   {
     id: 'hidden-pebble-set',
     title: '石ころマニア',
     description: '「きれいな小石」「こけむした小石」「ひかる苔石」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -324,6 +382,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '枝拾いの達人',
     description: '「ほそい小枝」「りっぱな枝」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -331,6 +390,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '幸運を呼ぶしっぽ',
     description: '「みどりのクローバー」「よつばのクローバー」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -338,6 +398,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '夏のおとしもの',
     description: '「せみのぬけがら」「かわいた蝉の羽」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -345,6 +406,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: 'もう一本たべたい！',
     description: '「はずれのアイス棒」「あたりのアイス棒」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -352,6 +414,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '大空のきらめき',
     description: '「ふわふわの羽根」「なないろの羽根」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -359,6 +422,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: 'ジュエルキャッツ',
     description: '「あかいろの宝石」「あおいろの宝石」「きいろの宝石」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -366,6 +430,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '竜の伝説',
     description: '「りゅうの鱗」「りゅうの爪」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -373,6 +438,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '陽だまりのおとしもの',
     description: '「やわらかい綿毛」「ひまわりの種」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -380,6 +446,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '至高の輝き',
     description: '「よつばのクローバー」「ほしのかけら」「りゅうの鱗」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -387,6 +454,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '幻のマスター',
     description: '「なないろの羽根」「いにしえの歯車」「りゅうの爪」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -394,6 +462,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: 'パレットキャット',
     description: '「みどりのクローバー」「みどりのスーパーボール」「しろいサイコロ」「ももいろのハンカチ」「あおい空き缶」「あかいろの宝石」「あおいろの宝石」「きいろの宝石」「なないろの羽根」をすべて集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
   {
@@ -401,6 +470,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     title: '両足そろった！',
     description: '「かたっぽの靴下」を2個以上集めた。',
     iconType: 'sparkle',
+    category: 'gift',
     isHidden: true,
   },
 ] as const;

@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Sparkles, CheckCircle2, Lock, Utensils, Heart, Gift, Calendar } from 'lucide-react';
 import { AchievementItem, UnlockedAchievements } from '../../types/achievement.ts';
-import { ACHIEVEMENTS, getAchievementDisplayInfo } from '../../utils/catAchievements.ts';
+import {
+  ACHIEVEMENTS,
+  ACHIEVEMENT_CATEGORIES,
+  getAchievementDisplayInfo,
+} from '../../utils/catAchievements.ts';
 import { TrophyIcon } from './AchievementButton.tsx';
 
 export interface AchievementModalProps {
@@ -55,6 +59,17 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
   unlocked,
   catalog = ACHIEVEMENTS,
 }) => {
+  // 選択中のカテゴリフィルター（'all' または各カテゴリ文字列）
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  // カテゴリ絞り込み後のカタログ
+  const filteredCatalog = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return catalog;
+    }
+    return catalog.filter((item) => (item.category ?? 'interaction') === selectedCategory);
+  }, [catalog, selectedCategory]);
+
   if (!isOpen) {
     return null;
   }
@@ -119,16 +134,65 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
           </button>
         </div>
 
+        {/* ウィンドウ上部：カテゴリ絞り込みフィルター（おくりもの一覧画面と同様の操作性） */}
+        <div
+          data-testid="achievement-category-filter"
+          aria-label="カテゴリ絞り込み"
+          className="px-4 sm:px-5 py-2.5 border-b border-orange-100/70 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 bg-stone-50/60"
+        >
+          {/* すべて */}
+          <button
+            type="button"
+            data-testid="filter-category-all"
+            aria-pressed={selectedCategory === 'all'}
+            onClick={() => setSelectedCategory('all')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+              selectedCategory === 'all'
+                ? 'bg-amber-500 text-white border-amber-600 shadow-2xs'
+                : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
+            }`}
+          >
+            すべて ({catalog.length})
+          </button>
+
+          {/* 各カテゴリ（ふれあい・お世話・おくりもの） */}
+          {ACHIEVEMENT_CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat.id;
+            const count = catalog.filter((item) => (item.category ?? 'interaction') === cat.id).length;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                data-testid={`filter-category-${cat.id}`}
+                aria-pressed={isSelected}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+                  isSelected
+                    ? 'bg-amber-500 text-white border-amber-600 shadow-2xs'
+                    : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
+                }`}
+              >
+                {cat.label} ({count})
+              </button>
+            );
+          })}
+        </div>
+
         {/* 実績リストコンテンツ */}
         <div className="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-2.5 text-left">
-          {catalog.map((item) => {
-            const isUnlocked = !!unlocked[item.id];
-            const displayInfo = getAchievementDisplayInfo(item, isUnlocked);
+          {filteredCatalog.length === 0 ? (
+            <div className="py-8 text-center text-xs text-stone-400">
+              このカテゴリの実績はありません
+            </div>
+          ) : (
+            filteredCatalog.map((item) => {
+              const isUnlocked = !!unlocked[item.id];
+              const displayInfo = getAchievementDisplayInfo(item, isUnlocked);
 
-            return (
-              <div
-                key={item.id}
-                data-testid={`achievement-item-${item.id}`}
+              return (
+                <div
+                  key={item.id}
+                  data-testid={`achievement-item-${item.id}`}
                 className={`p-3 sm:p-3.5 rounded-2xl border transition-all flex items-center gap-3 ${
                   isUnlocked
                     ? 'bg-gradient-to-r from-amber-50/70 via-orange-50/40 to-white border-amber-300/90 shadow-2xs'
@@ -193,8 +257,9 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                 </div>
               </div>
             );
-          })}
-        </div>
+          })
+        )}
+      </div>
 
         {/* モーダルフッター */}
         <div className="px-5 py-3 border-t border-orange-100 bg-stone-50/80 text-center text-[11px] text-stone-400 flex items-center justify-center gap-1">

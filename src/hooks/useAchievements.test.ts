@@ -57,14 +57,14 @@ describe('useAchievements hook', () => {
         moodLevel: 'ecstatic',
       });
       expect(unlocked).toHaveLength(2);
-      expect(unlocked.map((a) => a.id)).toEqual(['first-feed', 'mood-ecstatic']);
+      expect(unlocked.map((a) => a.id)).toEqual(['mood-ecstatic', 'first-feed']);
     });
 
     expect(result.current.unlockedCount).toBe(2);
     // トーストにも2件追加されていること（縦並び表示用）
     expect(result.current.toasts).toHaveLength(2);
-    expect(result.current.toasts[0].id).toBe('first-feed');
-    expect(result.current.toasts[1].id).toBe('mood-ecstatic');
+    expect(result.current.toasts[0].id).toBe('mood-ecstatic');
+    expect(result.current.toasts[1].id).toBe('first-feed');
   });
 
   it('localStorage に保存された実績データを正しく復元できること', () => {

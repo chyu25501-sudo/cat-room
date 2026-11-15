@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   ACHIEVEMENTS,
+  ACHIEVEMENT_CATEGORIES,
+  getAchievementCategoryLabel,
   getAchievementById,
   checkNewAchievements,
   sanitizeAchievements,
@@ -11,16 +13,20 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全52種類の実績が定義されており、通常39種(isHidden: false)と隠し実績13種(isHidden: true)があること', () => {
+    it('全52種類の実績が定義されており、3カテゴリ（ふれあい17件、お世話13件、おくりもの22件）に分類され、通常39種(isHidden: false)と隠し実績13種(isHidden: true)があること', () => {
       expect(ACHIEVEMENTS.length).toBe(52);
 
       const expectedIds = [
+        // interaction (17)
         'first-pet',
-        'first-feed',
-        'first-play',
         'mood-ecstatic',
-        'first-gift',
-        'fullness-full',
+        'pet-count-100',
+        'pet-count-500',
+        'pet-count-1000',
+        'pet-count-5000',
+        'pet-count-10000',
+        'affection-level-5',
+        'affection-level-10',
         'streak-3',
         'streak-7',
         'streak-14',
@@ -28,21 +34,23 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'total-days-7',
         'total-days-14',
         'total-days-30',
-        'pet-count-100',
-        'pet-count-500',
-        'pet-count-1000',
-        'pet-count-5000',
-        'pet-count-10000',
+        'first-rename-cat',
+        // care (13)
+        'first-feed',
+        'fullness-full',
         'feed-count-100',
         'feed-count-500',
         'feed-count-1000',
         'feed-count-5000',
         'feed-count-10000',
+        'first-play',
         'play-count-100',
         'play-count-500',
         'play-count-1000',
         'play-count-5000',
         'play-count-10000',
+        // gift (9 + 13 = 22)
+        'first-gift',
         'gift-count-20',
         'gift-count-100',
         'gift-count-222',
@@ -51,9 +59,7 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'first-rare-gift',
         'first-super-rare-gift',
         'first-ultra-rare-gift',
-        'first-rename-cat',
-        'affection-level-5',
-        'affection-level-10',
+        // hidden gift items (13)
         'hidden-pebble-set',
         'hidden-branch-set',
         'hidden-clover-set',
@@ -74,12 +80,22 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         expect(achievement.title).toBeTruthy();
         expect(achievement.description).toBeTruthy();
         expect(achievement.iconType).toBeTruthy();
+        expect(achievement.category).toBeTruthy();
         if (achievement.id.startsWith('hidden-')) {
           expect(achievement.isHidden).toBe(true);
+          expect(achievement.category).toBe('gift');
         } else {
           expect(achievement.isHidden).toBe(false);
         }
       });
+    });
+
+    it('ACHIEVEMENT_CATEGORIES とラベルヘルパーが正しく動作すること', () => {
+      expect(ACHIEVEMENT_CATEGORIES.length).toBe(3);
+      expect(ACHIEVEMENT_CATEGORIES.map((c) => c.id)).toEqual(['interaction', 'care', 'gift']);
+      expect(getAchievementCategoryLabel('interaction')).toBe('ふれあい');
+      expect(getAchievementCategoryLabel('care')).toBe('お世話');
+      expect(getAchievementCategoryLabel('gift')).toBe('おくりもの');
     });
   });
 
@@ -150,7 +166,7 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         unlocked
       );
 
-      expect(newItems.map((a) => a.id)).toEqual(['first-feed', 'mood-ecstatic']);
+      expect(newItems.map((a) => a.id)).toEqual(['mood-ecstatic', 'first-feed']);
     });
 
     it('まんぷく度最高（100またはfull）になった時に fullness-full 実績が解除されること', () => {

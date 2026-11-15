@@ -57,6 +57,14 @@ export type AchievementId =
   | string;
 
 /**
+ * 実績のカテゴリ種別
+ * - interaction: ふれあい（なでる・ごきげん・なつき度・日数・名前）
+ * - care: お世話（ごはん・おもちゃ・まんぷく）
+ * - gift: おくりもの（ギフト受取・レアギフト・おくりもの収集隠し実績）
+ */
+export type AchievementCategory = 'interaction' | 'care' | 'gift';
+
+/**
  * 実績アイテムの定義情報
  */
 export interface AchievementItem {
@@ -68,6 +76,8 @@ export interface AchievementItem {
   description: string;
   /** アイコンの種類 */
   iconType: 'paw' | 'food' | 'toy' | 'sparkle' | 'gift' | 'calendar' | string;
+  /** 実績のカテゴリ */
+  category?: AchievementCategory;
   /**
    * 隠し実績フラグ
    * - true の場合: 獲得するまで実績一覧で名前と獲得条件の両方が伏せ字になります（枠の存在のみ分かる）

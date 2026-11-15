@@ -224,7 +224,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
         // 不機嫌（5%）から 5 + 38 = 43% に回復し、「ごきげん♪」に転じる
         expect(screen.queryByText('ごきげんななめ')).not.toBeInTheDocument();
-        expect(screen.getByText('43%')).toBeInTheDocument();
+        expect(screen.getByTestId('mood-score-percentage')).toHaveTextContent('43%');
         expect(screen.getByText('ごきげん♪')).toBeInTheDocument();
 
         // ごはんを与えた直後なので「なでられて嬉しそう」ではなく「ごはんを食べて嬉しそうにしているよ♪」が表示されること

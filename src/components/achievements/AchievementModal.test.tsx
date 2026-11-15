@@ -115,4 +115,53 @@ describe('AchievementModal コンポーネント', () => {
     fireEvent.click(backdrop);
     expect(handleClose).toHaveBeenCalledTimes(2);
   });
+
+  it('カテゴリフィルターボタンが表示され、クリックで実績リストを絞り込めること（隠し実績はおくりものカテゴリに統合）', () => {
+    render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={{}} />);
+
+    // フィルターバーの存在確認
+    expect(screen.getByTestId('achievement-category-filter')).toBeInTheDocument();
+
+    const allFilterBtn = screen.getByTestId('filter-category-all');
+    const interactionFilterBtn = screen.getByTestId('filter-category-interaction');
+    const careFilterBtn = screen.getByTestId('filter-category-care');
+    const giftFilterBtn = screen.getByTestId('filter-category-gift');
+
+    expect(allFilterBtn).toHaveTextContent('すべて (52)');
+    expect(interactionFilterBtn).toHaveTextContent('ふれあい (17)');
+    expect(careFilterBtn).toHaveTextContent('お世話 (13)');
+    expect(giftFilterBtn).toHaveTextContent('おくりもの (22)');
+    // 「隠し実績」独立ボタンは存在しない
+    expect(screen.queryByTestId('filter-category-hidden')).not.toBeInTheDocument();
+
+    // 初期状態（すべて）では「ふれあい」「お世話」「おくりもの（隠し実績含む）」のアイテムが存在する
+    expect(screen.getByTestId('achievement-item-first-pet')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-first-feed')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-first-gift')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-hidden-pebble-set')).toBeInTheDocument();
+
+    // 「お世話」をクリック
+    fireEvent.click(careFilterBtn);
+
+    // お世話の実績のみ表示され、ふれあいやおくりもの・隠し実績は非表示になる
+    expect(screen.getByTestId('achievement-item-first-feed')).toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-item-first-pet')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-item-first-gift')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-item-hidden-pebble-set')).not.toBeInTheDocument();
+
+    // 「おくりもの」をクリック（通常のおくりもの実績と隠し実績の両方が含まれる）
+    fireEvent.click(giftFilterBtn);
+
+    expect(screen.getByTestId('achievement-item-first-gift')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-hidden-pebble-set')).toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-item-first-feed')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-item-first-pet')).not.toBeInTheDocument();
+
+    // 「すべて」をクリックして復帰
+    fireEvent.click(allFilterBtn);
+    expect(screen.getByTestId('achievement-item-first-pet')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-first-feed')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-first-gift')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-hidden-pebble-set')).toBeInTheDocument();
+  });
 });
