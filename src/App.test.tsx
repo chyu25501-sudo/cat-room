@@ -2,6 +2,7 @@ import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import App from './App.tsx';
 import { CAT_GIFTS } from './utils/catGifts.ts';
+import { GUIDE_SEEN_STORAGE_KEY } from './utils/firstVisit.ts';
 import * as catSoundModule from './utils/catSound.ts';
 
 describe('App コンポーネント (猫切り替え機能)', () => {
@@ -1333,6 +1334,38 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       // 実績トースト「大のなかよし」が表示されること
       expect(screen.getByTestId('achievement-toast-affection-level-5')).toBeInTheDocument();
       expect(screen.getByText('大のなかよし')).toBeInTheDocument();
+    });
+
+    it('ブラウザで初めてアプリを開いたとき、あそびかたウィンドウが強制表示され、localStorageに記録されること', () => {
+      // localStorage が空の初回訪問状態
+      render(<App />);
+
+      // あそびかたモーダルが強制表示されていること
+      expect(screen.getByRole('dialog', { name: 'あそびかた' })).toBeInTheDocument();
+      expect(screen.getByText('「ねこっぽい」の楽しみ方ガイド')).toBeInTheDocument();
+
+      // localStorage に初回閲覧フラグが保存されていること
+      expect(localStorage.getItem(GUIDE_SEEN_STORAGE_KEY)).toBe('true');
+
+      // 閉じることができること
+      const closeButton = screen.getByRole('button', { name: 'あそびかたを閉じる' });
+      fireEvent.click(closeButton);
+      expect(screen.queryByRole('dialog', { name: 'あそびかた' })).not.toBeInTheDocument();
+    });
+
+    it('2回目以降の訪問時は、あそびかたウィンドウは自動表示されず通常通り開始されること', () => {
+      // すでに訪問済みのフラグを設定
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+
+      render(<App />);
+
+      // あそびかたモーダルは開いていないこと
+      expect(screen.queryByRole('dialog', { name: 'あそびかた' })).not.toBeInTheDocument();
+
+      // ユーザーが手動でボタンをクリックした場合は開くこと
+      const howToPlayButton = screen.getByRole('button', { name: 'あそびかたを開く' });
+      fireEvent.click(howToPlayButton);
+      expect(screen.getByRole('dialog', { name: 'あそびかた' })).toBeInTheDocument();
     });
   });
 });

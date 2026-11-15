@@ -13,6 +13,7 @@ import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { useAppSettings } from './hooks/useAppSettings.ts';
 import { useAchievements } from './hooks/useAchievements.ts';
 import { useCareJournal } from './hooks/useCareJournal.ts';
+import { useFirstVisitGuide } from './hooks/useFirstVisitGuide.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
@@ -97,8 +98,12 @@ export default function App() {
   } = useAchievements();
   const { stats: careJournalStats, recordCareAction } = useCareJournal();
 
-  // あそびかたモーダルの開閉ステート
-  const [isHowToPlayModalOpen, setIsHowToPlayModalOpen] = useState(false);
+  // あそびかたモーダルの開閉ステート（初回訪問時は自動で強制表示、2回目以降は通常通り）
+  const {
+    isHowToPlayModalOpen,
+    openHowToPlayModal,
+    closeHowToPlayModal,
+  } = useFirstVisitGuide();
 
   // おくりもの一覧モーダルの開閉ステート
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
@@ -448,7 +453,7 @@ export default function App() {
       <AchievementToastOverlay toasts={achievementToasts} onDismiss={dismissAchievementToast} />
 
       {/* 画面左上：あそびかたボタン・おくりもの一覧ボタン・実績ボタン・ふり返り手帳ボタン・設定ボタン */}
-      <HowToPlayButton onClick={() => setIsHowToPlayModalOpen(true)} />
+      <HowToPlayButton onClick={openHowToPlayModal} />
       <TreasureChestButton onClick={() => setIsGiftModalOpen(true)} />
       <AchievementButton onClick={() => setIsAchievementModalOpen(true)} />
       <JournalButton onClick={() => setIsJournalModalOpen(true)} />
@@ -587,7 +592,7 @@ export default function App() {
       {/* あそびかた（ガイド）モーダル画面 */}
       <HowToPlayModal
         isOpen={isHowToPlayModalOpen}
-        onClose={() => setIsHowToPlayModalOpen(false)}
+        onClose={closeHowToPlayModal}
       />
 
       {/* これまでに受け取ったおくりもの一覧モーダル画面 */}
