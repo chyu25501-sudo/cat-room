@@ -1146,21 +1146,24 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(restoredIndicator).not.toHaveAttribute('data-layout', 'side');
     });
 
-    it('画面左上におくりもの・実績・設定の順にボタンが並び、実績ボタンをクリックすると実績モーダルが開閉できること', () => {
+    it('画面左上におくりもの・実績・手帳・設定の順にボタンが並び、実績ボタンをクリックすると実績モーダルが開閉できること', () => {
       render(<App />);
 
       const giftButton = screen.getByRole('button', { name: /これまでに受け取ったおくりもの一覧/ });
       const achievementButton = screen.getByRole('button', { name: '実績一覧を開く' });
+      const journalButton = screen.getByRole('button', { name: 'ふり返り手帳を開く' });
       const settingsButton = screen.getByRole('button', { name: '設定を開く' });
 
       expect(giftButton).toBeInTheDocument();
       expect(achievementButton).toBeInTheDocument();
+      expect(journalButton).toBeInTheDocument();
       expect(settingsButton).toBeInTheDocument();
 
-      // 実績ボタンがおくりものボタンと設定ボタンの間に配置されていること
+      // 各ボタンがおくりもの・実績・手帳・設定の順に等間隔で配置されていること
       expect(giftButton).toHaveClass('left-4');
       expect(achievementButton).toHaveClass('left-[4.25rem]');
-      expect(settingsButton).toHaveClass('left-[7.5rem]');
+      expect(journalButton).toHaveClass('left-[7.5rem]');
+      expect(settingsButton).toHaveClass('left-[10.75rem]');
 
       // クリックで実績モーダルが開くこと
       fireEvent.click(achievementButton);
@@ -1177,6 +1180,36 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const closeButton = screen.getByRole('button', { name: '実績を閉じる' });
       fireEvent.click(closeButton);
       expect(screen.queryByRole('dialog', { name: /実績/ })).not.toBeInTheDocument();
+    });
+
+    it('ふり返り手帳ボタンをクリックすると手帳モーダルが開き、猫をなでると統計（回数や日付）が反映されること', () => {
+      render(<App />);
+
+      const journalButton = screen.getByRole('button', { name: 'ふり返り手帳を開く' });
+      expect(journalButton).toBeInTheDocument();
+
+      fireEvent.click(journalButton);
+      expect(screen.getByRole('dialog', { name: /ふり返り手帳/ })).toBeInTheDocument();
+      expect(screen.getByTestId('journal-first-date')).toHaveTextContent('まだふれあっていません');
+      expect(screen.getByTestId('journal-pet-count')).toHaveTextContent('0 回');
+
+      // 閉じる
+      fireEvent.click(screen.getByRole('button', { name: 'ふり返り手帳を閉じる' }));
+      expect(screen.queryByRole('dialog', { name: /ふり返り手帳/ })).not.toBeInTheDocument();
+
+      // 猫をなでる
+      const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+      act(() => {
+        fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+        fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+      });
+
+      // 再び手帳を開くと、撫でた回数や連続日数、はじめてふれあった日が記録されていること
+      fireEvent.click(journalButton);
+      expect(screen.getByTestId('journal-pet-count')).toHaveTextContent('1 回');
+      expect(screen.getByTestId('journal-streak-days')).toHaveTextContent('1');
+      expect(screen.getByTestId('journal-first-date')).not.toHaveTextContent('まだふれあっていません');
     });
 
     it('猫を初めてなでると画面上部に「実績を獲得！」と実績名が表示され、実績画面にも反映されること', () => {

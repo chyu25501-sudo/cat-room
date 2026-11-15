@@ -12,6 +12,7 @@ import { useAffectionLevelUp } from './hooks/useAffectionLevelUp.ts';
 import { useSpeechBubble } from './hooks/useSpeechBubble.ts';
 import { useAppSettings } from './hooks/useAppSettings.ts';
 import { useAchievements } from './hooks/useAchievements.ts';
+import { useCareJournal } from './hooks/useCareJournal.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
@@ -24,6 +25,8 @@ import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { AchievementButton } from './components/achievements/AchievementButton.tsx';
 import { AchievementToastOverlay } from './components/achievements/AchievementToastOverlay.tsx';
 import { AchievementModal } from './components/achievements/AchievementModal.tsx';
+import { JournalButton } from './components/journal/JournalButton.tsx';
+import { JournalModal } from './components/journal/JournalModal.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
 import { resolveCatPresets } from './utils/catSettings.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
@@ -88,6 +91,7 @@ export default function App() {
     checkAndUnlock: checkAchievements,
     dismissToast: dismissAchievementToast,
   } = useAchievements();
+  const { stats: careJournalStats, recordCareAction } = useCareJournal();
 
   // おくりもの一覧モーダルの開閉ステート
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
@@ -97,6 +101,9 @@ export default function App() {
 
   // 実績モーダルの開閉ステート
   const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
+
+  // ふり返り手帳モーダルの開閉ステート
+  const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
 
   // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
   const [lastAction, setLastAction] = useState<LastCareAction | null>(null);
@@ -136,12 +143,16 @@ export default function App() {
       }
     }
 
-    // 実績判定（なでる・機嫌・ギフト）
+    // ふり返り手帳に撫でた記録を追加
+    const updatedJournalStats = recordCareAction('pet', currentCatId);
+
+    // 実績判定（なでる・機嫌・ギフト・手帳統計）
     checkAchievements({
       action: 'pet',
       moodScore: nextScore,
       moodLevel: nextLevel,
       totalGifts: hasReceivedGift ? 1 : undefined,
+      careStats: updatedJournalStats,
     });
 
     // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生（不機嫌時は低く鋭い威嚇音）
@@ -208,12 +219,16 @@ export default function App() {
       });
     }
 
-    // 実績判定（ごはん・機嫌・ギフト）
+    // ふり返り手帳にごはんの記録を追加
+    const updatedJournalStats = recordCareAction('feed', currentCatId);
+
+    // 実績判定（ごはん・機嫌・ギフト・手帳統計）
     checkAchievements({
       action: 'feed',
       moodScore: nextScore,
       moodLevel: nextLevel,
       totalGifts: hasReceivedGift ? 1 : undefined,
+      careStats: updatedJournalStats,
     });
 
     // ごはんもぐもぐメッセージを吹き出しに表示
@@ -272,12 +287,16 @@ export default function App() {
       });
     }
 
-    // 実績判定（おもちゃ・機嫌・ギフト）
+    // ふり返り手帳におもちゃ遊びの記録を追加
+    const updatedJournalStats = recordCareAction('play', currentCatId);
+
+    // 実績判定（おもちゃ・機嫌・ギフト・手帳統計）
     checkAchievements({
       action: 'play',
       moodScore: nextScore,
       moodLevel: nextLevel,
       totalGifts: hasReceivedGift ? 1 : undefined,
+      careStats: updatedJournalStats,
     });
 
     // おもちゃメッセージを吹き出しに表示
@@ -308,9 +327,10 @@ export default function App() {
       {/* メイン画面上部の実績獲得トースト通知（複数同時獲得時は縦並び表示） */}
       <AchievementToastOverlay toasts={achievementToasts} onDismiss={dismissAchievementToast} />
 
-      {/* 画面左上：おくりもの一覧ボタン・実績ボタン・設定ボタン */}
+      {/* 画面左上：おくりもの一覧ボタン・実績ボタン・ふり返り手帳ボタン・設定ボタン */}
       <TreasureChestButton onClick={() => setIsGiftModalOpen(true)} />
       <AchievementButton onClick={() => setIsAchievementModalOpen(true)} />
+      <JournalButton onClick={() => setIsJournalModalOpen(true)} />
       <SettingsButton onClick={() => setIsSettingsModalOpen(true)} />
 
       {/* ヘッダーエリア */}
@@ -468,6 +488,14 @@ export default function App() {
         isOpen={isAchievementModalOpen}
         onClose={() => setIsAchievementModalOpen(false)}
         unlocked={unlockedAchievements}
+      />
+
+      {/* ふり返り手帳モーダル画面 */}
+      <JournalModal
+        isOpen={isJournalModalOpen}
+        onClose={() => setIsJournalModalOpen(false)}
+        stats={careJournalStats}
+        catNames={catNames}
       />
     </main>
   );

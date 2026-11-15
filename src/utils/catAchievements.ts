@@ -5,6 +5,7 @@ import {
   UnlockedAchievements,
 } from '../types/achievement.ts';
 import { CatMoodLevel } from '../types/mood.ts';
+import { CareStats } from '../types/journal.ts';
 
 /**
  * 実績マスターデータリスト（初期5種類、今後追加可能）
@@ -120,6 +121,8 @@ export interface AchievementCheckContext {
   moodLevel?: CatMoodLevel;
   /** 現在の累計おくりもの受取個数 */
   totalGifts?: number;
+  /** ふり返り手帳のお世話統計データ（将来の実績判定用） */
+  careStats?: CareStats;
 }
 
 /**

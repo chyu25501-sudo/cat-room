@@ -32,7 +32,7 @@ export const SettingsIcon: React.FC<{ className?: string }> = ({
 );
 
 /**
- * 画面左上の実績ボタンの右横に配置する設定ボタン
+ * 画面左上のふり返り手帳ボタンの右横に配置する設定ボタン
  * 歯車アイコンのみを描いた角丸正方形のシンプルな見た目
  */
 export const SettingsButton: React.FC<SettingsButtonProps> = ({
@@ -47,7 +47,7 @@ export const SettingsButton: React.FC<SettingsButtonProps> = ({
       aria-label={ariaLabel}
       title="設定"
       data-testid="settings-button"
-      className={`fixed top-4 left-[7.5rem] sm:top-5 sm:left-[8.75rem] z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/90 backdrop-blur-xs border border-orange-200/90 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center text-stone-600 hover:text-stone-800 hover:border-orange-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 cursor-pointer ${className}`}
+      className={`fixed top-4 left-[10.75rem] sm:top-5 sm:left-[12.625rem] z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/90 backdrop-blur-xs border border-orange-200/90 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center text-stone-600 hover:text-stone-800 hover:border-orange-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 cursor-pointer ${className}`}
     >
       <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6" />
     </button>
