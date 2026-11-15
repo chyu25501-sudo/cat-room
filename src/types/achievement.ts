@@ -39,6 +39,8 @@ export type AchievementId =
   | 'first-super-rare-gift'
   | 'first-ultra-rare-gift'
   | 'first-rename-cat'
+  | 'affection-level-5'
+  | 'affection-level-10'
   | 'hidden-pebble-set'
   | 'hidden-branch-set'
   | 'hidden-clover-set'

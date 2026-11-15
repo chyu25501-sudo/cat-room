@@ -11,7 +11,7 @@ import { GiftItem, GiftInventory } from '../types/gift.ts';
 import { CAT_GIFTS } from './catGifts.ts';
 
 /**
- * 実績マスターデータリスト（全50種類: 通常実績37種類 + 隠し実績13種類）
+ * 実績マスターデータリスト（全52種類: 通常実績39種類 + 隠し実績13種類）
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
   // --- 初期ふれあい実績 ---
@@ -293,6 +293,22 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     isHidden: false,
   },
 
+  // --- なつき度レベル実績 ---
+  {
+    id: 'affection-level-5',
+    title: '大のなかよし',
+    description: 'いずれかの猫がはじめてなつき度レベル5になった。',
+    iconType: 'paw',
+    isHidden: false,
+  },
+  {
+    id: 'affection-level-10',
+    title: 'ずっと一緒♡',
+    description: 'いずれかの猫がはじめてなつき度レベル10になった。',
+    iconType: 'sparkle',
+    isHidden: false,
+  },
+
   // ==========================================
   // 【隠し実績（isHidden: true）】特定のおくりもの収集セット
   // ==========================================
@@ -477,6 +493,10 @@ export interface AchievementCheckContext {
   hasUltraRareGift?: boolean;
   /** 猫の名前を変更したか */
   isCatRenamed?: boolean;
+  /** 対象の猫のなつき度レベル */
+  affectionLevel?: number;
+  /** 全猫の中の最高なつき度レベル */
+  maxAffectionLevel?: number;
   /** 現在のおくりものインベントリ（セット収集判定用） */
   giftInventory?: GiftInventory;
 }
@@ -797,6 +817,25 @@ export function checkNewAchievements(
       // --- 猫の名前変更系 ---
       case 'first-rename-cat':
         if (context.action === 'rename' || context.isCatRenamed === true) {
+          isMet = true;
+        }
+        break;
+
+      // --- なつき度レベル系 ---
+      case 'affection-level-5':
+        if (
+          (typeof context.maxAffectionLevel === 'number' && context.maxAffectionLevel >= 5) ||
+          (typeof context.affectionLevel === 'number' && context.affectionLevel >= 5)
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'affection-level-10':
+        if (
+          (typeof context.maxAffectionLevel === 'number' && context.maxAffectionLevel >= 10) ||
+          (typeof context.affectionLevel === 'number' && context.affectionLevel >= 10)
+        ) {
           isMet = true;
         }
         break;

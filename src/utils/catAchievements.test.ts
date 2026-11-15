@@ -11,8 +11,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全50種類の実績が定義されており、通常37種(isHidden: false)と隠し実績13種(isHidden: true)があること', () => {
-      expect(ACHIEVEMENTS.length).toBe(50);
+    it('全52種類の実績が定義されており、通常39種(isHidden: false)と隠し実績13種(isHidden: true)があること', () => {
+      expect(ACHIEVEMENTS.length).toBe(52);
 
       const expectedIds = [
         'first-pet',
@@ -52,6 +52,8 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'first-super-rare-gift',
         'first-ultra-rare-gift',
         'first-rename-cat',
+        'affection-level-5',
+        'affection-level-10',
         'hidden-pebble-set',
         'hidden-branch-set',
         'hidden-clover-set',
@@ -327,6 +329,45 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
 
       const newItems2 = checkNewAchievements({ isCatRenamed: true }, unlocked);
       expect(newItems2.map((a) => a.id)).toContain('first-rename-cat');
+    });
+
+    it('なつき度レベル5に到達した時に affection-level-5 実績が解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      // レベル4以下では解除されない
+      expect(
+        checkNewAchievements({ affectionLevel: 4 }, unlocked).map((a) => a.id)
+      ).not.toContain('affection-level-5');
+
+      // レベル5で解除される（affectionLevel / maxAffectionLevel 両対応）
+      const newItems1 = checkNewAchievements({ affectionLevel: 5 }, unlocked);
+      expect(newItems1.map((a) => a.id)).toContain('affection-level-5');
+      expect(newItems1.map((a) => a.id)).not.toContain('affection-level-10');
+
+      const newItems2 = checkNewAchievements({ maxAffectionLevel: 6 }, unlocked);
+      expect(newItems2.map((a) => a.id)).toContain('affection-level-5');
+    });
+
+    it('なつき度レベル10に到達した時に affection-level-10 実績（および未達成ならレベル5も同時に）解除されること', () => {
+      const unlocked: UnlockedAchievements = {};
+      // レベル9では解除されない
+      expect(
+        checkNewAchievements({ affectionLevel: 9 }, unlocked).map((a) => a.id)
+      ).not.toContain('affection-level-10');
+
+      // レベル10で解除される（未解除のレベル5も同時解除される）
+      const newItems = checkNewAchievements({ affectionLevel: 10 }, unlocked);
+      const newIds = newItems.map((a) => a.id);
+      expect(newIds).toContain('affection-level-5');
+      expect(newIds).toContain('affection-level-10');
+
+      // すでにレベル5が解除済みの場合はレベル10のみ解除される
+      const unlockedLv5: UnlockedAchievements = {
+        'affection-level-5': { id: 'affection-level-5', unlockedAt: 1000 },
+      };
+      const newItems2 = checkNewAchievements({ maxAffectionLevel: 10 }, unlockedLv5);
+      const newIds2 = newItems2.map((a) => a.id);
+      expect(newIds2).not.toContain('affection-level-5');
+      expect(newIds2).toContain('affection-level-10');
     });
 
     describe('隠し実績（おくりもの収集セット8種）', () => {

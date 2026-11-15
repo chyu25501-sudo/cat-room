@@ -123,6 +123,18 @@ export default function App() {
   const currentAffectionProgress = getAffectionProgress(currentCatId);
   const currentAffectionState = getAffectionState(currentCatId);
 
+  // 全猫の中の最高なつき度レベルを算出するヘルパー
+  const getMaxAffectionLevel = (overrideCatId?: CatId, overrideLevel?: number) => {
+    return Math.max(
+      ...resolvedPresets.map((p) => {
+        if (p.id === overrideCatId && typeof overrideLevel === 'number') {
+          return overrideLevel;
+        }
+        return getAffectionLevel(p.id);
+      })
+    );
+  };
+
   const handleInteractCat = () => {
     setLastAction('pet');
     // 撫でることで選択中の猫の機嫌を更新（過剰撫で時は愛撫誘発性攻撃により不機嫌になる）
@@ -134,10 +146,12 @@ export default function App() {
     // ごきげん度が高ければ高いほど上昇幅が大きくなり、ごきげん度と同様に±1〜5%（±1〜5pt）ランダムで変動します
     let hasReceivedGift = false;
     let receivedGiftItem: GiftItem | null = null;
+    let updatedAffectionLevel = currentAffectionLevel;
     if (!isAnnoyed && nextLevel !== 'annoyed') {
       const baseAffectionExp = calculatePetAffectionExp(nextScore);
       const variedAffectionExp = calculateVariedAffectionExp(baseAffectionExp);
       const affRes = gainAffection(currentCatId, variedAffectionExp);
+      updatedAffectionLevel = affRes.nextLevel;
       if (affRes.isLevelUp) {
         const gift = receiveGift(currentCatId);
         receivedGiftItem = gift;
@@ -168,11 +182,13 @@ export default function App() {
       receivedGiftItem?.rarity === 'ultra-rare' ||
       Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare');
 
-    // 実績判定（なでる・機嫌・ギフト・手帳統計）
+    // 実績判定（なでる・機嫌・ギフト・手帳統計・なつき度）
     checkAchievements({
       action: 'pet',
       moodScore: nextScore,
       moodLevel: nextLevel,
+      affectionLevel: updatedAffectionLevel,
+      maxAffectionLevel: getMaxAffectionLevel(currentCatId, updatedAffectionLevel),
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
@@ -267,13 +283,15 @@ export default function App() {
       receivedGiftItem?.rarity === 'ultra-rare' ||
       Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare');
 
-    // 実績判定（ごはん・機嫌・まんぷく度・ギフト・手帳統計）
+    // 実績判定（ごはん・機嫌・まんぷく度・ギフト・手帳統計・なつき度）
     checkAchievements({
       action: 'feed',
       moodScore: nextScore,
       moodLevel: nextLevel,
       fullnessScore: nextFullnessScore,
       fullnessLevel: nextFullnessLevel,
+      affectionLevel: affRes.nextLevel,
+      maxAffectionLevel: getMaxAffectionLevel(currentCatId, affRes.nextLevel),
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,
@@ -357,11 +375,13 @@ export default function App() {
       receivedGiftItem?.rarity === 'ultra-rare' ||
       Object.keys(inventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare');
 
-    // 実績判定（おもちゃ・機嫌・ギフト・手帳統計）
+    // 実績判定（おもちゃ・機嫌・ギフト・手帳統計・なつき度）
     checkAchievements({
       action: 'play',
       moodScore: nextScore,
       moodLevel: nextLevel,
+      affectionLevel: affRes.nextLevel,
+      maxAffectionLevel: getMaxAffectionLevel(currentCatId, affRes.nextLevel),
       totalGifts: currentTotalGifts,
       receivedGift: receivedGiftItem,
       hasRareGift,

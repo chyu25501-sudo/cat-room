@@ -1267,7 +1267,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
           '猫ちゃんに初めてごはんを食べさせてあげた。'
         );
 
-        // 通常の実績として追加されたSR・UR実績は未獲得時に名前が「？？？」で条件が見えること
+        // 通常の実績として追加されたSR・UR実績およびなつき度実績は未獲得時に名前が「？？？」で条件が見えること
         expect(screen.getByTestId('achievement-title-first-super-rare-gift')).toHaveTextContent('？？？');
         expect(screen.getByTestId('achievement-desc-first-super-rare-gift')).toHaveTextContent(
           'はじめてスーパーレアなおくりものを受け取った。'
@@ -1276,6 +1276,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByTestId('achievement-desc-first-ultra-rare-gift')).toHaveTextContent(
           'はじめてウルトラレアなおくりものを受け取った。'
         );
+        expect(screen.getByTestId('achievement-title-affection-level-5')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-affection-level-5')).toHaveTextContent(
+          'いずれかの猫がはじめてなつき度レベル5になった。'
+        );
+        expect(screen.getByTestId('achievement-title-affection-level-10')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-affection-level-10')).toHaveTextContent(
+          'いずれかの猫がはじめてなつき度レベル10になった。'
+        );
 
         // 未達成の隠し実績は名前「？？？」かつ説明文も「？？？？？？」と伏せ字であること
         expect(screen.getByTestId('achievement-title-hidden-pebble-set')).toHaveTextContent('？？？');
@@ -1283,7 +1291,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByTestId('achievement-title-hidden-pair-socks')).toHaveTextContent('？？？');
         expect(screen.getByTestId('achievement-desc-hidden-pair-socks')).toHaveTextContent('？？？？？？');
 
-        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/50');
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/52');
       } finally {
         vi.useRealTimers();
       }
@@ -1303,6 +1311,28 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       // 実績トースト「あたらしいお名前」が表示されること
       expect(screen.getByTestId('achievement-toast-first-rename-cat')).toBeInTheDocument();
       expect(screen.getByTestId('achievement-toast-title')).toHaveTextContent('あたらしいお名前');
+    });
+
+    it('猫のなつき度がレベル5およびレベル10に到達したときに、対応する実績が獲得できること', () => {
+      // 事前に黒猫のなつき度をLv.4の満タン直前（295pt / 300pt）に設定
+      localStorage.setItem(
+        'nekoppoi_cats_affection',
+        JSON.stringify({
+          black: { level: 4, currentExp: 295, requiredExp: 300 },
+        })
+      );
+
+      render(<App />);
+
+      // 撫でる (+10pt -> 305pt >= 300pt で Lv.5 にレベルアップ！)
+      const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+      fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+      fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+      fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+
+      // 実績トースト「大のなかよし」が表示されること
+      expect(screen.getByTestId('achievement-toast-affection-level-5')).toBeInTheDocument();
+      expect(screen.getByText('大のなかよし')).toBeInTheDocument();
     });
   });
 });
