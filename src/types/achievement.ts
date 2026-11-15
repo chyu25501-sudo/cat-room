@@ -47,6 +47,11 @@ export type AchievementId =
   | 'hidden-feather-set'
   | 'hidden-gem-set'
   | 'hidden-dragon-set'
+  | 'hidden-dandelion-seed-set'
+  | 'hidden-super-rare-trio-set'
+  | 'hidden-ultra-rare-set'
+  | 'hidden-rainbow-colors-set'
+  | 'hidden-pair-socks'
   | string;
 
 /**

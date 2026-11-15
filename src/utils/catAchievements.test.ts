@@ -11,8 +11,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全45種類の実績が定義されており、通常37種(isHidden: false)と隠し実績8種(isHidden: true)があること', () => {
-      expect(ACHIEVEMENTS.length).toBe(45);
+    it('全50種類の実績が定義されており、通常37種(isHidden: false)と隠し実績13種(isHidden: true)があること', () => {
+      expect(ACHIEVEMENTS.length).toBe(50);
 
       const expectedIds = [
         'first-pet',
@@ -60,6 +60,11 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'hidden-feather-set',
         'hidden-gem-set',
         'hidden-dragon-set',
+        'hidden-dandelion-seed-set',
+        'hidden-super-rare-trio-set',
+        'hidden-ultra-rare-set',
+        'hidden-rainbow-colors-set',
+        'hidden-pair-socks',
       ];
       expect(ACHIEVEMENTS.map((a) => a.id)).toEqual(expectedIds);
 
@@ -419,6 +424,96 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         expect(
           checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
         ).toContain('hidden-dragon-set');
+      });
+
+      it('綿毛・種セット（やわらかい綿毛・ひまわりの種）を所持したときに hidden-dandelion-seed-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const partialInv = makeInventory(['soft-dandelion']);
+        expect(
+          checkNewAchievements({ giftInventory: partialInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-dandelion-seed-set');
+
+        const fullInv = makeInventory(['soft-dandelion', 'sunflower-seed']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-dandelion-seed-set');
+      });
+
+      it('スーパーレアトリオ（よつばのクローバー・ほしのかけら・りゅうの鱗）を所持したときに hidden-super-rare-trio-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['four-leaf-clover', 'star-fragment', 'dragon-scale']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-super-rare-trio-set');
+      });
+
+      it('ウルトラレアセット（なないろの羽根・いにしえの歯車・りゅうの爪）を所持したときに hidden-ultra-rare-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const fullInv = makeInventory(['rainbow-feather', 'ancient-gear', 'dragon-claw']);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-ultra-rare-set');
+      });
+
+      it('カラフルカラーセット（緑・白・桃・青・赤・黄・虹）をすべて所持したときに hidden-rainbow-colors-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const targetIds = [
+          'clover',
+          'super-ball',
+          'white-dice',
+          'pink-handkerchief',
+          'blue-can',
+          'red-gem',
+          'blue-gem',
+          'yellow-gem',
+          'rainbow-feather',
+        ];
+        // 1個足りない場合は解除されない
+        const partialInv = makeInventory(targetIds.slice(0, 8));
+        expect(
+          checkNewAchievements({ giftInventory: partialInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-rainbow-colors-set');
+
+        const fullInv = makeInventory(targetIds);
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-rainbow-colors-set');
+      });
+
+      it('「かたっぽの靴下」を2個以上所持したときに hidden-pair-socks が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        // 1個所持のときは解除されない
+        const singleInv: GiftInventory = {
+          'single-sock': { giftId: 'single-sock', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: singleInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-pair-socks');
+
+        // 2個所持のときに解除される
+        const pairInv: GiftInventory = {
+          'single-sock': { giftId: 'single-sock', count: 2, firstReceivedAt: 1000, lastReceivedAt: 2000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: pairInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-pair-socks');
+
+        // 1個所持の状態で、直前に2個目を受け取ったときにも即座に解除されること
+        const sockGift = {
+          id: 'single-sock',
+          name: 'かたっぽの靴下',
+          description: '',
+          icon: '🧦',
+          iconType: 'single-sock',
+          themeClass: '',
+          rarity: 'common' as const,
+        };
+        expect(
+          checkNewAchievements(
+            { giftInventory: singleInv, receivedGift: sockGift },
+            unlocked
+          ).map((a) => a.id)
+        ).toContain('hidden-pair-socks');
       });
     });
   });

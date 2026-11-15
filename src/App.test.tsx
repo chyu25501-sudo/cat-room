@@ -1265,8 +1265,10 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         // 未達成の隠し実績は名前「？？？」かつ説明文も「？？？？？？」と伏せ字であること
         expect(screen.getByTestId('achievement-title-hidden-pebble-set')).toHaveTextContent('？？？');
         expect(screen.getByTestId('achievement-desc-hidden-pebble-set')).toHaveTextContent('？？？？？？');
+        expect(screen.getByTestId('achievement-title-hidden-pair-socks')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-hidden-pair-socks')).toHaveTextContent('？？？？？？');
 
-        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/45');
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/50');
       } finally {
         vi.useRealTimers();
       }

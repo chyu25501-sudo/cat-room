@@ -11,7 +11,7 @@ import { GiftItem, GiftInventory } from '../types/gift.ts';
 import { CAT_GIFTS } from './catGifts.ts';
 
 /**
- * 実績マスターデータリスト（全45種類: 通常実績37種類 + 隠し実績8種類）
+ * 実績マスターデータリスト（全50種類: 通常実績37種類 + 隠し実績13種類）
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
   // --- 初期ふれあい実績 ---
@@ -352,6 +352,41 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     iconType: 'sparkle',
     isHidden: true,
   },
+  {
+    id: 'hidden-dandelion-seed-set',
+    title: '陽だまりのおとしもの',
+    description: '「やわらかい綿毛」「ひまわりの種」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-super-rare-trio-set',
+    title: '至高の輝き',
+    description: '「よつばのクローバー」「ほしのかけら」「りゅうの鱗」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-ultra-rare-set',
+    title: '幻のマスター',
+    description: '「なないろの羽根」「いにしえの歯車」「りゅうの爪」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-rainbow-colors-set',
+    title: 'パレットキャット',
+    description: '「みどりのクローバー」「みどりのスーパーボール」「しろいサイコロ」「ももいろのハンカチ」「あおい空き缶」「あかいろの宝石」「あおいろの宝石」「きいろの宝石」「なないろの羽根」をすべて集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-pair-socks',
+    title: '両足そろった！',
+    description: '「かたっぽの靴下」を2個以上集めた。',
+    iconType: 'sparkle',
+    isHidden: true,
+  },
 ] as const;
 
 /** localStorage 保存用キー */
@@ -459,6 +494,20 @@ export function hasAllGifts(
     const isJustReceived = id === receivedGiftId;
     return inInv || isJustReceived;
   });
+}
+
+/**
+ * 指定した特定のおくりものを指定個数以上所持しているか（または直前に受け取ったか）判定する純粋関数
+ */
+export function hasGiftCount(
+  inventory: GiftInventory | undefined,
+  giftId: string,
+  minCount: number,
+  receivedGiftId?: string
+): boolean {
+  const currentCount = inventory?.[giftId]?.count ?? 0;
+  const total = currentCount + (receivedGiftId === giftId ? 1 : 0);
+  return total >= minCount;
 }
 
 /**
@@ -842,6 +891,77 @@ export function checkNewAchievements(
           hasAllGifts(
             context.giftInventory,
             ['dragon-scale', 'dragon-claw'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-dandelion-seed-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['soft-dandelion', 'sunflower-seed'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-super-rare-trio-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['four-leaf-clover', 'star-fragment', 'dragon-scale'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-ultra-rare-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['rainbow-feather', 'ancient-gear', 'dragon-claw'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-rainbow-colors-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            [
+              'clover',
+              'super-ball',
+              'white-dice',
+              'pink-handkerchief',
+              'blue-can',
+              'red-gem',
+              'blue-gem',
+              'yellow-gem',
+              'rainbow-feather',
+            ],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-pair-socks':
+        if (
+          hasGiftCount(
+            context.giftInventory,
+            'single-sock',
+            2,
             context.receivedGift?.id
           )
         ) {
