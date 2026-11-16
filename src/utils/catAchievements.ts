@@ -4,6 +4,7 @@ import {
   AchievementItem,
   AchievementRecord,
   UnlockedAchievements,
+  AchievementStatusFilter,
 } from '../types/achievement.ts';
 import { CatMoodLevel } from '../types/mood.ts';
 import { CatFullnessLevel } from '../types/fullness.ts';
@@ -1281,3 +1282,37 @@ export function sanitizeAchievements(raw: unknown): UnlockedAchievements {
 
   return result;
 }
+
+export interface FilterAchievementsOptions {
+  /** カテゴリ絞り込み（'all' または各カテゴリ文字列） */
+  category?: string;
+  /** 達成状況絞り込み（'all': すべて, 'unlocked': 達成済みのみ, 'locked': 未達成のみ） */
+  status?: AchievementStatusFilter;
+}
+
+/**
+ * カテゴリと達成状況に基づいて実績カタログを絞り込む純粋関数
+ */
+export function filterAchievements(
+  catalog: readonly AchievementItem[],
+  unlocked: UnlockedAchievements,
+  options: FilterAchievementsOptions = {}
+): AchievementItem[] {
+  const { category = 'all', status = 'all' } = options;
+  return catalog.filter((item) => {
+    // カテゴリ判定
+    if (category !== 'all' && (item.category ?? 'interaction') !== category) {
+      return false;
+    }
+    // 達成状況判定
+    const isUnlocked = !!unlocked[item.id];
+    if (status === 'unlocked' && !isUnlocked) {
+      return false;
+    }
+    if (status === 'locked' && isUnlocked) {
+      return false;
+    }
+    return true;
+  });
+}
+

@@ -123,3 +123,8 @@ export interface AchievementToast {
   /** トースト生成日時（UNIXタイムスタンプ） */
   timestamp: number;
 }
+
+/**
+ * 実績画面での達成状況絞り込み条件（'all': すべて, 'unlocked': 達成済みのみ, 'locked': 未達成のみ）
+ */
+export type AchievementStatusFilter = 'all' | 'unlocked' | 'locked';

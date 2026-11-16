@@ -7,6 +7,7 @@ import {
   checkNewAchievements,
   sanitizeAchievements,
   getAchievementDisplayInfo,
+  filterAchievements,
 } from './catAchievements.ts';
 import { AchievementItem, UnlockedAchievements } from '../types/achievement.ts';
 import { GiftInventory } from '../types/gift.ts';
@@ -771,6 +772,64 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
       expect(info.displayDescription).toBe('秘密の獲得条件です。');
       expect(info.isUnlocked).toBe(true);
       expect(info.isHidden).toBe(true);
+    });
+  });
+
+  describe('filterAchievements (カテゴリと達成状況による実績カタログ絞り込み純粋関数)', () => {
+    const sampleCatalog: AchievementItem[] = [
+      { id: 'act-1', title: 'ふれあい1', description: '', iconType: 'paw', category: 'interaction' },
+      { id: 'act-2', title: 'ふれあい2', description: '', iconType: 'paw', category: 'interaction' },
+      { id: 'care-1', title: 'お世話1', description: '', iconType: 'food', category: 'care' },
+      { id: 'gift-1', title: 'おくりもの1', description: '', iconType: 'gift', category: 'gift' },
+    ];
+
+    const unlocked: UnlockedAchievements = {
+      'act-1': { id: 'act-1', unlockedAt: 1000 },
+      'care-1': { id: 'care-1', unlockedAt: 2000 },
+    };
+
+    it('オプション無指定または all のときは全件返すこと', () => {
+      expect(filterAchievements(sampleCatalog, unlocked)).toHaveLength(4);
+      expect(filterAchievements(sampleCatalog, unlocked, { category: 'all', status: 'all' })).toHaveLength(4);
+    });
+
+    it('カテゴリ単独での絞り込みが機能すること', () => {
+      const interactionOnly = filterAchievements(sampleCatalog, unlocked, { category: 'interaction' });
+      expect(interactionOnly.map((a) => a.id)).toEqual(['act-1', 'act-2']);
+
+      const careOnly = filterAchievements(sampleCatalog, unlocked, { category: 'care' });
+      expect(careOnly.map((a) => a.id)).toEqual(['care-1']);
+    });
+
+    it('達成状況（status: "unlocked" / "locked"）単独での絞り込みが機能すること', () => {
+      const unlockedOnly = filterAchievements(sampleCatalog, unlocked, { status: 'unlocked' });
+      expect(unlockedOnly.map((a) => a.id)).toEqual(['act-1', 'care-1']);
+
+      const lockedOnly = filterAchievements(sampleCatalog, unlocked, { status: 'locked' });
+      expect(lockedOnly.map((a) => a.id)).toEqual(['act-2', 'gift-1']);
+    });
+
+    it('カテゴリと達成状況の組み合わせ（掛け合わせ）絞り込みが機能すること', () => {
+      // interaction かつ unlocked -> act-1
+      const interactionUnlocked = filterAchievements(sampleCatalog, unlocked, {
+        category: 'interaction',
+        status: 'unlocked',
+      });
+      expect(interactionUnlocked.map((a) => a.id)).toEqual(['act-1']);
+
+      // interaction かつ locked -> act-2
+      const interactionLocked = filterAchievements(sampleCatalog, unlocked, {
+        category: 'interaction',
+        status: 'locked',
+      });
+      expect(interactionLocked.map((a) => a.id)).toEqual(['act-2']);
+
+      // care かつ locked -> care-1 は達成済みなので空配列
+      const careLocked = filterAchievements(sampleCatalog, unlocked, {
+        category: 'care',
+        status: 'locked',
+      });
+      expect(careLocked).toEqual([]);
     });
   });
 });

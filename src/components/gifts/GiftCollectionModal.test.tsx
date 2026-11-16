@@ -450,5 +450,86 @@ describe('GiftCollectionModal コンポーネント', () => {
       expect(screen.queryByTestId('gift-tile-item-rare')).not.toBeInTheDocument();
       expect(screen.queryByTestId('gift-tile-item-super-rare')).not.toBeInTheDocument();
     });
+
+    it('入手状況フィルター（すべて / 入手済みのみ）が表示され、入手済みのみで絞り込めること', () => {
+      const inventory: GiftInventory = {
+        pebble: {
+          giftId: 'pebble',
+          count: 2,
+          firstReceivedAt: 1000,
+          lastReceivedAt: 1000,
+        },
+        'old-coin': {
+          giftId: 'old-coin',
+          count: 1,
+          firstReceivedAt: 1000,
+          lastReceivedAt: 1000,
+        },
+      };
+
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
+
+      // 入手状況フィルターバーの存在確認
+      expect(screen.getByTestId('gift-acquisition-filter')).toBeInTheDocument();
+      const allBtn = screen.getByTestId('filter-acquisition-all');
+      const acquiredBtn = screen.getByTestId('filter-acquisition-acquired');
+
+      expect(allBtn).toHaveTextContent('すべて (60)');
+      expect(acquiredBtn).toHaveTextContent('入手済みのみ (2)');
+
+      // 初期状態（すべて）では入手済み・未入手の両方が存在
+      expect(screen.getByTestId('gift-tile-pebble')).toBeInTheDocument();
+      expect(screen.getByTestId('gift-tile-feather')).toBeInTheDocument();
+
+      // 「入手済みのみ」をクリック
+      fireEvent.click(acquiredBtn);
+      expect(acquiredBtn).toHaveAttribute('aria-pressed', 'true');
+
+      // 入手済みの小石と古銭のみ表示され、未入手の羽根は非表示になること
+      expect(screen.getByTestId('gift-tile-pebble')).toBeInTheDocument();
+      expect(screen.getByTestId('gift-tile-old-coin')).toBeInTheDocument();
+      expect(screen.queryByTestId('gift-tile-feather')).not.toBeInTheDocument();
+
+      // 「すべて」に戻すと未入手アイテムも再表示されること
+      fireEvent.click(allBtn);
+      expect(screen.getByTestId('gift-tile-feather')).toBeInTheDocument();
+    });
+
+    it('レアリティ絞り込みと入手状況絞り込みを掛け合わせて利用できること', () => {
+      const inventory: GiftInventory = {
+        pebble: {
+          giftId: 'pebble',
+          count: 2,
+          firstReceivedAt: 1000,
+          lastReceivedAt: 1000,
+        },
+        'old-coin': {
+          giftId: 'old-coin',
+          count: 1,
+          firstReceivedAt: 1000,
+          lastReceivedAt: 1000,
+        },
+      };
+
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
+
+      // レアリティ「レア」をクリック（old-coin など）
+      fireEvent.click(screen.getByTestId('filter-rarity-rare'));
+      // 入手状況「入手済みのみ」をクリック
+      fireEvent.click(screen.getByTestId('filter-acquisition-acquired'));
+
+      // レアかつ入手済みの「古銭」のみ表示されること
+      expect(screen.getByTestId('gift-tile-old-coin')).toBeInTheDocument();
+      // 通常（common）の小石は非表示
+      expect(screen.queryByTestId('gift-tile-pebble')).not.toBeInTheDocument();
+      // 未入手のレア（四つ葉のクローバーなど）も非表示
+      expect(screen.queryByTestId('gift-tile-four-leaf-clover')).not.toBeInTheDocument();
+
+      // レアリティ「ウルトラレア」に変更（ウルトラレアは未入手）
+      fireEvent.click(screen.getByTestId('filter-rarity-ultra-rare'));
+
+      // 該当なしメッセージが表示されること
+      expect(screen.getByTestId('gift-filter-empty')).toHaveTextContent('該当するおくりものがありません');
+    });
   });
 });

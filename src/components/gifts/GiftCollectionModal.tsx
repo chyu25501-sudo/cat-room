@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { X, Sparkles } from 'lucide-react';
-import { GiftInventory, GiftItem } from '../../types/gift.ts';
+import { GiftInventory, GiftItem, GiftAcquisitionFilter } from '../../types/gift.ts';
 import {
   CAT_GIFTS,
   getTotalGiftCount,
   getAcquiredGiftTypeCount,
   getAvailableRarities,
   getGiftRarityLabel,
+  filterGifts,
 } from '../../utils/catGifts.ts';
 import { TreasureChestIcon } from './TreasureChestButton.tsx';
 import { GiftIcon } from './GiftIcon.tsx';
@@ -45,17 +46,19 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
   const [selectedGiftId, setSelectedGiftId] = useState<string>(() => catalog[0]?.id ?? 'pebble');
   // 選択中のレアリティフィルター（'all' または各レアリティ文字列）
   const [selectedRarity, setSelectedRarity] = useState<string>('all');
+  // 選択中の入手状況フィルター（'all': すべて, 'acquired': 入手済みのみ）
+  const [acquisitionFilter, setAcquisitionFilter] = useState<GiftAcquisitionFilter>('all');
 
   // カタログからユニークなレアリティ一覧を動的抽出（今後レアリティが増加しても自動対応）
   const availableRarities = useMemo(() => getAvailableRarities(catalog), [catalog]);
 
-  // レアリティ絞り込み後のカタログ
+  // レアリティ絞り込み ＋ 入手状況絞り込み後のカタログ
   const filteredCatalog = useMemo(() => {
-    if (selectedRarity === 'all') {
-      return catalog;
-    }
-    return catalog.filter((item) => (item.rarity ?? 'common') === selectedRarity);
-  }, [catalog, selectedRarity]);
+    return filterGifts(catalog, inventory, {
+      rarity: selectedRarity,
+      acquisition: acquisitionFilter,
+    });
+  }, [catalog, inventory, selectedRarity, acquisitionFilter]);
 
   if (!isOpen) {
     return null;
@@ -69,8 +72,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
   const selectedGift =
     filteredCatalog.find((g) => g.id === selectedGiftId) ??
     filteredCatalog[0] ??
-    catalog.find((g) => g.id === selectedGiftId) ??
-    catalog[0];
+    null;
   const selectedRecord = selectedGift ? inventory[selectedGift.id] : undefined;
   const selectedCount = selectedRecord?.count ?? 0;
   const isSelectedAcquired = selectedCount > 0;
@@ -181,6 +183,40 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 </button>
               );
             })}
+          </div>
+
+          {/* ウィンドウ上部：入手状況絞り込みフィルター（すべて / 入手済みのみ） */}
+          <div
+            data-testid="gift-acquisition-filter"
+            aria-label="入手状況絞り込み"
+            className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar shrink-0"
+          >
+            <button
+              type="button"
+              data-testid="filter-acquisition-all"
+              aria-pressed={acquisitionFilter === 'all'}
+              onClick={() => setAcquisitionFilter('all')}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+                acquisitionFilter === 'all'
+                  ? 'bg-amber-600 text-white border-amber-700 shadow-2xs'
+                  : 'bg-white/90 text-stone-600 border-orange-200/80 hover:bg-orange-50'
+              }`}
+            >
+              すべて ({catalog.length})
+            </button>
+            <button
+              type="button"
+              data-testid="filter-acquisition-acquired"
+              aria-pressed={acquisitionFilter === 'acquired'}
+              onClick={() => setAcquisitionFilter('acquired')}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+                acquisitionFilter === 'acquired'
+                  ? 'bg-amber-600 text-white border-amber-700 shadow-2xs'
+                  : 'bg-white/90 text-stone-600 border-orange-200/80 hover:bg-orange-50'
+              }`}
+            >
+              入手済みのみ ({acquiredTypeCount})
+            </button>
           </div>
 
           {/* おくりものの表（グリッド並び）：角丸正方形の中にアイコン、右下に個数を表示 */}

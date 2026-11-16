@@ -1,10 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { X, Sparkles, CheckCircle2, Lock, Utensils, Heart, Gift, Calendar } from 'lucide-react';
-import { AchievementItem, UnlockedAchievements } from '../../types/achievement.ts';
+import {
+  AchievementItem,
+  UnlockedAchievements,
+  AchievementStatusFilter,
+} from '../../types/achievement.ts';
 import {
   ACHIEVEMENTS,
   ACHIEVEMENT_CATEGORIES,
   getAchievementDisplayInfo,
+  filterAchievements,
 } from '../../utils/catAchievements.ts';
 import { TrophyIcon } from './AchievementButton.tsx';
 
@@ -61,14 +66,16 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
 }) => {
   // 選択中のカテゴリフィルター（'all' または各カテゴリ文字列）
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  // 選択中の達成状況フィルター（'all': すべて, 'unlocked': 達成済み, 'locked': 未達成）
+  const [statusFilter, setStatusFilter] = useState<AchievementStatusFilter>('all');
 
-  // カテゴリ絞り込み後のカタログ
+  // カテゴリ絞り込み ＋ 達成状況絞り込み後のカタログ
   const filteredCatalog = useMemo(() => {
-    if (selectedCategory === 'all') {
-      return catalog;
-    }
-    return catalog.filter((item) => (item.category ?? 'interaction') === selectedCategory);
-  }, [catalog, selectedCategory]);
+    return filterAchievements(catalog, unlocked, {
+      category: selectedCategory,
+      status: statusFilter,
+    });
+  }, [catalog, unlocked, selectedCategory, statusFilter]);
 
   if (!isOpen) {
     return null;
@@ -178,11 +185,61 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
           })}
         </div>
 
+        {/* ウィンドウ上部：達成状況絞り込みフィルター（すべて / 達成済み / 未達成） */}
+        <div
+          data-testid="achievement-status-filter"
+          aria-label="達成状況絞り込み"
+          className="px-4 sm:px-5 py-2 border-b border-orange-100/70 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 bg-amber-50/30"
+        >
+          <button
+            type="button"
+            data-testid="filter-status-all"
+            aria-pressed={statusFilter === 'all'}
+            onClick={() => setStatusFilter('all')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+              statusFilter === 'all'
+                ? 'bg-amber-600 text-white border-amber-700 shadow-2xs'
+                : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
+            }`}
+          >
+            すべて ({catalog.length})
+          </button>
+          <button
+            type="button"
+            data-testid="filter-status-unlocked"
+            aria-pressed={statusFilter === 'unlocked'}
+            onClick={() => setStatusFilter('unlocked')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+              statusFilter === 'unlocked'
+                ? 'bg-emerald-600 text-white border-emerald-700 shadow-2xs'
+                : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
+            }`}
+          >
+            達成済み ({unlockedCount})
+          </button>
+          <button
+            type="button"
+            data-testid="filter-status-locked"
+            aria-pressed={statusFilter === 'locked'}
+            onClick={() => setStatusFilter('locked')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+              statusFilter === 'locked'
+                ? 'bg-stone-600 text-white border-stone-700 shadow-2xs'
+                : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
+            }`}
+          >
+            未達成 ({totalCount - unlockedCount})
+          </button>
+        </div>
+
         {/* 実績リストコンテンツ */}
         <div className="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-2.5 text-left">
           {filteredCatalog.length === 0 ? (
-            <div className="py-8 text-center text-xs text-stone-400">
-              このカテゴリの実績はありません
+            <div
+              data-testid="achievement-filter-empty"
+              className="py-12 text-center text-xs text-stone-400 font-medium"
+            >
+              条件に一致する実績はありません
             </div>
           ) : (
             filteredCatalog.map((item) => {

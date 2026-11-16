@@ -18,6 +18,7 @@ import {
   getGiftRarityLabel,
   getAvailableRarities,
   GIFT_RARITY_METAS,
+  filterGifts,
 } from './catGifts.ts';
 import { GiftInventory } from '../types/gift.ts';
 
@@ -443,6 +444,54 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
 
       const extendedRarities = getAvailableRarities(extendedCatalog);
       expect(extendedRarities).toEqual(['common', 'rare', 'super-rare', 'legendary']);
+    });
+  });
+
+  describe('filterGifts (レアリティと入手状況によるカタログ絞り込み純粋関数)', () => {
+    const sampleCatalog = [
+      { id: 'item-common-1', name: '通常1', description: '', icon: '🎁', iconType: 'pebble', themeClass: '', rarity: 'common' as const },
+      { id: 'item-common-2', name: '通常2', description: '', icon: '🎁', iconType: 'feather', themeClass: '', rarity: 'common' as const },
+      { id: 'item-rare-1', name: 'レア1', description: '', icon: '🎁', iconType: 'acorn', themeClass: '', rarity: 'rare' as const },
+      { id: 'item-super-1', name: 'スーパー1', description: '', icon: '🎁', iconType: 'twig', themeClass: '', rarity: 'super-rare' as const },
+    ];
+
+    const inventory: GiftInventory = {
+      'item-common-1': { giftId: 'item-common-1', count: 2, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+      'item-rare-1': { giftId: 'item-rare-1', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+    };
+
+    it('オプション無指定または all のときは全件返すこと', () => {
+      expect(filterGifts(sampleCatalog, inventory)).toHaveLength(4);
+      expect(filterGifts(sampleCatalog, inventory, { rarity: 'all', acquisition: 'all' })).toHaveLength(4);
+    });
+
+    it('レアリティ単独での絞り込みが機能すること', () => {
+      const commonOnly = filterGifts(sampleCatalog, inventory, { rarity: 'common' });
+      expect(commonOnly.map((g) => g.id)).toEqual(['item-common-1', 'item-common-2']);
+
+      const rareOnly = filterGifts(sampleCatalog, inventory, { rarity: 'rare' });
+      expect(rareOnly.map((g) => g.id)).toEqual(['item-rare-1']);
+    });
+
+    it('入手状況（acquisition: "acquired"）単独での絞り込みが機能すること', () => {
+      const acquiredOnly = filterGifts(sampleCatalog, inventory, { acquisition: 'acquired' });
+      expect(acquiredOnly.map((g) => g.id)).toEqual(['item-common-1', 'item-rare-1']);
+    });
+
+    it('レアリティと入手状況の組み合わせ（掛け合わせ）絞り込みが機能すること', () => {
+      // common かつ acquired -> item-common-1 のみ
+      const commonAcquired = filterGifts(sampleCatalog, inventory, {
+        rarity: 'common',
+        acquisition: 'acquired',
+      });
+      expect(commonAcquired.map((g) => g.id)).toEqual(['item-common-1']);
+
+      // super-rare かつ acquired -> 未入手なので空配列
+      const superAcquired = filterGifts(sampleCatalog, inventory, {
+        rarity: 'super-rare',
+        acquisition: 'acquired',
+      });
+      expect(superAcquired).toEqual([]);
     });
   });
 });

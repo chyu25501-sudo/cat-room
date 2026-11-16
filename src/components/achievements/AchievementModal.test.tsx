@@ -164,4 +164,68 @@ describe('AchievementModal コンポーネント', () => {
     expect(screen.getByTestId('achievement-item-first-gift')).toBeInTheDocument();
     expect(screen.getByTestId('achievement-item-hidden-pebble-set')).toBeInTheDocument();
   });
+
+  it('達成状況フィルター（すべて / 達成済み / 未達成）が表示され、達成状況で絞り込めること', () => {
+    const unlocked: UnlockedAchievements = {
+      'first-pet': { id: 'first-pet', unlockedAt: 1000 },
+      'first-feed': { id: 'first-feed', unlockedAt: 2000 },
+    };
+
+    render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
+
+    // 達成状況フィルターバーの存在確認
+    expect(screen.getByTestId('achievement-status-filter')).toBeInTheDocument();
+
+    const allBtn = screen.getByTestId('filter-status-all');
+    const unlockedBtn = screen.getByTestId('filter-status-unlocked');
+    const lockedBtn = screen.getByTestId('filter-status-locked');
+
+    expect(allBtn).toHaveTextContent('すべて (60)');
+    expect(unlockedBtn).toHaveTextContent('達成済み (2)');
+    expect(lockedBtn).toHaveTextContent('未達成 (58)');
+
+    // 「達成済み」をクリック
+    fireEvent.click(unlockedBtn);
+    expect(unlockedBtn).toHaveAttribute('aria-pressed', 'true');
+
+    // 達成済みの実績のみ表示
+    expect(screen.getByTestId('achievement-item-first-pet')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-first-feed')).toBeInTheDocument();
+    // 未達成の実績は非表示
+    expect(screen.queryByTestId('achievement-item-first-play')).not.toBeInTheDocument();
+
+    // 「未達成」をクリック
+    fireEvent.click(lockedBtn);
+    expect(lockedBtn).toHaveAttribute('aria-pressed', 'true');
+
+    // 未達成の実績のみ表示
+    expect(screen.getByTestId('achievement-item-first-play')).toBeInTheDocument();
+    // 達成済みの実績は非表示
+    expect(screen.queryByTestId('achievement-item-first-pet')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-item-first-feed')).not.toBeInTheDocument();
+  });
+
+  it('カテゴリ絞り込みと達成状況絞り込みを掛け合わせて利用できること', () => {
+    const unlocked: UnlockedAchievements = {
+      'first-pet': { id: 'first-pet', unlockedAt: 1000 }, // interaction
+    };
+
+    render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
+
+    // カテゴリ「お世話（care）」をクリック
+    fireEvent.click(screen.getByTestId('filter-category-care'));
+    // 達成状況「達成済み」をクリック（お世話カテゴリには達成済みがない）
+    fireEvent.click(screen.getByTestId('filter-status-unlocked'));
+
+    // 0件メッセージが表示されること
+    expect(screen.getByTestId('achievement-filter-empty')).toHaveTextContent('条件に一致する実績はありません');
+
+    // 達成状況を「未達成」に変更
+    fireEvent.click(screen.getByTestId('filter-status-locked'));
+
+    // お世話カテゴリの未達成実績（first-feed など）が表示されること
+    expect(screen.getByTestId('achievement-item-first-feed')).toBeInTheDocument();
+    // ふれあいカテゴリの実績（first-pet）は非表示
+    expect(screen.queryByTestId('achievement-item-first-pet')).not.toBeInTheDocument();
+  });
 });

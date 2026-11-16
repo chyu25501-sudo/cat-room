@@ -1,4 +1,11 @@
-import { GiftId, GiftItem, GiftRecord, GiftInventory, GiftRarity } from '../types/gift.ts';
+import {
+  GiftId,
+  GiftItem,
+  GiftRecord,
+  GiftInventory,
+  GiftRarity,
+  GiftAcquisitionFilter,
+} from '../types/gift.ts';
 import { CatId } from '../types/cat.ts';
 
 /**
@@ -874,3 +881,34 @@ export function getAvailableRarities(
     return orderA - orderB;
   });
 }
+
+export interface FilterGiftsOptions {
+  /** レアリティ絞り込み（'all' または各レアリティ文字列） */
+  rarity?: string;
+  /** 入手状況絞り込み（'all': すべて, 'acquired': 入手済みのみ） */
+  acquisition?: GiftAcquisitionFilter;
+}
+
+/**
+ * レアリティと入手状況に基づいておくりものカタログを絞り込む純粋関数
+ */
+export function filterGifts(
+  catalog: readonly GiftItem[],
+  inventory: GiftInventory,
+  options: FilterGiftsOptions = {}
+): GiftItem[] {
+  const { rarity = 'all', acquisition = 'all' } = options;
+  return catalog.filter((item) => {
+    // レアリティ判定
+    if (rarity !== 'all' && (item.rarity ?? 'common') !== rarity) {
+      return false;
+    }
+    // 入手状況判定
+    if (acquisition === 'acquired') {
+      const count = inventory[item.id]?.count ?? 0;
+      if (count <= 0) return false;
+    }
+    return true;
+  });
+}
+

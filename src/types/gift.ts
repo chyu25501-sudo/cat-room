@@ -120,3 +120,8 @@ export interface GiftRecord {
  * localStorage への永続化対象
  */
 export type GiftInventory = Record<GiftId, GiftRecord>;
+
+/**
+ * おくりもの一覧画面での入手状況絞り込み条件（'all': すべて, 'acquired': 入手済みのみ）
+ */
+export type GiftAcquisitionFilter = 'all' | 'acquired';
