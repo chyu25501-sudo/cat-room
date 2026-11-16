@@ -270,4 +270,31 @@ describe('AchievementModal コンポーネント', () => {
     expect(unlockedBtn).toHaveTextContent('達成済み (2)');
     expect(lockedBtn).toHaveTextContent('未達成 (58)');
   });
+
+  it('達成済みの実績にはそれぞれの欄に達成日が表示され、未達成の実績には表示されないこと', () => {
+    // 2026年11月16日
+    const unlockedDate1 = new Date(2026, 10, 16, 10, 30, 0).getTime();
+    // 2026年11月10日
+    const unlockedDate2 = new Date(2026, 10, 10, 15, 0, 0).getTime();
+
+    const unlocked: UnlockedAchievements = {
+      'first-pet': { id: 'first-pet', unlockedAt: unlockedDate1 },
+      'first-feed': { id: 'first-feed', unlockedAt: unlockedDate2 },
+    };
+
+    render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
+
+    // 達成済みの first-pet に達成日が表示されていること
+    const datePet = screen.getByTestId('achievement-date-first-pet');
+    expect(datePet).toBeInTheDocument();
+    expect(datePet).toHaveTextContent('達成日: 2026年11月16日');
+
+    // 達成済みの first-feed に達成日が表示されていること
+    const dateFeed = screen.getByTestId('achievement-date-first-feed');
+    expect(dateFeed).toBeInTheDocument();
+    expect(dateFeed).toHaveTextContent('達成日: 2026年11月10日');
+
+    // 未達成の first-play には達成日が表示されないこと
+    expect(screen.queryByTestId('achievement-date-first-play')).not.toBeInTheDocument();
+  });
 });

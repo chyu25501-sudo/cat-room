@@ -10,6 +10,7 @@ import {
   ACHIEVEMENT_CATEGORIES,
   getAchievementDisplayInfo,
   filterAchievements,
+  formatAchievementDate,
 } from '../../utils/catAchievements.ts';
 import { TrophyIcon } from './AchievementButton.tsx';
 
@@ -261,8 +262,10 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
             </div>
           ) : (
             filteredCatalog.map((item) => {
-              const isUnlocked = !!unlocked[item.id];
+              const record = unlocked[item.id];
+              const isUnlocked = !!record;
               const displayInfo = getAchievementDisplayInfo(item, isUnlocked);
+              const formattedDate = isUnlocked ? formatAchievementDate(record?.unlockedAt) : '';
 
               return (
                 <div
@@ -285,7 +288,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                   <AchievementItemIcon iconType={item.iconType} isUnlocked={isUnlocked} />
                 </div>
 
-                {/* タイトルと説明文 */}
+                {/* タイトルと説明文と達成日 */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <h4
@@ -329,6 +332,17 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                   >
                     {displayInfo.displayDescription}
                   </p>
+
+                  {/* 達成日表示（達成済みの場合のみ） */}
+                  {isUnlocked && formattedDate && (
+                    <div
+                      data-testid={`achievement-date-${item.id}`}
+                      className="flex items-center gap-1 text-[11px] font-semibold text-amber-700/80 mt-1.5"
+                    >
+                      <Calendar className="w-3 h-3 text-amber-600/80 shrink-0" />
+                      <span>達成日: {formattedDate}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );

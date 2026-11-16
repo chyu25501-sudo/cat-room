@@ -8,6 +8,7 @@ import {
   sanitizeAchievements,
   getAchievementDisplayInfo,
   filterAchievements,
+  formatAchievementDate,
 } from './catAchievements.ts';
 import { AchievementItem, UnlockedAchievements } from '../types/achievement.ts';
 import { GiftInventory } from '../types/gift.ts';
@@ -830,6 +831,26 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         status: 'locked',
       });
       expect(careLocked).toEqual([]);
+    });
+  });
+
+  describe('formatAchievementDate', () => {
+    it('有効なUNIXタイムスタンプ（ミリ秒）を日本語日付形式（YYYY年M月D日）に整形できること', () => {
+      // 2026年11月16日 12:00:00 (JST)
+      const d = new Date(2026, 10, 16, 12, 0, 0);
+      expect(formatAchievementDate(d.getTime())).toBe('2026年11月16日');
+    });
+
+    it('異なる日付でも正しく整形されること', () => {
+      const d = new Date(2025, 0, 1, 0, 0, 0);
+      expect(formatAchievementDate(d.getTime())).toBe('2025年1月1日');
+    });
+
+    it('null, undefined, NaN などの無効値が渡された場合は空文字を返すこと', () => {
+      expect(formatAchievementDate(null)).toBe('');
+      expect(formatAchievementDate(undefined)).toBe('');
+      expect(formatAchievementDate(NaN)).toBe('');
+      expect(formatAchievementDate(Infinity)).toBe('');
     });
   });
 });

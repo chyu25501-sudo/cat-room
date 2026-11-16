@@ -1316,3 +1316,24 @@ export function filterAchievements(
   });
 }
 
+/**
+ * 実績の達成日時タイムスタンプを日本語の日付文字列（例: 2026年11月16日）に整形する純粋関数
+ * タイムスタンプが無効または未設定の場合は空文字を返します
+ */
+export function formatAchievementDate(timestamp: number | null | undefined): string {
+  if (timestamp == null || !Number.isFinite(timestamp)) {
+    return '';
+  }
+
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) {
+    return '';
+  }
+
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  return `${year}年${month}月${day}日`;
+}
+
+
