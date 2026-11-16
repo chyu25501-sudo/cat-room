@@ -176,12 +176,14 @@ export default function App() {
     let hasReceivedGift = false;
     let receivedGiftItem: GiftItem | null = null;
     let updatedAffectionLevel = currentAffectionLevel;
+    let isLevelUpCelebration = false;
     if (!isAnnoyed && nextLevel !== 'annoyed') {
       const baseAffectionExp = calculatePetAffectionExp(nextScore);
       const variedAffectionExp = calculateVariedAffectionExp(baseAffectionExp);
       const affRes = gainAffection(currentCatId, variedAffectionExp);
       updatedAffectionLevel = affRes.nextLevel;
       if (affRes.isLevelUp) {
+        isLevelUpCelebration = true;
         const gift = receiveGift(currentCatId);
         receivedGiftItem = gift;
         hasReceivedGift = true;
@@ -231,12 +233,15 @@ export default function App() {
     });
 
     // 機嫌レベルに応じた基本ピッチに自然な揺らぎを加えて鳴き声を再生（不機嫌時は低く鋭い威嚇音）
-    const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
-    const pitch = calculateVariedPitch(basePitch);
-    meow({
-      pitchMultiplier: pitch,
-      duration: isAnnoyed ? 0.45 : nextLevel === 'ecstatic' ? 0.75 : 0.65,
-    });
+    // ※なつき度上昇・レベルアップ時はファンファーレが鳴るため、音が被って濁るのを防ぐため通常のmeowは鳴らさない
+    if (!isLevelUpCelebration) {
+      const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
+      const pitch = calculateVariedPitch(basePitch);
+      meow({
+        pitchMultiplier: pitch,
+        duration: isAnnoyed ? 0.45 : nextLevel === 'ecstatic' ? 0.75 : 0.65,
+      });
+    }
 
     // 猫ごと・機嫌レベルに応じた個性あるメッセージを吹き出しに表示（不機嫌突入時・機嫌変化時は即時反映）
     const msg = getMeowMessageForMood(currentPreset, nextLevel);
@@ -278,15 +283,8 @@ export default function App() {
     // 猫の足元にごはん皿イラストを描画し、お食事中アニメーションを開始
     startFeeding(food);
 
-    // 美味しいごはんを食べた満足感を表現する明るい鳴き声
-    const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
-    const pitch = calculateVariedPitch(basePitch * 1.08);
-    meow({
-      pitchMultiplier: pitch,
-      duration: 0.65,
-    });
-
-    // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
+    // なつき度が上がった場合は画面中央に大きくお祝い演出＆かわいいファンファーレを表示
+    // ※レベルアップ時はファンファーレを主役に響かせるため、通常の食事鳴き声と音が被らないようにする
     let hasReceivedGift = false;
     let receivedGiftItem: GiftItem | null = null;
     if (affRes.isLevelUp) {
@@ -299,6 +297,14 @@ export default function App() {
         title: getAffectionTitle(affRes.nextLevel),
         isMaxBonus: affRes.isMaxBonus,
         gift,
+      });
+    } else {
+      // 通常時は美味しいごはんを食べた満足感を表現する明るい鳴き声を再生
+      const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
+      const pitch = calculateVariedPitch(basePitch * 1.08);
+      meow({
+        pitchMultiplier: pitch,
+        duration: 0.65,
       });
     }
 
@@ -374,15 +380,8 @@ export default function App() {
     // 猫の手前におもちゃイラストを描画し、遊び中アニメーションを開始
     startPlaying(toy);
 
-    // おもちゃに夢中になって興奮した高めの明るい鳴き声
-    const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
-    const pitch = calculateVariedPitch(basePitch * 1.15);
-    meow({
-      pitchMultiplier: pitch,
-      duration: 0.6,
-    });
-
-    // なつき度が上がった場合は画面中央に大きくお祝い演出を表示
+    // なつき度が上がった場合は画面中央に大きくお祝い演出＆かわいいファンファーレを表示
+    // ※レベルアップ時はファンファーレを主役に響かせるため、通常のおもちゃ鳴き声と音が被らないようにする
     let hasReceivedGift = false;
     let receivedGiftItem: GiftItem | null = null;
     if (affRes.isLevelUp) {
@@ -395,6 +394,14 @@ export default function App() {
         title: getAffectionTitle(affRes.nextLevel),
         isMaxBonus: affRes.isMaxBonus,
         gift,
+      });
+    } else {
+      // 通常時はおもちゃに夢中になって興奮した高めの明るい鳴き声を再生
+      const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
+      const pitch = calculateVariedPitch(basePitch * 1.15);
+      meow({
+        pitchMultiplier: pitch,
+        duration: 0.6,
       });
     }
 
