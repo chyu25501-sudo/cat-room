@@ -9,6 +9,7 @@ import {
   getAchievementDisplayInfo,
   filterAchievements,
   formatAchievementDate,
+  getAchievementProgress,
 } from './catAchievements.ts';
 import { AchievementItem, UnlockedAchievements } from '../types/achievement.ts';
 import { GiftInventory } from '../types/gift.ts';
@@ -851,6 +852,133 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
       expect(formatAchievementDate(undefined)).toBe('');
       expect(formatAchievementDate(NaN)).toBe('');
       expect(formatAchievementDate(Infinity)).toBe('');
+    });
+  });
+
+  describe('getAchievementProgress (未達成実績の目標進捗計算)', () => {
+    it('なでなで回数系の実績で現在の進捗が正しく分数文字列として算出されること', () => {
+      const item = ACHIEVEMENTS.find((a) => a.id === 'pet-count-100')!;
+      const context = {
+        careStats: {
+          totalPetCount: 42,
+          totalFeedCount: 0,
+          totalPlayCount: 0,
+          currentStreakDays: 0,
+          maxStreakDays: 0,
+          totalActiveDays: 0,
+          activeDates: [],
+          firstInteractionAt: null,
+          lastInteractionAt: null,
+          interactionsByCat: { black: 42, white: 0, calico: 0 },
+        },
+      };
+
+      const progress = getAchievementProgress(item, context);
+      expect(progress).not.toBeNull();
+      expect(progress?.current).toBe(42);
+      expect(progress?.target).toBe(100);
+      expect(progress?.unit).toBe('回');
+      expect(progress?.fractionText).toBe('42 / 100 回');
+    });
+
+    it('ごはん・おもちゃ回数系で進捗が正しく算出されること', () => {
+      const feedItem = ACHIEVEMENTS.find((a) => a.id === 'feed-count-100')!;
+      const playItem = ACHIEVEMENTS.find((a) => a.id === 'play-count-500')!;
+      const context = {
+        careStats: {
+          totalPetCount: 0,
+          totalFeedCount: 15,
+          totalPlayCount: 200,
+          currentStreakDays: 0,
+          maxStreakDays: 0,
+          totalActiveDays: 0,
+          activeDates: [],
+          firstInteractionAt: null,
+          lastInteractionAt: null,
+          interactionsByCat: { black: 0, white: 0, calico: 0 },
+        },
+      };
+
+      expect(getAchievementProgress(feedItem, context)?.fractionText).toBe('15 / 100 回');
+      expect(getAchievementProgress(playItem, context)?.fractionText).toBe('200 / 500 回');
+    });
+
+    it('連続日数・累計日数系で進捗が正しく算出されること', () => {
+      const streakItem = ACHIEVEMENTS.find((a) => a.id === 'streak-7')!;
+      const totalDaysItem = ACHIEVEMENTS.find((a) => a.id === 'total-days-30')!;
+      const context = {
+        careStats: {
+          totalPetCount: 0,
+          totalFeedCount: 0,
+          totalPlayCount: 0,
+          currentStreakDays: 3,
+          maxStreakDays: 5,
+          totalActiveDays: 12,
+          activeDates: [],
+          firstInteractionAt: null,
+          lastInteractionAt: null,
+          interactionsByCat: { black: 0, white: 0, calico: 0 },
+        },
+      };
+
+      // streakは current と max の大きい方（5）が反映される
+      expect(getAchievementProgress(streakItem, context)?.fractionText).toBe('5 / 7 日');
+      expect(getAchievementProgress(totalDaysItem, context)?.fractionText).toBe('12 / 30 日');
+    });
+
+    it('おくりもの総個数・種類数系で進捗が正しく算出されること', () => {
+      const giftCountItem = ACHIEVEMENTS.find((a) => a.id === 'gift-count-20')!;
+      const uniqueGiftsItem = ACHIEVEMENTS.find((a) => a.id === 'unique-gifts-10')!;
+      const context = {
+        giftInventory: {
+          pebble: { giftId: 'pebble', count: 3, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          feather: { giftId: 'feather', count: 2, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        },
+      };
+
+      // 総個数 3 + 2 = 5
+      expect(getAchievementProgress(giftCountItem, context)?.fractionText).toBe('5 / 20 個');
+      // 種類数 2種類
+      expect(getAchievementProgress(uniqueGiftsItem, context)?.fractionText).toBe('2 / 10 種類');
+    });
+
+    it('なつき度・全猫ふれあいで進捗が正しく算出されること', () => {
+      const affItem = ACHIEVEMENTS.find((a) => a.id === 'affection-level-5')!;
+      const allCatsItem = ACHIEVEMENTS.find((a) => a.id === 'all-cats-loved')!;
+      const context = {
+        maxAffectionLevel: 3,
+        careStats: {
+          totalPetCount: 10,
+          totalFeedCount: 0,
+          totalPlayCount: 0,
+          currentStreakDays: 0,
+          maxStreakDays: 0,
+          totalActiveDays: 0,
+          activeDates: [],
+          firstInteractionAt: null,
+          lastInteractionAt: null,
+          interactionsByCat: { black: 5, white: 5, calico: 0 },
+        },
+      };
+
+      expect(getAchievementProgress(affItem, context)?.fractionText).toBe('3 / 5 Lv');
+      // 黒・白の2匹とふれあい済み
+      expect(getAchievementProgress(allCatsItem, context)?.fractionText).toBe('2 / 3 匹');
+    });
+
+    it('隠し実績（isHidden: true）や初回系実績、瞬間スコア系実績は null を返すこと', () => {
+      const hiddenItem = ACHIEVEMENTS.find((a) => a.id === 'hidden-pebble-set')!;
+      const firstPetItem = ACHIEVEMENTS.find((a) => a.id === 'first-pet')!;
+      const moodItem = ACHIEVEMENTS.find((a) => a.id === 'mood-ecstatic')!;
+
+      expect(getAchievementProgress(hiddenItem)).toBeNull();
+      expect(getAchievementProgress(firstPetItem)).toBeNull();
+      expect(getAchievementProgress(moodItem)).toBeNull();
+    });
+
+    it('コンテキスト未指定時もクラッシュせず安全に 0 で計算されること', () => {
+      const petItem = ACHIEVEMENTS.find((a) => a.id === 'pet-count-100')!;
+      expect(getAchievementProgress(petItem, undefined)?.fractionText).toBe('0 / 100 回');
     });
   });
 });

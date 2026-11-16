@@ -1,3 +1,6 @@
+import { CareStats } from './journal.ts';
+import { GiftInventory } from './gift.ts';
+
 /**
  * 実績（アチーブメント）の識別子
  */
@@ -128,3 +131,32 @@ export interface AchievementToast {
  * 実績画面での達成状況絞り込み条件（'all': すべて, 'unlocked': 達成済みのみ, 'locked': 未達成のみ）
  */
 export type AchievementStatusFilter = 'all' | 'unlocked' | 'locked';
+
+/**
+ * 実績の進捗度情報
+ */
+export interface AchievementProgress {
+  /** 現在の達成数値 */
+  current: number;
+  /** 目標数値 */
+  target: number;
+  /** 数値の単位（例: '回', '日', '個', '種類', 'Lv', '匹'） */
+  unit: string;
+  /** 分数形式の表示文字列（例: '25 / 100 回'） */
+  fractionText: string;
+}
+
+/**
+ * 実績の進捗状況を計算するためのデータコンテキスト
+ */
+export interface AchievementProgressContext {
+  /** ふり返り手帳のお世話統計データ */
+  careStats?: CareStats;
+  /** 現在のおくりものインベントリ */
+  giftInventory?: GiftInventory;
+  /** 全猫の中の最高なつき度レベル */
+  maxAffectionLevel?: number;
+  /** 全猫の中の最低なつき度レベル */
+  minAffectionLevel?: number;
+}
+

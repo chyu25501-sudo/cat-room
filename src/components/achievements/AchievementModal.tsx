@@ -4,6 +4,7 @@ import {
   AchievementItem,
   UnlockedAchievements,
   AchievementStatusFilter,
+  AchievementProgressContext,
 } from '../../types/achievement.ts';
 import {
   ACHIEVEMENTS,
@@ -11,6 +12,7 @@ import {
   getAchievementDisplayInfo,
   filterAchievements,
   formatAchievementDate,
+  getAchievementProgress,
 } from '../../utils/catAchievements.ts';
 import { TrophyIcon } from './AchievementButton.tsx';
 
@@ -23,6 +25,8 @@ export interface AchievementModalProps {
   unlocked: UnlockedAchievements;
   /** 実績カタログ（デフォルト: ACHIEVEMENTS） */
   catalog?: readonly AchievementItem[];
+  /** 実績進捗計算用データコンテキスト（手帳統計、贈り物インベントリ、なつき度など） */
+  progressContext?: AchievementProgressContext;
 }
 
 /**
@@ -64,6 +68,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
   onClose,
   unlocked,
   catalog = ACHIEVEMENTS,
+  progressContext,
 }) => {
   // 選択中のカテゴリフィルター（'all' または各カテゴリ文字列）
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -266,6 +271,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
               const isUnlocked = !!record;
               const displayInfo = getAchievementDisplayInfo(item, isUnlocked);
               const formattedDate = isUnlocked ? formatAchievementDate(record?.unlockedAt) : '';
+              const progress = !isUnlocked ? getAchievementProgress(item, progressContext) : null;
 
               return (
                 <div
@@ -288,7 +294,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                   <AchievementItemIcon iconType={item.iconType} isUnlocked={isUnlocked} />
                 </div>
 
-                {/* タイトルと説明文と達成日 */}
+                {/* タイトルと説明文と達成日・進捗度 */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <h4
@@ -341,6 +347,33 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                     >
                       <Calendar className="w-3 h-3 text-amber-600/80 shrink-0" />
                       <span>達成日: {formattedDate}</span>
+                    </div>
+                  )}
+
+                  {/* 未達成かつ数値目標のある実績の進捗度（分数およびプログレスバー） */}
+                  {!isUnlocked && progress && (
+                    <div
+                      data-testid={`achievement-progress-${item.id}`}
+                      className="mt-2 pt-1.5 border-t border-stone-200/60"
+                    >
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="text-stone-500 font-medium">現在の進捗</span>
+                        <span
+                          data-testid={`achievement-progress-text-${item.id}`}
+                          className="font-bold text-amber-700 font-mono"
+                        >
+                          {progress.fractionText}
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-stone-200/80 rounded-full overflow-hidden">
+                        <div
+                          data-testid={`achievement-progress-bar-${item.id}`}
+                          className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${Math.min(100, Math.max(0, (progress.current / progress.target) * 100))}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

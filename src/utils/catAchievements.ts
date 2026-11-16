@@ -5,12 +5,15 @@ import {
   AchievementRecord,
   UnlockedAchievements,
   AchievementStatusFilter,
+  AchievementProgress,
+  AchievementProgressContext,
 } from '../types/achievement.ts';
 import { CatMoodLevel } from '../types/mood.ts';
 import { CatFullnessLevel } from '../types/fullness.ts';
 import { CareStats } from '../types/journal.ts';
 import { GiftItem, GiftInventory } from '../types/gift.ts';
-import { CAT_GIFTS } from './catGifts.ts';
+import { CatId } from '../types/cat.ts';
+import { CAT_GIFTS, getTotalGiftCount, getAcquiredGiftTypeCount } from './catGifts.ts';
 
 /**
  * 実績カテゴリ情報
@@ -1335,5 +1338,140 @@ export function formatAchievementDate(timestamp: number | null | undefined): str
   const day = d.getDate();
   return `${year}年${month}月${day}日`;
 }
+
+/**
+ * 実績進捗のオブジェクトを生成する内部ヘルパー
+ */
+function createProgress(currentRaw: number, target: number, unit: string): AchievementProgress {
+  const current = Math.min(Math.max(0, currentRaw), target);
+  return {
+    current,
+    target,
+    unit,
+    fractionText: `${current} / ${target} ${unit}`,
+  };
+}
+
+/**
+ * 未達成の通常実績について、回数や日数などの進捗状況（分数表示用）を計算する純粋関数
+ * 隠し実績や初回達成型（0か1のアクション）など、進捗数値の対象外となる実績は null を返します
+ */
+export function getAchievementProgress(
+  item: AchievementItem,
+  context?: AchievementProgressContext
+): AchievementProgress | null {
+  // 隠し実績は獲得前は伏せ字（？？？）のため進捗は非表示
+  if (item.isHidden) {
+    return null;
+  }
+
+  const careStats = context?.careStats;
+  const giftInventory = context?.giftInventory;
+
+  switch (item.id) {
+    // --- なでた総回数系 ---
+    case 'pet-count-100':
+      return createProgress(careStats?.totalPetCount ?? 0, 100, '回');
+    case 'pet-count-500':
+      return createProgress(careStats?.totalPetCount ?? 0, 500, '回');
+    case 'pet-count-1000':
+      return createProgress(careStats?.totalPetCount ?? 0, 1000, '回');
+    case 'pet-count-5000':
+      return createProgress(careStats?.totalPetCount ?? 0, 5000, '回');
+    case 'pet-count-10000':
+      return createProgress(careStats?.totalPetCount ?? 0, 10000, '回');
+
+    // --- ごはんをあげた総回数系 ---
+    case 'feed-count-100':
+      return createProgress(careStats?.totalFeedCount ?? 0, 100, '回');
+    case 'feed-count-500':
+      return createProgress(careStats?.totalFeedCount ?? 0, 500, '回');
+    case 'feed-count-1000':
+      return createProgress(careStats?.totalFeedCount ?? 0, 1000, '回');
+    case 'feed-count-5000':
+      return createProgress(careStats?.totalFeedCount ?? 0, 5000, '回');
+    case 'feed-count-10000':
+      return createProgress(careStats?.totalFeedCount ?? 0, 10000, '回');
+
+    // --- おもちゃで遊んだ総回数系 ---
+    case 'play-count-100':
+      return createProgress(careStats?.totalPlayCount ?? 0, 100, '回');
+    case 'play-count-500':
+      return createProgress(careStats?.totalPlayCount ?? 0, 500, '回');
+    case 'play-count-1000':
+      return createProgress(careStats?.totalPlayCount ?? 0, 1000, '回');
+    case 'play-count-5000':
+      return createProgress(careStats?.totalPlayCount ?? 0, 5000, '回');
+    case 'play-count-10000':
+      return createProgress(careStats?.totalPlayCount ?? 0, 10000, '回');
+
+    // --- 連続ふれあい日数系 (Streak) ---
+    case 'streak-3': {
+      const currentStreak = Math.max(careStats?.currentStreakDays ?? 0, careStats?.maxStreakDays ?? 0);
+      return createProgress(currentStreak, 3, '日');
+    }
+    case 'streak-7': {
+      const currentStreak = Math.max(careStats?.currentStreakDays ?? 0, careStats?.maxStreakDays ?? 0);
+      return createProgress(currentStreak, 7, '日');
+    }
+    case 'streak-14': {
+      const currentStreak = Math.max(careStats?.currentStreakDays ?? 0, careStats?.maxStreakDays ?? 0);
+      return createProgress(currentStreak, 14, '日');
+    }
+    case 'streak-30': {
+      const currentStreak = Math.max(careStats?.currentStreakDays ?? 0, careStats?.maxStreakDays ?? 0);
+      return createProgress(currentStreak, 30, '日');
+    }
+
+    // --- 合計日数系 ---
+    case 'total-days-7':
+      return createProgress(careStats?.totalActiveDays ?? 0, 7, '日');
+    case 'total-days-14':
+      return createProgress(careStats?.totalActiveDays ?? 0, 14, '日');
+    case 'total-days-30':
+      return createProgress(careStats?.totalActiveDays ?? 0, 30, '日');
+
+    // --- おくりものの総数系 ---
+    case 'gift-count-20':
+      return createProgress(getTotalGiftCount(giftInventory ?? {}), 20, '個');
+    case 'gift-count-100':
+      return createProgress(getTotalGiftCount(giftInventory ?? {}), 100, '個');
+    case 'gift-count-222':
+      return createProgress(getTotalGiftCount(giftInventory ?? {}), 222, '個');
+    case 'gift-count-500':
+      return createProgress(getTotalGiftCount(giftInventory ?? {}), 500, '個');
+    case 'gift-count-1000':
+      return createProgress(getTotalGiftCount(giftInventory ?? {}), 1000, '個');
+
+    // --- おくりもの種類数系 ---
+    case 'unique-gifts-10':
+      return createProgress(getAcquiredGiftTypeCount(giftInventory ?? {}, CAT_GIFTS), 10, '種類');
+    case 'unique-gifts-40':
+      return createProgress(getAcquiredGiftTypeCount(giftInventory ?? {}, CAT_GIFTS), 40, '種類');
+
+    // --- なつき度レベル系 ---
+    case 'affection-level-5':
+      return createProgress(context?.maxAffectionLevel ?? 1, 5, 'Lv');
+    case 'affection-level-10':
+      return createProgress(context?.maxAffectionLevel ?? 1, 10, 'Lv');
+    case 'all-cats-affection-3':
+      return createProgress(context?.minAffectionLevel ?? 1, 3, 'Lv');
+    case 'all-cats-affection-10':
+      return createProgress(context?.minAffectionLevel ?? 1, 10, 'Lv');
+
+    // --- 全猫ふれあい ---
+    case 'all-cats-loved': {
+      const byCat = careStats?.interactionsByCat ?? {};
+      const lovedCatsCount = (['black', 'white', 'calico'] as const).filter(
+        (c) => (byCat[c] ?? 0) > 0
+      ).length;
+      return createProgress(lovedCatsCount, 3, '匹');
+    }
+
+    default:
+      return null;
+  }
+}
+
 
 

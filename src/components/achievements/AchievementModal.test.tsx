@@ -297,4 +297,58 @@ describe('AchievementModal コンポーネント', () => {
     // 未達成の first-play には達成日が表示されないこと
     expect(screen.queryByTestId('achievement-date-first-play')).not.toBeInTheDocument();
   });
+
+  it('未達成の通常の実績のうち、回数や日数などの目標があるものには現在の進捗度が分数の形で表示されること', () => {
+    const unlocked: UnlockedAchievements = {
+      'pet-count-100': { id: 'pet-count-100', unlockedAt: 1000 }, // 達成済み
+    };
+
+    const progressContext = {
+      careStats: {
+        totalPetCount: 150, // pet-count-500 用 (150/500回)
+        totalFeedCount: 45, // feed-count-100 用 (45/100回)
+        totalPlayCount: 10,
+        currentStreakDays: 3,
+        maxStreakDays: 4, // streak-7 用 (4/7日)
+        totalActiveDays: 5,
+        activeDates: [],
+        firstInteractionAt: null,
+        lastInteractionAt: null,
+        interactionsByCat: { black: 150, white: 0, calico: 0 },
+      },
+    };
+
+    render(
+      <AchievementModal
+        isOpen={true}
+        onClose={vi.fn()}
+        unlocked={unlocked}
+        progressContext={progressContext}
+      />
+    );
+
+    // 1. 未達成の通常実績 (pet-count-500) に進捗度が分数で表示されていること
+    const pet500Progress = screen.getByTestId('achievement-progress-pet-count-500');
+    expect(pet500Progress).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-progress-text-pet-count-500')).toHaveTextContent(
+      '150 / 500 回'
+    );
+    expect(screen.getByTestId('achievement-progress-bar-pet-count-500')).toBeInTheDocument();
+
+    // 2. 未達成の通常実績 (feed-count-100) に進捗度が分数で表示されていること
+    const feed100Progress = screen.getByTestId('achievement-progress-feed-count-100');
+    expect(feed100Progress).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-progress-text-feed-count-100')).toHaveTextContent(
+      '45 / 100 回'
+    );
+
+    // 3. 達成済みの実績 (pet-count-100) には進捗度は表示されないこと
+    expect(screen.queryByTestId('achievement-progress-pet-count-100')).not.toBeInTheDocument();
+
+    // 4. 初回達成型（first-play）には進捗度は表示されないこと
+    expect(screen.queryByTestId('achievement-progress-first-play')).not.toBeInTheDocument();
+
+    // 5. 隠し実績（hidden-pebble-set）には未達成であっても進捗度は表示されないこと
+    expect(screen.queryByTestId('achievement-progress-hidden-pebble-set')).not.toBeInTheDocument();
+  });
 });

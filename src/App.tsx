@@ -647,6 +647,12 @@ export default function App() {
         isOpen={isAchievementModalOpen}
         onClose={() => setIsAchievementModalOpen(false)}
         unlocked={unlockedAchievements}
+        progressContext={{
+          careStats: careJournalStats,
+          giftInventory: inventory,
+          maxAffectionLevel: getMaxAffectionLevel(),
+          minAffectionLevel: getMinAffectionLevel(),
+        }}
       />
 
       {/* ふり返り手帳モーダル画面 */}
