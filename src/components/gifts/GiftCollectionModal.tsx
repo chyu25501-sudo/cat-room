@@ -107,10 +107,10 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
         className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px] transition-opacity"
       />
 
-      {/* モーダル本体カード（将来種類が増えても高さを制限し内部スクロール） */}
-      <div className="relative z-10 w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-orange-100 overflow-hidden flex flex-col max-h-[88vh]">
+      {/* モーダル本体カード（将来種類が増えても高さを一定に保ち、一覧のみ内部スクロール・詳細固定） */}
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-orange-100 overflow-hidden flex flex-col h-[85vh] max-h-[88vh]">
         {/* モーダルヘッダー */}
-        <div className="px-5 py-3.5 border-b border-orange-100 flex items-center justify-between bg-gradient-to-r from-amber-50/80 via-orange-50/60 to-amber-50/80">
+        <div className="px-5 py-3.5 border-b border-orange-100 flex items-center justify-between bg-gradient-to-r from-amber-50/80 via-orange-50/60 to-amber-50/80 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-white shadow-2xs border border-orange-200 flex items-center justify-center text-amber-600 shrink-0">
               <TreasureChestIcon className="w-5 h-5" />
@@ -152,13 +152,13 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
           </button>
         </div>
 
-        {/* モーダルメインコンテンツ（表グリッドと下部詳細パネル） */}
-        <div className="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-3.5">
-          {/* ウィンドウ上部：レアリティ絞り込みフィルター（今後レアリティが増加しても動的拡張可能） */}
+        {/* ウィンドウ上部：絞り込みフィルター（レアリティ ＆ 入手状況）（上部に固定） */}
+        <div className="px-4 sm:px-5 py-2.5 border-b border-orange-100/70 flex flex-col gap-2 shrink-0 bg-stone-50/50">
+          {/* レアリティ絞り込みフィルター（今後レアリティが増加しても動的拡張可能） */}
           <div
             data-testid="gift-rarity-filter"
             aria-label="レアリティ絞り込み"
-            className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar shrink-0"
+            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0"
           >
             {/* すべて */}
             <button
@@ -200,11 +200,11 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
             })}
           </div>
 
-          {/* ウィンドウ上部：入手状況絞り込みフィルター（すべて / 入手済みのみ） */}
+          {/* 入手状況絞り込みフィルター（すべて / 入手済みのみ） */}
           <div
             data-testid="gift-acquisition-filter"
             aria-label="入手状況絞り込み"
-            className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar shrink-0"
+            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0"
           >
             <button
               type="button"
@@ -233,6 +233,23 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
               入手済みのみ ({rarityAcquiredCount})
             </button>
           </div>
+        </div>
+
+        {/* おくりもの一覧スクロールエリア（ここだけが内部スクロール可能） */}
+        <div
+          data-testid="gift-grid-scroll-area"
+          className="p-4 sm:p-5 flex-1 overflow-y-auto min-h-0 flex flex-col gap-3"
+        >
+          {/* まだ1つもおくりものを受け取っていない時のサポート案内 */}
+          {totalCount === 0 && (
+            <div
+              data-testid="gift-collection-empty"
+              className="p-3 bg-amber-50/80 rounded-xl border border-amber-200/70 text-center text-xs text-stone-600 flex items-center justify-center gap-1.5 shrink-0"
+            >
+              <span>🎁</span>
+              <span>まだおくりものがありません。猫ちゃんをなでたりお世話してなつき度を上げてみてね！</span>
+            </div>
+          )}
 
           {/* おくりものの表（グリッド並び）：角丸正方形の中にアイコン、右下に個数を表示 */}
           <div className="flex flex-col">
@@ -377,12 +394,14 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
               </div>
             )}
           </div>
+        </div>
 
-          {/* ウィンドウ下側の詳細な説明エリア */}
-          {selectedGift && (
+        {/* ウィンドウ下部に常に表示される詳細パネル（スクロールせず常時閲覧可能） */}
+        {selectedGift && (
+          <div className="px-4 sm:px-5 py-2.5 sm:py-3 border-t border-orange-100 bg-white/95 shrink-0">
             <div
               data-testid="gift-detail-panel"
-              className="mt-auto bg-gradient-to-br from-amber-50/80 via-orange-50/50 to-stone-50 border border-orange-200/90 rounded-2xl p-3.5 sm:p-4 shadow-xs text-left"
+              className="bg-gradient-to-br from-amber-50/80 via-orange-50/50 to-stone-50 border border-orange-200/90 rounded-2xl p-3 sm:p-3.5 shadow-xs text-left"
             >
               <div className="flex items-start gap-3">
                 {/* 詳細アイコン */}
@@ -511,22 +530,11 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                 </div>
               </div>
             </div>
-          )}
-
-          {/* まだ1つもおくりものを受け取っていない時のサポート案内 */}
-          {totalCount === 0 && (
-            <div
-              data-testid="gift-collection-empty"
-              className="p-3 bg-amber-50/80 rounded-xl border border-amber-200/70 text-center text-xs text-stone-600 flex items-center justify-center gap-1.5"
-            >
-              <span>🎁</span>
-              <span>まだおくりものがありません。猫ちゃんをなでたりお世話してなつき度を上げてみてね！</span>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* モーダルフッター */}
-        <div className="px-5 py-3 border-t border-orange-100 bg-stone-50/80 text-center text-[11px] text-stone-400 flex items-center justify-center gap-1">
+        <div className="px-5 py-2.5 border-t border-orange-100 bg-stone-50/80 text-center text-[11px] text-stone-400 flex items-center justify-center gap-1 shrink-0">
           <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
           <span>たくさんふれあって、おくりものをあつめてみよう！</span>
         </div>

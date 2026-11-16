@@ -577,5 +577,23 @@ describe('GiftCollectionModal コンポーネント', () => {
       expect(allBtn).toHaveTextContent('すべて (60)');
       expect(acquiredBtn).toHaveTextContent('入手済みのみ (2)');
     });
+
+    it('おくりもの一覧のみが内部スクロール領域（overflow-y-auto）内に配置され、詳細パネルはスクロール領域外（下部）に常時表示されること', () => {
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
+
+      const scrollArea = screen.getByTestId('gift-grid-scroll-area');
+      const detailPanel = screen.getByTestId('gift-detail-panel');
+      const gridTable = screen.getByTestId('gift-grid-table');
+
+      // スクロール領域に overflow-y-auto が設定されていること
+      expect(scrollArea).toHaveClass('overflow-y-auto');
+
+      // おくりものグリッドはスクロール領域の内側にあること
+      expect(scrollArea).toContainElement(gridTable);
+
+      // 詳細パネルはスクロール領域の外側に配置され、画面スクロールせずとも常に下部に表示されること
+      expect(scrollArea).not.toContainElement(detailPanel);
+      expect(detailPanel).toBeInTheDocument();
+    });
   });
 });
