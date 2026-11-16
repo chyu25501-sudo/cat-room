@@ -7,6 +7,7 @@ import {
   getAcquiredGiftTypeCount,
   getAvailableRarities,
   getGiftRarityLabel,
+  getGiftRarityShortLabel,
   filterGifts,
 } from '../../utils/catGifts.ts';
 import { TreasureChestIcon } from './TreasureChestButton.tsx';
@@ -174,10 +175,10 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
               すべて ({catalog.length})
             </button>
 
-            {/* 動的抽出された各レアリティ（通常、レア、今後追加されるレアリティ） */}
+            {/* 動的抽出された各レアリティ（C, R, SR, UR 等） */}
             {availableRarities.map((rarity) => {
               const isSelected = selectedRarity === rarity;
-              const label = getGiftRarityLabel(rarity);
+              const shortLabel = getGiftRarityShortLabel(rarity);
               const count = catalog.filter((item) => (item.rarity ?? 'common') === rarity).length;
 
               return (
@@ -193,7 +194,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                       : 'bg-white/90 text-stone-600 border-orange-200/80 hover:bg-orange-50'
                   }`}
                 >
-                  {label} ({count})
+                  {shortLabel} ({count})
                 </button>
               );
             })}

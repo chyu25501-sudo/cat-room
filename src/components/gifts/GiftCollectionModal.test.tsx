@@ -326,7 +326,7 @@ describe('GiftCollectionModal コンポーネント', () => {
   });
 
   describe('ウィンドウ上部のレアリティ絞り込みフィルター', () => {
-    it('上部に「すべて」「通常」「レア」「スーパーレア」「ウルトラレア」のフィルターボタンが表示され、件数が表示されること', () => {
+    it('上部に「すべて」「C」「R」「SR」「UR」のフィルターボタンが表示され、件数が表示されること', () => {
       render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
 
       const filterBar = screen.getByTestId('gift-rarity-filter');
@@ -339,10 +339,10 @@ describe('GiftCollectionModal コンポーネント', () => {
       const ultraRareButton = screen.getByTestId('filter-rarity-ultra-rare');
 
       expect(allButton).toHaveTextContent('すべて (60)');
-      expect(commonButton).toHaveTextContent('通常 (45)');
-      expect(rareButton).toHaveTextContent('レア (6)');
-      expect(superRareButton).toHaveTextContent('スーパーレア (6)');
-      expect(ultraRareButton).toHaveTextContent('ウルトラレア (3)');
+      expect(commonButton).toHaveTextContent('C (45)');
+      expect(rareButton).toHaveTextContent('R (6)');
+      expect(superRareButton).toHaveTextContent('SR (6)');
+      expect(ultraRareButton).toHaveTextContent('UR (3)');
 
       // 初期状態では「すべて」が選択されている
       expect(allButton).toHaveAttribute('aria-pressed', 'true');
@@ -352,7 +352,7 @@ describe('GiftCollectionModal コンポーネント', () => {
       expect(ultraRareButton).toHaveAttribute('aria-pressed', 'false');
     });
 
-    it('「通常」ボタンをクリックするとレア以上のアイテムが非表示になり、通常アイテムのみ表示されること', () => {
+    it('「C」ボタンをクリックするとレア以上のアイテムが非表示になり、通常アイテムのみ表示されること', () => {
       render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={{}} />);
 
       const commonButton = screen.getByTestId('filter-rarity-common');
@@ -436,9 +436,9 @@ describe('GiftCollectionModal コンポーネント', () => {
 
       // 4種類すべてのフィルターボタンが自動生成されること
       expect(screen.getByTestId('filter-rarity-all')).toHaveTextContent('すべて (4)');
-      expect(screen.getByTestId('filter-rarity-common')).toHaveTextContent('通常 (1)');
-      expect(screen.getByTestId('filter-rarity-rare')).toHaveTextContent('レア (1)');
-      expect(screen.getByTestId('filter-rarity-super-rare')).toHaveTextContent('スーパーレア (1)');
+      expect(screen.getByTestId('filter-rarity-common')).toHaveTextContent('C (1)');
+      expect(screen.getByTestId('filter-rarity-rare')).toHaveTextContent('R (1)');
+      expect(screen.getByTestId('filter-rarity-super-rare')).toHaveTextContent('SR (1)');
       expect(screen.getByTestId('filter-rarity-legendary')).toHaveTextContent('legendary (1)');
 
       // 新しいレアリティ「legendary」をクリック

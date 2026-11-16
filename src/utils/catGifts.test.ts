@@ -16,6 +16,7 @@ import {
   DEFAULT_SUPER_RARE_GIFT_WEIGHT,
   DEFAULT_ULTRA_RARE_GIFT_WEIGHT,
   getGiftRarityLabel,
+  getGiftRarityShortLabel,
   getAvailableRarities,
   GIFT_RARITY_METAS,
   filterGifts,
@@ -427,6 +428,15 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       expect(getGiftRarityLabel(undefined)).toBe('通常');
       // 将来の未登録レアリティでも安全にフォールバックすること
       expect(getGiftRarityLabel('legendary')).toBe('legendary');
+    });
+
+    it('getGiftRarityShortLabel が既知のレアリティに対応する短縮記号（C, R, SR, UR）を返し、未登録時はフォールバックすること', () => {
+      expect(getGiftRarityShortLabel('common')).toBe('C');
+      expect(getGiftRarityShortLabel('rare')).toBe('R');
+      expect(getGiftRarityShortLabel('super-rare')).toBe('SR');
+      expect(getGiftRarityShortLabel('ultra-rare')).toBe('UR');
+      expect(getGiftRarityShortLabel(undefined)).toBe('C');
+      expect(getGiftRarityShortLabel('legendary')).toBe('legendary');
     });
 
     it('getAvailableRarities がカタログ内に存在するユニークなレアリティ一覧を順番通りに返すこと', () => {

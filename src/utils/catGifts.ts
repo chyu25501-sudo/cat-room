@@ -815,6 +815,7 @@ export function sanitizeGiftInventory(raw: unknown): GiftInventory {
 export interface GiftRarityMeta {
   id: string;
   label: string;
+  shortLabel: string;
   badgeClass: string;
 }
 
@@ -822,21 +823,25 @@ export const GIFT_RARITY_METAS: Record<string, GiftRarityMeta> = {
   common: {
     id: 'common',
     label: '通常',
+    shortLabel: 'C',
     badgeClass: 'bg-stone-100 text-stone-700 border-stone-200',
   },
   rare: {
     id: 'rare',
     label: 'レア',
+    shortLabel: 'R',
     badgeClass: 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300',
   },
   'super-rare': {
     id: 'super-rare',
     label: 'スーパーレア',
+    shortLabel: 'SR',
     badgeClass: 'bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 border-purple-300',
   },
   'ultra-rare': {
     id: 'ultra-rare',
     label: 'ウルトラレア',
+    shortLabel: 'UR',
     badgeClass: 'bg-gradient-to-r from-pink-100 via-purple-100 to-cyan-100 text-rose-900 border-rose-300',
   },
 };
@@ -848,6 +853,15 @@ export const GIFT_RARITY_METAS: Record<string, GiftRarityMeta> = {
 export function getGiftRarityLabel(rarity?: string): string {
   if (!rarity) return '通常';
   return GIFT_RARITY_METAS[rarity]?.label ?? rarity;
+}
+
+/**
+ * レアリティの短縮表示記号（C, R, SR, UR）を取得する純粋関数
+ * 絞り込みタブなどの省スペース・すっきりとした表示用
+ */
+export function getGiftRarityShortLabel(rarity?: string): string {
+  if (!rarity) return 'C';
+  return GIFT_RARITY_METAS[rarity]?.shortLabel ?? rarity;
 }
 
 /**
