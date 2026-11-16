@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { CareSidebar } from './CareSidebar.tsx';
 import { FOOD_ITEMS, TOY_ITEMS } from '../../utils/catCare.ts';
@@ -59,7 +59,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
 
     // カリカリ
     expect(screen.getByText('カリカリ')).toBeInTheDocument();
-    expect(screen.getByTestId('food-badge-icon-kibble')).toHaveTextContent('🥣');
+    expect(within(screen.getByTestId('food-badge-icon-kibble')).getByTestId('food-icon-kibble')).toBeInTheDocument();
     expect(screen.queryByTestId('food-name-icon-kibble')).not.toBeInTheDocument();
     expect(screen.getByText('定番の総合栄養食')).toBeInTheDocument();
     expect(screen.getByText('+18%')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
 
     // ねこ缶
     expect(screen.getByText('ねこ缶（まぐろ）')).toBeInTheDocument();
-    expect(screen.getByTestId('food-badge-icon-canned')).toHaveTextContent('🐟');
+    expect(within(screen.getByTestId('food-badge-icon-canned')).getByTestId('food-icon-canned')).toBeInTheDocument();
     expect(screen.queryByTestId('food-name-icon-canned')).not.toBeInTheDocument();
     expect(screen.getByText('ジューシーなごちそう')).toBeInTheDocument();
     expect(screen.getByText('+28%')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
 
     // おやつピューレ
     expect(screen.getByText('おやつピューレ')).toBeInTheDocument();
-    expect(screen.getByTestId('food-badge-icon-treat')).toHaveTextContent('🍦');
+    expect(within(screen.getByTestId('food-badge-icon-treat')).getByTestId('food-icon-treat')).toBeInTheDocument();
     expect(screen.queryByTestId('food-name-icon-treat')).not.toBeInTheDocument();
     expect(screen.getByText('大好物のとろとろおやつ')).toBeInTheDocument();
     expect(screen.getByText('+38%')).toBeInTheDocument();
@@ -137,19 +137,19 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
 
     // ねこじゃらし
     expect(screen.getByText('ねこじゃらし')).toBeInTheDocument();
-    expect(screen.getByTestId('toy-badge-icon-teaser')).toHaveTextContent('🪶');
+    expect(within(screen.getByTestId('toy-badge-icon-teaser')).getByTestId('toy-icon-teaser')).toBeInTheDocument();
     expect(screen.getByText('ふわふわ羽根で狩猟本能刺激')).toBeInTheDocument();
     expect(screen.getByText('+16%')).toBeInTheDocument();
 
     // 毛糸ボール
     expect(screen.getByText('毛糸ボール')).toBeInTheDocument();
-    expect(screen.getByTestId('toy-badge-icon-ball')).toHaveTextContent('🧶');
+    expect(within(screen.getByTestId('toy-badge-icon-ball')).getByTestId('toy-icon-ball')).toBeInTheDocument();
     expect(screen.getByText('コロコロ転がしてケリケリ')).toBeInTheDocument();
     expect(screen.getByText('+26%')).toBeInTheDocument();
 
     // レーザーポインター
     expect(screen.getByText('レーザーポインター')).toBeInTheDocument();
-    expect(screen.getByTestId('toy-badge-icon-laser')).toHaveTextContent('🔴');
+    expect(within(screen.getByTestId('toy-badge-icon-laser')).getByTestId('toy-icon-laser')).toBeInTheDocument();
     expect(screen.getByText('すばやい光を俊敏に追跡')).toBeInTheDocument();
     expect(screen.getByText('+36%')).toBeInTheDocument();
 

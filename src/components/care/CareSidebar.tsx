@@ -12,6 +12,7 @@ import {
   isToyUnlocked,
   getUnlockRequirementText,
 } from '../../utils/catCare.ts';
+import { CareItemIcon } from './CareItemIcon.tsx';
 
 export interface CareSidebarProps {
   /** 現在選択されている猫の名前（例: 「くろねこ」） */
@@ -236,15 +237,14 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                         <div className="flex items-center gap-2.5">
                           <span
                             data-testid={`food-badge-icon-${food.id}`}
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl border shadow-2xs select-none shrink-0 ${
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-2xs select-none shrink-0 ${
                               !unlocked
-                                ? 'bg-stone-100 border-stone-300 text-stone-400'
-                                : 'bg-amber-50 border-amber-200'
+                                ? 'bg-stone-100 border-stone-300 opacity-60'
+                                : 'bg-white border-amber-200/90 shadow-xs'
                             }`}
-                            role="img"
                             aria-label={food.name}
                           >
-                            {food.icon}
+                            <CareItemIcon type="food" id={food.id} className="w-7 h-7" />
                           </span>
                           <div>
                             <div className="flex items-center gap-1.5">
@@ -394,15 +394,14 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                         <div className="flex items-center gap-2.5">
                           <span
                             data-testid={`toy-badge-icon-${toy.id}`}
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl border shadow-2xs select-none shrink-0 ${
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-2xs select-none shrink-0 ${
                               !unlocked
-                                ? 'bg-stone-100 border-stone-300 text-stone-400'
-                                : 'bg-amber-50 border-amber-200'
+                                ? 'bg-stone-100 border-stone-300 opacity-60'
+                                : 'bg-white border-amber-200/90 shadow-xs'
                             }`}
-                            role="img"
                             aria-label={toy.name}
                           >
-                            {toy.icon}
+                            <CareItemIcon type="toy" id={toy.id} className="w-7 h-7" />
                           </span>
                           <div>
                             <div className="flex items-center gap-1.5">
