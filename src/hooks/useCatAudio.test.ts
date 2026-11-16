@@ -31,4 +31,30 @@ describe('useCatAudio フック', () => {
     expect(result.current.isPlaying).toBe(true);
     playSpy.mockRestore();
   });
+
+  describe('playFanfare', () => {
+    it('soundEnabled: true（デフォルト）のときは playFanfareSound が呼び出されること', () => {
+      const fanfareSpy = vi.spyOn(catSoundModule, 'playFanfareSound').mockImplementation(() => {});
+      const { result } = renderHook(() => useCatAudio());
+
+      act(() => {
+        result.current.playFanfare();
+      });
+
+      expect(fanfareSpy).toHaveBeenCalledTimes(1);
+      fanfareSpy.mockRestore();
+    });
+
+    it('soundEnabled: false のときは playFanfareSound が呼び出されないこと', () => {
+      const fanfareSpy = vi.spyOn(catSoundModule, 'playFanfareSound').mockImplementation(() => {});
+      const { result } = renderHook(() => useCatAudio({ soundEnabled: false }));
+
+      act(() => {
+        result.current.playFanfare();
+      });
+
+      expect(fanfareSpy).not.toHaveBeenCalled();
+      fanfareSpy.mockRestore();
+    });
+  });
 });

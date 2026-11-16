@@ -734,9 +734,10 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       }
     });
 
-    it('ゲージが1回満タンになるとLv.2にレベルアップし、画面中央に巨大ハートとなつき度数値・祝うメッセージが表示されフェードアウトすること', () => {
+    it('ゲージが1回満タンになるとLv.2にレベルアップし、画面中央に巨大ハートとなつき度数値・祝うメッセージが表示されファンファーレが鳴ること', () => {
       vi.useFakeTimers();
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      const fanfareSpy = vi.spyOn(catSoundModule, 'playFanfareSound').mockImplementation(() => {});
       try {
         // 事前に黒猫のExpを115pt（Lv.1の残り5pt）に設定
         localStorage.setItem(
@@ -754,6 +755,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
         // レベルアップ前は中央演出は表示されていないこと
         expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+        expect(fanfareSpy).not.toHaveBeenCalled();
 
         // 撫でる (+10pt -> 115 + 10 = 125pt, 120ptでレベルアップしLv.2へ。余剰5pt / 180pt = 3%)
         const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
@@ -772,6 +774,9 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         const overlay = screen.getByTestId('affection-levelup-overlay');
         expect(overlay).toBeInTheDocument();
         expect(overlay).toHaveClass('opacity-100');
+
+        // かわいいファンファーレ効果音が再生されたこと
+        expect(fanfareSpy).toHaveBeenCalledTimes(1);
 
         // 暗い背景バックドロップが表示されていること
         expect(screen.getByTestId('affection-levelup-backdrop')).toBeInTheDocument();
@@ -805,6 +810,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         });
         expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
       } finally {
+        fanfareSpy.mockRestore();
         randomSpy.mockRestore();
         vi.useRealTimers();
       }
@@ -813,6 +819,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
     it('なつき度が最大のときもゲージを溜められ、ゲージがたまると画面中央にハートマーク演出が表示され、なつき度は最大のままで再度ゲージを溜められること', () => {
       vi.useFakeTimers();
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      const fanfareSpy = vi.spyOn(catSoundModule, 'playFanfareSound').mockImplementation(() => {});
       try {
         // 黒猫のなつき度を最大（Lv.10, ゲージ590pt / 必要600pt、あと10ptで満タン）に設定
         localStorage.setItem(
@@ -841,6 +848,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         const overlay = screen.getByTestId('affection-levelup-overlay');
         expect(overlay).toBeInTheDocument();
         expect(overlay).toHaveClass('opacity-100');
+        expect(fanfareSpy).toHaveBeenCalledTimes(1);
 
         // ハート内に「だいすき♡」「MAX」、メッセージに「ハートがいっぱい♡」が表示されること
         expect(screen.getByTestId('affection-levelup-number')).toHaveTextContent('だいすき♡');
@@ -872,6 +880,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         // 機嫌が上がっているため 20pt 以上獲得してゲージが進むこと
         expect(screen.getByTestId('affection-progress-percentage')).not.toHaveTextContent('MAX');
       } finally {
+        fanfareSpy.mockRestore();
         randomSpy.mockRestore();
         vi.useRealTimers();
       }

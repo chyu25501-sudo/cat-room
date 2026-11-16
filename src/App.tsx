@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
@@ -55,6 +55,7 @@ import {
 } from './utils/catCare.ts';
 import { CatId, CAT_PRESETS } from './types/cat.ts';
 import { FoodItem, ToyItem, LastCareAction } from './types/care.ts';
+import { AffectionLevelUpTriggerPayload } from './types/affection.ts';
 
 export default function App() {
   const {
@@ -78,7 +79,7 @@ export default function App() {
   const currentIndex = resolvedPresets.findIndex((p) => p.id === currentCatId);
   const nextPreset =
     resolvedPresets[(currentIndex + 1) % resolvedPresets.length] ?? resolvedPresets[0];
-  const { meow, isPlaying } = useCatAudio({ soundEnabled: isSoundEnabled });
+  const { meow, playFanfare, isPlaying } = useCatAudio({ soundEnabled: isSoundEnabled });
   const { getFullnessScore, getFullnessLevelForCat, feedCatFullness, playCatFullness } = useCatFullness();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood({ getFullnessScore });
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding();
@@ -91,6 +92,15 @@ export default function App() {
   } = useCatAffection();
   const { inventory, receiveGift } = useCatGifts();
   const { levelUpState, triggerLevelUp } = useAffectionLevelUp();
+
+  // なつき度レベルアップ（またはMAXボーナス）時の共通演出（ハートマーク表示と同時にかわいいファンファーレを再生）
+  const showLevelUpCelebration = useCallback(
+    (payload: AffectionLevelUpTriggerPayload) => {
+      triggerLevelUp(payload);
+      playFanfare();
+    },
+    [triggerLevelUp, playFanfare]
+  );
   const { bubbleText, showBubble } = useSpeechBubble({ durationMs: 2200, minHoldMs: 1500 });
   const {
     unlocked: unlockedAchievements,
@@ -175,7 +185,7 @@ export default function App() {
         const gift = receiveGift(currentCatId);
         receivedGiftItem = gift;
         hasReceivedGift = true;
-        triggerLevelUp({
+        showLevelUpCelebration({
           level: affRes.nextLevel,
           catName: currentPreset.name,
           title: getAffectionTitle(affRes.nextLevel),
@@ -283,7 +293,7 @@ export default function App() {
       const gift = receiveGift(currentCatId);
       receivedGiftItem = gift;
       hasReceivedGift = true;
-      triggerLevelUp({
+      showLevelUpCelebration({
         level: affRes.nextLevel,
         catName: currentPreset.name,
         title: getAffectionTitle(affRes.nextLevel),
@@ -379,7 +389,7 @@ export default function App() {
       const gift = receiveGift(currentCatId);
       receivedGiftItem = gift;
       hasReceivedGift = true;
-      triggerLevelUp({
+      showLevelUpCelebration({
         level: affRes.nextLevel,
         catName: currentPreset.name,
         title: getAffectionTitle(affRes.nextLevel),

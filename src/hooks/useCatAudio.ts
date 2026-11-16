@@ -1,5 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { playMeowSound, type MeowOptions } from '../utils/catSound.ts';
+import {
+  playMeowSound,
+  playFanfareSound,
+  type MeowOptions,
+  type FanfareOptions,
+} from '../utils/catSound.ts';
 
 export interface UseCatAudioOptions {
   /** サウンド再生を有効にするかどうか（デフォルト: true） */
@@ -30,6 +35,18 @@ export function useCatAudio({ soundEnabled = true }: UseCatAudioOptions = {}) {
     [soundEnabled]
   );
 
+  /**
+   * なつき度レベルアップ時などのファンファーレ効果音を再生する関数
+   */
+  const playFanfare = useCallback(
+    (options?: FanfareOptions) => {
+      if (soundEnabled) {
+        playFanfareSound(options);
+      }
+    },
+    [soundEnabled]
+  );
+
   useEffect(() => {
     return () => {
       if (timerRef.current !== null) {
@@ -40,6 +57,7 @@ export function useCatAudio({ soundEnabled = true }: UseCatAudioOptions = {}) {
 
   return {
     meow,
+    playFanfare,
     isPlaying,
   };
 }
