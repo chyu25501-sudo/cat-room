@@ -531,5 +531,51 @@ describe('GiftCollectionModal コンポーネント', () => {
       // 該当なしメッセージが表示されること
       expect(screen.getByTestId('gift-filter-empty')).toHaveTextContent('該当するおくりものがありません');
     });
+
+    it('レアリティ選択に応じて、2段目の入手状況絞り込みの件数表示（すべて/入手済みのみ）が動的に変化すること', () => {
+      const inventory: GiftInventory = {
+        pebble: {
+          giftId: 'pebble',
+          count: 2,
+          firstReceivedAt: 1000,
+          lastReceivedAt: 1000,
+        },
+        'old-coin': {
+          giftId: 'old-coin',
+          count: 1,
+          firstReceivedAt: 1000,
+          lastReceivedAt: 1000,
+        },
+      };
+
+      render(<GiftCollectionModal isOpen={true} onClose={vi.fn()} inventory={inventory} />);
+
+      const allBtn = screen.getByTestId('filter-acquisition-all');
+      const acquiredBtn = screen.getByTestId('filter-acquisition-acquired');
+
+      // 初期状態（最上段が「すべて」）
+      expect(allBtn).toHaveTextContent('すべて (60)');
+      expect(acquiredBtn).toHaveTextContent('入手済みのみ (2)');
+
+      // 最上段で「通常」レアリティを選択（通常は45種、うちpebbleの1種を所持）
+      fireEvent.click(screen.getByTestId('filter-rarity-common'));
+      expect(allBtn).toHaveTextContent('すべて (45)');
+      expect(acquiredBtn).toHaveTextContent('入手済みのみ (1)');
+
+      // 最上段で「レア」レアリティを選択（レアは6種、うちold-coinの1種を所持）
+      fireEvent.click(screen.getByTestId('filter-rarity-rare'));
+      expect(allBtn).toHaveTextContent('すべて (6)');
+      expect(acquiredBtn).toHaveTextContent('入手済みのみ (1)');
+
+      // 最上段で「ウルトラレア」を選択（ウルトラレアは3種、所持数0）
+      fireEvent.click(screen.getByTestId('filter-rarity-ultra-rare'));
+      expect(allBtn).toHaveTextContent('すべて (3)');
+      expect(acquiredBtn).toHaveTextContent('入手済みのみ (0)');
+
+      // 再び最上段で「すべて」を選択すると全体の件数に戻ること
+      fireEvent.click(screen.getByTestId('filter-rarity-all'));
+      expect(allBtn).toHaveTextContent('すべて (60)');
+      expect(acquiredBtn).toHaveTextContent('入手済みのみ (2)');
+    });
   });
 });

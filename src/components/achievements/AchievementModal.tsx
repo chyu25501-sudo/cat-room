@@ -69,13 +69,31 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
   // 選択中の達成状況フィルター（'all': すべて, 'unlocked': 達成済み, 'locked': 未達成）
   const [statusFilter, setStatusFilter] = useState<AchievementStatusFilter>('all');
 
-  // カテゴリ絞り込み ＋ 達成状況絞り込み後のカタログ
-  const filteredCatalog = useMemo(() => {
+  // 最上段のカテゴリ絞り込み後のカタログ
+  const categoryFilteredCatalog = useMemo(() => {
     return filterAchievements(catalog, unlocked, {
       category: selectedCategory,
-      status: statusFilter,
+      status: 'all',
     });
-  }, [catalog, unlocked, selectedCategory, statusFilter]);
+  }, [catalog, unlocked, selectedCategory]);
+
+  // カテゴリ絞り込み内の総数・達成済み数・未達成数（2段目フィルター件数表示用）
+  const categoryTotalCount = categoryFilteredCatalog.length;
+  const categoryUnlockedCount = useMemo(() => {
+    return categoryFilteredCatalog.filter((item) => !!unlocked[item.id]).length;
+  }, [categoryFilteredCatalog, unlocked]);
+  const categoryLockedCount = categoryTotalCount - categoryUnlockedCount;
+
+  // カテゴリ絞り込み ＋ 達成状況絞り込み後のカタログ
+  const filteredCatalog = useMemo(() => {
+    if (statusFilter === 'all') {
+      return categoryFilteredCatalog;
+    }
+    return categoryFilteredCatalog.filter((item) => {
+      const isUnlocked = !!unlocked[item.id];
+      return statusFilter === 'unlocked' ? isUnlocked : !isUnlocked;
+    });
+  }, [categoryFilteredCatalog, statusFilter, unlocked]);
 
   if (!isOpen) {
     return null;
@@ -202,7 +220,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                 : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
             }`}
           >
-            すべて ({catalog.length})
+            すべて ({categoryTotalCount})
           </button>
           <button
             type="button"
@@ -215,7 +233,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                 : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
             }`}
           >
-            達成済み ({unlockedCount})
+            達成済み ({categoryUnlockedCount})
           </button>
           <button
             type="button"
@@ -228,7 +246,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
                 : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
             }`}
           >
-            未達成 ({totalCount - unlockedCount})
+            未達成 ({categoryLockedCount})
           </button>
         </div>
 

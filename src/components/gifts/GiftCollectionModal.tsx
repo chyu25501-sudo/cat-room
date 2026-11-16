@@ -52,13 +52,27 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
   // カタログからユニークなレアリティ一覧を動的抽出（今後レアリティが増加しても自動対応）
   const availableRarities = useMemo(() => getAvailableRarities(catalog), [catalog]);
 
-  // レアリティ絞り込み ＋ 入手状況絞り込み後のカタログ
-  const filteredCatalog = useMemo(() => {
+  // 最上段のレアリティ絞り込み後のカタログ
+  const rarityFilteredCatalog = useMemo(() => {
     return filterGifts(catalog, inventory, {
       rarity: selectedRarity,
-      acquisition: acquisitionFilter,
+      acquisition: 'all',
     });
-  }, [catalog, inventory, selectedRarity, acquisitionFilter]);
+  }, [catalog, inventory, selectedRarity]);
+
+  // レアリティ絞り込み内の総数および入手済み数（2段目フィルター件数表示用）
+  const rarityTotalCount = rarityFilteredCatalog.length;
+  const rarityAcquiredCount = useMemo(() => {
+    return rarityFilteredCatalog.filter((item) => (inventory[item.id]?.count ?? 0) > 0).length;
+  }, [rarityFilteredCatalog, inventory]);
+
+  // レアリティ絞り込み ＋ 入手状況絞り込み後のカタログ
+  const filteredCatalog = useMemo(() => {
+    if (acquisitionFilter === 'all') {
+      return rarityFilteredCatalog;
+    }
+    return rarityFilteredCatalog.filter((item) => (inventory[item.id]?.count ?? 0) > 0);
+  }, [rarityFilteredCatalog, acquisitionFilter, inventory]);
 
   if (!isOpen) {
     return null;
@@ -202,7 +216,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                   : 'bg-white/90 text-stone-600 border-orange-200/80 hover:bg-orange-50'
               }`}
             >
-              すべて ({catalog.length})
+              すべて ({rarityTotalCount})
             </button>
             <button
               type="button"
@@ -215,7 +229,7 @@ export const GiftCollectionModal: React.FC<GiftCollectionModalProps> = ({
                   : 'bg-white/90 text-stone-600 border-orange-200/80 hover:bg-orange-50'
               }`}
             >
-              入手済みのみ ({acquiredTypeCount})
+              入手済みのみ ({rarityAcquiredCount})
             </button>
           </div>
 

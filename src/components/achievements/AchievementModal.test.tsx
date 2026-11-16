@@ -228,4 +228,46 @@ describe('AchievementModal コンポーネント', () => {
     // ふれあいカテゴリの実績（first-pet）は非表示
     expect(screen.queryByTestId('achievement-item-first-pet')).not.toBeInTheDocument();
   });
+
+  it('カテゴリ選択に応じて、2段目の達成状況絞り込みの件数表示（すべて/達成済み/未達成）が動的に変化すること', () => {
+    const unlocked: UnlockedAchievements = {
+      'first-pet': { id: 'first-pet', unlockedAt: 1000 }, // interaction
+      'first-feed': { id: 'first-feed', unlockedAt: 2000 }, // care
+    };
+
+    render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
+
+    const allBtn = screen.getByTestId('filter-status-all');
+    const unlockedBtn = screen.getByTestId('filter-status-unlocked');
+    const lockedBtn = screen.getByTestId('filter-status-locked');
+
+    // 初期状態（最上段が「すべて」）
+    expect(allBtn).toHaveTextContent('すべて (60)');
+    expect(unlockedBtn).toHaveTextContent('達成済み (2)');
+    expect(lockedBtn).toHaveTextContent('未達成 (58)');
+
+    // 最上段で「ふれあい」カテゴリを選択（interactionは20件、うち達成1件、未達成19件）
+    fireEvent.click(screen.getByTestId('filter-category-interaction'));
+    expect(allBtn).toHaveTextContent('すべて (20)');
+    expect(unlockedBtn).toHaveTextContent('達成済み (1)');
+    expect(lockedBtn).toHaveTextContent('未達成 (19)');
+
+    // 最上段で「お世話」カテゴリを選択（careは14件、うち達成1件、未達成13件）
+    fireEvent.click(screen.getByTestId('filter-category-care'));
+    expect(allBtn).toHaveTextContent('すべて (14)');
+    expect(unlockedBtn).toHaveTextContent('達成済み (1)');
+    expect(lockedBtn).toHaveTextContent('未達成 (13)');
+
+    // 最上段で「おくりもの」カテゴリを選択（giftは26件、うち達成0件、未達成26件）
+    fireEvent.click(screen.getByTestId('filter-category-gift'));
+    expect(allBtn).toHaveTextContent('すべて (26)');
+    expect(unlockedBtn).toHaveTextContent('達成済み (0)');
+    expect(lockedBtn).toHaveTextContent('未達成 (26)');
+
+    // 再び最上段で「すべて」を選択すると全体の件数に戻ること
+    fireEvent.click(screen.getByTestId('filter-category-all'));
+    expect(allBtn).toHaveTextContent('すべて (60)');
+    expect(unlockedBtn).toHaveTextContent('達成済み (2)');
+    expect(lockedBtn).toHaveTextContent('未達成 (58)');
+  });
 });
