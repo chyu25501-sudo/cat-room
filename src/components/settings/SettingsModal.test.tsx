@@ -106,11 +106,55 @@ describe('SettingsModal コンポーネント', () => {
     // テキストを入力すると onUpdateCatName が呼ばれること
     fireEvent.change(blackInput, { target: { value: 'クロスケ' } });
     expect(handleUpdateCatName).toHaveBeenCalledWith('black', 'クロスケ');
+  });
 
-    // 「初期名に戻す」ボタンをクリックすると onResetCatNames が呼ばれること
+  it('「初期名に戻す」を押した際に確認画面が表示され、「いいえ」でキャンセル、「はい」で初期名リセットが実行されること（誤操作防止）', () => {
+    const handleResetCatNames = vi.fn();
+
+    render(
+      <SettingsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        catNames={{ black: 'クロ', white: 'シロ', calico: 'ミケ' }}
+        onResetCatNames={handleResetCatNames}
+      />
+    );
+
     const resetButton = screen.getByTestId('reset-cat-names-button');
+    expect(resetButton).toBeInTheDocument();
+
+    // 初期状態では確認ダイアログは非表示
+    expect(screen.queryByTestId('reset-confirm-dialog')).not.toBeInTheDocument();
+
+    // 1. 「初期名に戻す」をクリック
     fireEvent.click(resetButton);
+
+    // 確認ダイアログが表示され、まだ onResetCatNames は呼ばれていないこと
+    expect(screen.getByTestId('reset-confirm-dialog')).toBeInTheDocument();
+    expect(screen.getByText('初期名に戻しますか？')).toBeInTheDocument();
+    expect(screen.getByText(/すべての猫ちゃんのお名前を最初の名前に戻します/)).toBeInTheDocument();
+    expect(handleResetCatNames).not.toHaveBeenCalled();
+
+    // 2. 「いいえ」をクリックしてキャンセル
+    const cancelButton = screen.getByTestId('reset-confirm-cancel-button');
+    expect(cancelButton).toHaveTextContent('いいえ');
+    fireEvent.click(cancelButton);
+
+    // 確認ダイアログが閉じ、onResetCatNames は呼ばれていないこと
+    expect(screen.queryByTestId('reset-confirm-dialog')).not.toBeInTheDocument();
+    expect(handleResetCatNames).not.toHaveBeenCalled();
+
+    // 3. 再び「初期名に戻す」をクリックし、今度は「はい」をクリック
+    fireEvent.click(resetButton);
+    expect(screen.getByTestId('reset-confirm-dialog')).toBeInTheDocument();
+
+    const okButton = screen.getByTestId('reset-confirm-ok-button');
+    expect(okButton).toHaveTextContent('はい');
+    fireEvent.click(okButton);
+
+    // onResetCatNames が実行され、確認ダイアログが閉じること
     expect(handleResetCatNames).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('reset-confirm-dialog')).not.toBeInTheDocument();
   });
 
   it('ゲージ表示位置の切り替えボタン（下部・横側）が表示され、クリックで onChangeGaugePosition が呼ばれること', () => {
