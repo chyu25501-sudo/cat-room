@@ -1641,7 +1641,53 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       }
     });
 
-    it('なつき度演出の簡略化設定がオフのとき、自動ごはんの有効無効に関わらず手動ふれあいでは通常の中央ハートマーク演出が表示されること', () => {
+    it('自動ごはんが無効のとき、なつき度演出の簡略化設定がオフなら通常の中央ハートマーク演出が表示されること', () => {
+      vi.useFakeTimers();
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+      try {
+        localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+        // 自動ごはんオフ、簡略化設定もオフ
+        localStorage.setItem(
+          'nekoppoi_settings',
+          JSON.stringify({
+            soundEnabled: true,
+            catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+            gaugePosition: 'bottom',
+            autoFeedEnabled: false,
+            compactAffectionCelebration: false,
+          })
+        );
+        // なつき度レベルアップ寸前（115/120pt）に設定
+        localStorage.setItem(
+          'nekoppoi_cats_affection',
+          JSON.stringify({
+            black: { level: 1, currentExp: 115, requiredExp: 120 },
+            white: { level: 1, currentExp: 0, requiredExp: 120 },
+          })
+        );
+
+        render(<App />);
+
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        // 通常の中央ハートマーク演出が表示されること
+        const overlay = screen.getByTestId('affection-levelup-overlay');
+        expect(overlay).toBeInTheDocument();
+        expect(overlay).toHaveClass('opacity-100');
+        expect(screen.getByTestId('affection-levelup-heart')).toBeInTheDocument();
+      } finally {
+        randomSpy.mockRestore();
+        vi.useRealTimers();
+      }
+    });
+
+    it('自動ごはんが有効なときは、簡略化設定がオフであってもハートマーク演出が出ず控えめなミニトースト通知が表示されること', () => {
       vi.useFakeTimers();
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
 
@@ -1678,11 +1724,12 @@ describe('App コンポーネント (猫切り替え機能)', () => {
           fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
         });
 
-        // 簡略化設定がオフなので、手動ふれあいでは中央の大きなハートマーク演出が表示されること
-        const overlay = screen.getByTestId('affection-levelup-overlay');
-        expect(overlay).toBeInTheDocument();
-        expect(overlay).toHaveClass('opacity-100');
-        expect(screen.getByTestId('affection-levelup-heart')).toBeInTheDocument();
+        // 自動ごはんが有効なため、簡略化設定がオフでもハート演出は出ないこと
+        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+
+        // 代わりに控えめなミニトースト通知が表示されること
+        expect(screen.getByTestId('gift-toast-container')).toBeInTheDocument();
+        expect(screen.getByText(/からのおくりもの！/)).toBeInTheDocument();
       } finally {
         randomSpy.mockRestore();
         vi.useRealTimers();

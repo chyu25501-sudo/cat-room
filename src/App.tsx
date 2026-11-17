@@ -198,11 +198,14 @@ export default function App() {
   // 自動ごはんが現在実際に稼働しているかどうか
   const isAutoFeedActive = isAutoFeedEnabled && isAutoFeedUnlockedValue;
 
-  // 手動お世話時（なでる・ごはん・おもちゃ）のなつき度アップ演出トリガー
-  // 設定「なつき度演出の簡略化」がオンなら控えめなトースト通知、オフなら通常の中央巨大ハート演出を表示
-  const triggerManualAffectionCelebration = useCallback(
+  // なつき度アップ時の演出を簡略化（控えめな通知）にするかどうか
+  // （設定「なつき度演出の簡略化」がオン、または自動ごはんが有効な場合に控えめな通知にする）
+  const isAffectionCelebrationCompact = isCompactAffectionCelebration || isAutoFeedActive;
+
+  // なつき度アップ時の演出トリガー（簡略化時は控えめなトースト通知、通常時は中央巨大ハート演出を表示）
+  const triggerAffectionCelebration = useCallback(
     (catId: CatId, catName: string, level: number, gift: GiftItem, isMaxBonus?: boolean) => {
-      if (isCompactAffectionCelebration) {
+      if (isAffectionCelebrationCompact) {
         addGiftToast({
           catId,
           catName,
@@ -218,7 +221,7 @@ export default function App() {
         });
       }
     },
-    [isCompactAffectionCelebration, addGiftToast, showLevelUpCelebration]
+    [isAffectionCelebrationCompact, addGiftToast, showLevelUpCelebration]
   );
 
   // 留守番レポートモーダル用のステート
@@ -500,14 +503,14 @@ export default function App() {
       const affRes = gainAffection(currentCatId, variedAffectionExp);
       updatedAffectionLevel = affRes.nextLevel;
       if (affRes.isLevelUp) {
-        if (!isCompactAffectionCelebration) {
+        if (!isAffectionCelebrationCompact) {
           isLevelUpCelebration = true;
         }
         const gift = receiveGift(currentCatId);
         receivedGiftItem = gift;
         hasReceivedGift = true;
         currentInventory = addGiftToInventory(inventory, gift.id, currentCatId);
-        triggerManualAffectionCelebration(
+        triggerAffectionCelebration(
           currentCatId,
           currentPreset.name,
           affRes.nextLevel,
@@ -613,14 +616,14 @@ export default function App() {
       receivedGiftItem = gift;
       hasReceivedGift = true;
       currentInventory = addGiftToInventory(inventory, gift.id, currentCatId);
-      triggerManualAffectionCelebration(
+      triggerAffectionCelebration(
         currentCatId,
         currentPreset.name,
         affRes.nextLevel,
         gift,
         affRes.isMaxBonus
       );
-      if (isCompactAffectionCelebration) {
+      if (isAffectionCelebrationCompact) {
         // 簡略化時はファンファーレが鳴らないため、通常の食事満足鳴き声を再生
         const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
         const pitch = calculateVariedPitch(basePitch * 1.08);
@@ -721,14 +724,14 @@ export default function App() {
       receivedGiftItem = gift;
       hasReceivedGift = true;
       currentInventory = addGiftToInventory(inventory, gift.id, currentCatId);
-      triggerManualAffectionCelebration(
+      triggerAffectionCelebration(
         currentCatId,
         currentPreset.name,
         affRes.nextLevel,
         gift,
         affRes.isMaxBonus
       );
-      if (isCompactAffectionCelebration) {
+      if (isAffectionCelebrationCompact) {
         // 簡略化時はファンファーレが鳴らないため、通常のおもちゃ興奮鳴き声を再生
         const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
         const pitch = calculateVariedPitch(basePitch * 1.15);
