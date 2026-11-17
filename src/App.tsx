@@ -198,14 +198,11 @@ export default function App() {
   // 自動ごはんが現在実際に稼働しているかどうか
   const isAutoFeedActive = isAutoFeedEnabled && isAutoFeedUnlockedValue;
 
-  // なつき度アップ時の演出を簡略化するかどうか
-  // （設定でオン、または自動ごはんが現在稼働している場合に簡略化）
-  const isAffectionCelebrationCompact = isCompactAffectionCelebration || isAutoFeedActive;
-
-  // なつき度アップ（おくりもの獲得）時の演出トリガー（通常は中央の大きなハート演出、簡略化時は控えめなトースト通知）
-  const triggerAffectionLevelUpCelebration = useCallback(
+  // 手動お世話時（なでる・ごはん・おもちゃ）のなつき度アップ演出トリガー
+  // 設定「なつき度演出の簡略化」がオンなら控えめなトースト通知、オフなら通常の中央巨大ハート演出を表示
+  const triggerManualAffectionCelebration = useCallback(
     (catId: CatId, catName: string, level: number, gift: GiftItem, isMaxBonus?: boolean) => {
-      if (isAffectionCelebrationCompact) {
+      if (isCompactAffectionCelebration) {
         addGiftToast({
           catId,
           catName,
@@ -221,7 +218,7 @@ export default function App() {
         });
       }
     },
-    [isAffectionCelebrationCompact, addGiftToast, showLevelUpCelebration]
+    [isCompactAffectionCelebration, addGiftToast, showLevelUpCelebration]
   );
 
   // 留守番レポートモーダル用のステート
@@ -304,14 +301,12 @@ export default function App() {
             const gift = receiveGift(catId);
             const catDisplayName = getCatDisplayName(catId, catNames);
 
-            // なつき度演出（自動ごはん稼働中は控えめなミニトースト通知）
-            triggerAffectionLevelUpCelebration(
+            // 自動ごはん稼働中は画面中央の大きな演出は出さず、控えめなミニトースト通知を表示
+            addGiftToast({
               catId,
-              catDisplayName,
-              affRes.nextLevel,
+              catName: catDisplayName,
               gift,
-              affRes.isMaxBonus
-            );
+            });
 
             // 最新のおくりものインベントリを計算
             const nextInventory = addGiftToInventory(inventory, gift.id, catId);
@@ -363,7 +358,7 @@ export default function App() {
     startFeeding,
     receiveGift,
     catNames,
-    triggerAffectionLevelUpCelebration,
+    addGiftToast,
     checkAchievements,
     getMoodScore,
     getMoodLevelForCat,
@@ -505,14 +500,14 @@ export default function App() {
       const affRes = gainAffection(currentCatId, variedAffectionExp);
       updatedAffectionLevel = affRes.nextLevel;
       if (affRes.isLevelUp) {
-        if (!isAffectionCelebrationCompact) {
+        if (!isCompactAffectionCelebration) {
           isLevelUpCelebration = true;
         }
         const gift = receiveGift(currentCatId);
         receivedGiftItem = gift;
         hasReceivedGift = true;
         currentInventory = addGiftToInventory(inventory, gift.id, currentCatId);
-        triggerAffectionLevelUpCelebration(
+        triggerManualAffectionCelebration(
           currentCatId,
           currentPreset.name,
           affRes.nextLevel,
@@ -618,14 +613,14 @@ export default function App() {
       receivedGiftItem = gift;
       hasReceivedGift = true;
       currentInventory = addGiftToInventory(inventory, gift.id, currentCatId);
-      triggerAffectionLevelUpCelebration(
+      triggerManualAffectionCelebration(
         currentCatId,
         currentPreset.name,
         affRes.nextLevel,
         gift,
         affRes.isMaxBonus
       );
-      if (isAffectionCelebrationCompact) {
+      if (isCompactAffectionCelebration) {
         // 簡略化時はファンファーレが鳴らないため、通常の食事満足鳴き声を再生
         const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
         const pitch = calculateVariedPitch(basePitch * 1.08);
@@ -726,14 +721,14 @@ export default function App() {
       receivedGiftItem = gift;
       hasReceivedGift = true;
       currentInventory = addGiftToInventory(inventory, gift.id, currentCatId);
-      triggerAffectionLevelUpCelebration(
+      triggerManualAffectionCelebration(
         currentCatId,
         currentPreset.name,
         affRes.nextLevel,
         gift,
         affRes.isMaxBonus
       );
-      if (isAffectionCelebrationCompact) {
+      if (isCompactAffectionCelebration) {
         // 簡略化時はファンファーレが鳴らないため、通常のおもちゃ興奮鳴き声を再生
         const basePitch = calculatePitchForMood(currentPreset.defaultPitch, nextLevel);
         const pitch = calculateVariedPitch(basePitch * 1.15);

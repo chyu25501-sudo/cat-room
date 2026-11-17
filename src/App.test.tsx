@@ -1641,7 +1641,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       }
     });
 
-    it('なつき度演出の簡略化がオフでも、自動ごはんが有効な場合は自動でハートマーク演出が簡略化されること', () => {
+    it('なつき度演出の簡略化設定がオフのとき、自動ごはんの有効無効に関わらず手動ふれあいでは通常の中央ハートマーク演出が表示されること', () => {
       vi.useFakeTimers();
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
 
@@ -1678,12 +1678,11 @@ describe('App コンポーネント (猫切り替え機能)', () => {
           fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
         });
 
-        // 自動ごはんが有効なため、ハート演出は簡略化されて中央オーバーレイは表示されないこと
-        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
-
-        // ミニトースト通知が表示されること
-        expect(screen.getByTestId('gift-toast-container')).toBeInTheDocument();
-        expect(screen.getByText(/からのおくりもの！/)).toBeInTheDocument();
+        // 簡略化設定がオフなので、手動ふれあいでは中央の大きなハートマーク演出が表示されること
+        const overlay = screen.getByTestId('affection-levelup-overlay');
+        expect(overlay).toBeInTheDocument();
+        expect(overlay).toHaveClass('opacity-100');
+        expect(screen.getByTestId('affection-levelup-heart')).toBeInTheDocument();
       } finally {
         randomSpy.mockRestore();
         vi.useRealTimers();
