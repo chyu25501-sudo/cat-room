@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw, Layout } from 'lucide-react';
+import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw, Layout, Utensils, Lock, AlertCircle } from 'lucide-react';
 import { SettingsIcon } from './SettingsButton.tsx';
 import { CatId, CAT_PRESETS } from '../../types/cat.ts';
 import { DEFAULT_CAT_NAMES, CatCustomNames, GaugeDisplayPosition } from '../../types/settings.ts';
@@ -23,6 +23,12 @@ export interface SettingsModalProps {
   gaugePosition?: GaugeDisplayPosition;
   /** ゲージ類の表示位置切り替えコールバック */
   onChangeGaugePosition?: (position: GaugeDisplayPosition) => void;
+  /** 自動ごはんが解禁されているかどうか（全猫なつき度Lv.10以上で解禁） */
+  isAutoFeedUnlocked?: boolean;
+  /** 自動ごはんが有効かどうか */
+  isAutoFeedEnabled?: boolean;
+  /** 自動ごはんの切り替えコールバック */
+  onToggleAutoFeed?: (enabled: boolean) => void;
 }
 
 /**
@@ -39,6 +45,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onResetCatNames,
   gaugePosition = 'bottom',
   onChangeGaugePosition,
+  isAutoFeedUnlocked = false,
+  isAutoFeedEnabled = false,
+  onToggleAutoFeed,
 }) => {
   // 初期名リセットの確認画面の開閉ステート
   const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
@@ -196,6 +205,83 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 ? '猫ちゃんをなでたり、ごはん・おもちゃでふれあった時に鳴き声や効果音が鳴ります。'
                 : 'サウンドは現在オフです。静かな場所でも安心して遊べます。'}
             </p>
+          </div>
+
+          {/* 自動ごはん設定カード */}
+          <div
+            data-testid="auto-feed-section"
+            className={`border rounded-2xl p-3.5 transition-colors ${
+              isAutoFeedUnlocked
+                ? 'bg-amber-50/50 border-orange-200/80'
+                : 'bg-stone-50 border-stone-200/80'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <div className="flex items-center gap-2 text-stone-800 font-bold text-sm">
+                <Utensils
+                  className={`w-4 h-4 shrink-0 ${
+                    isAutoFeedUnlocked ? 'text-orange-600' : 'text-stone-400'
+                  }`}
+                />
+                <span>自動ごはん</span>
+                {isAutoFeedUnlocked ? (
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full border border-amber-300 leading-none">
+                    解禁済み
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-stone-500 bg-stone-200 px-1.5 py-0.5 rounded-full border border-stone-300 leading-none flex items-center gap-0.5">
+                    <Lock className="w-2.5 h-2.5" />
+                    <span>未解禁</span>
+                  </span>
+                )}
+              </div>
+
+              {/* トグルスイッチ */}
+              <button
+                type="button"
+                role="switch"
+                disabled={!isAutoFeedUnlocked}
+                aria-checked={isAutoFeedUnlocked && isAutoFeedEnabled}
+                aria-label="自動ごはんの切り替え"
+                data-testid="auto-feed-toggle-button"
+                onClick={() => onToggleAutoFeed?.(!isAutoFeedEnabled)}
+                className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
+                  !isAutoFeedUnlocked
+                    ? 'bg-stone-200 cursor-not-allowed opacity-60'
+                    : isAutoFeedEnabled
+                    ? 'bg-orange-500 cursor-pointer'
+                    : 'bg-stone-300 cursor-pointer'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                    isAutoFeedUnlocked && isAutoFeedEnabled
+                      ? 'translate-x-5'
+                      : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {!isAutoFeedUnlocked
+                ? '🔒 全猫（くろねこ・しろねこ・みけねこ）のなつき度がLv.10（MAX）に到達すると解禁されます。すべての猫ちゃんと絆を深めると、お留守番中も自動でカリカリを食べられるようになります。'
+                : isAutoFeedEnabled
+                ? '全猫のまんぷく度が40%以下になると自動でカリカリを食べます。アプリを離れている間（最大7日間）も自動で給餌され、次回開いた際にまとめておくりものを受け取れます。※オンの間は手動ごはんがお休みになります。'
+                : '自動ごはんは現在オフです。手動で愛情を込めてごはんをあげられます。'}
+            </p>
+
+            {/* 注意事項（赤文字で強調） */}
+            <div
+              data-testid="auto-feed-warning"
+              className="mt-2.5 pt-2 border-t border-orange-200/60 flex items-start gap-1.5 text-[11px] text-rose-600 font-bold leading-relaxed"
+            >
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-rose-500" />
+              <span>
+                【ご注意】自動ごはんがオンの状態でアプリを離れても、日付系の実績（連続ふれあい日数や累計訪問日数など）や手帳のふれあい日数は進みません。毎日自分で猫ちゃんとふれあった日のみカウントされます。
+              </span>
+            </div>
           </div>
 
           {/* ゲージ表示位置・スタイル設定カード */}

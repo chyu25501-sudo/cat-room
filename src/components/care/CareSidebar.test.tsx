@@ -401,4 +401,171 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     // 毛糸ボール (Lv.5) -> まだ未解禁
     expect(screen.getByTestId('toy-locked-button-ball')).toHaveTextContent('なつき度5で解禁されるよ！');
   });
+
+  it('isAutoFeedEnabled が true のとき、自動ごはんバナーが表示され、ごはんボタンが無効化されて手動給餌が制限されること', () => {
+    const handleFeed = vi.fn();
+    render(
+      <CareSidebar
+        currentCatName="くろねこ"
+        onFeed={handleFeed}
+        onPlay={vi.fn()}
+        isOpen={true}
+        isAutoFeedEnabled={true}
+      />
+    );
+
+    // 自動ごはん稼働中バナーが表示されていること
+    expect(screen.getByTestId('auto-feed-active-banner')).toBeInTheDocument();
+    expect(screen.getByText(/自動ごはんが稼働中です/)).toBeInTheDocument();
+
+    // ごはんボタンが無効化され、「自動ごはん稼働中」と表示されていること
+    const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+    for (const btn of feedButtons) {
+      expect(btn).toBeDisabled();
+      expect(btn).toHaveTextContent('自動ごはん稼働中');
+      fireEvent.click(btn);
+    }
+    expect(handleFeed).not.toHaveBeenCalled();
+
+    // おもちゃボタンは通常通り遊べること
+    const playButtons = screen.getAllByRole('button', { name: /であそぶ$/ });
+    expect(playButtons[0]).toBeEnabled();
+  });
+
+  describe('タブ切り替え（「ふれあい」と「自動化」）および自動ごはん設定', () => {
+    it('デフォルトで「ふれあい」タブが選択され、手動ごはん・おもちゃが表示されること', () => {
+      render(
+        <CareSidebar
+          currentCatName="くろねこ"
+          onFeed={vi.fn()}
+          onPlay={vi.fn()}
+          isOpen={true}
+        />
+      );
+
+      // タブボタンが存在し、初期状態では「ふれあい」タブが選択されていること
+      const interactionTab = screen.getByTestId('care-tab-interaction');
+      const automationTab = screen.getByTestId('care-tab-automation');
+      expect(interactionTab).toHaveAttribute('aria-selected', 'true');
+      expect(automationTab).toHaveAttribute('aria-selected', 'false');
+
+      // ふれあいタブパネルが表示されていること
+      expect(screen.getByTestId('care-tabpanel-interaction')).toBeInTheDocument();
+      expect(screen.getByText('ごはんをあげる')).toBeInTheDocument();
+      expect(screen.getByText('おもちゃであそぶ')).toBeInTheDocument();
+
+      // 自動化タブパネルは非表示であること
+      expect(screen.queryByTestId('care-tabpanel-automation')).not.toBeInTheDocument();
+    });
+
+    it('「自動化」タブをクリックすると自動化タブに切り替わり、自動ごはん設定と注意書きが表示されること', () => {
+      const handleToggle = vi.fn();
+      render(
+        <CareSidebar
+          currentCatName="くろねこ"
+          onFeed={vi.fn()}
+          onPlay={vi.fn()}
+          isOpen={true}
+          isAutoFeedUnlocked={true}
+          isAutoFeedEnabled={false}
+          onToggleAutoFeed={handleToggle}
+        />
+      );
+
+      // 「自動化」タブをクリック
+      const automationTab = screen.getByTestId('care-tab-automation');
+      fireEvent.click(automationTab);
+
+      expect(automationTab).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('care-tab-interaction')).toHaveAttribute('aria-selected', 'false');
+
+      // 自動化タブパネルと設定カードが表示されていること
+      expect(screen.getByTestId('care-tabpanel-automation')).toBeInTheDocument();
+      const section = screen.getByTestId('care-auto-feed-section');
+      expect(section).toBeInTheDocument();
+      expect(screen.getByText('解禁済み')).toBeInTheDocument();
+      expect(screen.getByText(/自動ごはんは現在オフです/)).toBeInTheDocument();
+
+      // 注意書きが表示されていること（赤文字警告）
+      const warning = screen.getByTestId('care-auto-feed-warning');
+      expect(warning).toBeInTheDocument();
+      expect(warning).toHaveTextContent('日付系の実績');
+
+      // トグルスイッチをクリックするとコールバックが呼ばれること
+      const toggleBtn = screen.getByTestId('care-auto-feed-toggle-button');
+      expect(toggleBtn).toBeEnabled();
+      expect(toggleBtn).toHaveAttribute('aria-checked', 'false');
+      fireEvent.click(toggleBtn);
+      expect(handleToggle).toHaveBeenCalledWith(true);
+
+      // 「ふれあい」タブを再度クリックするとふれあいタブに戻ること
+      const interactionTab = screen.getByTestId('care-tab-interaction');
+      fireEvent.click(interactionTab);
+      expect(screen.getByTestId('care-tabpanel-interaction')).toBeInTheDocument();
+      expect(screen.queryByTestId('care-tabpanel-automation')).not.toBeInTheDocument();
+    });
+
+    it('自動ごはんがオンのとき、トグルスイッチが aria-checked=true となり、クリックでオフにできること', () => {
+      const handleToggle = vi.fn();
+      render(
+        <CareSidebar
+          currentCatName="くろねこ"
+          onFeed={vi.fn()}
+          onPlay={vi.fn()}
+          isOpen={true}
+          isAutoFeedUnlocked={true}
+          isAutoFeedEnabled={true}
+          onToggleAutoFeed={handleToggle}
+          defaultTab="automation"
+        />
+      );
+
+      const toggleBtn = screen.getByTestId('care-auto-feed-toggle-button');
+      expect(toggleBtn).toHaveAttribute('aria-checked', 'true');
+      expect(
+        screen.getByText(/全猫のまんぷく度が40%以下になると自動でカリカリを食べます/)
+      ).toBeInTheDocument();
+
+      fireEvent.click(toggleBtn);
+      expect(handleToggle).toHaveBeenCalledWith(false);
+    });
+
+    it('自動ごはんがオンのとき、「自動化」タブに稼働中ドットが表示されること', () => {
+      render(
+        <CareSidebar
+          currentCatName="くろねこ"
+          onFeed={vi.fn()}
+          onPlay={vi.fn()}
+          isOpen={true}
+          isAutoFeedUnlocked={true}
+          isAutoFeedEnabled={true}
+        />
+      );
+
+      expect(screen.getByTestId('auto-feed-active-dot')).toBeInTheDocument();
+    });
+
+    it('未解禁（isAutoFeedUnlocked=false）のとき、トグルスイッチが無効化され未解禁案内が表示されること', () => {
+      const handleToggle = vi.fn();
+      render(
+        <CareSidebar
+          currentCatName="くろねこ"
+          onFeed={vi.fn()}
+          onPlay={vi.fn()}
+          isOpen={true}
+          isAutoFeedUnlocked={false}
+          isAutoFeedEnabled={false}
+          onToggleAutoFeed={handleToggle}
+          defaultTab="automation"
+        />
+      );
+
+      expect(screen.getByText('未解禁')).toBeInTheDocument();
+      expect(screen.getByText(/なつき度がLv\.10.*到達すると解禁/)).toBeInTheDocument();
+      const toggleBtn = screen.getByTestId('care-auto-feed-toggle-button');
+      expect(toggleBtn).toBeDisabled();
+      fireEvent.click(toggleBtn);
+      expect(handleToggle).not.toHaveBeenCalled();
+    });
+  });
 });

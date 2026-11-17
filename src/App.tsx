@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
@@ -14,15 +14,18 @@ import { useAppSettings } from './hooks/useAppSettings.ts';
 import { useAchievements } from './hooks/useAchievements.ts';
 import { useCareJournal } from './hooks/useCareJournal.ts';
 import { useFirstVisitGuide } from './hooks/useFirstVisitGuide.ts';
+import { useGiftToasts } from './hooks/useGiftToasts.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
 import { CareSidebar } from './components/care/CareSidebar.tsx';
+import { OfflineCareReportModal } from './components/care/OfflineCareReportModal.tsx';
 import { AffectionLevelUpOverlay } from './components/AffectionLevelUpOverlay.tsx';
 import { HowToPlayButton } from './components/guide/HowToPlayButton.tsx';
 import { HowToPlayModal } from './components/guide/HowToPlayModal.tsx';
 import { TreasureChestButton } from './components/gifts/TreasureChestButton.tsx';
 import { GiftCollectionModal } from './components/gifts/GiftCollectionModal.tsx';
+import { GiftToastOverlay } from './components/gifts/GiftToastOverlay.tsx';
 import { SettingsButton } from './components/settings/SettingsButton.tsx';
 import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { AchievementButton } from './components/achievements/AchievementButton.tsx';
@@ -31,10 +34,20 @@ import { AchievementModal } from './components/achievements/AchievementModal.tsx
 import { JournalButton } from './components/journal/JournalButton.tsx';
 import { JournalModal } from './components/journal/JournalModal.tsx';
 import { calculateVariedPitch, getCatPresetById } from './utils/catPreset.ts';
-import { resolveCatPresets } from './utils/catSettings.ts';
+import { resolveCatPresets, getCatDisplayName } from './utils/catSettings.ts';
 import { calculatePitchForMood, getMeowMessageForMood } from './utils/catMood.ts';
-import { getTotalGiftCount, CAT_GIFTS } from './utils/catGifts.ts';
+import { getTotalGiftCount, addGiftToInventory, CAT_GIFTS } from './utils/catGifts.ts';
 import { GiftItem } from './types/gift.ts';
+import {
+  isAutoFeedUnlocked,
+  AUTO_FEED_THRESHOLD_FULLNESS,
+  AUTO_FEED_FOOD_ID,
+  AUTO_FEED_FOOD_FULLNESS_BOOST,
+  AUTO_FEED_FOOD_EXP,
+  simulateAllCatsOfflineAutoFeed,
+  AllCatsOfflineFeedResult,
+  applyAutoFeedToCareStats,
+} from './utils/autoFeed.ts';
 import {
   DEFAULT_PET_AFFECTION_EXP,
   FOOD_AFFECTION_EXP_MAP,
@@ -44,6 +57,7 @@ import {
   getAffectionTitle,
 } from './utils/catAffection.ts';
 import {
+  FOOD_ITEMS,
   getEatingMessage,
   getPlayMessage,
   canFeedCat,
@@ -66,6 +80,8 @@ export default function App() {
     resetCatNames,
     gaugePosition,
     setGaugePosition,
+    isAutoFeedEnabled,
+    setAutoFeedEnabled,
   } = useAppSettings();
   const { currentCatId, switchCat, selectCat } = useCatSelection();
 
@@ -80,11 +96,18 @@ export default function App() {
   const nextPreset =
     resolvedPresets[(currentIndex + 1) % resolvedPresets.length] ?? resolvedPresets[0];
   const { meow, playFanfare, isPlaying } = useCatAudio({ soundEnabled: isSoundEnabled });
-  const { getFullnessScore, getFullnessLevelForCat, feedCatFullness, playCatFullness } = useCatFullness();
+  const {
+    fullnessMap,
+    getFullnessScore,
+    getFullnessLevelForCat,
+    feedCatFullness,
+    playCatFullness,
+  } = useCatFullness();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood({ getFullnessScore });
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding();
   const { activeToy, isPlayingToy, startPlaying, stopPlaying } = useCatPlay({ durationMs: 3200 });
   const {
+    affectionMap,
     getAffectionLevel,
     getAffectionProgress,
     getAffectionState,
@@ -92,6 +115,7 @@ export default function App() {
   } = useCatAffection();
   const { inventory, receiveGift } = useCatGifts();
   const { levelUpState, triggerLevelUp } = useAffectionLevelUp();
+  const { toasts: giftToasts, addGiftToast, dismissGiftToast } = useGiftToasts();
 
   // なつき度レベルアップ（またはMAXボーナス）時の共通演出（ハートマーク表示と同時にかわいいファンファーレを再生）
   const showLevelUpCelebration = useCallback(
@@ -108,7 +132,7 @@ export default function App() {
     checkAndUnlock: checkAchievements,
     dismissToast: dismissAchievementToast,
   } = useAchievements();
-  const { stats: careJournalStats, recordCareAction } = useCareJournal();
+  const { stats: careJournalStats, recordCareAction, addAutoFeedStats } = useCareJournal();
 
   // あそびかたモーダルの開閉ステート（初回訪問時は自動で強制表示、2回目以降は通常通り）
   const {
@@ -163,6 +187,259 @@ export default function App() {
       })
     );
   };
+
+  // 自動ごはんの解禁状態（全猫のなつき度がLv.10以上で解禁）
+  const isAutoFeedUnlockedValue = useMemo(
+    () => isAutoFeedUnlocked(affectionMap),
+    [affectionMap]
+  );
+  // 自動ごはんが現在実際に稼働しているかどうか
+  const isAutoFeedActive = isAutoFeedEnabled && isAutoFeedUnlockedValue;
+
+  // 留守番レポートモーダル用のステート
+  const [offlineReportData, setOfflineReportData] = useState<AllCatsOfflineFeedResult | null>(null);
+  const [isOfflineReportModalOpen, setIsOfflineReportModalOpen] = useState(false);
+
+  // 留守中（オフライン放置）のシミュレーション（起動時に判定、定期的に最終時刻を更新）
+  useEffect(() => {
+    const LAST_ACTIVE_TIME_KEY = 'nekoppoi_last_active_time';
+    const now = Date.now();
+    try {
+      const storedTime = localStorage.getItem(LAST_ACTIVE_TIME_KEY);
+      if (storedTime && isAutoFeedActive) {
+        const lastTime = parseInt(storedTime, 10);
+        const elapsedMs = now - lastTime;
+        // 1分以上経過している場合
+        if (!isNaN(lastTime) && elapsedMs >= 60 * 1000) {
+          const catExpMap: Record<CatId, number> = {
+            black: affectionMap.black?.currentExp ?? 0,
+            white: affectionMap.white?.currentExp ?? 0,
+            calico: affectionMap.calico?.currentExp ?? 0,
+          };
+          const catFullnessMap: Record<CatId, number> = {
+            black: fullnessMap.black?.score ?? 50,
+            white: fullnessMap.white?.score ?? 50,
+            calico: fullnessMap.calico?.score ?? 50,
+          };
+
+          const simResult = simulateAllCatsOfflineAutoFeed({
+            catExpMap,
+            catFullnessMap,
+            elapsedMs,
+            catalog: CAT_GIFTS,
+          });
+
+          if (simResult.totalFeedCount > 0) {
+            setOfflineReportData(simResult);
+            setIsOfflineReportModalOpen(true);
+          }
+        }
+      }
+      localStorage.setItem(LAST_ACTIVE_TIME_KEY, now.toString());
+    } catch {}
+
+    const intervalTimer = setInterval(() => {
+      try {
+        localStorage.setItem(LAST_ACTIVE_TIME_KEY, Date.now().toString());
+      } catch {}
+    }, 3000);
+
+    return () => clearInterval(intervalTimer);
+  }, [isAutoFeedActive]);
+
+  // オンライン中の自動給餌タイマー（3秒ごとに全猫を監視）
+  useEffect(() => {
+    if (!isAutoFeedActive) return;
+
+    const timer = setInterval(() => {
+      const targetCats: CatId[] = ['black', 'white', 'calico'];
+      const kibbleFood = FOOD_ITEMS.find((f) => f.id === AUTO_FEED_FOOD_ID) ?? FOOD_ITEMS[0];
+
+      for (const catId of targetCats) {
+        const score = getFullnessScore(catId);
+        // 40%以下のとき自動給餌実行
+        if (score <= AUTO_FEED_THRESHOLD_FULLNESS) {
+          const { nextScore: nextFullness, nextLevel: nextFullnessLevel } = feedCatFullness(
+            catId,
+            AUTO_FEED_FOOD_FULLNESS_BOOST
+          );
+          const updatedStats = recordCareAction('feed', catId);
+          const affRes = gainAffection(catId, AUTO_FEED_FOOD_EXP);
+
+          // 選択中の猫ならごはん皿アニメーション
+          if (catId === currentCatId && !isEating && !isPlayingToy) {
+            startFeeding(kibbleFood);
+          }
+
+          // なつき度満タン（おくりもの獲得）
+          if (affRes.isLevelUp) {
+            const gift = receiveGift(catId);
+            const catDisplayName = getCatDisplayName(catId, catNames);
+
+            // ★要件: 中央の大きなハート演出は出さず、ミニトースト通知で控えめに表示
+            addGiftToast({
+              catId,
+              catName: catDisplayName,
+              gift,
+            });
+
+            // 実績判定
+            checkAchievements({
+              action: 'feed',
+              moodScore: getMoodScore(catId),
+              moodLevel: getMoodLevelForCat(catId),
+              fullnessScore: nextFullness,
+              fullnessLevel: nextFullnessLevel,
+              affectionLevel: affRes.nextLevel,
+              maxAffectionLevel: getMaxAffectionLevel(catId, affRes.nextLevel),
+              minAffectionLevel: getMinAffectionLevel(catId, affRes.nextLevel),
+              totalGifts: getTotalGiftCount(inventory) + 1,
+              receivedGift: gift,
+              hasRareGift: gift.rarity === 'rare' || gift.rarity === 'super-rare' || gift.rarity === 'ultra-rare',
+              hasSuperRareGift: gift.rarity === 'super-rare' || gift.rarity === 'ultra-rare',
+              hasUltraRareGift: gift.rarity === 'ultra-rare',
+              giftInventory: inventory,
+              careStats: updatedStats,
+            });
+          }
+        }
+      }
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [
+    isAutoFeedActive,
+    currentCatId,
+    isEating,
+    isPlayingToy,
+    getFullnessScore,
+    feedCatFullness,
+    recordCareAction,
+    gainAffection,
+    startFeeding,
+    receiveGift,
+    catNames,
+    addGiftToast,
+    checkAchievements,
+    getMoodScore,
+    getMoodLevelForCat,
+    inventory,
+  ]);
+
+  // 留守番レポート受け取りハンドラー
+  const handleAcceptOfflineReport = useCallback(() => {
+    if (!offlineReportData) {
+      setIsOfflineReportModalOpen(false);
+      return;
+    }
+
+    // 1. おくりものをインベントリに登録
+    for (const { catId, gift } of offlineReportData.allEarnedGifts) {
+      receiveGift(catId, gift);
+    }
+
+    // 2. 各猫のExpとなつき度、まんぷく度を更新
+    for (const [catIdStr, res] of Object.entries(offlineReportData.catResults)) {
+      const catId = catIdStr as CatId;
+      if (res.totalExpGained > 0) {
+        gainAffection(catId, res.totalExpGained);
+      }
+      if (typeof res.finalFullness === 'number') {
+        const currentScore = getFullnessScore(catId);
+        const diff = res.finalFullness - currentScore;
+        feedCatFullness(catId, diff);
+      }
+    }
+
+    // 3. 手帳統計のごはん回数のみ加算（ふれあい日数は進めない！）
+    const feedCountsByCat: Record<string, number> = {
+      black: offlineReportData.catResults.black?.feedCount ?? 0,
+      white: offlineReportData.catResults.white?.feedCount ?? 0,
+      calico: offlineReportData.catResults.calico?.feedCount ?? 0,
+    };
+    const updatedJournalStats = applyAutoFeedToCareStats(
+      careJournalStats,
+      feedCountsByCat as Record<CatId, number>
+    );
+    addAutoFeedStats(feedCountsByCat);
+
+    // 4. 最新のおくりものインベントリを計算
+    let updatedInventory = inventory;
+    for (const { catId, gift } of offlineReportData.allEarnedGifts) {
+      updatedInventory = addGiftToInventory(updatedInventory, gift.id, catId);
+    }
+    const updatedTotalGifts = getTotalGiftCount(updatedInventory);
+
+    // 5. レアおくりものの所持判定
+    const hasRareGift =
+      offlineReportData.allEarnedGifts.some(
+        ({ gift }) => gift.rarity === 'rare' || gift.rarity === 'super-rare' || gift.rarity === 'ultra-rare'
+      ) ||
+      Object.keys(updatedInventory).some((id) => {
+        const item = CAT_GIFTS.find((g) => g.id === id);
+        return item?.rarity === 'rare' || item?.rarity === 'super-rare' || item?.rarity === 'ultra-rare';
+      });
+
+    const hasSuperRareGift =
+      offlineReportData.allEarnedGifts.some(
+        ({ gift }) => gift.rarity === 'super-rare' || gift.rarity === 'ultra-rare'
+      ) ||
+      Object.keys(updatedInventory).some((id) => {
+        const item = CAT_GIFTS.find((g) => g.id === id);
+        return item?.rarity === 'super-rare' || item?.rarity === 'ultra-rare';
+      });
+
+    const hasUltraRareGift =
+      offlineReportData.allEarnedGifts.some(
+        ({ gift }) => gift.rarity === 'ultra-rare'
+      ) ||
+      Object.keys(updatedInventory).some((id) => {
+        const item = CAT_GIFTS.find((g) => g.id === id);
+        return item?.rarity === 'ultra-rare';
+      });
+
+    // 6. ウィンドウを閉じる
+    setIsOfflineReportModalOpen(false);
+    setOfflineReportData(null);
+
+    // 7. 実績判定（留守中の給餌累計回数・おくりもの獲得等により達成された実績があるか確認）
+    checkAchievements({
+      action: 'feed',
+      moodScore: getMoodScore(currentCatId),
+      moodLevel: getMoodLevelForCat(currentCatId),
+      fullnessScore: getFullnessScore(currentCatId),
+      fullnessLevel: currentFullnessLevel,
+      affectionLevel: getMaxAffectionLevel(),
+      maxAffectionLevel: getMaxAffectionLevel(),
+      minAffectionLevel: getMinAffectionLevel(),
+      totalGifts: updatedTotalGifts,
+      receivedGift:
+        offlineReportData.allEarnedGifts.length > 0
+          ? offlineReportData.allEarnedGifts[offlineReportData.allEarnedGifts.length - 1].gift
+          : null,
+      hasRareGift,
+      hasSuperRareGift,
+      hasUltraRareGift,
+      giftInventory: updatedInventory,
+      careStats: updatedJournalStats,
+    });
+  }, [
+    offlineReportData,
+    receiveGift,
+    gainAffection,
+    getFullnessScore,
+    feedCatFullness,
+    addAutoFeedStats,
+    careJournalStats,
+    inventory,
+    checkAchievements,
+    getMoodScore,
+    getMoodLevelForCat,
+    currentCatId,
+    currentFullnessLevel,
+    getMaxAffectionLevel,
+    getMinAffectionLevel,
+  ]);
 
   const handleInteractCat = () => {
     setLastAction('pet');
@@ -608,12 +885,18 @@ export default function App() {
         isPlayingToy={isPlayingToy}
         currentFullnessScore={currentFullnessScore}
         currentAffectionLevel={currentAffectionLevel}
+        isAutoFeedUnlocked={isAutoFeedUnlockedValue}
+        isAutoFeedEnabled={isAutoFeedEnabled}
+        onToggleAutoFeed={setAutoFeedEnabled}
         onFeed={handleFeed}
         onPlay={handlePlay}
       />
 
       {/* なつき度レベルアップ時の中央巨大ハート＆祝うメッセージ演出オーバーレイ */}
       <AffectionLevelUpOverlay state={levelUpState} />
+
+      {/* おくりもの獲得時のミニトースト通知（自動ごはん時の通知など） */}
+      <GiftToastOverlay toasts={giftToasts} onDismiss={dismissGiftToast} />
 
       {/* あそびかた（ガイド）モーダル画面 */}
       <HowToPlayModal
@@ -640,7 +923,22 @@ export default function App() {
         onResetCatNames={resetCatNames}
         gaugePosition={gaugePosition}
         onChangeGaugePosition={setGaugePosition}
+        isAutoFeedUnlocked={isAutoFeedUnlockedValue}
+        isAutoFeedEnabled={isAutoFeedEnabled}
+        onToggleAutoFeed={setAutoFeedEnabled}
       />
+
+      {/* お留守番レポート（自動ごはん）モーダル画面 */}
+      {offlineReportData && (
+        <OfflineCareReportModal
+          isOpen={isOfflineReportModalOpen}
+          onClose={handleAcceptOfflineReport}
+          elapsedMs={offlineReportData.cappedElapsedMs}
+          catResults={offlineReportData.catResults}
+          allEarnedGifts={offlineReportData.allEarnedGifts}
+          catNames={catNames}
+        />
+      )}
 
       {/* 実績一覧モーダル画面 */}
       <AchievementModal

@@ -14,6 +14,8 @@ export interface AppSettings {
   catNames: CatCustomNames;
   /** ごきげん度等のゲージ類の表示位置・スタイル（デフォルト: 'bottom'） */
   gaugePosition: GaugeDisplayPosition;
+  /** 自動ごはん機能が有効かどうか（デフォルト: false、全猫なつき度Lv.10で解禁） */
+  autoFeedEnabled: boolean;
 }
 
 /** 猫のデフォルト名定義 */
@@ -28,6 +30,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   soundEnabled: true,
   catNames: DEFAULT_CAT_NAMES,
   gaugePosition: 'bottom',
+  autoFeedEnabled: false,
 };
 
 /** localStorage 保存用キー */

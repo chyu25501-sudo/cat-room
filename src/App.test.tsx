@@ -1441,5 +1441,157 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       fireEvent.click(howToPlayButton);
       expect(screen.getByRole('dialog', { name: 'あそびかた' })).toBeInTheDocument();
     });
+
+    const setupAllCatsMaxAffection = () => {
+      localStorage.setItem(
+        'nekoppoi_cats_affection',
+        JSON.stringify({
+          black: { level: 10, currentExp: 0, requiredExp: 600 },
+          white: { level: 10, currentExp: 0, requiredExp: 600 },
+          calico: { level: 10, currentExp: 0, requiredExp: 600 },
+        })
+      );
+    };
+
+    it('全猫なつき度Lv.10のとき設定画面で「自動ごはん」が解禁され、トグルをオンにできること', () => {
+      // 全猫Lv.10にセット
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      setupAllCatsMaxAffection();
+
+      render(<App />);
+
+      // 設定モーダルを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      expect(screen.getByRole('dialog', { name: '設定' })).toBeInTheDocument();
+      const autoFeedSection = screen.getByTestId('auto-feed-section');
+      expect(autoFeedSection).toBeInTheDocument();
+      expect(within(autoFeedSection).getByText('解禁済み')).toBeInTheDocument();
+
+      // トグルスイッチをクリックしてオンにする
+      const toggle = within(autoFeedSection).getByRole('switch', { name: '自動ごはんの切り替え' });
+      expect(toggle).toHaveAttribute('aria-checked', 'false');
+      fireEvent.click(toggle);
+      expect(toggle).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('自動ごはんがオンのとき、お世話サイドバーを開くと手動ごはんボタンが無効化されること', () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      setupAllCatsMaxAffection();
+      // 設定で自動ごはんオン
+      localStorage.setItem(
+        'nekoppoi_settings',
+        JSON.stringify({
+          soundEnabled: true,
+          catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+          gaugePosition: 'bottom',
+          autoFeedEnabled: true,
+        })
+      );
+
+      render(<App />);
+
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careButton);
+
+      expect(screen.getByTestId('auto-feed-active-banner')).toBeInTheDocument();
+      const feedButtons = screen.getAllByRole('button', { name: /をあげる$/ });
+      for (const btn of feedButtons) {
+        expect(btn).toBeDisabled();
+        expect(btn).toHaveTextContent('自動ごはん稼働中');
+      }
+    });
+
+    it('留守中に時間が経過した場合、アプリ起動時にお留守番レポートが表示され、受け取れること', () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      setupAllCatsMaxAffection();
+      // 設定で自動ごはんオン
+      localStorage.setItem(
+        'nekoppoi_settings',
+        JSON.stringify({
+          soundEnabled: true,
+          catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+          gaugePosition: 'bottom',
+          autoFeedEnabled: true,
+        })
+      );
+
+      // 最終アクセス時刻を24時間前（86,400,000ms前）に設定
+      const now = Date.now();
+      localStorage.setItem(
+        'nekoppoi_last_active_time',
+        (now - 24 * 60 * 60 * 1000).toString()
+      );
+
+      render(<App />);
+
+      // お留守番レポートモーダルが表示されていること
+      expect(screen.getByTestId('offline-care-report-modal')).toBeInTheDocument();
+      expect(screen.getByText(/おかえりなさい！お留守番レポート/)).toBeInTheDocument();
+
+      // レポート表示中はまだ実績トーストは出ていないこと
+      expect(screen.queryByTestId('achievement-toast-feed-count-100')).not.toBeInTheDocument();
+
+      // 「すべて受け取る」をクリックして閉じられること
+      const acceptBtn = screen.getByTestId('offline-report-accept-button');
+      fireEvent.click(acceptBtn);
+      expect(screen.queryByTestId('offline-care-report-modal')).not.toBeInTheDocument();
+
+      // ウィンドウを閉じた後、留守中の給餌累計回数により達成された実績トーストが表示されること
+      expect(screen.getByTestId('achievement-toast-feed-count-100')).toBeInTheDocument();
+      expect(screen.getByText('もぐもぐシェフ')).toBeInTheDocument();
+    });
+
+    it('お世話メニューの「自動化」タブから自動ごはんのオンオフを切り替えられ、「ふれあい」タブの手動給餌と連動すること', () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      setupAllCatsMaxAffection();
+
+      render(<App />);
+
+      // お世話メニューを開く
+      const careBtn = screen.getByRole('button', { name: 'お世話メニューを開く' });
+      fireEvent.click(careBtn);
+
+      // 初期状態では「ふれあい」タブが選択されていること
+      expect(screen.getByTestId('care-tab-interaction')).toHaveAttribute('aria-selected', 'true');
+      const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
+      expect(feedKibbleBtn).toHaveTextContent('あげる');
+      expect(feedKibbleBtn).toBeEnabled();
+
+      // 「自動化」タブに切り替える
+      const automationTab = screen.getByTestId('care-tab-automation');
+      fireEvent.click(automationTab);
+      expect(automationTab).toHaveAttribute('aria-selected', 'true');
+
+      // 自動ごはんセクションとトグルボタンが表示されていること（初期状態: オフ）
+      expect(screen.getByTestId('care-auto-feed-section')).toBeInTheDocument();
+      expect(screen.getByTestId('care-auto-feed-warning')).toBeInTheDocument();
+      const toggleBtn = screen.getByTestId('care-auto-feed-toggle-button');
+      expect(toggleBtn).toHaveAttribute('aria-checked', 'false');
+
+      // トグルスイッチをクリックしてオンにする
+      fireEvent.click(toggleBtn);
+      expect(toggleBtn).toHaveAttribute('aria-checked', 'true');
+
+      // 「ふれあい」タブに戻る
+      const interactionTab = screen.getByTestId('care-tab-interaction');
+      fireEvent.click(interactionTab);
+
+      // 手動ごはんボタンが無効化され、「自動ごはん稼働中」と表示されること
+      expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toHaveTextContent('自動ごはん稼働中');
+      expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toBeDisabled();
+
+      // 再度「自動化」タブでトグルスイッチをクリックしてオフにする
+      fireEvent.click(automationTab);
+      const reloadedToggleBtn = screen.getByTestId('care-auto-feed-toggle-button');
+      fireEvent.click(reloadedToggleBtn);
+      expect(reloadedToggleBtn).toHaveAttribute('aria-checked', 'false');
+
+      // 「ふれあい」タブに戻ると手動ごはんボタンが通常（あげる）に戻ること
+      fireEvent.click(interactionTab);
+      expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toHaveTextContent('あげる');
+      expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toBeEnabled();
+    });
   });
 });

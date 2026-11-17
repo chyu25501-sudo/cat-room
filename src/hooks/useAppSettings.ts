@@ -19,6 +19,8 @@ export interface UseAppSettingsReturn {
   catNames: CatCustomNames;
   /** ゲージの表示位置（'bottom': 下部・標準、'side': 横側・シンプル） */
   gaugePosition: GaugeDisplayPosition;
+  /** 自動ごはんが有効かどうか（デフォルト: false） */
+  isAutoFeedEnabled: boolean;
   /** サウンド再生の有効/無効を更新する関数 */
   setSoundEnabled: (enabled: boolean) => void;
   /** サウンド再生の有効/無効を反転（トグル）する関数 */
@@ -29,6 +31,10 @@ export interface UseAppSettingsReturn {
   resetCatNames: () => void;
   /** ゲージの表示位置・スタイルを更新する関数 */
   setGaugePosition: (position: GaugeDisplayPosition) => void;
+  /** 自動ごはんの有効/無効を更新する関数 */
+  setAutoFeedEnabled: (enabled: boolean) => void;
+  /** 自動ごはんの有効/無効を反転（トグル）する関数 */
+  toggleAutoFeed: () => void;
 }
 
 /**
@@ -40,19 +46,11 @@ export function useAppSettings(): UseAppSettingsReturn {
     try {
       const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
       if (!stored) {
-        return {
-          soundEnabled: DEFAULT_APP_SETTINGS.soundEnabled,
-          catNames: { ...DEFAULT_CAT_NAMES },
-          gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
-        };
+        return { ...DEFAULT_APP_SETTINGS };
       }
       return sanitizeSettings(JSON.parse(stored));
     } catch {
-      return {
-        soundEnabled: DEFAULT_APP_SETTINGS.soundEnabled,
-        catNames: { ...DEFAULT_CAT_NAMES },
-        gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
-      };
+      return { ...DEFAULT_APP_SETTINGS };
     }
   });
 
@@ -103,15 +101,32 @@ export function useAppSettings(): UseAppSettingsReturn {
     }));
   }, []);
 
+  const setAutoFeedEnabled = useCallback((enabled: boolean) => {
+    setSettings((prev) => ({
+      ...prev,
+      autoFeedEnabled: enabled,
+    }));
+  }, []);
+
+  const toggleAutoFeed = useCallback(() => {
+    setSettings((prev) => ({
+      ...prev,
+      autoFeedEnabled: !prev.autoFeedEnabled,
+    }));
+  }, []);
+
   return {
     settings,
     isSoundEnabled: settings.soundEnabled,
     catNames: settings.catNames,
     gaugePosition: settings.gaugePosition,
+    isAutoFeedEnabled: settings.autoFeedEnabled,
     setSoundEnabled,
     toggleSound,
     setCatName,
     resetCatNames,
     setGaugePosition,
+    setAutoFeedEnabled,
+    toggleAutoFeed,
   };
 }

@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Utensils, X, ChevronDown, ChevronUp, Heart, Gamepad2, Sparkles, AlertCircle, Lock } from 'lucide-react';
+import {
+  Utensils,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  Gamepad2,
+  Sparkles,
+  AlertCircle,
+  Lock,
+  Bot,
+} from 'lucide-react';
 import { FoodItem, ToyItem } from '../../types/care.ts';
 import {
   FOOD_ITEMS,
@@ -31,11 +42,21 @@ export interface CareSidebarProps {
   currentFullnessScore?: number;
   /** 現在選択されている猫のなつき度レベル（未指定時は全解禁扱い） */
   currentAffectionLevel?: number;
+  /** 自動ごはんが解禁されているかどうか（未指定時は true 扱い） */
+  isAutoFeedUnlocked?: boolean;
+  /** 自動ごはんが有効かどうか（有効時は手動ごはんが無効化される） */
+  isAutoFeedEnabled?: boolean;
+  /** 自動ごはんのオンオフ切り替えコールバック */
+  onToggleAutoFeed?: (enabled: boolean) => void;
+  /** デフォルトで開くタブ（未指定時は 'interaction'） */
+  defaultTab?: CareTab;
   /** サイドバーの開閉状態（制御プロパティ、未指定時は内部ステート） */
   isOpen?: boolean;
   /** 開閉状態が変更されたときのコールバック */
   onToggleOpen?: (isOpen: boolean) => void;
 }
+
+export type CareTab = 'interaction' | 'automation';
 
 export const CareSidebar: React.FC<CareSidebarProps> = ({
   currentCatName,
@@ -46,15 +67,21 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   isBusy: controlledIsBusy,
   currentFullnessScore,
   currentAffectionLevel = 10,
+  isAutoFeedUnlocked = true,
+  isAutoFeedEnabled = false,
+  onToggleAutoFeed,
+  defaultTab = 'interaction',
   isOpen: controlledIsOpen,
   onToggleOpen,
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<CareTab>(defaultTab);
   const [isFoodSubmenuOpen, setIsFoodSubmenuOpen] = useState(true);
   const [isToySubmenuOpen, setIsToySubmenuOpen] = useState(true);
 
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
   const isBusy = controlledIsBusy !== undefined ? controlledIsBusy : (isEating || isPlayingToy);
+  const isAutoFeedActive = isAutoFeedUnlocked && isAutoFeedEnabled;
 
   // まんぷく度が90%以上のときは「まんぷくで食べられない！」
   const isTooFull = typeof currentFullnessScore === 'number' && !canFeedCat(currentFullnessScore);
@@ -70,8 +97,8 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
   };
 
   const handleFeedClick = (food: FoodItem) => {
-    // なつき度不足、食事中・遊び中、または満腹（90%以上）の場合は給餌不可
-    if (!isFoodUnlocked(food, currentAffectionLevel) || isBusy || isTooFull) return;
+    // なつき度不足、食事中・遊び中、満腹（90%以上）、または自動ごはんONの場合は給餌不可
+    if (!isFoodUnlocked(food, currentAffectionLevel) || isBusy || isTooFull || isAutoFeedActive) return;
     onFeed(food);
     // ごはんをあげた直後にサイドバーを自動で閉じ、猫のリアクションやごきげん度が見えるようにする
     handleSetOpen(false);
@@ -145,6 +172,58 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
           </button>
         </div>
 
+        {/* タブ切り替え（「ふれあい」/「自動化」） */}
+        <div className="px-4 pt-3 pb-2 border-b border-stone-200 bg-amber-50/20">
+          <div
+            role="tablist"
+            aria-label="お世話メニュータブ"
+            className="grid grid-cols-2 p-1 bg-stone-100 rounded-xl gap-1 border border-stone-200/60"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'interaction'}
+              aria-controls="care-tabpanel-interaction"
+              id="care-tab-interaction"
+              data-testid="care-tab-interaction"
+              onClick={() => setActiveTab('interaction')}
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'interaction'
+                  ? 'bg-white text-orange-600 shadow-2xs font-black'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              <Heart className="w-3.5 h-3.5 fill-current" />
+              <span>ふれあい</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'automation'}
+              aria-controls="care-tabpanel-automation"
+              id="care-tab-automation"
+              data-testid="care-tab-automation"
+              onClick={() => setActiveTab('automation')}
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'automation'
+                  ? 'bg-white text-orange-600 shadow-2xs font-black'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>自動化</span>
+              {isAutoFeedActive && (
+                <span
+                  data-testid="auto-feed-active-dot"
+                  className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
+                  title="自動ごはん稼働中"
+                />
+              )}
+            </button>
+          </div>
+        </div>
+
         {/* サイドバーメインコンテンツ（スクロール可能） */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* 食事中または遊び中の案内バナー（現在はお世話アクションを受け付けない状態であることを明示） */}
@@ -168,6 +247,16 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
               </div>
             </div>
           )}
+
+          {/* ふれあいタブパネル */}
+          {activeTab === 'interaction' && (
+            <div
+              role="tabpanel"
+              id="care-tabpanel-interaction"
+              aria-labelledby="care-tab-interaction"
+              data-testid="care-tabpanel-interaction"
+              className="space-y-4 animate-in fade-in duration-150"
+            >
 
           {/* お世話カテゴリ: ごはん（食事） */}
           <section className="bg-stone-50 border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
@@ -206,8 +295,26 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                 data-testid="food-submenu"
                 className="p-3 space-y-2.5 bg-gradient-to-b from-stone-50 to-amber-50/30"
               >
+                {/* 自動ごはん稼働中は手動給餌お休みバナーを表示 */}
+                {isAutoFeedActive && (
+                  <div
+                    data-testid="auto-feed-active-banner"
+                    className="p-2.5 rounded-xl bg-amber-100/90 border border-amber-300 text-amber-900 text-xs font-bold flex items-center gap-2 animate-in fade-in shadow-2xs"
+                  >
+                    <span className="text-base select-none shrink-0" role="img" aria-label="自動給餌中">
+                      🤖
+                    </span>
+                    <div className="leading-tight">
+                      <p className="font-bold">自動ごはんが稼働中です</p>
+                      <p className="text-[11px] text-amber-800/80 font-normal mt-0.5">
+                        まんぷく度が40%以下になると自動でカリカリを食べます。手動ごはんはお休み中です。
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* 90%以上の満腹時は給餌不可バナーを表示 */}
-                {isTooFull && (
+                {!isAutoFeedActive && isTooFull && (
                   <div
                     data-testid="feed-disabled-banner"
                     className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2 animate-in fade-in shadow-2xs"
@@ -228,7 +335,7 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                       className={`relative flex flex-col p-3 rounded-xl border border-stone-200 bg-white transition-all duration-200 ${
                         !unlocked
                           ? 'opacity-85 bg-stone-50/70 border-dashed'
-                          : isBusy || isTooFull
+                          : isBusy || isTooFull || isAutoFeedActive
                           ? 'opacity-80'
                           : 'hover:border-orange-300 hover:shadow-sm'
                       }`}
@@ -300,18 +407,20 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
                       ) : (
                         <button
                           type="button"
-                          disabled={isBusy || isTooFull}
+                          disabled={isBusy || isTooFull || isAutoFeedActive}
                           onClick={() => handleFeedClick(food)}
                           aria-label={`${food.name}をあげる`}
                           className={`mt-2.5 w-full py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-150 ${
-                            isBusy || isTooFull
+                            isBusy || isTooFull || isAutoFeedActive
                               ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
                               : 'cursor-pointer bg-orange-500 hover:bg-orange-600 text-white active:scale-98 shadow-xs'
                           }`}
                         >
                           <Utensils className="w-3.5 h-3.5" />
                           <span>
-                            {isBusy
+                            {isAutoFeedActive
+                              ? '自動ごはん稼働中'
+                              : isBusy
                               ? (isEating ? 'お食事中…' : 'あそび中…')
                               : isTooFull
                               ? MESSAGE_TOO_FULL_TO_EAT
@@ -472,12 +581,106 @@ export const CareSidebar: React.FC<CareSidebarProps> = ({
             )}
           </section>
         </div>
+      )}
 
-        {/* サイドバーフッター */}
-        <div className="p-3 border-t border-stone-200 bg-stone-50 text-center text-xs text-stone-400">
-          💡 ごはんやおもちゃでごきげん度アップ＆不機嫌もなおります♪
+      {/* 自動化タブパネル */}
+      {activeTab === 'automation' && (
+        <div
+          role="tabpanel"
+          id="care-tabpanel-automation"
+          aria-labelledby="care-tab-automation"
+          data-testid="care-tabpanel-automation"
+          className="space-y-4 animate-in fade-in duration-150"
+        >
+          {/* 自動ごはんオンオフ設定カード */}
+          <section
+            data-testid="care-auto-feed-section"
+            className={`border rounded-2xl p-4 transition-colors shadow-2xs ${
+              isAutoFeedUnlocked
+                ? isAutoFeedEnabled
+                  ? 'bg-amber-50/70 border-orange-200'
+                  : 'bg-stone-50 border-stone-200'
+                : 'bg-stone-50 border-stone-200/80'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-1.5 text-stone-800 font-bold text-xs sm:text-sm min-w-0">
+                <Utensils
+                  className={`w-4 h-4 shrink-0 ${
+                    isAutoFeedUnlocked ? 'text-orange-600' : 'text-stone-400'
+                  }`}
+                />
+                <span className="truncate">自動ごはん</span>
+                {isAutoFeedUnlocked ? (
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full border border-amber-300 leading-none shrink-0">
+                    解禁済み
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-stone-500 bg-stone-200 px-1.5 py-0.5 rounded-full border border-stone-300 leading-none flex items-center gap-0.5 shrink-0">
+                    <Lock className="w-2.5 h-2.5" />
+                    <span>未解禁</span>
+                  </span>
+                )}
+              </div>
+
+              {/* トグルスイッチ */}
+              <button
+                type="button"
+                role="switch"
+                disabled={!isAutoFeedUnlocked}
+                aria-checked={isAutoFeedUnlocked && isAutoFeedEnabled}
+                aria-label="お世話メニューの自動ごはんの切り替え"
+                data-testid="care-auto-feed-toggle-button"
+                onClick={() => onToggleAutoFeed?.(!isAutoFeedEnabled)}
+                className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
+                  !isAutoFeedUnlocked
+                    ? 'bg-stone-200 cursor-not-allowed opacity-60'
+                    : isAutoFeedEnabled
+                    ? 'bg-orange-500 cursor-pointer'
+                    : 'bg-stone-300 cursor-pointer'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                    isAutoFeedUnlocked && isAutoFeedEnabled
+                      ? 'translate-x-5'
+                      : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {!isAutoFeedUnlocked
+                ? '🔒 全猫（くろねこ・しろねこ・みけねこ）のなつき度がLv.10（MAX）に到達すると解禁されます。すべての猫ちゃんと絆を深めると利用可能になります。'
+                : isAutoFeedEnabled
+                ? '全猫のまんぷく度が40%以下になると自動でカリカリを食べます。アプリを離れている間（最大7日間）も自動で給餌され、次回開いた際にまとめておくりものを受け取れます。※オンの間は手動ごはんがお休みになります。'
+                : '自動ごはんは現在オフです。手動で愛情を込めてごはんをあげられます。'}
+            </p>
+
+            {/* 注意事項（赤文字等で強調） */}
+            <div
+              data-testid="care-auto-feed-warning"
+              className="mt-3 pt-2.5 border-t border-orange-200/60 flex items-start gap-1.5 text-[11px] text-rose-600 font-bold leading-relaxed"
+            >
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-rose-500" />
+              <span>
+                【ご注意】自動ごはんがオンの状態でアプリを離れても、日付系の実績（連続ふれあい日数や累計訪問日数など）や手帳のふれあい日数は進みません。毎日自分で猫ちゃんとふれあった日のみカウントされます。
+              </span>
+            </div>
+          </section>
         </div>
-      </aside>
-    </>
+      )}
+    </div>
+
+    {/* サイドバーフッター */}
+    <div className="p-3 border-t border-stone-200 bg-stone-50 text-center text-xs text-stone-400">
+      {activeTab === 'interaction'
+        ? '💡 ごはんやおもちゃでごきげん度アップ＆不機嫌もなおります♪'
+        : '💡 自動ごはん中はアプリを離れていても猫ちゃんがカリカリを食べます♪'}
+    </div>
+  </aside>
+</>
   );
 };

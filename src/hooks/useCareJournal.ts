@@ -6,12 +6,16 @@ import {
   recordInteraction,
   sanitizeCareStats,
 } from '../utils/careJournal.ts';
+import { applyAutoFeedToCareStats } from '../utils/autoFeed.ts';
+import { CatId } from '../types/cat.ts';
 
 export interface UseCareJournalReturn {
   /** 統計データ */
   stats: CareStats;
   /** ふれあいアクションを記録する関数（更新後の CareStats を返す） */
   recordCareAction: (actionType: CareActionType, catId: string) => CareStats;
+  /** 自動ごはんによる給餌回数を加算する関数（ふれあい日数は進めない） */
+  addAutoFeedStats: (feedCountsByCat: Record<string, number>) => CareStats;
   /** 統計データをリセットする関数 */
   resetStats: () => void;
 }
@@ -63,6 +67,22 @@ export function useCareJournal(): UseCareJournalReturn {
   );
 
   /**
+   * 自動ごはんの給餌回数を手帳に記録する（ふれあい日数は進めない）
+   */
+  const addAutoFeedStats = useCallback(
+    (feedCountsByCat: Record<string, number>): CareStats => {
+      let updatedStats = stats;
+      setStats((prev) => {
+        const next = applyAutoFeedToCareStats(prev, feedCountsByCat as Record<CatId, number>);
+        updatedStats = next;
+        return next;
+      });
+      return updatedStats;
+    },
+    [stats]
+  );
+
+  /**
    * 統計データを初期状態にリセットする
    */
   const resetStats = useCallback(() => {
@@ -72,6 +92,7 @@ export function useCareJournal(): UseCareJournalReturn {
   return {
     stats,
     recordCareAction,
+    addAutoFeedStats,
     resetStats,
   };
 }

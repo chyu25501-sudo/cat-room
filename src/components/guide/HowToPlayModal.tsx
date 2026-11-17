@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X, Heart, Utensils, Sparkles, Trophy, BookOpen, Settings, Smile } from 'lucide-react';
+import { X, Heart, Utensils, Sparkles, Trophy, BookOpen, Settings, Smile, Bot } from 'lucide-react';
 import { HowToPlayIcon } from './HowToPlayButton.tsx';
 import { BlackCat } from '../cats/BlackCat.tsx';
 
@@ -127,6 +127,20 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({
       points: [
         '上部の猫アイコンから「くろねこ」「しろねこ」「みけねこ」をいつでも切り替えてお世話できます。',
         '「設定」では、猫ちゃんにお好きな名前をつけたり、鳴き声音のON/OFF、ごきげんゲージの表示位置（画面下部／猫の横）を切り替えられます。',
+      ],
+    },
+    {
+      id: 'auto-feed',
+      title: '7. 自動ごはん（全猫なつき度Lv.10で解禁）',
+      icon: <Bot className="w-4 h-4 text-emerald-600" />,
+      iconBg: 'bg-emerald-50 border-emerald-200',
+      iconColor: 'text-emerald-800',
+      description:
+        'すべての猫ちゃんのなつき度をLv.10（MAX）まで深めると、お留守番中も安心な「自動ごはん」が解禁されます。',
+      points: [
+        '設定やお世話メニューの「自動化」タブからいつでもON/OFFを切り替えられます。',
+        'ONにすると、全猫のまんぷく度が40%以下になったときに自動でカリカリを食べます。',
+        'アプリを離れていても（最大7日間）自動で給餌され、次回戻ってきた際にお留守番レポートでまとめておくりものを受け取れます。',
       ],
     },
   ];

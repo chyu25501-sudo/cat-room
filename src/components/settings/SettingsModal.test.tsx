@@ -195,4 +195,81 @@ describe('SettingsModal コンポーネント', () => {
     fireEvent.click(backdrop);
     expect(handleClose).toHaveBeenCalledTimes(2);
   });
+
+  describe('自動ごはん設定項目', () => {
+    it('未解禁（isAutoFeedUnlocked=false）のとき、未解禁バッジとロック説明が表示され、スイッチが無効化されていること', () => {
+      const handleToggle = vi.fn();
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isAutoFeedUnlocked={false}
+          onToggleAutoFeed={handleToggle}
+        />
+      );
+
+      expect(screen.getByTestId('auto-feed-section')).toBeInTheDocument();
+      expect(screen.getByText('自動ごはん')).toBeInTheDocument();
+      expect(screen.getByText('未解禁')).toBeInTheDocument();
+      expect(screen.getByText(/全猫（くろねこ・しろねこ・みけねこ）のなつき度がLv\.10/)).toBeInTheDocument();
+
+      const toggleButton = screen.getByRole('switch', { name: '自動ごはんの切り替え' });
+      expect(toggleButton).toBeDisabled();
+      fireEvent.click(toggleButton);
+      expect(handleToggle).not.toHaveBeenCalled();
+    });
+
+    it('解禁済み（isAutoFeedUnlocked=true）のとき、スイッチが操作可能になり、クリックで onToggleAutoFeed が呼ばれること', () => {
+      const handleToggle = vi.fn();
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isAutoFeedUnlocked={true}
+          isAutoFeedEnabled={false}
+          onToggleAutoFeed={handleToggle}
+        />
+      );
+
+      expect(screen.getByText('解禁済み')).toBeInTheDocument();
+      const toggleButton = screen.getByRole('switch', { name: '自動ごはんの切り替え' });
+      expect(toggleButton).not.toBeDisabled();
+      expect(toggleButton).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(toggleButton);
+      expect(handleToggle).toHaveBeenCalledWith(true);
+    });
+
+    it('isAutoFeedEnabled が true のとき、トグルがオン状態（aria-checked="true"）になり稼働中説明が表示されること', () => {
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isAutoFeedUnlocked={true}
+          isAutoFeedEnabled={true}
+        />
+      );
+
+      const toggleButton = screen.getByRole('switch', { name: '自動ごはんの切り替え' });
+      expect(toggleButton).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByText(/全猫のまんぷく度が40%以下になると自動でカリカリを食べます/)).toBeInTheDocument();
+    });
+
+    it('自動ごはんカード内に、日付系実績やふれあい日数が進まないことの注意事項（赤文字強調）が表示されること', () => {
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isAutoFeedUnlocked={true}
+          isAutoFeedEnabled={true}
+        />
+      );
+
+      const warningElement = screen.getByTestId('auto-feed-warning');
+      expect(warningElement).toBeInTheDocument();
+      expect(warningElement).toHaveClass('text-rose-600');
+      expect(warningElement).toHaveTextContent(/【ご注意】自動ごはんがオンの状態でアプリを離れても、日付系の実績/);
+      expect(warningElement).toHaveTextContent(/ふれあい日数は進みません/);
+    });
+  });
 });

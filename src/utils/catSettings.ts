@@ -79,6 +79,7 @@ export function sanitizeSettings(raw: unknown): AppSettings {
       soundEnabled: DEFAULT_APP_SETTINGS.soundEnabled,
       catNames: { ...DEFAULT_CAT_NAMES },
       gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
+      autoFeedEnabled: DEFAULT_APP_SETTINGS.autoFeedEnabled,
     };
   }
 
@@ -87,6 +88,11 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     typeof obj.soundEnabled === 'boolean'
       ? obj.soundEnabled
       : DEFAULT_APP_SETTINGS.soundEnabled;
+
+  const autoFeedEnabled =
+    typeof obj.autoFeedEnabled === 'boolean'
+      ? obj.autoFeedEnabled
+      : DEFAULT_APP_SETTINGS.autoFeedEnabled;
 
   const rawNames =
     obj.catNames && typeof obj.catNames === 'object' && !Array.isArray(obj.catNames)
@@ -115,5 +121,6 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     soundEnabled,
     catNames,
     gaugePosition,
+    autoFeedEnabled,
   };
 }
