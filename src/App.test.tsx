@@ -1593,5 +1593,101 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toHaveTextContent('あげる');
       expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toBeEnabled();
     });
+
+    it('なつき度演出の簡略化設定がオンのとき、普段の手動ふれあいでなつき度が上がっても中央の大きなハート演出は表示されず、控えめなミニトースト通知が表示されること', () => {
+      vi.useFakeTimers();
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+      try {
+        localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+        // なつき度演出の簡略化をオンに設定
+        localStorage.setItem(
+          'nekoppoi_settings',
+          JSON.stringify({
+            soundEnabled: true,
+            catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+            gaugePosition: 'bottom',
+            autoFeedEnabled: false,
+            compactAffectionCelebration: true,
+          })
+        );
+        // なつき度レベルアップ寸前（115/120pt）に設定
+        localStorage.setItem(
+          'nekoppoi_cats_affection',
+          JSON.stringify({
+            black: { level: 1, currentExp: 115, requiredExp: 120 },
+            white: { level: 1, currentExp: 0, requiredExp: 120 },
+          })
+        );
+
+        render(<App />);
+
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        // 中央の大きなハート演出は表示されないこと
+        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+
+        // 代わりに控えめなミニトースト通知が表示されること
+        expect(screen.getByTestId('gift-toast-container')).toBeInTheDocument();
+        expect(screen.getByText(/からのおくりもの！/)).toBeInTheDocument();
+      } finally {
+        randomSpy.mockRestore();
+        vi.useRealTimers();
+      }
+    });
+
+    it('なつき度演出の簡略化がオフでも、自動ごはんが有効な場合は自動でハートマーク演出が簡略化されること', () => {
+      vi.useFakeTimers();
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+      try {
+        localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+        setupAllCatsMaxAffection();
+        // 自動ごはんをオン、簡略化設定はオフ（false）
+        localStorage.setItem(
+          'nekoppoi_settings',
+          JSON.stringify({
+            soundEnabled: true,
+            catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+            gaugePosition: 'bottom',
+            autoFeedEnabled: true,
+            compactAffectionCelebration: false,
+          })
+        );
+        // 黒猫のなつき度ボーナス獲得寸前（590/600pt）に設定
+        localStorage.setItem(
+          'nekoppoi_cats_affection',
+          JSON.stringify({
+            black: { level: 10, currentExp: 590, requiredExp: 600 },
+            white: { level: 10, currentExp: 0, requiredExp: 600 },
+            calico: { level: 10, currentExp: 0, requiredExp: 600 },
+          })
+        );
+
+        render(<App />);
+
+        const catSilhouette = screen.getByRole('button', { name: /くろねこのシルエット/ });
+        act(() => {
+          fireEvent.pointerDown(catSilhouette, { clientX: 100, clientY: 100, isPrimary: true });
+          fireEvent.pointerMove(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+          fireEvent.pointerUp(catSilhouette, { clientX: 160, clientY: 100, isPrimary: true });
+        });
+
+        // 自動ごはんが有効なため、ハート演出は簡略化されて中央オーバーレイは表示されないこと
+        expect(screen.queryByTestId('affection-levelup-overlay')).not.toBeInTheDocument();
+
+        // ミニトースト通知が表示されること
+        expect(screen.getByTestId('gift-toast-container')).toBeInTheDocument();
+        expect(screen.getByText(/からのおくりもの！/)).toBeInTheDocument();
+      } finally {
+        randomSpy.mockRestore();
+        vi.useRealTimers();
+      }
+    });
   });
 });

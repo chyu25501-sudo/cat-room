@@ -96,5 +96,16 @@ describe('catSettings ユーティリティ (設定サニタイズ・名前解�
       const sanitized = sanitizeSettings({ gaugePosition: 'invalid' });
       expect(sanitized.gaugePosition).toBe('bottom');
     });
+
+    it('compactAffectionCelebration が正しくサニタイズされ保持されること（不正値はデフォルトにフォールバック）', () => {
+      const enabled = sanitizeSettings({ compactAffectionCelebration: true });
+      expect(enabled.compactAffectionCelebration).toBe(true);
+
+      const disabled = sanitizeSettings({ compactAffectionCelebration: false });
+      expect(disabled.compactAffectionCelebration).toBe(false);
+
+      const invalid = sanitizeSettings({ compactAffectionCelebration: 'not-a-boolean' });
+      expect(invalid.compactAffectionCelebration).toBe(false);
+    });
   });
 });

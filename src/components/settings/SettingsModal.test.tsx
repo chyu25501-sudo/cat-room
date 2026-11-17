@@ -272,4 +272,47 @@ describe('SettingsModal コンポーネント', () => {
       expect(warningElement).toHaveTextContent(/ふれあい日数は進みません/);
     });
   });
+
+  describe('なつき度演出の簡略化設定', () => {
+    it('デフォルト（オフ状態）でトグルが表示され、クリックで onToggleCompactAffectionCelebration が発火すること', () => {
+      const handleToggle = vi.fn();
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCompactAffectionCelebration={false}
+          onToggleCompactAffectionCelebration={handleToggle}
+        />
+      );
+
+      expect(screen.getByTestId('compact-affection-celebration-section')).toBeInTheDocument();
+      expect(screen.getByText('なつき度演出の簡略化')).toBeInTheDocument();
+
+      const toggleButton = screen.getByRole('switch', { name: 'なつき度演出の簡略化の切り替え' });
+      expect(toggleButton).toHaveAttribute('aria-checked', 'false');
+      expect(screen.getByText(/画面中央に大きなハート演出を表示します/)).toBeInTheDocument();
+
+      fireEvent.click(toggleButton);
+      expect(handleToggle).toHaveBeenCalledWith(true);
+    });
+
+    it('isCompactAffectionCelebration が true のとき、トグルがオン状態になり簡略化の説明文が表示されること', () => {
+      const handleToggle = vi.fn();
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCompactAffectionCelebration={true}
+          onToggleCompactAffectionCelebration={handleToggle}
+        />
+      );
+
+      const toggleButton = screen.getByRole('switch', { name: 'なつき度演出の簡略化の切り替え' });
+      expect(toggleButton).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByText(/控えめな通知（トースト）で表示します/)).toBeInTheDocument();
+
+      fireEvent.click(toggleButton);
+      expect(handleToggle).toHaveBeenCalledWith(false);
+    });
+  });
 });

@@ -21,6 +21,8 @@ export interface UseAppSettingsReturn {
   gaugePosition: GaugeDisplayPosition;
   /** 自動ごはんが有効かどうか（デフォルト: false） */
   isAutoFeedEnabled: boolean;
+  /** なつき度演出が簡略化されているかどうか（デフォルト: false） */
+  isCompactAffectionCelebration: boolean;
   /** サウンド再生の有効/無効を更新する関数 */
   setSoundEnabled: (enabled: boolean) => void;
   /** サウンド再生の有効/無効を反転（トグル）する関数 */
@@ -35,6 +37,10 @@ export interface UseAppSettingsReturn {
   setAutoFeedEnabled: (enabled: boolean) => void;
   /** 自動ごはんの有効/無効を反転（トグル）する関数 */
   toggleAutoFeed: () => void;
+  /** なつき度演出簡略化の有効/無効を更新する関数 */
+  setCompactAffectionCelebration: (enabled: boolean) => void;
+  /** なつき度演出簡略化の有効/無効を反転（トグル）する関数 */
+  toggleCompactAffectionCelebration: () => void;
 }
 
 /**
@@ -115,12 +121,27 @@ export function useAppSettings(): UseAppSettingsReturn {
     }));
   }, []);
 
+  const setCompactAffectionCelebration = useCallback((enabled: boolean) => {
+    setSettings((prev) => ({
+      ...prev,
+      compactAffectionCelebration: enabled,
+    }));
+  }, []);
+
+  const toggleCompactAffectionCelebration = useCallback(() => {
+    setSettings((prev) => ({
+      ...prev,
+      compactAffectionCelebration: !prev.compactAffectionCelebration,
+    }));
+  }, []);
+
   return {
     settings,
     isSoundEnabled: settings.soundEnabled,
     catNames: settings.catNames,
     gaugePosition: settings.gaugePosition,
     isAutoFeedEnabled: settings.autoFeedEnabled,
+    isCompactAffectionCelebration: settings.compactAffectionCelebration,
     setSoundEnabled,
     toggleSound,
     setCatName,
@@ -128,5 +149,7 @@ export function useAppSettings(): UseAppSettingsReturn {
     setGaugePosition,
     setAutoFeedEnabled,
     toggleAutoFeed,
+    setCompactAffectionCelebration,
+    toggleCompactAffectionCelebration,
   };
 }

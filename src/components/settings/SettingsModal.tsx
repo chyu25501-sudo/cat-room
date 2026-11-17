@@ -29,6 +29,10 @@ export interface SettingsModalProps {
   isAutoFeedEnabled?: boolean;
   /** 自動ごはんの切り替えコールバック */
   onToggleAutoFeed?: (enabled: boolean) => void;
+  /** なつき度演出が簡略化されているかどうか（デフォルト: false） */
+  isCompactAffectionCelebration?: boolean;
+  /** なつき度演出簡略化の切り替えコールバック */
+  onToggleCompactAffectionCelebration?: (enabled: boolean) => void;
 }
 
 /**
@@ -48,6 +52,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   isAutoFeedUnlocked = false,
   isAutoFeedEnabled = false,
   onToggleAutoFeed,
+  isCompactAffectionCelebration = false,
+  onToggleCompactAffectionCelebration,
 }) => {
   // 初期名リセットの確認画面の開閉ステート
   const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
@@ -282,6 +288,47 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 【ご注意】自動ごはんがオンの状態でアプリを離れても、日付系の実績（連続ふれあい日数や累計訪問日数など）や手帳のふれあい日数は進みません。毎日自分で猫ちゃんとふれあった日のみカウントされます。
               </span>
             </div>
+          </div>
+
+          {/* なつき度演出の簡略化設定カード */}
+          <div
+            data-testid="compact-affection-celebration-section"
+            className="bg-amber-50/50 border border-orange-200/80 rounded-2xl p-3.5"
+          >
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <div className="flex items-center gap-2 text-stone-800 font-bold text-sm">
+                <Heart className="w-4 h-4 text-orange-600 shrink-0" />
+                <span>なつき度演出の簡略化</span>
+              </div>
+
+              {/* トグルスイッチ */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isCompactAffectionCelebration}
+                aria-label="なつき度演出の簡略化の切り替え"
+                data-testid="compact-affection-celebration-toggle-button"
+                onClick={() =>
+                  onToggleCompactAffectionCelebration?.(!isCompactAffectionCelebration)
+                }
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 ${
+                  isCompactAffectionCelebration ? 'bg-orange-500' : 'bg-stone-300'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                    isCompactAffectionCelebration ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {isCompactAffectionCelebration
+                ? 'なつき度演出が簡略化されます。自動ごはんの稼働状況に関わらず、画面中央の大きなハート演出を行わず、控えめな通知（トースト）で表示します。'
+                : 'なつき度が上がった際に画面中央に大きなハート演出を表示します（※自動ごはん稼働中は自動で簡略化されます）。'}
+            </p>
           </div>
 
           {/* ゲージ表示位置・スタイル設定カード */}

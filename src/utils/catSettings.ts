@@ -80,6 +80,7 @@ export function sanitizeSettings(raw: unknown): AppSettings {
       catNames: { ...DEFAULT_CAT_NAMES },
       gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
       autoFeedEnabled: DEFAULT_APP_SETTINGS.autoFeedEnabled,
+      compactAffectionCelebration: DEFAULT_APP_SETTINGS.compactAffectionCelebration,
     };
   }
 
@@ -93,6 +94,11 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     typeof obj.autoFeedEnabled === 'boolean'
       ? obj.autoFeedEnabled
       : DEFAULT_APP_SETTINGS.autoFeedEnabled;
+
+  const compactAffectionCelebration =
+    typeof obj.compactAffectionCelebration === 'boolean'
+      ? obj.compactAffectionCelebration
+      : DEFAULT_APP_SETTINGS.compactAffectionCelebration;
 
   const rawNames =
     obj.catNames && typeof obj.catNames === 'object' && !Array.isArray(obj.catNames)
@@ -122,5 +128,6 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     catNames,
     gaugePosition,
     autoFeedEnabled,
+    compactAffectionCelebration,
   };
 }

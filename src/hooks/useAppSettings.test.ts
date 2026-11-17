@@ -67,4 +67,23 @@ describe('useAppSettings フック', () => {
     });
     expect(result.current.catNames).toEqual(DEFAULT_CAT_NAMES);
   });
+
+  it('なつき度演出の簡略化設定を切り替えられ、localStorage にも反映されること', () => {
+    const { result } = renderHook(() => useAppSettings());
+    expect(result.current.isCompactAffectionCelebration).toBe(false);
+
+    act(() => {
+      result.current.setCompactAffectionCelebration(true);
+    });
+    expect(result.current.isCompactAffectionCelebration).toBe(true);
+    let stored = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
+    expect(stored.compactAffectionCelebration).toBe(true);
+
+    act(() => {
+      result.current.toggleCompactAffectionCelebration();
+    });
+    expect(result.current.isCompactAffectionCelebration).toBe(false);
+    stored = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
+    expect(stored.compactAffectionCelebration).toBe(false);
+  });
 });

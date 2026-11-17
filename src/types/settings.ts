@@ -16,6 +16,8 @@ export interface AppSettings {
   gaugePosition: GaugeDisplayPosition;
   /** 自動ごはん機能が有効かどうか（デフォルト: false、全猫なつき度Lv.10で解禁） */
   autoFeedEnabled: boolean;
+  /** なつき度アップ演出の簡略化（デフォルト: false。オン時は自動ごはん稼働有無に関わらず常にハートマーク演出を簡略化） */
+  compactAffectionCelebration: boolean;
 }
 
 /** 猫のデフォルト名定義 */
@@ -31,6 +33,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   catNames: DEFAULT_CAT_NAMES,
   gaugePosition: 'bottom',
   autoFeedEnabled: false,
+  compactAffectionCelebration: false,
 };
 
 /** localStorage 保存用キー */
