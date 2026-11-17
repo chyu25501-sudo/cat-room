@@ -5,6 +5,7 @@ import {
   getAchievementCategoryLabel,
   getAchievementById,
   checkNewAchievements,
+  hasGiftCount,
   sanitizeAchievements,
   getAchievementDisplayInfo,
   filterAchievements,
@@ -550,6 +551,11 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
 
       it('「かたっぽの靴下」を2個以上所持したときに hidden-pair-socks が解除されること', () => {
         const unlocked: UnlockedAchievements = {};
+        // 未所持（0個）のときは解除されない
+        expect(
+          checkNewAchievements({ giftInventory: {} }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-pair-socks');
+
         // 1個所持のときは解除されない
         const singleInv: GiftInventory = {
           'single-sock': { giftId: 'single-sock', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
@@ -558,15 +564,7 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
           checkNewAchievements({ giftInventory: singleInv }, unlocked).map((a) => a.id)
         ).not.toContain('hidden-pair-socks');
 
-        // 2個所持のときに解除される
-        const pairInv: GiftInventory = {
-          'single-sock': { giftId: 'single-sock', count: 2, firstReceivedAt: 1000, lastReceivedAt: 2000 },
-        };
-        expect(
-          checkNewAchievements({ giftInventory: pairInv }, unlocked).map((a) => a.id)
-        ).toContain('hidden-pair-socks');
-
-        // 1個所持の状態で、直前に2個目を受け取ったときにも即座に解除されること
+        // ★バグ再発防止テスト: 1個所持の状態で receivedGift に靴下が渡されても、インベントリが1個なら二重加算されず解除されないこと
         const sockGift = {
           id: 'single-sock',
           name: 'かたっぽの靴下',
@@ -574,13 +572,21 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
           icon: '🧦',
           iconType: 'single-sock',
           themeClass: '',
-          rarity: 'common' as const,
+          rarity: 'rare' as const,
         };
         expect(
           checkNewAchievements(
             { giftInventory: singleInv, receivedGift: sockGift },
             unlocked
           ).map((a) => a.id)
+        ).not.toContain('hidden-pair-socks');
+
+        // 2個所持のときに解除される
+        const pairInv: GiftInventory = {
+          'single-sock': { giftId: 'single-sock', count: 2, firstReceivedAt: 1000, lastReceivedAt: 2000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: pairInv }, unlocked).map((a) => a.id)
         ).toContain('hidden-pair-socks');
       });
 
@@ -979,6 +985,32 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
     it('コンテキスト未指定時もクラッシュせず安全に 0 で計算されること', () => {
       const petItem = ACHIEVEMENTS.find((a) => a.id === 'pet-count-100')!;
       expect(getAchievementProgress(petItem, undefined)?.fractionText).toBe('0 / 100 回');
+    });
+  });
+
+  describe('hasGiftCount 純粋関数 (累計個数判定)', () => {
+    it('インベントリが undefined または空オブジェクトのときは false を返すこと', () => {
+      expect(hasGiftCount(undefined, 'single-sock', 2)).toBe(false);
+      expect(hasGiftCount({}, 'single-sock', 2)).toBe(false);
+    });
+
+    it('指定のギフトが存在しないか所持数が目標未満のときは false を返すこと', () => {
+      const inv: GiftInventory = {
+        'single-sock': { giftId: 'single-sock', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        feather: { giftId: 'feather', count: 5, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+      };
+      expect(hasGiftCount(inv, 'single-sock', 2)).toBe(false);
+      expect(hasGiftCount(inv, 'hairball', 1)).toBe(false);
+    });
+
+    it('所持数が目標数以上のときは true を返すこと（累計個数実績に対応）', () => {
+      const inv: GiftInventory = {
+        'single-sock': { giftId: 'single-sock', count: 2, firstReceivedAt: 1000, lastReceivedAt: 2000 },
+        feather: { giftId: 'feather', count: 10, firstReceivedAt: 1000, lastReceivedAt: 3000 },
+      };
+      expect(hasGiftCount(inv, 'single-sock', 2)).toBe(true);
+      expect(hasGiftCount(inv, 'feather', 10)).toBe(true);
+      expect(hasGiftCount(inv, 'feather', 5)).toBe(true);
     });
   });
 });

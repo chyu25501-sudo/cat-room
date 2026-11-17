@@ -657,17 +657,15 @@ export function hasAllGifts(
 }
 
 /**
- * 指定した特定のおくりものを指定個数以上所持しているか（または直前に受け取ったか）判定する純粋関数
+ * 指定した特定のおくりものを指定個数以上所持しているか判定する純粋関数
  */
 export function hasGiftCount(
   inventory: GiftInventory | undefined,
   giftId: string,
-  minCount: number,
-  receivedGiftId?: string
+  minCount: number
 ): boolean {
   const currentCount = inventory?.[giftId]?.count ?? 0;
-  const total = currentCount + (receivedGiftId === giftId ? 1 : 0);
-  return total >= minCount;
+  return currentCount >= minCount;
 }
 
 /**
@@ -1209,14 +1207,7 @@ export function checkNewAchievements(
         break;
 
       case 'hidden-pair-socks':
-        if (
-          hasGiftCount(
-            context.giftInventory,
-            'single-sock',
-            2,
-            context.receivedGift?.id
-          )
-        ) {
+        if (hasGiftCount(context.giftInventory, 'single-sock', 2)) {
           isMet = true;
         }
         break;
