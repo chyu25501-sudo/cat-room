@@ -6,6 +6,17 @@ import { GUIDE_SEEN_STORAGE_KEY } from './utils/firstVisit.ts';
 import * as catSoundModule from './utils/catSound.ts';
 
 describe('App コンポーネント (猫切り替え機能)', () => {
+  const setupAllCatsMaxAffection = () => {
+    localStorage.setItem(
+      'nekoppoi_cats_affection',
+      JSON.stringify({
+        black: { level: 10, currentExp: 0, requiredExp: 600 },
+        white: { level: 10, currentExp: 0, requiredExp: 600 },
+        calico: { level: 10, currentExp: 0, requiredExp: 600 },
+      })
+    );
+  };
+
   beforeEach(() => {
     localStorage.clear();
   });
@@ -1442,17 +1453,6 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(screen.getByRole('dialog', { name: 'あそびかた' })).toBeInTheDocument();
     });
 
-    const setupAllCatsMaxAffection = () => {
-      localStorage.setItem(
-        'nekoppoi_cats_affection',
-        JSON.stringify({
-          black: { level: 10, currentExp: 0, requiredExp: 600 },
-          white: { level: 10, currentExp: 0, requiredExp: 600 },
-          calico: { level: 10, currentExp: 0, requiredExp: 600 },
-        })
-      );
-    };
-
     it('全猫なつき度Lv.10のとき設定画面で「自動ごはん」が解禁され、トグルをオンにできること', () => {
       // 全猫Lv.10にセット
       localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
@@ -1732,6 +1732,163 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByText(/からのおくりもの！/)).toBeInTheDocument();
       } finally {
         randomSpy.mockRestore();
+        vi.useRealTimers();
+      }
+    });
+  });
+
+  describe('タブ切り替え・バックグラウンド放置とお留守番レポート検知', () => {
+    let originalVisibilityState: PropertyDescriptor | undefined;
+
+    beforeEach(() => {
+      originalVisibilityState = Object.getOwnPropertyDescriptor(document, 'visibilityState');
+    });
+
+    afterEach(() => {
+      if (originalVisibilityState) {
+        Object.defineProperty(document, 'visibilityState', originalVisibilityState);
+      }
+    });
+
+    function setDocumentVisibility(state: 'visible' | 'hidden') {
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        get: () => state,
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+    }
+
+    it('自動ごはんが有効なとき、タブを10分以上非表示にして復帰すると、お留守番レポートモーダルが表示されること', () => {
+      vi.useFakeTimers();
+      try {
+        localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+        setupAllCatsMaxAffection();
+        localStorage.setItem(
+          'nekoppoi_settings',
+          JSON.stringify({
+            soundEnabled: true,
+            catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+            gaugePosition: 'bottom',
+            autoFeedEnabled: true,
+            compactAffectionCelebration: false,
+          })
+        );
+        // 全猫のまんぷく度を40%（給餌発生条件）に設定
+        localStorage.setItem(
+          'nekoppoi_cats_fullness',
+          JSON.stringify({
+            black: { score: 40, lastFedAt: Date.now() },
+            white: { score: 40, lastFedAt: Date.now() },
+            calico: { score: 40, lastFedAt: Date.now() },
+          })
+        );
+
+        setDocumentVisibility('visible');
+        render(<App />);
+
+        // 最初はお留守番レポートモーダルは非表示
+        expect(screen.queryByRole('heading', { name: /お留守番レポート/ })).not.toBeInTheDocument();
+
+        // 1. タブを非表示（hidden）にする
+        act(() => {
+          setDocumentVisibility('hidden');
+        });
+
+        // 2. 15分（10分以上）時間が経過
+        act(() => {
+          vi.advanceTimersByTime(15 * 60 * 1000);
+        });
+
+        // 3. タブを表示（visible）に復帰する
+        act(() => {
+          setDocumentVisibility('visible');
+        });
+
+        // お留守番レポートモーダルが表示されること
+        expect(screen.getByRole('heading', { name: /お留守番レポート/ })).toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('自動ごはんが有効でも、タブの非表示時間が10分未満ならお留守番レポートモーダルは表示されないこと', () => {
+      vi.useFakeTimers();
+      try {
+        localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+        setupAllCatsMaxAffection();
+        localStorage.setItem(
+          'nekoppoi_settings',
+          JSON.stringify({
+            soundEnabled: true,
+            catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+            gaugePosition: 'bottom',
+            autoFeedEnabled: true,
+            compactAffectionCelebration: false,
+          })
+        );
+
+        setDocumentVisibility('visible');
+        render(<App />);
+
+        // タブを非表示にする
+        act(() => {
+          setDocumentVisibility('hidden');
+        });
+
+        // 5分（10分未満）時間が経過
+        act(() => {
+          vi.advanceTimersByTime(5 * 60 * 1000);
+        });
+
+        // タブを表示に復帰する
+        act(() => {
+          setDocumentVisibility('visible');
+        });
+
+        // お留守番レポートモーダルは表示されないこと
+        expect(screen.queryByRole('heading', { name: /お留守番レポート/ })).not.toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('自動ごはんが無効のときは、タブを10分以上非表示にして復帰してもお留守番レポートモーダルは表示されないこと', () => {
+      vi.useFakeTimers();
+      try {
+        localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+        setupAllCatsMaxAffection();
+        localStorage.setItem(
+          'nekoppoi_settings',
+          JSON.stringify({
+            soundEnabled: true,
+            catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+            gaugePosition: 'bottom',
+            autoFeedEnabled: false, // 自動ごはんOFF
+            compactAffectionCelebration: false,
+          })
+        );
+
+        setDocumentVisibility('visible');
+        render(<App />);
+
+        // タブを非表示にする
+        act(() => {
+          setDocumentVisibility('hidden');
+        });
+
+        // 15分時間が経過
+        act(() => {
+          vi.advanceTimersByTime(15 * 60 * 1000);
+        });
+
+        // タブを表示に復帰する
+        act(() => {
+          setDocumentVisibility('visible');
+        });
+
+        // お留守番レポートモーダルは表示されないこと
+        expect(screen.queryByRole('heading', { name: /お留守番レポート/ })).not.toBeInTheDocument();
+      } finally {
         vi.useRealTimers();
       }
     });

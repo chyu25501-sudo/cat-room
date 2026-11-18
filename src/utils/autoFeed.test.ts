@@ -8,6 +8,7 @@ import {
   AUTO_FEED_MAX_OFFLINE_DAYS,
   AUTO_FEED_MAX_OFFLINE_MS,
   AUTO_FEED_CYCLE_MINUTES,
+  BACKGROUND_TAB_IDLE_REPORT_THRESHOLD_MS,
 } from './autoFeed.ts';
 import { CareStats } from '../types/journal.ts';
 import { GiftItem } from '../types/gift.ts';
@@ -193,6 +194,12 @@ describe('autoFeed utils (自動ごはんの計算・シミュレーション)',
       expect(updated.lastInteractionDateStr).toBe(initialStats.lastInteractionDateStr);
       expect(updated.totalPetCount).toBe(initialStats.totalPetCount);
       expect(updated.totalPlayCount).toBe(initialStats.totalPlayCount);
+    });
+  });
+
+  describe('BACKGROUND_TAB_IDLE_REPORT_THRESHOLD_MS (タブ放置検知閾値)', () => {
+    it('10分（600,000ミリ秒）として定義されていること', () => {
+      expect(BACKGROUND_TAB_IDLE_REPORT_THRESHOLD_MS).toBe(10 * 60 * 1000);
     });
   });
 });

@@ -53,6 +53,9 @@ export const AUTO_FEED_MAX_OFFLINE_DAYS = 7;
 export const AUTO_FEED_MAX_OFFLINE_MS =
   AUTO_FEED_MAX_OFFLINE_DAYS * 24 * 60 * 60 * 1000;
 
+/** タブ切り替え・バックグラウンド放置時にお留守番レポートを表示する最小放置時間（10分） */
+export const BACKGROUND_TAB_IDLE_REPORT_THRESHOLD_MS = 10 * 60 * 1000;
+
 /**
  * 全猫のなつき度がLv.10（MAX）に到達しているかを判定し、
  * 「自動ごはん」が解禁されているかを返す純粋関数

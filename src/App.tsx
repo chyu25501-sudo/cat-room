@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Heart, Zap } from 'lucide-react';
 import { useCatAudio } from './hooks/useCatAudio.ts';
 import { useCatSelection } from './hooks/useCatSelection.ts';
@@ -15,6 +15,7 @@ import { useAchievements } from './hooks/useAchievements.ts';
 import { useCareJournal } from './hooks/useCareJournal.ts';
 import { useFirstVisitGuide } from './hooks/useFirstVisitGuide.ts';
 import { useGiftToasts } from './hooks/useGiftToasts.ts';
+import { usePageVisibility } from './hooks/usePageVisibility.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
@@ -47,6 +48,7 @@ import {
   simulateAllCatsOfflineAutoFeed,
   AllCatsOfflineFeedResult,
   applyAutoFeedToCareStats,
+  BACKGROUND_TAB_IDLE_REPORT_THRESHOLD_MS,
 } from './utils/autoFeed.ts';
 import {
   DEFAULT_PET_AFFECTION_EXP,
@@ -228,6 +230,58 @@ export default function App() {
   const [offlineReportData, setOfflineReportData] = useState<AllCatsOfflineFeedResult | null>(null);
   const [isOfflineReportModalOpen, setIsOfflineReportModalOpen] = useState(false);
 
+  // タブ切り替え・バックグラウンド放置時の復帰コールバック
+  const handleTabVisible = useCallback(
+    (hiddenDurationMs: number) => {
+      const LAST_ACTIVE_TIME_KEY = 'nekoppoi_last_active_time';
+
+      // 自動ごはんが有効かつ10分以上放置され、まだ留守番レポートモーダルが開いていない場合
+      if (
+        isAutoFeedActive &&
+        hiddenDurationMs >= BACKGROUND_TAB_IDLE_REPORT_THRESHOLD_MS &&
+        !isOfflineReportModalOpen
+      ) {
+        const catExpMap: Record<CatId, number> = {
+          black: affectionMap.black?.currentExp ?? 0,
+          white: affectionMap.white?.currentExp ?? 0,
+          calico: affectionMap.calico?.currentExp ?? 0,
+        };
+        const catFullnessMap: Record<CatId, number> = {
+          black: fullnessMap.black?.score ?? 50,
+          white: fullnessMap.white?.score ?? 50,
+          calico: fullnessMap.calico?.score ?? 50,
+        };
+
+        const simResult = simulateAllCatsOfflineAutoFeed({
+          catExpMap,
+          catFullnessMap,
+          elapsedMs: hiddenDurationMs,
+          catalog: CAT_GIFTS,
+        });
+
+        if (simResult.totalFeedCount > 0) {
+          setOfflineReportData(simResult);
+          setIsOfflineReportModalOpen(true);
+        }
+      }
+
+      // 復帰時にアクティブ時刻を最新に更新
+      try {
+        localStorage.setItem(LAST_ACTIVE_TIME_KEY, Date.now().toString());
+      } catch {}
+    },
+    [isAutoFeedActive, isOfflineReportModalOpen, affectionMap, fullnessMap]
+  );
+
+  const { isVisible } = usePageVisibility({
+    onVisible: handleTabVisible,
+  });
+
+  const isVisibleRef = useRef(isVisible);
+  useEffect(() => {
+    isVisibleRef.current = isVisible;
+  }, [isVisible]);
+
   // 留守中（オフライン放置）のシミュレーション（起動時に判定、定期的に最終時刻を更新）
   useEffect(() => {
     const LAST_ACTIVE_TIME_KEY = 'nekoppoi_last_active_time';
@@ -267,6 +321,8 @@ export default function App() {
     } catch {}
 
     const intervalTimer = setInterval(() => {
+      // タブが非表示のときはアクティブ時刻の自動更新を停止（バックグラウンド放置時間を維持）
+      if (!isVisibleRef.current) return;
       try {
         localStorage.setItem(LAST_ACTIVE_TIME_KEY, Date.now().toString());
       } catch {}
@@ -277,7 +333,8 @@ export default function App() {
 
   // オンライン中の自動給餌タイマー（3秒ごとに全猫を監視）
   useEffect(() => {
-    if (!isAutoFeedActive) return;
+    // 自動ごはんが無効、またはタブが非表示（バックグラウンド）の間は給餌を行わない（二重給餌防止）
+    if (!isAutoFeedActive || !isVisible) return;
 
     const timer = setInterval(() => {
       const targetCats: CatId[] = ['black', 'white', 'calico'];
@@ -351,6 +408,7 @@ export default function App() {
     return () => clearInterval(timer);
   }, [
     isAutoFeedActive,
+    isVisible,
     currentCatId,
     isEating,
     isPlayingToy,
