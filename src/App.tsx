@@ -673,6 +673,47 @@ export default function App() {
     }
   }, [cloudUser?.id]);
 
+  // おくりもの獲得・実績獲得・お留守番レポート受け取り時の自動クラウド同期
+  const prevInventoryCountRef = useRef<number | null>(null);
+  const prevAchievementCountRef = useRef<number | null>(null);
+  const prevOfflineReportActiveRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (!cloudUser) {
+      prevInventoryCountRef.current = null;
+      prevAchievementCountRef.current = null;
+      prevOfflineReportActiveRef.current = false;
+      return;
+    }
+
+    const currentGiftTotal = getTotalGiftCount(inventory);
+    const currentAchievementTotal = Object.keys(unlockedAchievements).length;
+    const isReportActive = Boolean(offlineReportData);
+
+    // 初回レンダリング時は現在の数値を記録してスキップ
+    if (prevInventoryCountRef.current === null || prevAchievementCountRef.current === null) {
+      prevInventoryCountRef.current = currentGiftTotal;
+      prevAchievementCountRef.current = currentAchievementTotal;
+      prevOfflineReportActiveRef.current = isReportActive;
+      return;
+    }
+
+    const hasNewGift = currentGiftTotal > prevInventoryCountRef.current;
+    const hasNewAchievement = currentAchievementTotal > prevAchievementCountRef.current;
+    const hasAcceptedReport = prevOfflineReportActiveRef.current && !isReportActive;
+
+    prevInventoryCountRef.current = currentGiftTotal;
+    prevAchievementCountRef.current = currentAchievementTotal;
+    prevOfflineReportActiveRef.current = isReportActive;
+
+    if (hasNewGift || hasNewAchievement || hasAcceptedReport) {
+      const timer = setTimeout(() => {
+        handleCloudSyncNowRef.current();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [inventory, unlockedAchievements, offlineReportData, cloudUser]);
+
   // セーブデータのエクスポート（ファイル書き出し）
   const handleExportSaveData = useCallback(() => {
     const saveData = getCurrentSaveData();
