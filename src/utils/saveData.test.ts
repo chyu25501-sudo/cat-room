@@ -185,6 +185,34 @@ describe('saveData ユーティリティ (セーブデータ管理・マージ)'
       expect(merged.careJournal?.interactionsByCat.calico).toBe(25); // max(10, 25)
     });
 
+    it('ふり返り手帳: 「はじめてふれあった日」は最も古いタイムスタンプが採用されること', () => {
+      const local: NekoppoiSaveData = {
+        version: 1,
+        timestamp: 2000,
+        careJournal: {
+          ...INITIAL_CARE_STATS,
+          firstInteractionAt: 1700000000000, // 新しい端末での記録
+          lastInteractionAt: 1700050000000,
+        },
+      };
+
+      const incoming: NekoppoiSaveData = {
+        version: 1,
+        timestamp: 1000,
+        careJournal: {
+          ...INITIAL_CARE_STATS,
+          firstInteractionAt: 1690000000000, // より古い（最初に出会った日）
+          lastInteractionAt: 1690050000000,
+        },
+      };
+
+      const merged = mergeSaveData(local, incoming);
+      // はじめてふれあった日は最も古いタイムスタンプが採用されること
+      expect(merged.careJournal?.firstInteractionAt).toBe(1690000000000);
+      // 最後にふれあった日時は最新のタイムスタンプが採用されること
+      expect(merged.careJournal?.lastInteractionAt).toBe(1700050000000);
+    });
+
     it('なつき度: より高いレベル（同じならより多いExp）が採用されること', () => {
       const local: NekoppoiSaveData = {
         version: 1,

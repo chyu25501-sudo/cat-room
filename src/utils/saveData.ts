@@ -239,14 +239,32 @@ function mergeCareJournal(local?: CareStats, incoming?: CareStats): CareStats | 
       ? l.lastInteractionDateStr
       : i.lastInteractionDateStr ?? l.lastInteractionDateStr;
 
+  // はじめてふれあった日（最も古いタイムスタンプを採用）
+  let firstInteractionAt: number | null = null;
+  if (l.firstInteractionAt !== null && i.firstInteractionAt !== null) {
+    firstInteractionAt = Math.min(l.firstInteractionAt, i.firstInteractionAt);
+  } else {
+    firstInteractionAt = l.firstInteractionAt ?? i.firstInteractionAt ?? null;
+  }
+
+  // 最後にふれあった日時（最も新しいタイムスタンプを採用）
+  let lastInteractionAt: number | null = null;
+  if (l.lastInteractionAt !== null && i.lastInteractionAt !== null) {
+    lastInteractionAt = Math.max(l.lastInteractionAt, i.lastInteractionAt);
+  } else {
+    lastInteractionAt = l.lastInteractionAt ?? i.lastInteractionAt ?? null;
+  }
+
   return {
+    firstInteractionAt,
+    lastInteractionAt,
+    lastInteractionDateStr: lastDateStr,
     totalPetCount: Math.max(l.totalPetCount, i.totalPetCount),
     totalFeedCount: Math.max(l.totalFeedCount, i.totalFeedCount),
     totalPlayCount: Math.max(l.totalPlayCount, i.totalPlayCount),
     totalActiveDays: Math.max(l.totalActiveDays, i.totalActiveDays),
     currentStreakDays: Math.max(l.currentStreakDays, i.currentStreakDays),
     maxStreakDays: Math.max(l.maxStreakDays, i.maxStreakDays),
-    lastInteractionDateStr: lastDateStr,
     interactionsByCat,
   };
 }
