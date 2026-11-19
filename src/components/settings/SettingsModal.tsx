@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw, Layout, Utensils, Lock, AlertCircle, Download, Upload, CheckCircle2, Cloud, LogOut, RefreshCw } from 'lucide-react';
+import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw, Layout, Utensils, Lock, AlertCircle, Download, Upload, CheckCircle2, Cloud, LogOut, RefreshCw, ShieldCheck } from 'lucide-react';
 import { SettingsIcon } from './SettingsButton.tsx';
+import { PrivacyPolicyModal } from './PrivacyPolicyModal.tsx';
 import { CatId, CAT_PRESETS } from '../../types/cat.ts';
 import { DEFAULT_CAT_NAMES, CatCustomNames, GaugeDisplayPosition } from '../../types/settings.ts';
 
@@ -98,6 +99,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [cloudEmail, setCloudEmail] = useState('');
   const [cloudPassword, setCloudPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
+  // プライバシーポリシーモーダルの開閉ステート
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -670,6 +673,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>{authError ?? cloudSyncMessage}</span>
               </div>
             )}
+
+            {/* プライバシーとデータの取り扱い方針リンク */}
+            <div className="mt-2.5 pt-2 border-t border-sky-100 flex items-center justify-between text-[11px]">
+              <button
+                type="button"
+                data-testid="privacy-policy-link-button"
+                onClick={() => setIsPrivacyModalOpen(true)}
+                className="text-sky-700 hover:text-sky-900 underline flex items-center gap-1 cursor-pointer transition-colors"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <span>プライバシーとデータの取り扱いについて</span>
+              </button>
+            </div>
           </div>
 
           {/* セーブデータ案内カード */}
@@ -758,6 +774,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
         )}
+        {/* プライバシーポリシーモーダル */}
+        <PrivacyPolicyModal
+          isOpen={isPrivacyModalOpen}
+          onClose={() => setIsPrivacyModalOpen(false)}
+        />
       </div>
     </div>
   );

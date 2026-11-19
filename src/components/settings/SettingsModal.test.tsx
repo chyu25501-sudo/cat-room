@@ -463,5 +463,31 @@ describe('SettingsModal コンポーネント', () => {
       fireEvent.click(signOutBtn);
       expect(handleSignOut).toHaveBeenCalledTimes(1);
     });
+
+    it('「プライバシーとデータの取り扱いについて」リンクを押すと、プライバシーポリシーモーダルが開くこと', () => {
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCloudConfigured={true}
+        />
+      );
+
+      const privacyLink = screen.getByTestId('privacy-policy-link-button');
+      expect(privacyLink).toBeInTheDocument();
+
+      // 最初は非表示
+      expect(screen.queryByTestId('privacy-policy-modal')).not.toBeInTheDocument();
+
+      // クリックで開く
+      fireEvent.click(privacyLink);
+      expect(screen.getByTestId('privacy-policy-modal')).toBeInTheDocument();
+      expect(screen.getByText('データの取り扱いとプライバシー')).toBeInTheDocument();
+
+      // 閉じるボタンで閉じる
+      const closeBtn = screen.getByTestId('privacy-policy-close-button');
+      fireEvent.click(closeBtn);
+      expect(screen.queryByTestId('privacy-policy-modal')).not.toBeInTheDocument();
+    });
   });
 });

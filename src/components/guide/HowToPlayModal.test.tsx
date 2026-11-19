@@ -55,6 +55,11 @@ describe('HowToPlayModal コンポーネント', () => {
     expect(screen.getByTestId('guide-section-auto-feed')).toBeInTheDocument();
     expect(screen.getByText('7. 自動ごはん（全猫なつき度Lv.10で解禁）')).toBeInTheDocument();
     expect(screen.getByText(/すべての猫ちゃんのなつき度をLv\.10.*自動ごはん/)).toBeInTheDocument();
+
+    expect(screen.getByTestId('guide-section-save-transfer')).toBeInTheDocument();
+    expect(screen.getByText('8. データの引き継ぎ・バックアップ')).toBeInTheDocument();
+    expect(screen.getByText(/ファイル保存/)).toBeInTheDocument();
+    expect(screen.getByText(/クラウド連携（無料・任意）/)).toBeInTheDocument();
   });
 
   it('右上の閉じるボタン、フッターの「とじる」ボタン、バックドロップのクリックで onClose が呼ばれること', () => {

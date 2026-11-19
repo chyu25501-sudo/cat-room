@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X, Heart, Utensils, Sparkles, Trophy, BookOpen, Settings, Smile, Bot } from 'lucide-react';
+import { X, Heart, Utensils, Sparkles, Trophy, BookOpen, Settings, Smile, Bot, Database } from 'lucide-react';
 import { HowToPlayIcon } from './HowToPlayButton.tsx';
 import { BlackCat } from '../cats/BlackCat.tsx';
 
@@ -141,6 +141,20 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({
         '設定やお世話メニューの「自動化」タブからいつでもON/OFFを切り替えられます。',
         'ONにすると、全猫のまんぷく度が40%以下になったときに自動でカリカリを食べます。',
         'アプリを離れていても（最大7日間）自動で給餌され、次回戻ってきた際にお留守番レポートでまとめておくりものを受け取れます。',
+      ],
+    },
+    {
+      id: 'save-transfer',
+      title: '8. データの引き継ぎ・バックアップ',
+      icon: <Database className="w-4 h-4 text-sky-600" />,
+      iconBg: 'bg-sky-50 border-sky-200',
+      iconColor: 'text-sky-800',
+      description:
+        '大切な猫ちゃんたちとのデータは、設定画面（歯車マーク）からいつでもバックアップや別端末への引き継ぎが可能です。',
+      points: [
+        '【ファイル保存】：セーブデータを端末にダウンロードしたり、ファイルから読み込んで安全に合算・引き継ぎできます。',
+        '【クラウド連携（無料・任意）】：アカウントを作成すると、スマホとPCなどの異なる端末間でセーブデータを自動同期して遊べます。',
+        '【安心のプライバシー】：クラウド連携は希望者のみの任意機能です。登録しなくても端末内だけで完全無料ですべての要素をお楽しみいただけます。',
       ],
     },
   ];
