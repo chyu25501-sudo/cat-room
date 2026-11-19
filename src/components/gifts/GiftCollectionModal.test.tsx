@@ -18,7 +18,7 @@ describe('GiftCollectionModal コンポーネント', () => {
     expect(screen.getByTestId('gift-collection-empty')).toBeInTheDocument();
     expect(screen.getByText(/まだおくりものがありません/)).toBeInTheDocument();
     expect(screen.getByTestId('total-gift-count')).toHaveTextContent('0個');
-    expect(screen.getByTestId('gift-collection-rate')).toHaveTextContent('0/60');
+    expect(screen.getByTestId('gift-collection-rate')).toHaveTextContent('0/80');
 
     // 正方形タイルの右下に 0 と表示
     expect(screen.getByTestId('gift-count-pebble')).toHaveTextContent('0');
@@ -271,7 +271,7 @@ describe('GiftCollectionModal コンポーネント', () => {
 
       const rateBadge = screen.getByTestId('gift-collection-rate');
       expect(rateBadge).toBeInTheDocument();
-      expect(rateBadge).toHaveTextContent('2/60');
+      expect(rateBadge).toHaveTextContent('2/80');
     });
 
     it('おくりものの数が今後増減しても、カタログの長さに連動して正確な分数（例: 2/3）が表示されること', () => {
@@ -338,10 +338,10 @@ describe('GiftCollectionModal コンポーネント', () => {
       const superRareButton = screen.getByTestId('filter-rarity-super-rare');
       const ultraRareButton = screen.getByTestId('filter-rarity-ultra-rare');
 
-      expect(allButton).toHaveTextContent('すべて (60)');
+      expect(allButton).toHaveTextContent('すべて (80)');
       expect(commonButton).toHaveTextContent('C (45)');
-      expect(rareButton).toHaveTextContent('R (6)');
-      expect(superRareButton).toHaveTextContent('SR (6)');
+      expect(rareButton).toHaveTextContent('R (20)');
+      expect(superRareButton).toHaveTextContent('SR (12)');
       expect(ultraRareButton).toHaveTextContent('UR (3)');
 
       // 初期状態では「すべて」が選択されている
@@ -474,7 +474,7 @@ describe('GiftCollectionModal コンポーネント', () => {
       const allBtn = screen.getByTestId('filter-acquisition-all');
       const acquiredBtn = screen.getByTestId('filter-acquisition-acquired');
 
-      expect(allBtn).toHaveTextContent('すべて (60)');
+      expect(allBtn).toHaveTextContent('すべて (80)');
       expect(acquiredBtn).toHaveTextContent('入手済みのみ (2)');
 
       // 初期状態（すべて）では入手済み・未入手の両方が存在
@@ -554,7 +554,7 @@ describe('GiftCollectionModal コンポーネント', () => {
       const acquiredBtn = screen.getByTestId('filter-acquisition-acquired');
 
       // 初期状態（最上段が「すべて」）
-      expect(allBtn).toHaveTextContent('すべて (60)');
+      expect(allBtn).toHaveTextContent('すべて (80)');
       expect(acquiredBtn).toHaveTextContent('入手済みのみ (2)');
 
       // 最上段で「通常」レアリティを選択（通常は45種、うちpebbleの1種を所持）
@@ -562,9 +562,9 @@ describe('GiftCollectionModal コンポーネント', () => {
       expect(allBtn).toHaveTextContent('すべて (45)');
       expect(acquiredBtn).toHaveTextContent('入手済みのみ (1)');
 
-      // 最上段で「レア」レアリティを選択（レアは6種、うちold-coinの1種を所持）
+      // 最上段で「レア」レアリティを選択（レアは20種、うちold-coinの1種を所持）
       fireEvent.click(screen.getByTestId('filter-rarity-rare'));
-      expect(allBtn).toHaveTextContent('すべて (6)');
+      expect(allBtn).toHaveTextContent('すべて (20)');
       expect(acquiredBtn).toHaveTextContent('入手済みのみ (1)');
 
       // 最上段で「ウルトラレア」を選択（ウルトラレアは3種、所持数0）
@@ -574,7 +574,7 @@ describe('GiftCollectionModal コンポーネント', () => {
 
       // 再び最上段で「すべて」を選択すると全体の件数に戻ること
       fireEvent.click(screen.getByTestId('filter-rarity-all'));
-      expect(allBtn).toHaveTextContent('すべて (60)');
+      expect(allBtn).toHaveTextContent('すべて (80)');
       expect(acquiredBtn).toHaveTextContent('入手済みのみ (2)');
     });
 

@@ -9,12 +9,12 @@ import {
 import { CatId } from '../types/cat.ts';
 
 /**
- * 猫から貰えるおくりもののマスターデータリスト（全60種）
+ * 猫から貰えるおくりもののマスターデータリスト（全80種）
  *
  * 並び順の設計方針:
  * 1. 通常（common: 45種）
- * 2. レア（rare: 6種）
- * 3. スーパーレア（super-rare: 6種）
+ * 2. レア（rare: 20種）
+ * 3. スーパーレア（super-rare: 12種）
  * 4. ウルトラレア（ultra-rare: 3種）
  *
  * 今後贈り物を増やす際はこの配列に追加するだけで拡張可能です。
@@ -448,31 +448,34 @@ export const CAT_GIFTS: readonly GiftItem[] = [
   // ==========================================
   // 【レア（rare: 6種）】日常の珍品・幸運・古代・伝説
   // ==========================================
+  // 【レア（rare: 20種）】自然・珍品・日用品・骨董
+  // ==========================================
+  // 自然・植物・木・水辺
   {
-    id: 'important-paper',
-    name: 'だいじそうな紙',
-    description: 'よくわからないが請求書と書かれている。机の上から見つけてきたらしく、得意げな顔で足元へ差し出してきた。',
-    icon: '📄',
-    iconType: 'important-paper',
-    themeClass: 'from-amber-100 to-yellow-200 border-amber-400 text-amber-950',
+    id: 'single-rose',
+    name: 'いちりんの薔薇',
+    description: 'どこかの花壇から一輪だけそっとくわえてきた、真紅の花びらが気品にあふれる薔薇。',
+    icon: '🌹',
+    iconType: 'single-rose',
+    themeClass: 'from-rose-200 via-amber-100 to-red-200 border-rose-400 text-rose-950',
     rarity: 'rare',
   },
   {
-    id: 'winning-ice-stick',
-    name: 'あたりのアイス棒',
-    description: '見事に「あたり」が出た木製アイスバーの棒。もう一本もらえる幸運の証。',
-    icon: '🍦',
-    iconType: 'winning-ice-stick',
-    themeClass: 'from-amber-200 via-orange-100 to-yellow-200 border-amber-400 text-amber-900',
+    id: 'round-bulb',
+    name: 'まるい球根',
+    description: '春に大輪の花を咲かせる日を夢見て、花壇の土の中から丁寧に掘り出してきた丸い球根。',
+    icon: '🧅',
+    iconType: 'round-bulb',
+    themeClass: 'from-amber-100 via-stone-100 to-orange-200 border-amber-300 text-amber-900',
     rarity: 'rare',
   },
   {
-    id: 'old-coin',
-    name: 'ふしぎな古銭',
-    description: 'どこかの古い蔵や床下で見つけてきたのか、不思議な文字が刻まれた丸い古銭。',
-    icon: '🪙',
-    iconType: 'old-coin',
-    themeClass: 'from-amber-200 to-yellow-300 border-amber-400 text-amber-900',
+    id: 'large-pumpkin',
+    name: 'おおきなカボチャ',
+    description: '自分の体よりもはるかに立派でずっしりと重い濃緑色の南瓜。いったいどうやって持ってきたのだろうか…',
+    icon: '🎃',
+    iconType: 'large-pumpkin',
+    themeClass: 'from-amber-200 via-orange-200 to-yellow-300 border-orange-400 text-orange-950',
     rarity: 'rare',
   },
   {
@@ -485,12 +488,141 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     rarity: 'rare',
   },
   {
+    id: 'light-driftwood',
+    name: 'かるい流木',
+    description: '川辺で長い年月をかけて削られ、すべすべの手触りになった不思議と軽い小さな流木。',
+    icon: '🪵',
+    iconType: 'light-driftwood',
+    themeClass: 'from-stone-200 via-amber-100 to-stone-300 border-stone-400 text-stone-800',
+    rarity: 'rare',
+  },
+  {
+    id: 'sparkling-seashell',
+    name: 'きらきら貝殻',
+    description: '真珠層が虹色に光を反射する、波打ち際で見つけてきたとても綺麗な巻貝の殻。',
+    icon: '🐚',
+    iconType: 'sparkling-seashell',
+    themeClass: 'from-cyan-100 via-pink-100 to-amber-100 border-pink-300 text-stone-800',
+    rarity: 'rare',
+  },
+  {
     id: 'glowing-moss-stone',
     name: 'ひかる苔石',
     description: '暗闇で幻想的な淡い青緑の光を放つ、特殊な光る苔がびっしりと覆った不思議な丸石。',
     icon: '🪨',
     iconType: 'glowing-moss-stone',
     themeClass: 'from-teal-200 via-emerald-200 to-cyan-200 border-teal-400 text-teal-950',
+    rarity: 'rare',
+  },
+  // 生き物・食べ物
+  {
+    id: 'snake-shedding',
+    name: 'へびの抜け殻',
+    description: '草むらの奥で見つけてきた、破れひとつない一本まるまる綺麗に残った縁起物の抜け殻。',
+    icon: '🐍',
+    iconType: 'snake-shedding',
+    themeClass: 'from-emerald-100 via-yellow-100 to-stone-200 border-emerald-300 text-emerald-950',
+    rarity: 'rare',
+  },
+  {
+    id: 'large-bonito-flake',
+    name: 'おおきな鰹節',
+    description: '台所の戸棚から見事に一本まるごと持ち出してきた、香ばしい出汁の香りが漂う特大の本枯節。',
+    icon: '🐟',
+    iconType: 'large-bonito-flake',
+    themeClass: 'from-amber-200 via-orange-100 to-amber-300 border-amber-400 text-amber-950',
+    rarity: 'rare',
+  },
+  // 日常・雑貨・道具・おもちゃ
+  {
+    id: 'winning-ice-stick',
+    name: 'あたりのアイス棒',
+    description: '見事に「あたり」が出た木製アイスバーの棒。もう一本もらえる幸運の証。',
+    icon: '🍦',
+    iconType: 'winning-ice-stick',
+    themeClass: 'from-amber-200 via-orange-100 to-yellow-200 border-amber-400 text-amber-900',
+    rarity: 'rare',
+  },
+  {
+    id: 'important-paper',
+    name: 'だいじそうな紙',
+    description: 'よくわからないが請求書と書かれている。机の上から見つけてきたらしく、得意げな顔で足元へ差し出してきた。',
+    icon: '📄',
+    iconType: 'important-paper',
+    themeClass: 'from-amber-100 to-yellow-200 border-amber-400 text-amber-950',
+    rarity: 'rare',
+  },
+  {
+    id: 'cat-acrylic-stand',
+    name: 'ねこのアクスタ',
+    description: '猫の愛らしいポーズが印刷された透明なアクリルスタンド。どこかの机から拝借してきたらしい。',
+    icon: '🖼️',
+    iconType: 'cat-acrylic-stand',
+    themeClass: 'from-sky-100 via-purple-100 to-amber-100 border-sky-300 text-slate-800',
+    rarity: 'rare',
+  },
+  {
+    id: 'luxury-paintbrush',
+    name: 'こうきゅう絵筆',
+    description: '毛先がなめらかに揃った上質な絵筆。アトリエの筆立てから大切そうにくわえて持ってきた。',
+    icon: '🖌️',
+    iconType: 'luxury-paintbrush',
+    themeClass: 'from-amber-200 via-red-100 to-yellow-200 border-amber-400 text-amber-950',
+    rarity: 'rare',
+  },
+  {
+    id: 'mini-light-bulb',
+    name: 'ちいさな豆電球',
+    description: '実験器具から外してきたのか、フィラメントが繊細に残っている丸くて小さな豆電球。',
+    icon: '💡',
+    iconType: 'mini-light-bulb',
+    themeClass: 'from-yellow-100 via-amber-100 to-yellow-200 border-amber-300 text-amber-900',
+    rarity: 'rare',
+  },
+  {
+    id: 'glossy-cloth',
+    name: 'つやつやの布',
+    description: '光の加減で優美な光沢を放つシルクの布切れ。とても手触りがよく、寝床から引き抜いてきたらしい。',
+    icon: '🧣',
+    iconType: 'glossy-cloth',
+    themeClass: 'from-rose-100 via-purple-100 to-pink-200 border-purple-300 text-purple-950',
+    rarity: 'rare',
+  },
+  {
+    id: 'puzzle-ring',
+    name: 'ちえのわ',
+    description: '複雑に絡み合った二つの金属の輪。猫の前足でガチャガチャと弄ばれた跡がある。',
+    icon: '🥨',
+    iconType: 'puzzle-ring',
+    themeClass: 'from-slate-200 via-amber-100 to-zinc-300 border-slate-400 text-slate-800',
+    rarity: 'rare',
+  },
+  {
+    id: 'beautiful-bell',
+    name: 'うつくしい鈴',
+    description: '透き通るような涼やかな音色を奏でる、細かな彫刻が施された美しい真鍮の鈴。',
+    icon: '🔔',
+    iconType: 'beautiful-bell',
+    themeClass: 'from-amber-200 via-yellow-100 to-amber-300 border-amber-400 text-amber-900',
+    rarity: 'rare',
+  },
+  // 硬貨・骨董・古代品
+  {
+    id: 'shiny-coin',
+    name: 'ぴかぴかのコイン',
+    description: 'まるで新品のようにまばゆく輝く、どこかの自販機の下で見つけたピカピカの硬貨。',
+    icon: '🪙',
+    iconType: 'shiny-coin',
+    themeClass: 'from-amber-200 via-yellow-100 to-yellow-300 border-amber-400 text-amber-900',
+    rarity: 'rare',
+  },
+  {
+    id: 'old-coin',
+    name: 'ふしぎな古銭',
+    description: 'どこかの古い蔵や床下で見つけてきたのか、不思議な文字が刻まれた丸い古銭。',
+    icon: '🪙',
+    iconType: 'old-coin',
+    themeClass: 'from-amber-200 to-yellow-300 border-amber-400 text-amber-900',
     rarity: 'rare',
   },
   {
@@ -504,8 +636,9 @@ export const CAT_GIFTS: readonly GiftItem[] = [
   },
 
   // ==========================================
-  // 【スーパーレア（super-rare: 6種）】宝石・天体・奇跡の幸運・竜の遺物
+  // 【スーパーレア（super-rare: 12種）】奇跡・宝石・結晶・歴史の遺物
   // ==========================================
+  // 自然・生き物の奇跡
   {
     id: 'four-leaf-clover',
     name: 'よつばのクローバー',
@@ -515,6 +648,25 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     themeClass: 'from-purple-200 via-fuchsia-100 to-violet-300 border-purple-400 text-purple-950',
     rarity: 'super-rare',
   },
+  {
+    id: 'jewel-beetle-wing',
+    name: 'たまむしの羽根',
+    description: '見る角度によってエメラルドや紫に色を変える、玉虫厨子にも使われた奇跡の構造色を持つ翅。',
+    icon: '🪲',
+    iconType: 'jewel-beetle-wing',
+    themeClass: 'from-purple-200 via-emerald-200 to-teal-300 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'dragon-scale',
+    name: 'りゅうの鱗',
+    description: '伝説のドラゴンから剥がれ落ちたと伝わる、虹色に光る硬質で神聖なウロコ。',
+    icon: '🐉',
+    iconType: 'dragon-scale',
+    themeClass: 'from-purple-200 via-teal-200 to-indigo-300 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  // 鉱物・宝石・結晶・天体
   {
     id: 'red-gem',
     name: 'あかいろの宝石',
@@ -543,6 +695,15 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     rarity: 'super-rare',
   },
   {
+    id: 'dark-crystal',
+    name: 'やみの結晶',
+    description: '周囲の光を吸い込むように深く暗い黒紫に輝く、冥界の魔力を秘めた未知の鉱物の結晶。',
+    icon: '🔮',
+    iconType: 'dark-crystal',
+    themeClass: 'from-purple-300 via-slate-800 to-violet-400 border-purple-500 text-purple-100',
+    rarity: 'super-rare',
+  },
+  {
     id: 'star-fragment',
     name: 'ほしのかけら',
     description: '夜空から落ちてきた流れ星の欠片。手のひらで淡く温かく明滅している。',
@@ -551,13 +712,41 @@ export const CAT_GIFTS: readonly GiftItem[] = [
     themeClass: 'from-purple-200 via-violet-200 to-indigo-200 border-purple-400 text-purple-950',
     rarity: 'super-rare',
   },
+  // 歴史・富・書籍・古代道具
   {
-    id: 'dragon-scale',
-    name: 'りゅうの鱗',
-    description: '伝説のドラゴンから剥がれ落ちたと伝わる、虹色に光る硬質で神聖なウロコ。',
-    icon: '🐉',
-    iconType: 'dragon-scale',
-    themeClass: 'from-purple-200 via-teal-200 to-indigo-300 border-purple-400 text-purple-950',
+    id: 'golden-koban',
+    name: 'おうごんの小判',
+    description: '純金製でずっしりと重く、「壱両」の極印が打たれた正真正銘の江戸時代の本物の小判。',
+    icon: '🪙',
+    iconType: 'golden-koban',
+    themeClass: 'from-purple-200 via-yellow-200 to-amber-300 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'miracle-error-coin',
+    name: 'きせきのエラーコイン',
+    description: '表と裏で図柄が大きくズレて刻印された、貨幣コレクターが目の色を変えて探し求める幻の硬貨。',
+    icon: '🪙',
+    iconType: 'miracle-error-coin',
+    themeClass: 'from-purple-200 via-amber-100 to-indigo-200 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'shady-self-help-book',
+    name: 'うさんくさい自己啓発本',
+    description: '「猫のように生きれば年収1億円」と金文字で書かれた、どこか怪しげな魅力にあふれる単行本。',
+    icon: '📕',
+    iconType: 'shady-self-help-book',
+    themeClass: 'from-purple-200 via-pink-100 to-violet-300 border-purple-400 text-purple-950',
+    rarity: 'super-rare',
+  },
+  {
+    id: 'ancient-compass',
+    name: 'こだいのコンパス',
+    description: '失われた古代の航路を指し示すかのように、磁北ではない特定の場所を常に指し続ける羅針盤。',
+    icon: '🧭',
+    iconType: 'ancient-compass',
+    themeClass: 'from-purple-200 via-cyan-100 to-indigo-200 border-purple-400 text-purple-950',
     rarity: 'super-rare',
   },
 

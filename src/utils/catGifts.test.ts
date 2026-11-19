@@ -25,8 +25,8 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catGifts utils (おくりもの計算・インベントリ管理ロジック)', () => {
   describe('CAT_GIFTS 定数', () => {
-    it('合計60種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
-      expect(CAT_GIFTS.length).toBe(60);
+    it('合計80種類のおくりものが定義されており、すべて「ひらがな形容詞＋名詞」の命名規則に従っていること', () => {
+      expect(CAT_GIFTS.length).toBe(80);
 
       const expectedIds = [
         // 【通常】自然・植物・木の実 (12)
@@ -79,20 +79,40 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         'jelly-cup',
         'blue-can',
         'empty-bottle',
-        // 【レア】日常の珍品・古代・伝説 (6)
-        'important-paper',
-        'winning-ice-stick',
-        'old-coin',
+        // 【レア】自然・珍品・日用品・骨董 (20)
+        'single-rose',
+        'round-bulb',
+        'large-pumpkin',
         'splendid-branch',
+        'light-driftwood',
+        'sparkling-seashell',
         'glowing-moss-stone',
+        'snake-shedding',
+        'large-bonito-flake',
+        'winning-ice-stick',
+        'important-paper',
+        'cat-acrylic-stand',
+        'luxury-paintbrush',
+        'mini-light-bulb',
+        'glossy-cloth',
+        'puzzle-ring',
+        'beautiful-bell',
+        'shiny-coin',
+        'old-coin',
         'curious-magatama',
-        // 【スーパーレア】宝石・天体・奇跡の幸運・竜の遺物 (6)
+        // 【スーパーレア】奇跡・宝石・結晶・歴史の遺物 (12)
         'four-leaf-clover',
+        'jewel-beetle-wing',
+        'dragon-scale',
         'red-gem',
         'blue-gem',
         'yellow-gem',
+        'dark-crystal',
         'star-fragment',
-        'dragon-scale',
+        'golden-koban',
+        'miracle-error-coin',
+        'shady-self-help-book',
+        'ancient-compass',
         // 【ウルトラレア】伝説・古代の遺物・神話 (3)
         'rainbow-feather',
         'ancient-gear',
@@ -127,6 +147,13 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
       );
       expect(importantPaper?.rarity).toBe('rare');
 
+      // 「おおきなカボチャ」の説明文の最後の一文が指定通りで、十分な文章量であること
+      const largePumpkin = CAT_GIFTS.find((g) => g.id === 'large-pumpkin');
+      expect(largePumpkin?.description).toContain('いったいどうやって持ってきたのだろうか…');
+      expect(largePumpkin?.description.endsWith('いったいどうやって持ってきたのだろうか…')).toBe(true);
+      expect(largePumpkin?.description.length).toBeGreaterThanOrEqual(40);
+      expect(largePumpkin?.rarity).toBe('rare');
+
       // 「りゅうの鱗」「りゅうの爪」の「りゅう」がドラゴンであること
       const dragonScale = CAT_GIFTS.find((g) => g.id === 'dragon-scale');
       expect(dragonScale?.description).toContain('ドラゴン');
@@ -135,21 +162,21 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
 
       // 命名規則の検証: 先頭がひらがなの形容詞・連体修飾語
       const hiraganaPrefixPattern =
-        /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの|こけむした|ふるい|かわいい|しおれた|せみの|しろい|きらきらした|よごれた|かたっぽの|ひまわりの|おやつの|ほそながい|はずれの|だいじそうな|あおい|からっぽの|ももいろの|おかしの|おべんとうの|あかいろの|あおいろの|きいろの|あたりの|りゅうの|ほしの|いにしえの|りっぱな|きみょうな|ちぎれた|まるめた|ぬけた|やぶれた|まるまった|ねじれた|かれた|へこんだ|やわらかい|あいた|すべすべの|かわいた)/;
+        /^(きれいな|ふわふわの|まるい|ほそい|ちいさな|あかい|おおきな|みどりの|ながい|ひかる|ふしぎな|なないろの|よつばの|こけむした|ふるい|かわいい|しおれた|せみの|しろい|きらきらした|よごれた|かたっぽの|ひまわりの|おやつの|ほそながい|はずれの|だいじそうな|あおい|からっぽの|ももいろの|おかしの|おべんとうの|あかいろの|あおいろの|きいろの|あたりの|りゅうの|ほしの|いにしえの|りっぱな|きみょうな|ちぎれた|まるめた|ぬけた|やぶれた|まるまった|ねじれた|かれた|へこんだ|やわらかい|あいた|すべすべの|かわいた|いちりんの|うつくしい|ぴかぴかの|きらきら|かるい|ねこの|へびの|こうきゅう|つやつやの|ちえのわ|おうごんの|こだいの|たまむしの|うさんくさい|きせきの|やみの)/;
       CAT_GIFTS.forEach((gift) => {
         expect(gift.name).toMatch(hiraganaPrefixPattern);
       });
     });
 
-    it('レアリティごとに並んでいること（通常45種、レア6種、スーパーレア6種、ウルトラレア3種）', () => {
+    it('レアリティごとに並んでいること（通常45種、レア20種、スーパーレア12種、ウルトラレア3種）', () => {
       const commonGifts = CAT_GIFTS.slice(0, 45);
-      const rareGifts = CAT_GIFTS.slice(45, 51);
-      const superRareGifts = CAT_GIFTS.slice(51, 57);
-      const ultraRareGifts = CAT_GIFTS.slice(57, 60);
+      const rareGifts = CAT_GIFTS.slice(45, 65);
+      const superRareGifts = CAT_GIFTS.slice(65, 77);
+      const ultraRareGifts = CAT_GIFTS.slice(77, 80);
 
       expect(commonGifts.length).toBe(45);
-      expect(rareGifts.length).toBe(6);
-      expect(superRareGifts.length).toBe(6);
+      expect(rareGifts.length).toBe(20);
+      expect(superRareGifts.length).toBe(12);
       expect(ultraRareGifts.length).toBe(3);
 
       commonGifts.forEach((gift) => {
@@ -168,14 +195,20 @@ describe('catGifts utils (おくりもの計算・インベントリ管理ロジ
         expect(gift.rarity).toBe('ultra-rare');
       });
 
-      // スーパーレアに指定された6種
+      // スーパーレアに指定された12種
       expect(superRareGifts.map((g) => g.id)).toEqual([
         'four-leaf-clover',
+        'jewel-beetle-wing',
+        'dragon-scale',
         'red-gem',
         'blue-gem',
         'yellow-gem',
+        'dark-crystal',
         'star-fragment',
-        'dragon-scale',
+        'golden-koban',
+        'miracle-error-coin',
+        'shady-self-help-book',
+        'ancient-compass',
       ]);
 
       // ウルトラレアに指定された3種
