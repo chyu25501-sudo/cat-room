@@ -640,21 +640,38 @@ export default function App() {
     syncWithCloud,
   } = useCloudSync();
 
-  // クラウド手動・自動同期ハンドラー
+  // クラウド手動・自動同期ハンドラー（多重実行ガード付き）
+  const isSyncingRef = useRef<boolean>(false);
   const handleCloudSyncNow = useCallback(async () => {
-    const currentLocal = getCurrentSaveData();
-    const synced = await syncWithCloud(currentLocal);
-    if (synced) {
-      applyMergedSaveData(synced);
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    try {
+      const currentLocal = getCurrentSaveData();
+      const synced = await syncWithCloud(currentLocal);
+      if (synced) {
+        applyMergedSaveData(synced);
+      }
+    } finally {
+      isSyncingRef.current = false;
     }
   }, [getCurrentSaveData, syncWithCloud, applyMergedSaveData]);
 
-  // ログイン状態になったとき、初回同期を自動実行
+  // 最新のハンドラーを ref に保持
+  const handleCloudSyncNowRef = useRef(handleCloudSyncNow);
+  handleCloudSyncNowRef.current = handleCloudSyncNow;
+
+  // ログイン状態になったとき（ユーザーIDが切り替わった初回1回のみ）自動同期を実行
+  const syncedUserIdRef = useRef<string | null>(null);
   useEffect(() => {
     if (cloudUser) {
-      handleCloudSyncNow();
+      if (syncedUserIdRef.current !== cloudUser.id) {
+        syncedUserIdRef.current = cloudUser.id;
+        handleCloudSyncNowRef.current();
+      }
+    } else {
+      syncedUserIdRef.current = null;
     }
-  }, [cloudUser, handleCloudSyncNow]);
+  }, [cloudUser?.id]);
 
   // セーブデータのエクスポート（ファイル書き出し）
   const handleExportSaveData = useCallback(() => {
