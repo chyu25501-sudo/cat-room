@@ -212,6 +212,34 @@ describe('saveData ユーティリティ (セーブデータ管理・マージ)'
       expect(merged.affection?.calico.level).toBe(1);
     });
 
+    it('なつき度: レベルMAX(Lv.10)のときはゲージ周回するため、タイムスタンプが新しい方のExpが採用され巻き戻らないこと', () => {
+      // local側がおくりものを貰ってゲージが 0 にリセットされた直後（最新）
+      const local: NekoppoiSaveData = {
+        version: 1,
+        timestamp: 3000,
+        affection: {
+          black: { level: 10, currentExp: 0, requiredExp: 600 },
+          white: { level: 10, currentExp: 0, requiredExp: 600 },
+          calico: { level: 10, currentExp: 0, requiredExp: 600 },
+        },
+      };
+
+      // incoming側が過去の満タン直前データ（古い）
+      const incoming: NekoppoiSaveData = {
+        version: 1,
+        timestamp: 1000,
+        affection: {
+          black: { level: 10, currentExp: 580, requiredExp: 600 },
+          white: { level: 10, currentExp: 580, requiredExp: 600 },
+          calico: { level: 10, currentExp: 580, requiredExp: 600 },
+        },
+      };
+
+      const merged = mergeSaveData(local, incoming);
+      // 新しい local 側の currentExp: 0 が採用され、過去の 580 に巻き戻らないこと
+      expect(merged.affection?.black.currentExp).toBe(0);
+    });
+
     it('まんぷく度: 最終給餌（lastFedAt）が新しい方が採用されること', () => {
       const local: NekoppoiSaveData = {
         version: 1,

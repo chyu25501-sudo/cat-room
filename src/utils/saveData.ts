@@ -252,9 +252,13 @@ function mergeCareJournal(local?: CareStats, incoming?: CareStats): CareStats | 
 }
 
 /**
- * なつき度データのマージ（より高いレベル・Expを採用）
+ * なつき度データのマージ（より高いレベルを採用。同じレベルならLv10周回を考慮してタイムスタンプやExpで判定）
  */
-function mergeAffection(local?: CatsAffectionMap, incoming?: CatsAffectionMap): CatsAffectionMap | undefined {
+function mergeAffection(
+  local?: CatsAffectionMap,
+  incoming?: CatsAffectionMap,
+  isIncomingNewer: boolean = false
+): CatsAffectionMap | undefined {
   if (!local && incoming) return incoming;
   if (local && !incoming) return local;
   if (!local && !incoming) return undefined;
@@ -270,11 +274,22 @@ function mergeAffection(local?: CatsAffectionMap, incoming?: CatsAffectionMap): 
     } else if (loc && inc) {
       if (inc.level > loc.level) {
         result[catId] = inc;
-      } else if (inc.level === loc.level) {
-        // 同じレベルなら経験値が大きい方を採用
-        result[catId] = inc.currentExp >= loc.currentExp ? inc : loc;
-      } else {
+      } else if (loc.level > inc.level) {
         result[catId] = loc;
+      } else {
+        // 同じレベルの場合：
+        // 最大レベル（Lv.10以上）のときはゲージ満タン後におくりものを放出してExpが0に周回するため、
+        // タイムスタンプが新しい方のセーブデータを採用（過去の満タン直前Expへの巻き戻りを防ぐ）
+        if (loc.level >= 10) {
+          result[catId] = isIncomingNewer ? inc : loc;
+        } else {
+          // 最大レベル未満のときは、より経験値が多い方（同じなら新しい方）を採用
+          if (inc.currentExp !== loc.currentExp) {
+            result[catId] = inc.currentExp > loc.currentExp ? inc : loc;
+          } else {
+            result[catId] = isIncomingNewer ? inc : loc;
+          }
+        }
       }
     }
   }
@@ -326,7 +341,7 @@ export function mergeSaveData(
     version: Math.max(local.version, incoming.version),
     timestamp: Math.max(local.timestamp, incoming.timestamp),
     settings: isIncomingNewer ? (incoming.settings ?? local.settings) : (local.settings ?? incoming.settings),
-    affection: mergeAffection(local.affection, incoming.affection),
+    affection: mergeAffection(local.affection, incoming.affection, isIncomingNewer),
     fullness: mergeFullness(local.fullness, incoming.fullness),
     gifts: mergeGiftInventories(local.gifts, incoming.gifts),
     achievements: mergeAchievements(local.achievements, incoming.achievements),
