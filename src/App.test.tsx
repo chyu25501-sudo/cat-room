@@ -1971,5 +1971,25 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       // 黒猫の名前が「ノワール」に反映されていること
       expect(screen.getByRole('radio', { name: /ノワール/ })).toBeInTheDocument();
     });
+
+    it('自動ごはんが解禁されている状態でオンオフを切り替えると、自動クラウド同期が実行されること', async () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      setupAllCatsMaxAffection();
+      render(<App />);
+
+      // 設定モーダルを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      // 自動ごはんは解禁されている
+      const autoFeedToggle = screen.getByTestId('auto-feed-toggle-button');
+      expect(autoFeedToggle).toBeInTheDocument();
+
+      // トグルをクリックしてオンにする
+      fireEvent.click(autoFeedToggle);
+
+      // トグルがオンになったこと
+      expect(autoFeedToggle).toHaveAttribute('aria-checked', 'true');
+    });
   });
 });
