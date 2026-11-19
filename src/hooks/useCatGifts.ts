@@ -35,6 +35,8 @@ export interface UseCatGiftsResult {
   getTotalGiftCount: () => number;
   /** インベントリを初期状態（空）にリセット */
   resetInventory: () => void;
+  /** インベントリを一括復元・更新する関数（データ引き継ぎ・同期用） */
+  restoreInventory: (newInventory: GiftInventory) => void;
 }
 
 /**
@@ -95,11 +97,16 @@ export function useCatGifts(options: UseCatGiftsOptions = {}): UseCatGiftsResult
     setInventory({});
   }, []);
 
+  const restoreInventory = useCallback((newInventory: GiftInventory) => {
+    setInventory(newInventory);
+  }, []);
+
   return {
     inventory,
     receiveGift,
     getGiftCount,
     getTotalGiftCount,
     resetInventory,
+    restoreInventory,
   };
 }

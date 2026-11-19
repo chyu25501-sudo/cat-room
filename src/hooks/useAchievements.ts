@@ -39,6 +39,8 @@ export interface UseAchievementsReturn {
   dismissToast: (id: string) => void;
   /** 実績データをリセットする関数（初期化用） */
   resetAchievements: () => void;
+  /** 実績データを一括復元・更新する関数（データ引き継ぎ・同期用） */
+  restoreAchievements: (newAchievements: UnlockedAchievements) => void;
 }
 
 /**
@@ -145,6 +147,10 @@ export function useAchievements(options: UseAchievementsOptions = {}): UseAchiev
     }
   }, []);
 
+  const restoreAchievements = useCallback((newAchievements: UnlockedAchievements) => {
+    setUnlocked(newAchievements);
+  }, []);
+
   const unlockedCount = Object.keys(unlocked).length;
   const totalCount = catalog.length;
 
@@ -157,5 +163,6 @@ export function useAchievements(options: UseAchievementsOptions = {}): UseAchiev
     checkAndUnlock,
     dismissToast,
     resetAchievements,
+    restoreAchievements,
   };
 }

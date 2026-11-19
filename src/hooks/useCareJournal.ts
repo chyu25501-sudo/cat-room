@@ -18,6 +18,8 @@ export interface UseCareJournalReturn {
   addAutoFeedStats: (feedCountsByCat: Record<string, number>) => CareStats;
   /** 統計データをリセットする関数 */
   resetStats: () => void;
+  /** 統計データを一括復元・更新する関数（データ引き継ぎ・同期用） */
+  restoreStats: (newStats: CareStats) => void;
 }
 
 /**
@@ -89,10 +91,15 @@ export function useCareJournal(): UseCareJournalReturn {
     setStats({ ...INITIAL_CARE_STATS });
   }, []);
 
+  const restoreStats = useCallback((newStats: CareStats) => {
+    setStats(sanitizeCareStats(newStats));
+  }, []);
+
   return {
     stats,
     recordCareAction,
     addAutoFeedStats,
     resetStats,
+    restoreStats,
   };
 }

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act, within } from '@testing-library/react';
+import { render, screen, fireEvent, act, within, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import App from './App.tsx';
 import { CAT_GIFTS } from './utils/catGifts.ts';
@@ -1891,6 +1891,85 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       } finally {
         vi.useRealTimers();
       }
+    });
+  });
+
+  describe('設定画面からのセーブデータバックアップ・引き継ぎ', () => {
+    beforeEach(() => {
+      window.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url');
+      window.URL.revokeObjectURL = vi.fn();
+    });
+
+    it('設定画面から「ファイルに保存」を押すとセーブデータダウンロード関数が呼ばれること', () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      render(<App />);
+
+      // 設定モーダルを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      expect(screen.getByTestId('save-data-transfer-section')).toBeInTheDocument();
+      const exportButton = screen.getByTestId('export-save-data-button');
+      expect(exportButton).toBeInTheDocument();
+
+      // クリックしてもエラーが発生せず、URL.createObjectURL が呼ばれること
+      fireEvent.click(exportButton);
+      expect(window.URL.createObjectURL).toHaveBeenCalled();
+    });
+
+    it('外部のセーブデータファイルを読み込むと、現在のデータと合算・マージされて反映されること', async () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      render(<App />);
+
+      // 初期状態の黒猫の名前がラジオボタンに反映されていること
+      expect(screen.getByRole('radio', { name: /くろねこ/ })).toBeInTheDocument();
+
+      // 設定モーダルを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      // 黒猫の名前が「ノワール」、おくりものを持つセーブデータ
+      const incomingData = {
+        version: 1,
+        timestamp: Date.now() + 10000,
+        settings: {
+          soundEnabled: true,
+          catNames: { black: 'ノワール', white: 'しろねこ', calico: 'みけねこ' },
+          gaugePosition: 'bottom',
+          autoFeedEnabled: false,
+          compactAffectionCelebration: false,
+        },
+        gifts: {
+          pebble: {
+            giftId: 'pebble',
+            count: 3,
+            byCat: { black: 3 },
+            firstReceivedAt: 1000,
+            lastReceivedAt: 2000,
+          },
+        },
+      };
+
+      const file = new File([JSON.stringify(incomingData)], 'save.json', {
+        type: 'application/json',
+      });
+
+      const input = screen.getByTestId('import-save-data-input');
+      await act(async () => {
+        fireEvent.change(input, { target: { files: [file] } });
+      });
+
+      // 成功メッセージが表示されること
+      await waitFor(() => {
+        expect(screen.getByTestId('import-status-message')).toHaveTextContent(/合算・引き継ぎました/);
+      });
+
+      // 設定モーダルを閉じる
+      const closeButton = screen.getByTestId('settings-close-button');
+      fireEvent.click(closeButton);
+
+      // 黒猫の名前が「ノワール」に反映されていること
+      expect(screen.getByRole('radio', { name: /ノワール/ })).toBeInTheDocument();
     });
   });
 });

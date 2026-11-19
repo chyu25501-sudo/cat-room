@@ -41,6 +41,8 @@ export interface UseAppSettingsReturn {
   setCompactAffectionCelebration: (enabled: boolean) => void;
   /** なつき度演出簡略化の有効/無効を反転（トグル）する関数 */
   toggleCompactAffectionCelebration: () => void;
+  /** 設定を一括復元・更新する関数（データ引き継ぎ・同期用） */
+  restoreSettings: (newSettings: AppSettings) => void;
 }
 
 /**
@@ -135,6 +137,10 @@ export function useAppSettings(): UseAppSettingsReturn {
     }));
   }, []);
 
+  const restoreSettings = useCallback((newSettings: AppSettings) => {
+    setSettings(sanitizeSettings(newSettings));
+  }, []);
+
   return {
     settings,
     isSoundEnabled: settings.soundEnabled,
@@ -151,5 +157,6 @@ export function useAppSettings(): UseAppSettingsReturn {
     toggleAutoFeed,
     setCompactAffectionCelebration,
     toggleCompactAffectionCelebration,
+    restoreSettings,
   };
 }

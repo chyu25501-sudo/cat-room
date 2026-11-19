@@ -34,6 +34,8 @@ export interface UseCatAffectionResult {
   gainAffection: (catId: CatId, exp: number) => AffectionGainResult;
   /** 指定した猫のなつき度を初期状態（Lv.1, 0pt）にリセットする関数 */
   resetAffection: (catId: CatId) => void;
+  /** 全猫のなつき度マップを一括復元・更新する関数（データ引き継ぎ・同期用） */
+  restoreAffectionMap: (newMap: CatsAffectionMap) => void;
 }
 
 function createDefaultAffectionMap(
@@ -172,6 +174,10 @@ export function useCatAffection(
     [initialLevel, initialExp]
   );
 
+  const restoreAffectionMap = useCallback((newMap: CatsAffectionMap) => {
+    setAffectionMap(newMap);
+  }, []);
+
   return {
     affectionMap,
     getAffectionState,
@@ -179,5 +185,6 @@ export function useCatAffection(
     getAffectionProgress,
     gainAffection,
     resetAffection,
+    restoreAffectionMap,
   };
 }

@@ -315,4 +315,153 @@ describe('SettingsModal コンポーネント', () => {
       expect(handleToggle).toHaveBeenCalledWith(false);
     });
   });
+
+  describe('セーブデータの書き出し・読み込み（データ引き継ぎ）', () => {
+    it('セーブデータ引き継ぎセクションが表示され、「ファイルに保存」をクリックすると onExportSaveData が呼ばれること', () => {
+      const handleExport = vi.fn();
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          onExportSaveData={handleExport}
+        />
+      );
+
+      expect(screen.getByTestId('save-data-transfer-section')).toBeInTheDocument();
+      expect(screen.getByText('データのバックアップ・引き継ぎ')).toBeInTheDocument();
+
+      const exportButton = screen.getByTestId('export-save-data-button');
+      fireEvent.click(exportButton);
+      expect(handleExport).toHaveBeenCalledTimes(1);
+    });
+
+    it('ファイルを読み込むと onImportSaveData が呼ばれ、成功メッセージが表示されること', async () => {
+      const handleImport = vi.fn().mockResolvedValue({
+        success: true,
+        message: '引き継ぎが完了しました！',
+      });
+
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          onImportSaveData={handleImport}
+        />
+      );
+
+      const input = screen.getByTestId('import-save-data-input');
+      const file = new File(['{"version":1}'], 'save.json', { type: 'application/json' });
+
+      fireEvent.change(input, { target: { files: [file] } });
+
+      expect(handleImport).toHaveBeenCalledWith(file);
+      const statusMessage = await screen.findByTestId('import-status-message');
+      expect(statusMessage).toHaveTextContent('引き継ぎが完了しました！');
+    });
+
+    it('インポートが失敗した場合はエラーメッセージが表示されること', async () => {
+      const handleImport = vi.fn().mockResolvedValue({
+        success: false,
+        message: '無効なデータです。',
+      });
+
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          onImportSaveData={handleImport}
+        />
+      );
+
+      const input = screen.getByTestId('import-save-data-input');
+      const file = new File(['invalid'], 'save.json', { type: 'application/json' });
+
+      fireEvent.change(input, { target: { files: [file] } });
+
+      const statusMessage = await screen.findByTestId('import-status-message');
+      expect(statusMessage).toHaveTextContent('無効なデータです。');
+    });
+  });
+
+  describe('クラウドデータ連携（複数端末同期）UI', () => {
+    it('isCloudConfigured が false のとき、クラウド未設定の案内が表示されること', () => {
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCloudConfigured={false}
+        />
+      );
+
+      expect(screen.getByTestId('cloud-sync-section')).toBeInTheDocument();
+      expect(screen.getByText(/クラウド設定が未完了です/)).toBeInTheDocument();
+    });
+
+    it('isCloudConfigured が true かつ未ログインのとき、ログイン/新規登録フォームが表示され操作できること', async () => {
+      const handleSignIn = vi.fn().mockResolvedValue({ success: true, message: 'ログイン成功' });
+      const handleSignUp = vi.fn().mockResolvedValue({ success: true, message: '登録成功' });
+
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCloudConfigured={true}
+          cloudUser={null}
+          onCloudSignIn={handleSignIn}
+          onCloudSignUp={handleSignUp}
+        />
+      );
+
+      const emailInput = screen.getByTestId('cloud-email-input');
+      const passInput = screen.getByTestId('cloud-password-input');
+      const signInBtn = screen.getByTestId('cloud-signin-button');
+      const signUpBtn = screen.getByTestId('cloud-signup-button');
+
+      expect(emailInput).toBeInTheDocument();
+      expect(passInput).toBeInTheDocument();
+
+      // 空欄で押したときはバリデーションエラーが表示されること
+      fireEvent.click(signInBtn);
+      expect(screen.getByTestId('cloud-sync-status-message')).toHaveTextContent(/メールアドレスとパスワードを入力してください/);
+      expect(handleSignIn).not.toHaveBeenCalled();
+
+      // 入力してログイン実行
+      fireEvent.change(emailInput, { target: { value: 'cat@example.com' } });
+      fireEvent.change(passInput, { target: { value: 'password123' } });
+      fireEvent.click(signInBtn);
+
+      expect(handleSignIn).toHaveBeenCalledWith('cat@example.com', 'password123');
+
+      // 新規登録実行
+      fireEvent.click(signUpBtn);
+      expect(handleSignUp).toHaveBeenCalledWith('cat@example.com', 'password123');
+    });
+
+    it('ログイン中のとき、メールアドレス、今すぐ同期ボタン、ログアウトボタンが表示され操作できること', () => {
+      const handleSyncNow = vi.fn();
+      const handleSignOut = vi.fn();
+
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCloudConfigured={true}
+          cloudUser={{ email: 'logged_in@example.com' }}
+          cloudLastSyncedAt={1700000000000}
+          onCloudSyncNow={handleSyncNow}
+          onCloudSignOut={handleSignOut}
+        />
+      );
+
+      expect(screen.getByTestId('cloud-user-email')).toHaveTextContent('logged_in@example.com');
+      const syncNowBtn = screen.getByTestId('cloud-sync-now-button');
+      const signOutBtn = screen.getByTestId('cloud-signout-button');
+
+      fireEvent.click(syncNowBtn);
+      expect(handleSyncNow).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(signOutBtn);
+      expect(handleSignOut).toHaveBeenCalledTimes(1);
+    });
+  });
 });

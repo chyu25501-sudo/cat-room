@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw, Layout, Utensils, Lock, AlertCircle } from 'lucide-react';
+import { X, Sparkles, Volume2, VolumeX, Info, Heart, Tag, RotateCcw, Layout, Utensils, Lock, AlertCircle, Download, Upload, CheckCircle2, Cloud, LogOut, RefreshCw } from 'lucide-react';
 import { SettingsIcon } from './SettingsButton.tsx';
 import { CatId, CAT_PRESETS } from '../../types/cat.ts';
 import { DEFAULT_CAT_NAMES, CatCustomNames, GaugeDisplayPosition } from '../../types/settings.ts';
@@ -33,6 +33,28 @@ export interface SettingsModalProps {
   isCompactAffectionCelebration?: boolean;
   /** なつき度演出簡略化の切り替えコールバック */
   onToggleCompactAffectionCelebration?: (enabled: boolean) => void;
+  /** セーブデータの書き出し（エクスポート）コールバック */
+  onExportSaveData?: () => void;
+  /** セーブデータの読み込み（インポート）コールバック */
+  onImportSaveData?: (file: File) => Promise<{ success: boolean; message: string }>;
+  /** クラウド連携が利用可能かどうか（Supabaseが設定されているか） */
+  isCloudConfigured?: boolean;
+  /** クラウド連携中のユーザー情報 */
+  cloudUser?: { email?: string } | null;
+  /** クラウド同期ステータス */
+  cloudSyncStatus?: 'idle' | 'syncing' | 'synced' | 'error';
+  /** クラウド同期メッセージ */
+  cloudSyncMessage?: string | null;
+  /** 最終同期日時 */
+  cloudLastSyncedAt?: number | null;
+  /** クラウド新規登録コールバック */
+  onCloudSignUp?: (email: string, pass: string) => Promise<{ success: boolean; message: string }>;
+  /** クラウドログインコールバック */
+  onCloudSignIn?: (email: string, pass: string) => Promise<{ success: boolean; message: string }>;
+  /** クラウドログアウトコールバック */
+  onCloudSignOut?: () => Promise<{ success: boolean; message: string }>;
+  /** クラウド今すぐ同期コールバック */
+  onCloudSyncNow?: () => Promise<void>;
 }
 
 /**
@@ -54,9 +76,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onToggleAutoFeed,
   isCompactAffectionCelebration = false,
   onToggleCompactAffectionCelebration,
+  onExportSaveData,
+  onImportSaveData,
+  isCloudConfigured = false,
+  cloudUser = null,
+  cloudSyncStatus = 'idle',
+  cloudSyncMessage = null,
+  cloudLastSyncedAt = null,
+  onCloudSignUp,
+  onCloudSignIn,
+  onCloudSignOut,
+  onCloudSyncNow,
 }) => {
   // 初期名リセットの確認画面の開閉ステート
   const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
+  // データ読み込み（インポート）のステータスとメッセージ
+  const [importStatus, setImportStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [importMessage, setImportMessage] = useState<string | null>(null);
+
+  // クラウド認証用の入力ステート
+  const [cloudEmail, setCloudEmail] = useState('');
+  const [cloudPassword, setCloudPassword] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onImportSaveData) return;
+
+    setImportStatus('loading');
+    setImportMessage('データを読み込み中...');
+
+    try {
+      const result = await onImportSaveData(file);
+      if (result.success) {
+        setImportStatus('success');
+        setImportMessage(result.message);
+      } else {
+        setImportStatus('error');
+        setImportMessage(result.message);
+      }
+    } catch {
+      setImportStatus('error');
+      setImportMessage('ファイルの読み込み中にエラーが発生しました');
+    } finally {
+      // ファイル選択をリセット（同じファイルを再選択可能にするため）
+      e.target.value = '';
+    }
+  };
 
   if (!isOpen) {
     return null;
@@ -373,6 +439,237 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>横側（シンプル）</span>
               </button>
             </div>
+          </div>
+
+          {/* データのバックアップ・引き継ぎ（ファイル書き出し・読み込み） */}
+          <div
+            data-testid="save-data-transfer-section"
+            className="bg-gradient-to-br from-amber-50/60 via-orange-50/40 to-stone-50 border border-orange-200/90 rounded-2xl p-3.5 shadow-2xs"
+          >
+            <div className="flex items-center gap-1.5 text-stone-800 font-bold text-sm mb-1.5">
+              <Download className="w-4 h-4 text-orange-600 shrink-0" />
+              <span>データのバックアップ・引き継ぎ</span>
+            </div>
+            <p className="text-[11px] text-stone-500 mb-3 leading-relaxed">
+              現在の進行状況（おくりもの・実績・なつき度等）をファイルに保存したり、別端末から読み込んで賢く合算・引き継ぎができます。
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              {onExportSaveData && (
+                <button
+                  type="button"
+                  onClick={onExportSaveData}
+                  data-testid="export-save-data-button"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold bg-white hover:bg-amber-50/80 text-stone-700 border border-orange-200 shadow-2xs transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400"
+                >
+                  <Download className="w-3.5 h-3.5 text-orange-600" />
+                  <span>ファイルに保存</span>
+                </button>
+              )}
+
+              {onImportSaveData && (
+                <label
+                  data-testid="import-save-data-label"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold bg-white hover:bg-orange-50/80 text-stone-700 border border-orange-200 shadow-2xs transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-orange-400"
+                >
+                  <Upload className="w-3.5 h-3.5 text-amber-600" />
+                  <span>ファイルを読み込む</span>
+                  <input
+                    type="file"
+                    accept=".json,application/json"
+                    className="hidden"
+                    data-testid="import-save-data-input"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              )}
+            </div>
+
+            {importMessage && (
+              <div
+                role="status"
+                data-testid="import-status-message"
+                className={`mt-2.5 p-2 rounded-xl text-[11px] flex items-center gap-1.5 leading-snug animate-fade-in ${
+                  importStatus === 'success'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : importStatus === 'error'
+                      ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                      : 'bg-amber-50 text-amber-800 border border-amber-200'
+                }`}
+              >
+                {importStatus === 'success' ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                ) : importStatus === 'error' ? (
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0 animate-spin" />
+                )}
+                <span>{importMessage}</span>
+              </div>
+            )}
+          </div>
+
+          {/* クラウドデータ連携（複数端末同期）カード */}
+          <div
+            data-testid="cloud-sync-section"
+            className="bg-sky-50/50 border border-sky-200/80 rounded-2xl p-3.5"
+          >
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <div className="flex items-center gap-2 text-stone-800 font-bold text-sm">
+                <Cloud className="w-4 h-4 text-sky-600 shrink-0" />
+                <span>クラウドデータ連携（複数端末同期）</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-600 mb-2.5 leading-relaxed">
+              アカウントでログインすると、PCやスマホなど異なる端末間でセーブデータを安全に合算・同期して遊べます。
+            </p>
+
+            {isCloudConfigured ? (
+              cloudUser ? (
+                /* ログイン中 */
+                <div className="flex flex-col gap-2.5 animate-fade-in">
+                  <div className="p-2.5 rounded-xl bg-white/80 border border-sky-100 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-[10px] text-sky-600 font-bold">連携中のアカウント</div>
+                      <div
+                        data-testid="cloud-user-email"
+                        className="text-xs font-bold text-stone-700 truncate"
+                        title={cloudUser.email}
+                      >
+                        {cloudUser.email}
+                      </div>
+                      {cloudLastSyncedAt && (
+                        <div className="text-[10px] text-stone-400 mt-0.5">
+                          最終同期: {new Date(cloudLastSyncedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      data-testid="cloud-signout-button"
+                      onClick={async () => {
+                        setAuthError(null);
+                        await onCloudSignOut?.();
+                      }}
+                      className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors flex items-center gap-1 shrink-0 cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>ログアウト</span>
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    data-testid="cloud-sync-now-button"
+                    disabled={cloudSyncStatus === 'syncing'}
+                    onClick={async () => {
+                      setAuthError(null);
+                      await onCloudSyncNow?.();
+                    }}
+                    className="w-full py-2 px-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:bg-sky-700 disabled:opacity-50 text-white font-bold text-xs shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${cloudSyncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+                    <span>{cloudSyncStatus === 'syncing' ? 'クラウドと同期中...' : '今すぐクラウドと同期'}</span>
+                  </button>
+                </div>
+              ) : (
+                /* 未ログイン */
+                <form
+                  onSubmit={(e) => e.preventDefault()}
+                  className="flex flex-col gap-2 animate-fade-in"
+                >
+                  <input
+                    type="email"
+                    data-testid="cloud-email-input"
+                    placeholder="メールアドレス"
+                    value={cloudEmail}
+                    onChange={(e) => setCloudEmail(e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-xl border border-stone-200 bg-white text-xs text-stone-800 focus:outline-hidden focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                  />
+                  <input
+                    type="password"
+                    data-testid="cloud-password-input"
+                    placeholder="パスワード（6文字以上）"
+                    value={cloudPassword}
+                    onChange={(e) => setCloudPassword(e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-xl border border-stone-200 bg-white text-xs text-stone-800 focus:outline-hidden focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                  />
+
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <button
+                      type="button"
+                      data-testid="cloud-signin-button"
+                      disabled={cloudSyncStatus === 'syncing'}
+                      onClick={async () => {
+                        setAuthError(null);
+                        if (!cloudEmail.trim() || !cloudPassword.trim()) {
+                          setAuthError('メールアドレスとパスワードを入力してください');
+                          return;
+                        }
+                        const res = await onCloudSignIn?.(cloudEmail, cloudPassword);
+                        if (res && !res.success) {
+                          setAuthError(res.message);
+                        }
+                      }}
+                      className="flex-1 py-1.5 px-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:bg-sky-700 disabled:opacity-50 text-white font-bold text-xs shadow-2xs transition-all flex items-center justify-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                    >
+                      <span>ログイン</span>
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="cloud-signup-button"
+                      disabled={cloudSyncStatus === 'syncing'}
+                      onClick={async () => {
+                        setAuthError(null);
+                        if (!cloudEmail.trim() || !cloudPassword.trim()) {
+                          setAuthError('メールアドレスとパスワードを入力してください');
+                          return;
+                        }
+                        if (cloudPassword.length < 6) {
+                          setAuthError('パスワードは6文字以上で設定してください');
+                          return;
+                        }
+                        const res = await onCloudSignUp?.(cloudEmail, cloudPassword);
+                        if (res && !res.success) {
+                          setAuthError(res.message);
+                        }
+                      }}
+                      className="flex-1 py-1.5 px-3 rounded-xl bg-white hover:bg-stone-50 border border-sky-300 active:bg-stone-100 disabled:opacity-50 text-sky-700 font-bold text-xs transition-all flex items-center justify-center gap-1 cursor-pointer disabled:cursor-not-allowed"
+                    >
+                      <span>新規登録</span>
+                    </button>
+                  </div>
+                </form>
+              )
+            ) : (
+              <p className="text-[11px] text-stone-400">
+                ※クラウド設定が未完了です。普段通り端末（ローカル）でのみ保存されます。
+              </p>
+            )}
+
+            {(authError || cloudSyncMessage) && (
+              <div
+                role="status"
+                data-testid="cloud-sync-status-message"
+                className={`mt-2 p-2 rounded-xl text-[11px] flex items-center gap-1.5 leading-snug animate-fade-in ${
+                  authError || cloudSyncStatus === 'error'
+                    ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                    : cloudSyncStatus === 'synced'
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      : 'bg-sky-50 text-sky-800 border border-sky-200'
+                }`}
+              >
+                {authError || cloudSyncStatus === 'error' ? (
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                ) : cloudSyncStatus === 'synced' ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                ) : (
+                  <RefreshCw className="w-3.5 h-3.5 text-sky-600 shrink-0 animate-spin" />
+                )}
+                <span>{authError ?? cloudSyncMessage}</span>
+              </div>
+            )}
           </div>
 
           {/* セーブデータ案内カード */}

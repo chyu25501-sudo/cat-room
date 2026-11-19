@@ -16,6 +16,7 @@ import { useCareJournal } from './hooks/useCareJournal.ts';
 import { useFirstVisitGuide } from './hooks/useFirstVisitGuide.ts';
 import { useGiftToasts } from './hooks/useGiftToasts.ts';
 import { usePageVisibility } from './hooks/usePageVisibility.ts';
+import { useCloudSync } from './hooks/useCloudSync.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
@@ -72,6 +73,9 @@ import {
 import { CatId, CAT_PRESETS } from './types/cat.ts';
 import { FoodItem, ToyItem, LastCareAction } from './types/care.ts';
 import { AffectionLevelUpTriggerPayload } from './types/affection.ts';
+import { NekoppoiSaveData, SAVE_DATA_VERSION } from './types/saveData.ts';
+import { mergeSaveData, serializeSaveData, parseSaveDataJson } from './utils/saveData.ts';
+import { downloadJsonFile, readTextFile } from './utils/fileTransfer.ts';
 
 export default function App() {
   const {
@@ -86,6 +90,7 @@ export default function App() {
     setAutoFeedEnabled,
     isCompactAffectionCelebration,
     setCompactAffectionCelebration,
+    restoreSettings,
   } = useAppSettings();
   const { currentCatId, switchCat, selectCat } = useCatSelection();
 
@@ -106,6 +111,7 @@ export default function App() {
     getFullnessLevelForCat,
     feedCatFullness,
     playCatFullness,
+    restoreFullnessMap,
   } = useCatFullness();
   const { getMoodScore, getMoodLevelForCat, petCat, feedCat, playCat } = useCatMood({ getFullnessScore });
   const { activeFood, isEating, startFeeding, stopFeeding } = useCatFeeding();
@@ -116,8 +122,9 @@ export default function App() {
     getAffectionProgress,
     getAffectionState,
     gainAffection,
+    restoreAffectionMap,
   } = useCatAffection();
-  const { inventory, receiveGift } = useCatGifts();
+  const { inventory, receiveGift, restoreInventory } = useCatGifts();
   const { levelUpState, triggerLevelUp } = useAffectionLevelUp();
   const { toasts: giftToasts, addGiftToast, dismissGiftToast } = useGiftToasts();
 
@@ -135,8 +142,9 @@ export default function App() {
     toasts: achievementToasts,
     checkAndUnlock: checkAchievements,
     dismissToast: dismissAchievementToast,
+    restoreAchievements,
   } = useAchievements();
-  const { stats: careJournalStats, recordCareAction, addAutoFeedStats } = useCareJournal();
+  const { stats: careJournalStats, recordCareAction, addAutoFeedStats, restoreStats } = useCareJournal();
 
   // あそびかたモーダルの開閉ステート（初回訪問時は自動で強制表示、2回目以降は通常通り）
   const {
@@ -540,6 +548,162 @@ export default function App() {
     getMaxAffectionLevel,
     getMinAffectionLevel,
   ]);
+
+  // 現在のローカル全体のセーブデータを生成するヘルパー関数
+  const getCurrentSaveData = useCallback((): NekoppoiSaveData => {
+    const LAST_ACTIVE_TIME_KEY = 'nekoppoi_last_active_time';
+    let lastActiveTime = Date.now();
+    try {
+      const stored = localStorage.getItem(LAST_ACTIVE_TIME_KEY);
+      if (stored) lastActiveTime = parseInt(stored, 10);
+    } catch {}
+
+    return {
+      version: SAVE_DATA_VERSION,
+      timestamp: Date.now(),
+      settings: {
+        soundEnabled: isSoundEnabled,
+        catNames,
+        gaugePosition,
+        autoFeedEnabled: isAutoFeedEnabled,
+        compactAffectionCelebration: isCompactAffectionCelebration,
+      },
+      affection: affectionMap,
+      fullness: fullnessMap,
+      gifts: inventory,
+      achievements: unlockedAchievements,
+      careJournal: careJournalStats,
+      lastActiveTime,
+      guideSeen: true,
+    };
+  }, [
+    isSoundEnabled,
+    catNames,
+    gaugePosition,
+    isAutoFeedEnabled,
+    isCompactAffectionCelebration,
+    affectionMap,
+    fullnessMap,
+    inventory,
+    unlockedAchievements,
+    careJournalStats,
+  ]);
+
+  // マージ後のセーブデータを各フック・ローカルストレージへ一括反映するヘルパー関数
+  const applyMergedSaveData = useCallback(
+    (merged: NekoppoiSaveData) => {
+      const LAST_ACTIVE_TIME_KEY = 'nekoppoi_last_active_time';
+      if (merged.settings) {
+        restoreSettings(merged.settings);
+      }
+      if (merged.affection) {
+        restoreAffectionMap(merged.affection);
+      }
+      if (merged.fullness) {
+        restoreFullnessMap(merged.fullness);
+      }
+      if (merged.gifts) {
+        restoreInventory(merged.gifts);
+      }
+      if (merged.achievements) {
+        restoreAchievements(merged.achievements);
+      }
+      if (merged.careJournal) {
+        restoreStats(merged.careJournal);
+      }
+      if (merged.lastActiveTime) {
+        try {
+          localStorage.setItem(LAST_ACTIVE_TIME_KEY, merged.lastActiveTime.toString());
+        } catch {}
+      }
+    },
+    [
+      restoreSettings,
+      restoreAffectionMap,
+      restoreFullnessMap,
+      restoreInventory,
+      restoreAchievements,
+      restoreStats,
+    ]
+  );
+
+  // クラウド同期・認証フック
+  const {
+    isConfigured: isCloudConfigured,
+    user: cloudUser,
+    syncStatus: cloudSyncStatus,
+    syncMessage: cloudSyncMessage,
+    lastSyncedAt: cloudLastSyncedAt,
+    signUp: handleCloudSignUp,
+    signIn: handleCloudSignIn,
+    signOut: handleCloudSignOut,
+    syncWithCloud,
+  } = useCloudSync();
+
+  // クラウド手動・自動同期ハンドラー
+  const handleCloudSyncNow = useCallback(async () => {
+    const currentLocal = getCurrentSaveData();
+    const synced = await syncWithCloud(currentLocal);
+    if (synced) {
+      applyMergedSaveData(synced);
+    }
+  }, [getCurrentSaveData, syncWithCloud, applyMergedSaveData]);
+
+  // ログイン状態になったとき、初回同期を自動実行
+  useEffect(() => {
+    if (cloudUser) {
+      handleCloudSyncNow();
+    }
+  }, [cloudUser, handleCloudSyncNow]);
+
+  // セーブデータのエクスポート（ファイル書き出し）
+  const handleExportSaveData = useCallback(() => {
+    const saveData = getCurrentSaveData();
+    const jsonString = serializeSaveData(saveData);
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    downloadJsonFile(jsonString, `nekoppoi_save_${dateStr}.json`);
+  }, [getCurrentSaveData]);
+
+  // セーブデータのインポート（ファイル読み込み・賢いマージ）
+  const handleImportSaveData = useCallback(
+    async (file: File): Promise<{ success: boolean; message: string }> => {
+      try {
+        const text = await readTextFile(file);
+        const incomingData = parseSaveDataJson(text);
+        if (!incomingData) {
+          return {
+            success: false,
+            message: '有効なセーブデータファイル（JSON）ではありません。',
+          };
+        }
+
+        const localSaveData = getCurrentSaveData();
+
+        // 賢いマージを実行
+        const merged = mergeSaveData(localSaveData, incomingData);
+
+        // 各ステートへ一括反映
+        applyMergedSaveData(merged);
+
+        // もしクラウド連携中であれば、合算結果をクラウドへも同期
+        if (cloudUser) {
+          await syncWithCloud(merged);
+        }
+
+        return {
+          success: true,
+          message: 'セーブデータを正常に読み込み、現在のデータと合算・引き継ぎました！',
+        };
+      } catch (e) {
+        console.error('Failed to import save data:', e);
+        return {
+          success: false,
+          message: 'ファイルの読み込み中にエラーが発生しました。',
+        };
+      }
+    },
+    [getCurrentSaveData, applyMergedSaveData, cloudUser, syncWithCloud]
+  );
 
   const handleInteractCat = () => {
     setLastAction('pet');
@@ -1054,6 +1218,17 @@ export default function App() {
         onToggleAutoFeed={setAutoFeedEnabled}
         isCompactAffectionCelebration={isCompactAffectionCelebration}
         onToggleCompactAffectionCelebration={setCompactAffectionCelebration}
+        onExportSaveData={handleExportSaveData}
+        onImportSaveData={handleImportSaveData}
+        isCloudConfigured={isCloudConfigured}
+        cloudUser={cloudUser}
+        cloudSyncStatus={cloudSyncStatus}
+        cloudSyncMessage={cloudSyncMessage}
+        cloudLastSyncedAt={cloudLastSyncedAt}
+        onCloudSignUp={handleCloudSignUp}
+        onCloudSignIn={handleCloudSignIn}
+        onCloudSignOut={handleCloudSignOut}
+        onCloudSyncNow={handleCloudSyncNow}
       />
 
       {/* お留守番レポート（自動ごはん）モーダル画面 */}

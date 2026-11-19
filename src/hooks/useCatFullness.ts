@@ -53,6 +53,8 @@ export interface UseCatFullnessResult {
   ) => { nextScore: number; nextLevel: CatFullnessLevel; reduction: number };
   /** 猫のまんぷく度を初期状態にリセットする関数 */
   resetFullness: (catId: CatId) => void;
+  /** 全猫のまんぷく度マップを一括復元・更新する関数（データ引き継ぎ・同期用） */
+  restoreFullnessMap: (newMap: CatsFullnessMap) => void;
 }
 
 function createDefaultFullness(initialScore: number = DEFAULT_INITIAL_FULLNESS_SCORE): CatsFullnessMap {
@@ -255,6 +257,10 @@ export function useCatFullness(
     [initialScore]
   );
 
+  const restoreFullnessMap = useCallback((newMap: CatsFullnessMap) => {
+    setFullnessMap(newMap);
+  }, []);
+
   return {
     fullnessMap,
     getFullnessScore,
@@ -263,5 +269,6 @@ export function useCatFullness(
     feedCatFullness,
     playCatFullness,
     resetFullness,
+    restoreFullnessMap,
   };
 }
