@@ -180,6 +180,9 @@ export default function App() {
   // ふり返り手帳モーダルの開閉ステート
   const [isJournalModalOpen, setIsJournalModalOpen] = useState(false);
 
+  // プライバシーポリシーモーダルの開閉ステート（フッター等のリンクから通常閲覧用）
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+
   // 直前のアクション（なでる・ごはん・おもちゃ）を記録し、ステータスメッセージに自然に反映
   const [lastAction, setLastAction] = useState<LastCareAction | null>(null);
 
@@ -1260,12 +1263,22 @@ export default function App() {
       </section>
 
       {/* フッターエリア */}
-      <footer className="w-full max-w-md pb-6 text-center text-xs text-stone-400">
+      <footer className="w-full max-w-md pb-6 text-center text-xs text-stone-400 flex flex-col items-center gap-1.5">
         <p>
           {isSoundEnabled
             ? '※ 音が出ます。端末の音量を調整してご利用ください。'
             : '※ サウンドはオフに設定されています。設定からいつでもオンにできます。'}
         </p>
+        <div>
+          <button
+            type="button"
+            onClick={() => setIsPrivacyModalOpen(true)}
+            data-testid="footer-privacy-policy-button"
+            className="text-[11px] text-stone-400 hover:text-stone-600 underline cursor-pointer transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-stone-400 rounded-sm"
+          >
+            プライバシーポリシー
+          </button>
+        </div>
       </footer>
 
       {/* お世話メニュー（画面中央モーダル・ごはん・おもちゃ・自動化） */}
@@ -1334,11 +1347,17 @@ export default function App() {
         onCloudSyncNow={handleCloudSyncNow}
       />
 
-      {/* プライバシーポリシー初回同意モーダル（初起動時・移行時・既存利用者の未同意時に1回だけ表示） */}
+      {/* プライバシーポリシーモーダル（初回同意用 & フッター等からの通常閲覧用） */}
       <PrivacyPolicyModal
-        isOpen={isConsentModalOpen}
-        isConsentMode={true}
-        onClose={acceptConsent}
+        isOpen={isConsentModalOpen || isPrivacyModalOpen}
+        isConsentMode={isConsentModalOpen}
+        onClose={() => {
+          if (isConsentModalOpen) {
+            acceptConsent();
+          } else {
+            setIsPrivacyModalOpen(false);
+          }
+        }}
         onAccept={acceptConsent}
         isAnalyticsEnabled={isAnalyticsEnabled}
         onToggleAnalytics={setAnalyticsEnabled}

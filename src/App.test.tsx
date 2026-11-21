@@ -2057,5 +2057,23 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(localStorage.getItem(PRIVACY_POLICY_ACCEPTED_STORAGE_KEY)).toBe('true');
       expect(screen.queryByTestId('privacy-consent-banner')).not.toBeInTheDocument();
     });
+
+    it('ページ最下部のフッターからプライバシーポリシーを開き、閉じることができること', () => {
+      render(<App />);
+
+      const footerPrivacyBtn = screen.getByTestId('footer-privacy-policy-button');
+      expect(footerPrivacyBtn).toBeInTheDocument();
+      expect(footerPrivacyBtn).toHaveTextContent('プライバシーポリシー');
+
+      // クリックでプライバシーポリシーモーダルが開くこと
+      fireEvent.click(footerPrivacyBtn);
+      expect(screen.getByTestId('privacy-policy-modal')).toBeInTheDocument();
+      expect(screen.getByText('データの取り扱いとプライバシー')).toBeInTheDocument();
+
+      // 通常閲覧モードなので「確認しました」ボタンで閉じられること
+      const confirmBtn = screen.getByTestId('privacy-policy-confirm-button');
+      fireEvent.click(confirmBtn);
+      expect(screen.queryByTestId('privacy-policy-modal')).not.toBeInTheDocument();
+    });
   });
 });
