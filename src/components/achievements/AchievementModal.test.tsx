@@ -20,7 +20,7 @@ describe('AchievementModal コンポーネント', () => {
     render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
 
     expect(screen.getByRole('dialog', { name: /実績/ })).toBeInTheDocument();
-    expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('2/60');
+    expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('2/70');
 
     // 達成済み実績: 「達成！」バッジが表示され、名前と説明文が表示されていること
     expect(screen.getByTestId('achievement-title-first-pet')).toHaveTextContent('はじめまして！');
@@ -127,10 +127,10 @@ describe('AchievementModal コンポーネント', () => {
     const careFilterBtn = screen.getByTestId('filter-category-care');
     const giftFilterBtn = screen.getByTestId('filter-category-gift');
 
-    expect(allFilterBtn).toHaveTextContent('すべて (60)');
-    expect(interactionFilterBtn).toHaveTextContent('ふれあい (20)');
-    expect(careFilterBtn).toHaveTextContent('お世話 (14)');
-    expect(giftFilterBtn).toHaveTextContent('おくりもの (26)');
+    expect(allFilterBtn).toHaveTextContent('すべて (70)');
+    expect(interactionFilterBtn).toHaveTextContent('ふれあい (23)');
+    expect(careFilterBtn).toHaveTextContent('お世話 (18)');
+    expect(giftFilterBtn).toHaveTextContent('おくりもの (29)');
     // 「隠し実績」独立ボタンは存在しない
     expect(screen.queryByTestId('filter-category-hidden')).not.toBeInTheDocument();
 
@@ -180,9 +180,9 @@ describe('AchievementModal コンポーネント', () => {
     const unlockedBtn = screen.getByTestId('filter-status-unlocked');
     const lockedBtn = screen.getByTestId('filter-status-locked');
 
-    expect(allBtn).toHaveTextContent('すべて (60)');
+    expect(allBtn).toHaveTextContent('すべて (70)');
     expect(unlockedBtn).toHaveTextContent('達成済み (2)');
-    expect(lockedBtn).toHaveTextContent('未達成 (58)');
+    expect(lockedBtn).toHaveTextContent('未達成 (68)');
 
     // 「達成済み」をクリック
     fireEvent.click(unlockedBtn);
@@ -203,6 +203,63 @@ describe('AchievementModal コンポーネント', () => {
     // 達成済みの実績は非表示
     expect(screen.queryByTestId('achievement-item-first-pet')).not.toBeInTheDocument();
     expect(screen.queryByTestId('achievement-item-first-feed')).not.toBeInTheDocument();
+  });
+
+  it('達成状況フィルターに「新着10件」ボタンが表示され、クリックすると獲得日時の新しい順に最大10件表示されること', () => {
+    // 12件の実績を獲得済みにし、解除日時に差をつける
+    const unlocked: UnlockedAchievements = {};
+    const unlockedIds = [
+      'first-pet',
+      'mood-ecstatic',
+      'pet-count-100',
+      'pet-count-500',
+      'pet-count-1000',
+      'affection-level-5',
+      'affection-level-10',
+      'all-cats-loved',
+      'streak-3',
+      'streak-7',
+      'streak-14',
+      'total-days-7',
+    ];
+
+    unlockedIds.forEach((id, index) => {
+      // インデックスが大きいほど新しい日時 (1000, 2000, ... 12000)
+      unlocked[id] = { id, unlockedAt: (index + 1) * 1000 };
+    });
+
+    render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={unlocked} />);
+
+    // 「新着10件」ボタンが存在し、獲得済み12件のうち上限の10件と表示されていること
+    const recentBtn = screen.getByTestId('filter-status-recent');
+    expect(recentBtn).toBeInTheDocument();
+    expect(recentBtn).toHaveTextContent('新着10件 (10)');
+
+    // 「新着10件」をクリック
+    fireEvent.click(recentBtn);
+    expect(recentBtn).toHaveAttribute('aria-pressed', 'true');
+
+    // 最新の10件（index 2 〜 11: pet-count-100 〜 total-days-7）が表示されていること
+    expect(screen.getByTestId('achievement-item-total-days-7')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-streak-14')).toBeInTheDocument();
+    expect(screen.getByTestId('achievement-item-pet-count-100')).toBeInTheDocument();
+
+    // 11件目、12件目に古い first-pet, mood-ecstatic は表示されないこと（上限10件）
+    expect(screen.queryByTestId('achievement-item-first-pet')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('achievement-item-mood-ecstatic')).not.toBeInTheDocument();
+
+    // 未達成の実績も表示されないこと
+    expect(screen.queryByTestId('achievement-item-first-play')).not.toBeInTheDocument();
+  });
+
+  it('獲得済み実績が0件のとき「新着10件」フィルターを選択すると0件メッセージが表示されること', () => {
+    render(<AchievementModal isOpen={true} onClose={vi.fn()} unlocked={{}} />);
+
+    const recentBtn = screen.getByTestId('filter-status-recent');
+    expect(recentBtn).toHaveTextContent('新着10件 (0)');
+
+    fireEvent.click(recentBtn);
+    expect(screen.getByTestId('achievement-filter-empty')).toHaveTextContent('条件に一致する実績はありません');
   });
 
   it('カテゴリ絞り込みと達成状況絞り込みを掛け合わせて利用できること', () => {
@@ -242,33 +299,33 @@ describe('AchievementModal コンポーネント', () => {
     const lockedBtn = screen.getByTestId('filter-status-locked');
 
     // 初期状態（最上段が「すべて」）
-    expect(allBtn).toHaveTextContent('すべて (60)');
+    expect(allBtn).toHaveTextContent('すべて (70)');
     expect(unlockedBtn).toHaveTextContent('達成済み (2)');
-    expect(lockedBtn).toHaveTextContent('未達成 (58)');
+    expect(lockedBtn).toHaveTextContent('未達成 (68)');
 
-    // 最上段で「ふれあい」カテゴリを選択（interactionは20件、うち達成1件、未達成19件）
+    // 最上段で「ふれあい」カテゴリを選択（interactionは23件、うち達成1件、未達成22件）
     fireEvent.click(screen.getByTestId('filter-category-interaction'));
-    expect(allBtn).toHaveTextContent('すべて (20)');
+    expect(allBtn).toHaveTextContent('すべて (23)');
     expect(unlockedBtn).toHaveTextContent('達成済み (1)');
-    expect(lockedBtn).toHaveTextContent('未達成 (19)');
+    expect(lockedBtn).toHaveTextContent('未達成 (22)');
 
-    // 最上段で「お世話」カテゴリを選択（careは14件、うち達成1件、未達成13件）
+    // 最上段で「お世話」カテゴリを選択（careは18件、うち達成1件、未達成17件）
     fireEvent.click(screen.getByTestId('filter-category-care'));
-    expect(allBtn).toHaveTextContent('すべて (14)');
+    expect(allBtn).toHaveTextContent('すべて (18)');
     expect(unlockedBtn).toHaveTextContent('達成済み (1)');
-    expect(lockedBtn).toHaveTextContent('未達成 (13)');
+    expect(lockedBtn).toHaveTextContent('未達成 (17)');
 
-    // 最上段で「おくりもの」カテゴリを選択（giftは26件、うち達成0件、未達成26件）
+    // 最上段で「おくりもの」カテゴリを選択（giftは29件、うち達成0件、未達成29件）
     fireEvent.click(screen.getByTestId('filter-category-gift'));
-    expect(allBtn).toHaveTextContent('すべて (26)');
+    expect(allBtn).toHaveTextContent('すべて (29)');
     expect(unlockedBtn).toHaveTextContent('達成済み (0)');
-    expect(lockedBtn).toHaveTextContent('未達成 (26)');
+    expect(lockedBtn).toHaveTextContent('未達成 (29)');
 
     // 再び最上段で「すべて」を選択すると全体の件数に戻ること
     fireEvent.click(screen.getByTestId('filter-category-all'));
-    expect(allBtn).toHaveTextContent('すべて (60)');
+    expect(allBtn).toHaveTextContent('すべて (70)');
     expect(unlockedBtn).toHaveTextContent('達成済み (2)');
-    expect(lockedBtn).toHaveTextContent('未達成 (58)');
+    expect(lockedBtn).toHaveTextContent('未達成 (68)');
   });
 
   it('達成済みの実績にはそれぞれの欄に達成日が表示され、未達成の実績には表示されないこと', () => {

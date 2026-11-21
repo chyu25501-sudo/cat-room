@@ -401,6 +401,7 @@ export default function App() {
             // 実績判定
             checkAchievements({
               action: 'feed',
+              isAutoFeed: true,
               moodScore: getMoodScore(catId),
               moodLevel: getMoodLevelForCat(catId),
               fullnessScore: nextFullness,
@@ -531,6 +532,8 @@ export default function App() {
     // 7. 実績判定（留守中の給餌累計回数・おくりもの獲得等により達成された実績があるか確認）
     checkAchievements({
       action: 'feed',
+      isAutoFeed: true,
+      hasOfflineReport: true,
       moodScore: getMoodScore(currentCatId),
       moodLevel: getMoodLevelForCat(currentCatId),
       fullnessScore: getFullnessScore(currentCatId),
@@ -985,6 +988,7 @@ export default function App() {
     // 実績判定（ごはん・機嫌・まんぷく度・ギフト・手帳統計・なつき度）
     checkAchievements({
       action: 'feed',
+      isAutoFeed: false,
       moodScore: nextScore,
       moodLevel: nextLevel,
       fullnessScore: nextFullnessScore,
@@ -1138,6 +1142,7 @@ export default function App() {
     checkAchievements({
       action: 'rename',
       isCatRenamed: true,
+      catName: name.trim(),
     });
   };
 

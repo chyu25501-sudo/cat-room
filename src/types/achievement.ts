@@ -65,6 +65,16 @@ export type AchievementId =
   | 'hidden-pair-socks'
   | 'hidden-cat-treasures-set'
   | 'hidden-shiny-shiny-set'
+  | 'hidden-dark-collector-set'
+  | 'hidden-beach-treasures-set'
+  | 'hidden-coins-set'
+  | 'time-midnight-pet'
+  | 'time-early-morning-pet'
+  | 'time-lunch-feed'
+  | 'time-snack-feed'
+  | 'rename-cat-neko'
+  | 'first-auto-feed'
+  | 'first-offline-report'
   | string;
 
 /**
@@ -128,9 +138,9 @@ export interface AchievementToast {
 }
 
 /**
- * 実績画面での達成状況絞り込み条件（'all': すべて, 'unlocked': 達成済みのみ, 'locked': 未達成のみ）
+ * 実績画面での達成状況絞り込み条件（'all': すべて, 'unlocked': 達成済みのみ, 'locked': 未達成のみ, 'recent': 新着10件）
  */
-export type AchievementStatusFilter = 'all' | 'unlocked' | 'locked';
+export type AchievementStatusFilter = 'all' | 'unlocked' | 'locked' | 'recent';
 
 /**
  * 実績の進捗度情報

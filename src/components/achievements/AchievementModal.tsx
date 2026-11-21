@@ -83,15 +83,26 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
     });
   }, [catalog, unlocked, selectedCategory]);
 
-  // カテゴリ絞り込み内の総数・達成済み数・未達成数（2段目フィルター件数表示用）
+  // カテゴリ絞り込み内の総数・達成済み数・未達成数・新着件数（2段目フィルター件数表示用）
   const categoryTotalCount = categoryFilteredCatalog.length;
   const categoryUnlockedCount = useMemo(() => {
     return categoryFilteredCatalog.filter((item) => !!unlocked[item.id]).length;
   }, [categoryFilteredCatalog, unlocked]);
   const categoryLockedCount = categoryTotalCount - categoryUnlockedCount;
+  const categoryRecentCount = Math.min(categoryUnlockedCount, 10);
 
   // カテゴリ絞り込み ＋ 達成状況絞り込み後のカタログ
   const filteredCatalog = useMemo(() => {
+    if (statusFilter === 'recent') {
+      return categoryFilteredCatalog
+        .filter((item) => !!unlocked[item.id])
+        .sort((a, b) => {
+          const timeA = unlocked[a.id]?.unlockedAt ?? 0;
+          const timeB = unlocked[b.id]?.unlockedAt ?? 0;
+          return timeB - timeA;
+        })
+        .slice(0, 10);
+    }
     if (statusFilter === 'all') {
       return categoryFilteredCatalog;
     }
@@ -209,7 +220,7 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
           })}
         </div>
 
-        {/* ウィンドウ上部：達成状況絞り込みフィルター（すべて / 達成済み / 未達成） */}
+        {/* ウィンドウ上部：達成状況絞り込みフィルター（すべて / 新着10件 / 達成済み / 未達成） */}
         <div
           data-testid="achievement-status-filter"
           aria-label="達成状況絞り込み"
@@ -227,6 +238,19 @@ export const AchievementModal: React.FC<AchievementModalProps> = ({
             }`}
           >
             すべて ({categoryTotalCount})
+          </button>
+          <button
+            type="button"
+            data-testid="filter-status-recent"
+            aria-pressed={statusFilter === 'recent'}
+            onClick={() => setStatusFilter('recent')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer border ${
+              statusFilter === 'recent'
+                ? 'bg-sky-600 text-white border-sky-700 shadow-2xs'
+                : 'bg-white/90 text-stone-600 border-amber-200/80 hover:bg-amber-50'
+            }`}
+          >
+            新着10件 ({categoryRecentCount})
           </button>
           <button
             type="button"

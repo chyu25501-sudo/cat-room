@@ -9,6 +9,7 @@ import {
   sanitizeAchievements,
   getAchievementDisplayInfo,
   filterAchievements,
+  getRecentUnlockedAchievements,
   formatAchievementDate,
   getAchievementProgress,
 } from './catAchievements.ts';
@@ -17,11 +18,11 @@ import { GiftInventory } from '../types/gift.ts';
 
 describe('catAchievements utils (実績データ・解除判定ロジック)', () => {
   describe('ACHIEVEMENTS 定数', () => {
-    it('全60種類の実績が定義されており、3カテゴリ（ふれあい20件、お世話14件、おくりもの26件）に分類され、通常45種(isHidden: false)と隠し実績15種(isHidden: true)があること', () => {
-      expect(ACHIEVEMENTS.length).toBe(60);
+    it('全70種類の実績が定義されており、3カテゴリ（ふれあい23件、お世話18件、おくりもの29件）に分類され、通常52種(isHidden: false)と隠し実績18種(isHidden: true)があること', () => {
+      expect(ACHIEVEMENTS.length).toBe(70);
 
       const expectedIds = [
-        // interaction (20)
+        // interaction (23)
         'first-pet',
         'mood-ecstatic',
         'pet-count-100',
@@ -42,7 +43,10 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'total-days-14',
         'total-days-30',
         'first-rename-cat',
-        // care (14)
+        'rename-cat-neko',
+        'time-midnight-pet',
+        'time-early-morning-pet',
+        // care (18)
         'first-feed',
         'fullness-full',
         'perfect-satisfaction',
@@ -57,7 +61,11 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'play-count-1000',
         'play-count-5000',
         'play-count-10000',
-        // gift (11 + 15 = 26)
+        'time-lunch-feed',
+        'time-snack-feed',
+        'first-auto-feed',
+        'first-offline-report',
+        // gift (11 + 18 = 29)
         'first-gift',
         'unique-gifts-10',
         'unique-gifts-40',
@@ -69,7 +77,7 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'first-rare-gift',
         'first-super-rare-gift',
         'first-ultra-rare-gift',
-        // hidden gift items (15)
+        // hidden gift items (18)
         'hidden-pebble-set',
         'hidden-branch-set',
         'hidden-clover-set',
@@ -85,6 +93,9 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         'hidden-pair-socks',
         'hidden-cat-treasures-set',
         'hidden-shiny-shiny-set',
+        'hidden-dark-collector-set',
+        'hidden-beach-treasures-set',
+        'hidden-coins-set',
       ];
       expect(ACHIEVEMENTS.map((a) => a.id)).toEqual(expectedIds);
 
@@ -619,6 +630,68 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
           checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
         ).toContain('hidden-shiny-shiny-set');
       });
+
+      it('「だいじそうな紙」「やみの結晶」「うさんくさい自己啓発本」をすべて集めたときに hidden-dark-collector-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const partialInv: GiftInventory = {
+          'important-paper': { giftId: 'important-paper', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'dark-crystal': { giftId: 'dark-crystal', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: partialInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-dark-collector-set');
+
+        const fullInv: GiftInventory = {
+          'important-paper': { giftId: 'important-paper', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'dark-crystal': { giftId: 'dark-crystal', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'shady-self-help-book': { giftId: 'shady-self-help-book', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-dark-collector-set');
+      });
+
+      it('「ちいさな貝殻」「かるい流木」「きらきら貝殻」をすべて集めたときに hidden-beach-treasures-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const partialInv: GiftInventory = {
+          seashell: { giftId: 'seashell', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'light-driftwood': { giftId: 'light-driftwood', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: partialInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-beach-treasures-set');
+
+        const fullInv: GiftInventory = {
+          seashell: { giftId: 'seashell', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'light-driftwood': { giftId: 'light-driftwood', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'sparkling-seashell': { giftId: 'sparkling-seashell', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-beach-treasures-set');
+      });
+
+      it('「ぴかぴかのコイン」「ふしぎな古銭」「おうごんの小判」「きせきのエラーコイン」をすべて集めたときに hidden-coins-set が解除されること', () => {
+        const unlocked: UnlockedAchievements = {};
+        const partialInv: GiftInventory = {
+          'shiny-coin': { giftId: 'shiny-coin', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'old-coin': { giftId: 'old-coin', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'golden-koban': { giftId: 'golden-koban', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: partialInv }, unlocked).map((a) => a.id)
+        ).not.toContain('hidden-coins-set');
+
+        const fullInv: GiftInventory = {
+          'shiny-coin': { giftId: 'shiny-coin', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'old-coin': { giftId: 'old-coin', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'golden-koban': { giftId: 'golden-koban', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+          'miracle-error-coin': { giftId: 'miracle-error-coin', count: 1, firstReceivedAt: 1000, lastReceivedAt: 1000 },
+        };
+        expect(
+          checkNewAchievements({ giftInventory: fullInv }, unlocked).map((a) => a.id)
+        ).toContain('hidden-coins-set');
+      });
     });
 
     describe('新通常実績の解除判定', () => {
@@ -712,6 +785,168 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         expect(
           checkNewAchievements({ giftInventory: fortyInv }, unlocked).map((a) => a.id)
         ).toContain('unique-gifts-40');
+      });
+
+      describe('時間帯・生活リズム系の実績判定', () => {
+        it('午前0時～午前2時の間にふれあった時に time-midnight-pet が解除されること（自動給餌は除外）', () => {
+          const unlocked: UnlockedAchievements = {};
+          // 午前0時 (hour 0) に撫でる
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 0 }, unlocked).map((a) => a.id)
+          ).toContain('time-midnight-pet');
+
+          // 午前1時 (hour 1) に遊ぶ
+          expect(
+            checkNewAchievements({ action: 'play', currentHour: 1 }, unlocked).map((a) => a.id)
+          ).toContain('time-midnight-pet');
+
+          // 自動ごはんは除外されること
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: true, currentHour: 1 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-midnight-pet');
+
+          // 時間外（午前2時、午後11時）は解除されないこと
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 2 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-midnight-pet');
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 23 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-midnight-pet');
+        });
+
+        it('午前5時～午前7時の間にふれあった時に time-early-morning-pet が解除されること（自動給餌は除外）', () => {
+          const unlocked: UnlockedAchievements = {};
+          // 午前5時 (hour 5) に撫でる
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 5 }, unlocked).map((a) => a.id)
+          ).toContain('time-early-morning-pet');
+
+          // 午前6時 (hour 6) に手動でごはんをあげる
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: false, currentHour: 6 }, unlocked).map((a) => a.id)
+          ).toContain('time-early-morning-pet');
+
+          // 自動ごはんは除外されること
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: true, currentHour: 5 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-early-morning-pet');
+
+          // 時間外（午前4時、午前7時）は解除されないこと
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 4 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-early-morning-pet');
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 7 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-early-morning-pet');
+        });
+
+        it('午前11時～午後1時の間に手動でごはんをあげた時に time-lunch-feed が解除されること（自動ごはんは不可）', () => {
+          const unlocked: UnlockedAchievements = {};
+          // 午前11時 (hour 11) に手動給餌
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: false, currentHour: 11 }, unlocked).map((a) => a.id)
+          ).toContain('time-lunch-feed');
+
+          // 午後0時 (hour 12) に手動給餌
+          expect(
+            checkNewAchievements({ action: 'feed', currentHour: 12 }, unlocked).map((a) => a.id)
+          ).toContain('time-lunch-feed');
+
+          // 自動ごはんは解除されないこと
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: true, currentHour: 12 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-lunch-feed');
+
+          // 撫でるアクションでは解除されないこと
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 12 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-lunch-feed');
+
+          // 時間外（午前10時、午後1時(13時)）は解除されないこと
+          expect(
+            checkNewAchievements({ action: 'feed', currentHour: 10 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-lunch-feed');
+          expect(
+            checkNewAchievements({ action: 'feed', currentHour: 13 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-lunch-feed');
+        });
+
+        it('午後3時～午後4時の間に手動でごはんをあげた時に time-snack-feed が解除されること（自動ごはんは不可）', () => {
+          const unlocked: UnlockedAchievements = {};
+          // 午後3時 (hour 15) に手動給餌
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: false, currentHour: 15 }, unlocked).map((a) => a.id)
+          ).toContain('time-snack-feed');
+
+          // 自動ごはんは解除されないこと
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: true, currentHour: 15 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-snack-feed');
+
+          // 撫でるアクションでは解除されないこと
+          expect(
+            checkNewAchievements({ action: 'pet', currentHour: 15 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-snack-feed');
+
+          // 時間外（午後2時(14時)、午後4時(16時)）は解除されないこと
+          expect(
+            checkNewAchievements({ action: 'feed', currentHour: 14 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-snack-feed');
+          expect(
+            checkNewAchievements({ action: 'feed', currentHour: 16 }, unlocked).map((a) => a.id)
+          ).not.toContain('time-snack-feed');
+        });
+
+        it('猫の名前を「ねこ」「ネコ」「にゃんこ」に変更した時に rename-cat-neko が解除されること', () => {
+          const unlocked: UnlockedAchievements = {};
+          expect(
+            checkNewAchievements({ action: 'rename', catName: 'ねこ' }, unlocked).map((a) => a.id)
+          ).toContain('rename-cat-neko');
+
+          expect(
+            checkNewAchievements({ action: 'rename', catName: 'ネコ' }, unlocked).map((a) => a.id)
+          ).toContain('rename-cat-neko');
+
+          expect(
+            checkNewAchievements({ action: 'rename', catName: 'にゃんこ' }, unlocked).map((a) => a.id)
+          ).toContain('rename-cat-neko');
+
+          // 前後に空白があっても trim されて解除されること
+          expect(
+            checkNewAchievements({ action: 'rename', catName: '  ねこ  ' }, unlocked).map((a) => a.id)
+          ).toContain('rename-cat-neko');
+
+          // 他の名前（「たま」「クロ」）では解除されないこと
+          expect(
+            checkNewAchievements({ action: 'rename', catName: 'たま' }, unlocked).map((a) => a.id)
+          ).not.toContain('rename-cat-neko');
+        });
+
+        it('自動ごはん機能を使って猫にごはんをあげた時に first-auto-feed が解除されること', () => {
+          const unlocked: UnlockedAchievements = {};
+          // 手動給餌では解除されないこと
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: false }, unlocked).map((a) => a.id)
+          ).not.toContain('first-auto-feed');
+
+          // 自動給餌で解除されること
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: true }, unlocked).map((a) => a.id)
+          ).toContain('first-auto-feed');
+        });
+
+        it('お留守番レポートを受け取った時に first-offline-report が解除されること', () => {
+          const unlocked: UnlockedAchievements = {};
+          // レポートなしでは解除されないこと
+          expect(
+            checkNewAchievements({ action: 'feed', isAutoFeed: true, hasOfflineReport: false }, unlocked).map((a) => a.id)
+          ).not.toContain('first-offline-report');
+
+          // レポート受け取り時に解除されること
+          expect(
+            checkNewAchievements({ hasOfflineReport: true }, unlocked).map((a) => a.id)
+          ).toContain('first-offline-report');
+        });
       });
     });
   });
@@ -838,6 +1073,71 @@ describe('catAchievements utils (実績データ・解除判定ロジック)', (
         status: 'locked',
       });
       expect(careLocked).toEqual([]);
+    });
+
+    it('達成状況（status: "recent"）で獲得済み実績を解除日時の新しい順（降順）に最大件数まで取得できること', () => {
+      const richCatalog: AchievementItem[] = Array.from({ length: 15 }, (_, i) => ({
+        id: `ach-${i + 1}`,
+        title: `実績${i + 1}`,
+        description: '',
+        iconType: 'paw',
+        category: i % 2 === 0 ? 'interaction' : 'care',
+      }));
+
+      const richUnlocked: UnlockedAchievements = {};
+      // 1〜12番目の実績を獲得済みにし、タイムスタンプを番号順に付与（ach-12が最新）
+      for (let i = 1; i <= 12; i++) {
+        richUnlocked[`ach-${i}`] = { id: `ach-${i}`, unlockedAt: i * 1000 };
+      }
+
+      // デフォルト（上限10件）
+      const recent = filterAchievements(richCatalog, richUnlocked, { status: 'recent' });
+      expect(recent).toHaveLength(10);
+      // 解除日時が新しい順: ach-12, ach-11, ... ach-3
+      expect(recent.map((a) => a.id)).toEqual([
+        'ach-12',
+        'ach-11',
+        'ach-10',
+        'ach-9',
+        'ach-8',
+        'ach-7',
+        'ach-6',
+        'ach-5',
+        'ach-4',
+        'ach-3',
+      ]);
+
+      // カテゴリ絞り込みとの掛け合わせ（interaction のみ）
+      // ach-1, 3, 5, 7, 9, 11 が interaction (偶数インデックス i=0,2,4,6,8,10)
+      const recentInteraction = filterAchievements(richCatalog, richUnlocked, {
+        category: 'interaction',
+        status: 'recent',
+      });
+      expect(recentInteraction.map((a) => a.id)).toEqual([
+        'ach-11',
+        'ach-9',
+        'ach-7',
+        'ach-5',
+        'ach-3',
+        'ach-1',
+      ]);
+    });
+  });
+
+  describe('getRecentUnlockedAchievements (新着獲得実績取得純粋関数)', () => {
+    it('獲得済み実績を解除日時の新しい順に指定件数（デフォルト10件）取得できること', () => {
+      const catalog: AchievementItem[] = [
+        { id: 'a1', title: 'A1', description: '', iconType: 'paw' },
+        { id: 'a2', title: 'A2', description: '', iconType: 'paw' },
+        { id: 'a3', title: 'A3', description: '', iconType: 'paw' },
+      ];
+      const unlocked: UnlockedAchievements = {
+        a1: { id: 'a1', unlockedAt: 100 },
+        a3: { id: 'a3', unlockedAt: 300 },
+      };
+
+      const result = getRecentUnlockedAchievements(catalog, unlocked);
+      expect(result.map((r) => r.id)).toEqual(['a3', 'a1']);
     });
   });
 

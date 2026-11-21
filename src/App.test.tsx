@@ -1381,8 +1381,14 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         expect(screen.getByTestId('achievement-desc-hidden-pebble-set')).toHaveTextContent('？？？？？？');
         expect(screen.getByTestId('achievement-title-hidden-pair-socks')).toHaveTextContent('？？？');
         expect(screen.getByTestId('achievement-desc-hidden-pair-socks')).toHaveTextContent('？？？？？？');
+        expect(screen.getByTestId('achievement-title-hidden-beach-treasures-set')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-hidden-beach-treasures-set')).toHaveTextContent('？？？？？？');
+        expect(screen.getByTestId('achievement-title-hidden-coins-set')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-hidden-coins-set')).toHaveTextContent('？？？？？？');
+        expect(screen.getByTestId('achievement-title-hidden-dark-collector-set')).toHaveTextContent('？？？');
+        expect(screen.getByTestId('achievement-desc-hidden-dark-collector-set')).toHaveTextContent('？？？？？？');
 
-        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/60');
+        expect(screen.getByTestId('achievement-rate-badge')).toHaveTextContent('1/70');
       } finally {
         vi.useRealTimers();
       }

@@ -42,12 +42,12 @@ export function getAchievementCategoryLabel(category: AchievementCategory): stri
 }
 
 /**
- * 実績マスターデータリスト（全60種類: 通常実績45種類 + 隠し実績15種類）
+ * 実績マスターデータリスト（全70種類: 通常実績52種類 + 隠し実績18種類）
  * カテゴリごとにグループ化して整列（ふれあい -> お世話 -> おくりもの）
  */
 export const ACHIEVEMENTS: readonly AchievementItem[] = [
   // ==========================================
-  // 【ふれあい】カテゴリ（計20種類）
+  // 【ふれあい】カテゴリ（計23種類）
   // ==========================================
   {
     id: 'first-pet',
@@ -209,9 +209,33 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     category: 'interaction',
     isHidden: false,
   },
+  {
+    id: 'rename-cat-neko',
+    title: 'そのまんまじゃん！',
+    description: '猫の名前を「ねこ」「ネコ」「にゃんこ」のいずれかに変更した。',
+    iconType: 'paw',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'time-midnight-pet',
+    title: '夜更かしにゃんこ',
+    description: '午前0時～午前2時の間に猫ちゃんとふれあった。',
+    iconType: 'sparkle',
+    category: 'interaction',
+    isHidden: false,
+  },
+  {
+    id: 'time-early-morning-pet',
+    title: '早起きにゃんこ',
+    description: '午前5時～午前7時の間に猫ちゃんとふれあった。',
+    iconType: 'paw',
+    category: 'interaction',
+    isHidden: false,
+  },
 
   // ==========================================
-  // 【お世話】カテゴリ（計14種類）
+  // 【お世話】カテゴリ（計18種類）
   // ==========================================
   {
     id: 'first-feed',
@@ -325,9 +349,41 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     category: 'care',
     isHidden: false,
   },
+  {
+    id: 'time-lunch-feed',
+    title: 'お昼ごはんの時間',
+    description: '午前11時～午後1時の間に猫ちゃんへごはんをあげた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'time-snack-feed',
+    title: '３時のおやつ',
+    description: '午後3時～午後4時の間に猫ちゃんへごはんをあげた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'first-auto-feed',
+    title: 'おまかせカリカリ',
+    description: '自動ごはん機能を使って初めて猫ちゃんにごはんを食べさせてあげた。',
+    iconType: 'food',
+    category: 'care',
+    isHidden: false,
+  },
+  {
+    id: 'first-offline-report',
+    title: 'お留守番できたよ',
+    description: 'はじめてお留守番レポートを受け取った。',
+    iconType: 'calendar',
+    category: 'care',
+    isHidden: false,
+  },
 
   // ==========================================
-  // 【おくりもの】カテゴリ（計26種類: 通常11種類 + 隠し15種類）
+  // 【おくりもの】カテゴリ（計29種類: 通常11種類 + 隠し18種類）
   // ==========================================
   {
     id: 'first-gift',
@@ -419,7 +475,7 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
   },
 
   // ==========================================
-  // 【おくりもの】隠し実績（計15種類、isHidden: true）
+  // 【おくりもの】隠し実績（計18種類、isHidden: true）
   // ==========================================
   {
     id: 'hidden-pebble-set',
@@ -541,6 +597,30 @@ export const ACHIEVEMENTS: readonly AchievementItem[] = [
     category: 'gift',
     isHidden: true,
   },
+  {
+    id: 'hidden-dark-collector-set',
+    title: '闇の収集家',
+    description: '「だいじそうな紙」「やみの結晶」「うさんくさい自己啓発本」をすべて集めた。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-beach-treasures-set',
+    title: '浜辺のたからもの',
+    description: '「ちいさな貝殻」「かるい流木」「きらきら貝殻」をすべて集めた。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: true,
+  },
+  {
+    id: 'hidden-coins-set',
+    title: 'コインコレクター',
+    description: '「ぴかぴかのコイン」「ふしぎな古銭」「おうごんの小判」「きせきのエラーコイン」をすべて集めた。',
+    iconType: 'sparkle',
+    category: 'gift',
+    isHidden: true,
+  },
 ] as const;
 
 /** localStorage 保存用キー */
@@ -609,6 +689,12 @@ export function getAchievementById(
 export interface AchievementCheckContext {
   /** 直前に実行したアクション */
   action?: 'pet' | 'feed' | 'play' | 'gift' | 'rename';
+  /** 自動ごはんによるアクションかどうか（手動給餌・ふれあい実績の除外判定用） */
+  isAutoFeed?: boolean;
+  /** チェック実行時の現在時刻（ミリ秒タイムスタンプまたはDate、未指定時はDate.now()） */
+  now?: number | Date;
+  /** チェック実行時の現在の時（0〜23、テストおよび指定用） */
+  currentHour?: number;
   /** 現在のごきげんスコア（0 〜 100） */
   moodScore?: number;
   /** 現在のごきげんレベル */
@@ -631,6 +717,12 @@ export interface AchievementCheckContext {
   hasUltraRareGift?: boolean;
   /** 猫の名前を変更したか */
   isCatRenamed?: boolean;
+  /** 変更後の猫の名前（単体） */
+  catName?: string;
+  /** 全猫の名前マップ（複数） */
+  catNames?: Partial<Record<CatId, string>>;
+  /** お留守番レポートを受け取ったかどうか */
+  hasOfflineReport?: boolean;
   /** 対象の猫のなつき度レベル */
   affectionLevel?: number;
   /** 全猫の中の最高なつき度レベル */
@@ -1007,6 +1099,87 @@ export function checkNewAchievements(
         }
         break;
 
+      case 'rename-cat-neko':
+        if (
+          context.action === 'rename' ||
+          context.isCatRenamed === true ||
+          context.catName ||
+          context.catNames
+        ) {
+          const targetNames = ['ねこ', 'ネコ', 'にゃんこ'];
+          const singleMatch = context.catName ? targetNames.includes(context.catName.trim()) : false;
+          const multiMatch = context.catNames
+            ? Object.values(context.catNames).some((n) => n && targetNames.includes(n.trim()))
+            : false;
+          if (singleMatch || multiMatch) {
+            isMet = true;
+          }
+        }
+        break;
+
+      case 'first-auto-feed':
+        if (context.action === 'feed' && context.isAutoFeed === true) {
+          isMet = true;
+        }
+        break;
+
+      case 'first-offline-report':
+        if (context.hasOfflineReport === true) {
+          isMet = true;
+        }
+        break;
+
+      // --- 時間帯・生活リズム系 ---
+      case 'time-midnight-pet':
+        if (
+          !context.isAutoFeed &&
+          (context.action === 'pet' || context.action === 'feed' || context.action === 'play')
+        ) {
+          const hour =
+            context.currentHour ??
+            (context.now ? new Date(context.now).getHours() : new Date().getHours());
+          if (hour >= 0 && hour < 2) {
+            isMet = true;
+          }
+        }
+        break;
+
+      case 'time-early-morning-pet':
+        if (
+          !context.isAutoFeed &&
+          (context.action === 'pet' || context.action === 'feed' || context.action === 'play')
+        ) {
+          const hour =
+            context.currentHour ??
+            (context.now ? new Date(context.now).getHours() : new Date().getHours());
+          if (hour >= 5 && hour < 7) {
+            isMet = true;
+          }
+        }
+        break;
+
+      case 'time-lunch-feed':
+        if (context.action === 'feed' && !context.isAutoFeed) {
+          const hour =
+            context.currentHour ??
+            (context.now ? new Date(context.now).getHours() : new Date().getHours());
+          if (hour >= 11 && hour < 13) {
+            isMet = true;
+          }
+        }
+        break;
+
+      case 'time-snack-feed':
+        if (context.action === 'feed' && !context.isAutoFeed) {
+          const hour =
+            context.currentHour ??
+            (context.now ? new Date(context.now).getHours() : new Date().getHours());
+          if (hour >= 15 && hour < 16) {
+            isMet = true;
+          }
+        }
+        break;
+
       // --- なつき度レベル系 ---
       case 'affection-level-5':
         if (
@@ -1236,6 +1409,42 @@ export function checkNewAchievements(
         }
         break;
 
+      case 'hidden-dark-collector-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['important-paper', 'dark-crystal', 'shady-self-help-book'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-beach-treasures-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['seashell', 'light-driftwood', 'sparkling-seashell'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
+      case 'hidden-coins-set':
+        if (
+          hasAllGifts(
+            context.giftInventory,
+            ['shiny-coin', 'old-coin', 'golden-koban', 'miracle-error-coin'],
+            context.receivedGift?.id
+          )
+        ) {
+          isMet = true;
+        }
+        break;
+
       default:
         break;
     }
@@ -1280,8 +1489,28 @@ export function sanitizeAchievements(raw: unknown): UnlockedAchievements {
 export interface FilterAchievementsOptions {
   /** カテゴリ絞り込み（'all' または各カテゴリ文字列） */
   category?: string;
-  /** 達成状況絞り込み（'all': すべて, 'unlocked': 達成済みのみ, 'locked': 未達成のみ） */
+  /** 達成状況絞り込み（'all': すべて, 'unlocked': 達成済みのみ, 'locked': 未達成のみ, 'recent': 新着10件） */
   status?: AchievementStatusFilter;
+  /** 新着順表示時の最大取得件数（デフォルト: 10） */
+  recentLimit?: number;
+}
+
+/**
+ * 獲得済みの実績を達成日時の新しい順（降順）に最大件数まで取得する純粋関数
+ */
+export function getRecentUnlockedAchievements(
+  catalog: readonly AchievementItem[],
+  unlocked: UnlockedAchievements,
+  limit: number = 10
+): AchievementItem[] {
+  return catalog
+    .filter((item) => !!unlocked[item.id])
+    .sort((a, b) => {
+      const timeA = unlocked[a.id]?.unlockedAt ?? 0;
+      const timeB = unlocked[b.id]?.unlockedAt ?? 0;
+      return timeB - timeA;
+    })
+    .slice(0, limit);
 }
 
 /**
@@ -1292,7 +1521,25 @@ export function filterAchievements(
   unlocked: UnlockedAchievements,
   options: FilterAchievementsOptions = {}
 ): AchievementItem[] {
-  const { category = 'all', status = 'all' } = options;
+  const { category = 'all', status = 'all', recentLimit = 10 } = options;
+
+  if (status === 'recent') {
+    const categoryFiltered = catalog.filter((item) => {
+      if (category !== 'all' && (item.category ?? 'interaction') !== category) {
+        return false;
+      }
+      return !!unlocked[item.id];
+    });
+
+    return categoryFiltered
+      .sort((a, b) => {
+        const timeA = unlocked[a.id]?.unlockedAt ?? 0;
+        const timeB = unlocked[b.id]?.unlockedAt ?? 0;
+        return timeB - timeA;
+      })
+      .slice(0, recentLimit);
+  }
+
   return catalog.filter((item) => {
     // カテゴリ判定
     if (category !== 'all' && (item.category ?? 'interaction') !== category) {
