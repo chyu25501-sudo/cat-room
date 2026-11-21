@@ -107,5 +107,19 @@ describe('catSettings ユーティリティ (設定サニタイズ・名前解�
       const invalid = sanitizeSettings({ compactAffectionCelebration: 'not-a-boolean' });
       expect(invalid.compactAffectionCelebration).toBe(false);
     });
+
+    it('analyticsEnabled が正しくサニタイズされ保持されること（デフォルト true、不正値は true にフォールバック）', () => {
+      const enabled = sanitizeSettings({ analyticsEnabled: true });
+      expect(enabled.analyticsEnabled).toBe(true);
+
+      const disabled = sanitizeSettings({ analyticsEnabled: false });
+      expect(disabled.analyticsEnabled).toBe(false);
+
+      const invalid = sanitizeSettings({ analyticsEnabled: 'invalid' });
+      expect(invalid.analyticsEnabled).toBe(true);
+
+      const missing = sanitizeSettings({});
+      expect(missing.analyticsEnabled).toBe(true);
+    });
   });
 });

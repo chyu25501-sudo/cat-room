@@ -81,6 +81,7 @@ export function sanitizeSettings(raw: unknown): AppSettings {
       gaugePosition: DEFAULT_APP_SETTINGS.gaugePosition,
       autoFeedEnabled: DEFAULT_APP_SETTINGS.autoFeedEnabled,
       compactAffectionCelebration: DEFAULT_APP_SETTINGS.compactAffectionCelebration,
+      analyticsEnabled: DEFAULT_APP_SETTINGS.analyticsEnabled,
     };
   }
 
@@ -99,6 +100,11 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     typeof obj.compactAffectionCelebration === 'boolean'
       ? obj.compactAffectionCelebration
       : DEFAULT_APP_SETTINGS.compactAffectionCelebration;
+
+  const analyticsEnabled =
+    typeof obj.analyticsEnabled === 'boolean'
+      ? obj.analyticsEnabled
+      : DEFAULT_APP_SETTINGS.analyticsEnabled;
 
   const rawNames =
     obj.catNames && typeof obj.catNames === 'object' && !Array.isArray(obj.catNames)
@@ -129,5 +135,6 @@ export function sanitizeSettings(raw: unknown): AppSettings {
     gaugePosition,
     autoFeedEnabled,
     compactAffectionCelebration,
+    analyticsEnabled,
   };
 }

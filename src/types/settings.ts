@@ -18,6 +18,8 @@ export interface AppSettings {
   autoFeedEnabled: boolean;
   /** なつき度アップ演出の簡略化（デフォルト: false。オン時は自動ごはん稼働有無に関わらず常にハートマーク演出を簡略化） */
   compactAffectionCelebration: boolean;
+  /** アプリ改善のための匿名の利用統計送信を許可（デフォルト: true） */
+  analyticsEnabled: boolean;
 }
 
 /** 猫のデフォルト名定義 */
@@ -34,6 +36,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   gaugePosition: 'bottom',
   autoFeedEnabled: false,
   compactAffectionCelebration: false,
+  analyticsEnabled: true,
 };
 
 /** localStorage 保存用キー */

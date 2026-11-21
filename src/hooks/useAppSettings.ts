@@ -41,6 +41,12 @@ export interface UseAppSettingsReturn {
   setCompactAffectionCelebration: (enabled: boolean) => void;
   /** なつき度演出簡略化の有効/無効を反転（トグル）する関数 */
   toggleCompactAffectionCelebration: () => void;
+  /** 匿名の利用統計送信の有効/無効（デフォルト: true） */
+  isAnalyticsEnabled: boolean;
+  /** 匿名の利用統計送信の有効/無効を更新する関数 */
+  setAnalyticsEnabled: (enabled: boolean) => void;
+  /** 匿名の利用統計送信の有効/無効を反転（トグル）する関数 */
+  toggleAnalytics: () => void;
   /** 設定を一括復元・更新する関数（データ引き継ぎ・同期用） */
   restoreSettings: (newSettings: AppSettings) => void;
 }
@@ -137,6 +143,20 @@ export function useAppSettings(): UseAppSettingsReturn {
     }));
   }, []);
 
+  const setAnalyticsEnabled = useCallback((enabled: boolean) => {
+    setSettings((prev) => ({
+      ...prev,
+      analyticsEnabled: enabled,
+    }));
+  }, []);
+
+  const toggleAnalytics = useCallback(() => {
+    setSettings((prev) => ({
+      ...prev,
+      analyticsEnabled: !prev.analyticsEnabled,
+    }));
+  }, []);
+
   const restoreSettings = useCallback((newSettings: AppSettings) => {
     setSettings(sanitizeSettings(newSettings));
   }, []);
@@ -148,6 +168,7 @@ export function useAppSettings(): UseAppSettingsReturn {
     gaugePosition: settings.gaugePosition,
     isAutoFeedEnabled: settings.autoFeedEnabled,
     isCompactAffectionCelebration: settings.compactAffectionCelebration,
+    isAnalyticsEnabled: settings.analyticsEnabled,
     setSoundEnabled,
     toggleSound,
     setCatName,
@@ -157,6 +178,8 @@ export function useAppSettings(): UseAppSettingsReturn {
     toggleAutoFeed,
     setCompactAffectionCelebration,
     toggleCompactAffectionCelebration,
+    setAnalyticsEnabled,
+    toggleAnalytics,
     restoreSettings,
   };
 }

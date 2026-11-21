@@ -397,71 +397,118 @@ describe('SettingsModal コンポーネント', () => {
       expect(screen.getByText(/クラウド設定が未完了です/)).toBeInTheDocument();
     });
 
-    it('isCloudConfigured が true かつ未ログインのとき、ログイン/新規登録フォームが表示され操作できること', async () => {
-      const handleSignIn = vi.fn().mockResolvedValue({ success: true, message: 'ログイン成功' });
-      const handleSignUp = vi.fn().mockResolvedValue({ success: true, message: '登録成功' });
-
-      render(
-        <SettingsModal
-          isOpen={true}
-          onClose={vi.fn()}
-          isCloudConfigured={true}
-          cloudUser={null}
-          onCloudSignIn={handleSignIn}
-          onCloudSignUp={handleSignUp}
-        />
-      );
-
-      const emailInput = screen.getByTestId('cloud-email-input');
-      const passInput = screen.getByTestId('cloud-password-input');
-      const signInBtn = screen.getByTestId('cloud-signin-button');
-      const signUpBtn = screen.getByTestId('cloud-signup-button');
-
-      expect(emailInput).toBeInTheDocument();
-      expect(passInput).toBeInTheDocument();
-
-      // 空欄で押したときはバリデーションエラーが表示されること
-      fireEvent.click(signInBtn);
-      expect(screen.getByTestId('cloud-sync-status-message')).toHaveTextContent(/メールアドレスとパスワードを入力してください/);
-      expect(handleSignIn).not.toHaveBeenCalled();
-
-      // 入力してログイン実行
-      fireEvent.change(emailInput, { target: { value: 'cat@example.com' } });
-      fireEvent.change(passInput, { target: { value: 'password123' } });
-      fireEvent.click(signInBtn);
-
-      expect(handleSignIn).toHaveBeenCalledWith('cat@example.com', 'password123');
-
-      // 新規登録実行
-      fireEvent.click(signUpBtn);
-      expect(handleSignUp).toHaveBeenCalledWith('cat@example.com', 'password123');
-    });
-
-    it('ログイン中のとき、メールアドレス、今すぐ同期ボタン、ログアウトボタンが表示され操作できること', () => {
+    it('cloudCredentials があるとき、連携ID、引き継ぎキー、今すぐ同期ボタンが表示され操作できること', () => {
       const handleSyncNow = vi.fn();
-      const handleSignOut = vi.fn();
+      const sampleCreds = {
+        userId: 'NK-A8F2-9X4B',
+        transferKey: 'k7Mp2Q9xL4wZ',
+        createdAt: 1700000000000,
+      };
 
       render(
         <SettingsModal
           isOpen={true}
           onClose={vi.fn()}
           isCloudConfigured={true}
-          cloudUser={{ email: 'logged_in@example.com' }}
+          cloudCredentials={sampleCreds}
           cloudLastSyncedAt={1700000000000}
           onCloudSyncNow={handleSyncNow}
-          onCloudSignOut={handleSignOut}
         />
       );
 
-      expect(screen.getByTestId('cloud-user-email')).toHaveTextContent('logged_in@example.com');
-      const syncNowBtn = screen.getByTestId('cloud-sync-now-button');
-      const signOutBtn = screen.getByTestId('cloud-signout-button');
+      expect(screen.getByTestId('cloud-user-id')).toHaveTextContent('NK-A8F2-9X4B');
+      const keyElem = screen.getByTestId('cloud-transfer-key');
+      // 最初はマスクされていること
+      expect(keyElem).toHaveTextContent('••••••••••••');
 
+      // 表示ボタンを押すとキーが表示されること
+      const toggleKeyBtn = screen.getByTestId('toggle-show-key-btn');
+      fireEvent.click(toggleKeyBtn);
+      expect(keyElem).toHaveTextContent('k7Mp2Q9xL4wZ');
+
+      // 今すぐ同期ボタンが動作すること
+      const syncNowBtn = screen.getByTestId('cloud-sync-now-button');
       fireEvent.click(syncNowBtn);
       expect(handleSyncNow).toHaveBeenCalledTimes(1);
+    });
 
-      fireEvent.click(signOutBtn);
-      expect(handleSignOut).toHaveBeenCalledTimes(1);
+    it('「変更」ボタンを押すとパスワード変更フォームが開き、新しいパスワードを設定できること', async () => {
+      const handleUpdateKey = vi.fn().mockResolvedValue({ success: true, message: 'パスワードを変更しました！' });
+      const sampleCreds = {
+        userId: 'NK-A8F2-9X4B',
+        transferKey: 'k7Mp2Q9xL4wZ',
+        createdAt: 1700000000000,
+      };
+
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCloudConfigured={true}
+          cloudCredentials={sampleCreds}
+          onUpdateTransferKey={handleUpdateKey}
+        />
+      );
+
+      // 変更ボタンを押す
+      const changeBtn = screen.getByTestId('toggle-change-key-btn');
+      fireEvent.click(changeBtn);
+
+      const newKeyInput = screen.getByTestId('new-transfer-key-input');
+      const confirmInput = screen.getByTestId('confirm-transfer-key-input');
+      const submitBtn = screen.getByTestId('submit-update-key-btn');
+
+      // 6文字未満を入力
+      fireEvent.change(newKeyInput, { target: { value: '123' } });
+      fireEvent.change(confirmInput, { target: { value: '123' } });
+      fireEvent.click(submitBtn);
+      expect(screen.getByText(/パスワードは6文字以上/)).toBeInTheDocument();
+      expect(handleUpdateKey).not.toHaveBeenCalled();
+
+      // 不一致を入力
+      fireEvent.change(newKeyInput, { target: { value: 'myPass123' } });
+      fireEvent.change(confirmInput, { target: { value: 'different123' } });
+      fireEvent.click(submitBtn);
+      expect(screen.getByText(/確認用パスワードが一致しません/)).toBeInTheDocument();
+
+      // 正しいパスワードを入力して変更
+      fireEvent.change(confirmInput, { target: { value: 'myPass123' } });
+      fireEvent.click(submitBtn);
+      expect(handleUpdateKey).toHaveBeenCalledWith('myPass123');
+    });
+
+    it('「他の端末とデータを連携・共有する」アコーディオンから連携IDとキーを入力して連携が実行できること', async () => {
+      const handleTransfer = vi.fn().mockResolvedValue({ success: true, message: 'データの連携が完了しました！' });
+      const sampleCreds = {
+        userId: 'NK-A8F2-9X4B',
+        transferKey: 'k7Mp2Q9xL4wZ',
+        createdAt: 1700000000000,
+      };
+
+      render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isCloudConfigured={true}
+          cloudCredentials={sampleCreds}
+          onCloudTransfer={handleTransfer}
+        />
+      );
+
+      // アコーディオンを開く
+      const accordionBtn = screen.getByTestId('toggle-transfer-accordion-btn');
+      fireEvent.click(accordionBtn);
+
+      const idInput = screen.getByTestId('transfer-user-id-input');
+      const keyInput = screen.getByTestId('transfer-key-input');
+      const transferBtn = screen.getByTestId('execute-transfer-btn');
+
+      // 入力して引き継ぎ実行
+      fireEvent.change(idInput, { target: { value: 'NK-1234-5678' } });
+      fireEvent.change(keyInput, { target: { value: 'secretkey999' } });
+      fireEvent.click(transferBtn);
+
+      expect(handleTransfer).toHaveBeenCalledWith('NK-1234-5678', 'secretkey999');
     });
 
     it('「プライバシーとデータの取り扱いについて」リンクを押すと、プライバシーポリシーモーダルが開くこと', () => {
@@ -488,6 +535,42 @@ describe('SettingsModal コンポーネント', () => {
       const closeBtn = screen.getByTestId('privacy-policy-close-button');
       fireEvent.click(closeBtn);
       expect(screen.queryByTestId('privacy-policy-modal')).not.toBeInTheDocument();
+    });
+
+    it('「アプリ改善のための匿名の利用統計送信」トグルスイッチが表示され、クリックで onToggleAnalytics が呼ばれること', () => {
+      const handleToggleAnalytics = vi.fn();
+      const { rerender } = render(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isAnalyticsEnabled={true}
+          onToggleAnalytics={handleToggleAnalytics}
+        />
+      );
+
+      const toggleButton = screen.getByRole('switch', { name: 'アプリ改善のための匿名の利用統計送信' });
+      expect(toggleButton).toBeInTheDocument();
+      expect(toggleButton).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByText('アプリ改善のための匿名の利用統計送信')).toBeInTheDocument();
+
+      // クリックすると false でコールバックが呼ばれること
+      fireEvent.click(toggleButton);
+      expect(handleToggleAnalytics).toHaveBeenCalledWith(false);
+
+      // isAnalyticsEnabled が false の場合
+      rerender(
+        <SettingsModal
+          isOpen={true}
+          onClose={vi.fn()}
+          isAnalyticsEnabled={false}
+          onToggleAnalytics={handleToggleAnalytics}
+        />
+      );
+      expect(toggleButton).toHaveAttribute('aria-checked', 'false');
+
+      // クリックすると true でコールバックが呼ばれること
+      fireEvent.click(toggleButton);
+      expect(handleToggleAnalytics).toHaveBeenCalledWith(true);
     });
   });
 });

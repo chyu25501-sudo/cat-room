@@ -31,6 +31,9 @@ import { GiftCollectionModal } from './components/gifts/GiftCollectionModal.tsx'
 import { GiftToastOverlay } from './components/gifts/GiftToastOverlay.tsx';
 import { SettingsButton } from './components/settings/SettingsButton.tsx';
 import { SettingsModal } from './components/settings/SettingsModal.tsx';
+import { CloudMigrationModal } from './components/settings/CloudMigrationModal.tsx';
+import { PrivacyPolicyModal } from './components/settings/PrivacyPolicyModal.tsx';
+import { usePrivacyConsent } from './hooks/usePrivacyConsent.ts';
 import { AchievementButton } from './components/achievements/AchievementButton.tsx';
 import { AchievementToastOverlay } from './components/achievements/AchievementToastOverlay.tsx';
 import { AchievementModal } from './components/achievements/AchievementModal.tsx';
@@ -91,6 +94,8 @@ export default function App() {
     setAutoFeedEnabled,
     isCompactAffectionCelebration,
     setCompactAffectionCelebration,
+    isAnalyticsEnabled,
+    setAnalyticsEnabled,
     restoreSettings,
   } = useAppSettings();
   const { currentCatId, switchCat, selectCat } = useCatSelection();
@@ -146,6 +151,12 @@ export default function App() {
     restoreAchievements,
   } = useAchievements();
   const { stats: careJournalStats, recordCareAction, addAutoFeedStats, restoreStats } = useCareJournal();
+
+  // プライバシーポリシー同意管理フック（初起動時・移行時・既存利用者の未同意時に1回だけ同意ウィンドウを表示）
+  const {
+    isConsentModalOpen,
+    acceptConsent,
+  } = usePrivacyConsent();
 
   // あそびかたモーダルの開閉ステート（初回訪問時は自動で強制表示、2回目以降は通常通り）
   const {
@@ -571,6 +582,7 @@ export default function App() {
         gaugePosition,
         autoFeedEnabled: isAutoFeedEnabled,
         compactAffectionCelebration: isCompactAffectionCelebration,
+        analyticsEnabled: isAnalyticsEnabled,
       },
       affection: affectionMap,
       fullness: fullnessMap,
@@ -586,6 +598,7 @@ export default function App() {
     gaugePosition,
     isAutoFeedEnabled,
     isCompactAffectionCelebration,
+    isAnalyticsEnabled,
     affectionMap,
     fullnessMap,
     inventory,
@@ -631,16 +644,18 @@ export default function App() {
     ]
   );
 
-  // クラウド同期・認証フック
+  // クラウド同期・認証フック（ID連携方式）
   const {
     isConfigured: isCloudConfigured,
     user: cloudUser,
+    credentials: cloudCredentials,
     syncStatus: cloudSyncStatus,
     syncMessage: cloudSyncMessage,
     lastSyncedAt: cloudLastSyncedAt,
-    signUp: handleCloudSignUp,
-    signIn: handleCloudSignIn,
-    signOut: handleCloudSignOut,
+    migrationInfo: cloudMigrationInfo,
+    dismissMigrationModal,
+    linkWithCredentials,
+    updateTransferKey,
     syncWithCloud,
   } = useCloudSync();
 
@@ -659,6 +674,19 @@ export default function App() {
       isSyncingRef.current = false;
     }
   }, [getCurrentSaveData, syncWithCloud, applyMergedSaveData]);
+
+  // 別端末からのデータ引き継ぎハンドラー
+  const handleCloudTransfer = useCallback(
+    async (targetUserId: string, targetKey: string) => {
+      const currentLocal = getCurrentSaveData();
+      const result = await linkWithCredentials(targetUserId, targetKey, currentLocal);
+      if (result.success && result.mergedData) {
+        applyMergedSaveData(result.mergedData);
+      }
+      return { success: result.success, message: result.message };
+    },
+    [getCurrentSaveData, linkWithCredentials, applyMergedSaveData]
+  );
 
   // 最新のハンドラーを ref に保持
   const handleCloudSyncNowRef = useRef(handleCloudSyncNow);
@@ -1264,7 +1292,7 @@ export default function App() {
 
       {/* あそびかた（ガイド）モーダル画面 */}
       <HowToPlayModal
-        isOpen={isHowToPlayModalOpen}
+        isOpen={!isConsentModalOpen && isHowToPlayModalOpen}
         onClose={closeHowToPlayModal}
       />
 
@@ -1292,23 +1320,44 @@ export default function App() {
         onToggleAutoFeed={setAutoFeedEnabled}
         isCompactAffectionCelebration={isCompactAffectionCelebration}
         onToggleCompactAffectionCelebration={setCompactAffectionCelebration}
+        isAnalyticsEnabled={isAnalyticsEnabled}
+        onToggleAnalytics={setAnalyticsEnabled}
         onExportSaveData={handleExportSaveData}
         onImportSaveData={handleImportSaveData}
         isCloudConfigured={isCloudConfigured}
-        cloudUser={cloudUser}
+        cloudCredentials={cloudCredentials}
         cloudSyncStatus={cloudSyncStatus}
         cloudSyncMessage={cloudSyncMessage}
         cloudLastSyncedAt={cloudLastSyncedAt}
-        onCloudSignUp={handleCloudSignUp}
-        onCloudSignIn={handleCloudSignIn}
-        onCloudSignOut={handleCloudSignOut}
+        onCloudTransfer={handleCloudTransfer}
+        onUpdateTransferKey={updateTransferKey}
         onCloudSyncNow={handleCloudSyncNow}
       />
+
+      {/* プライバシーポリシー初回同意モーダル（初起動時・移行時・既存利用者の未同意時に1回だけ表示） */}
+      <PrivacyPolicyModal
+        isOpen={isConsentModalOpen}
+        isConsentMode={true}
+        onClose={acceptConsent}
+        onAccept={acceptConsent}
+        isAnalyticsEnabled={isAnalyticsEnabled}
+        onToggleAnalytics={setAnalyticsEnabled}
+      />
+
+      {/* クラウド仕様変更・ID移行完了案内モーダル */}
+      {cloudMigrationInfo && (
+        <CloudMigrationModal
+          isOpen={!isConsentModalOpen && cloudMigrationInfo.isOpen}
+          onClose={dismissMigrationModal}
+          credentials={cloudMigrationInfo.credentials}
+          previousEmail={cloudMigrationInfo.previousEmail}
+        />
+      )}
 
       {/* お留守番レポート（自動ごはん）モーダル画面 */}
       {offlineReportData && (
         <OfflineCareReportModal
-          isOpen={isOfflineReportModalOpen}
+          isOpen={!isConsentModalOpen && isOfflineReportModalOpen}
           onClose={handleAcceptOfflineReport}
           elapsedMs={offlineReportData.cappedElapsedMs}
           catResults={offlineReportData.catResults}

@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import App from './App.tsx';
 import { CAT_GIFTS } from './utils/catGifts.ts';
 import { GUIDE_SEEN_STORAGE_KEY } from './utils/firstVisit.ts';
+import { PRIVACY_POLICY_ACCEPTED_STORAGE_KEY } from './utils/privacyPolicy.ts';
 import * as catSoundModule from './utils/catSound.ts';
 
 describe('App コンポーネント (猫切り替え機能)', () => {
@@ -19,6 +20,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem(PRIVACY_POLICY_ACCEPTED_STORAGE_KEY, 'true');
   });
 
   it('サイト名「ねこっぽい」と切り替えマーク・円形ラジオボタンが表示されること', () => {
@@ -676,6 +678,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
   describe('第7週: なつき度（Affection）機能の統合テスト', () => {
     beforeEach(() => {
       localStorage.clear();
+      localStorage.setItem(PRIVACY_POLICY_ACCEPTED_STORAGE_KEY, 'true');
     });
 
     it('初期状態で黒猫のなつき度Lv.1（はじめまして、0%）が表示されること', () => {
@@ -1992,6 +1995,67 @@ describe('App コンポーネント (猫切り替え機能)', () => {
 
       // トグルがオンになったこと
       expect(autoFeedToggle).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('ID連携方式において設定画面に連携IDと引き継ぎキーが表示されること', () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      render(<App />);
+
+      // 設定モーダルを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      // クラウド連携セクションに連携IDが表示されていること
+      const userIdElem = screen.getByTestId('cloud-user-id');
+      expect(userIdElem).toBeInTheDocument();
+      expect(userIdElem).toHaveTextContent(/^NK-/);
+
+      // 引き継ぎキーが表示されていること（初期はマスク）
+      const keyElem = screen.getByTestId('cloud-transfer-key');
+      expect(keyElem).toHaveTextContent('••••••••••••');
+    });
+
+    it('設定画面から引き継ぎ秘密パスワードを変更できること', async () => {
+      localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+      render(<App />);
+
+      // 設定モーダルを開く
+      const settingsButton = screen.getByRole('button', { name: '設定を開く' });
+      fireEvent.click(settingsButton);
+
+      // パスワード変更ボタンを押す
+      const changeBtn = screen.getByTestId('toggle-change-key-btn');
+      fireEvent.click(changeBtn);
+
+      const newKeyInput = screen.getByTestId('new-transfer-key-input');
+      const confirmInput = screen.getByTestId('confirm-transfer-key-input');
+      const submitBtn = screen.getByTestId('submit-update-key-btn');
+
+      // 新しいパスワードを入力
+      fireEvent.change(newKeyInput, { target: { value: 'customPass888' } });
+      fireEvent.change(confirmInput, { target: { value: 'customPass888' } });
+      fireEvent.click(submitBtn);
+
+      // 成功メッセージが表示されること
+      expect(await screen.findByText('連携・引き継ぎパスワードを変更しました！')).toBeInTheDocument();
+    });
+
+    it('プライバシーポリシー未同意の場合、起動時に同意ウィンドウが表示され、同意後に次回以降表示されなくなること', async () => {
+      // 未同意状態にする
+      localStorage.removeItem(PRIVACY_POLICY_ACCEPTED_STORAGE_KEY);
+      render(<App />);
+
+      // プライバシーポリシー同意ウィンドウが表示されること
+      expect(screen.getByText('プライバシーポリシーへの同意')).toBeInTheDocument();
+      expect(screen.getByTestId('privacy-consent-banner')).toBeInTheDocument();
+
+      // 「プライバシーポリシーに同意して利用を開始する」ボタンを押す
+      const acceptBtn = screen.getByTestId('privacy-policy-accept-button');
+      fireEvent.click(acceptBtn);
+
+      // モーダルが閉じ、localStorage に記録されること
+      expect(localStorage.getItem(PRIVACY_POLICY_ACCEPTED_STORAGE_KEY)).toBe('true');
+      expect(screen.queryByTestId('privacy-consent-banner')).not.toBeInTheDocument();
     });
   });
 });

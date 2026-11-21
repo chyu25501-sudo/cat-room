@@ -86,4 +86,23 @@ describe('useAppSettings フック', () => {
     stored = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
     expect(stored.compactAffectionCelebration).toBe(false);
   });
+
+  it('匿名の利用統計送信設定（analyticsEnabled）の初期値が true であり、切り替えおよび localStorage 永続化ができること', () => {
+    const { result } = renderHook(() => useAppSettings());
+    expect(result.current.isAnalyticsEnabled).toBe(true);
+
+    act(() => {
+      result.current.setAnalyticsEnabled(false);
+    });
+    expect(result.current.isAnalyticsEnabled).toBe(false);
+    let stored = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
+    expect(stored.analyticsEnabled).toBe(false);
+
+    act(() => {
+      result.current.toggleAnalytics();
+    });
+    expect(result.current.isAnalyticsEnabled).toBe(true);
+    stored = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '{}');
+    expect(stored.analyticsEnabled).toBe(true);
+  });
 });
