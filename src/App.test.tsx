@@ -1903,6 +1903,56 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         vi.useRealTimers();
       }
     });
+
+    it('画面上で自動ごはん機能が発火したとき、なつき度レベルアップがなくても実績「おまかせカリカリ」が解除されること', () => {
+      vi.useFakeTimers();
+      try {
+        localStorage.setItem(GUIDE_SEEN_STORAGE_KEY, 'true');
+        setupAllCatsMaxAffection();
+        // 自動ごはんON、かつ黒猫のまんぷく度を40%以下（30%）にして自動給餌対象にする
+        localStorage.setItem(
+          'nekoppoi_settings',
+          JSON.stringify({
+            soundEnabled: true,
+            catNames: { black: 'くろねこ', white: 'しろねこ', calico: 'みけねこ' },
+            gaugePosition: 'bottom',
+            autoFeedEnabled: true,
+            compactAffectionCelebration: false,
+          })
+        );
+        localStorage.setItem(
+          'nekoppoi_cats_fullness',
+          JSON.stringify({
+            black: { score: 30, lastFedAt: Date.now() },
+            white: { score: 80, lastFedAt: Date.now() },
+            calico: { score: 80, lastFedAt: Date.now() },
+          })
+        );
+
+        setDocumentVisibility('visible');
+        render(<App />);
+
+        // 初期状態では実績トーストは表示されていない
+        expect(screen.queryByText('おまかせカリカリ')).not.toBeInTheDocument();
+
+        // 3秒タイマーを進めて自動給餌を発火させる
+        act(() => {
+          vi.advanceTimersByTime(3500);
+        });
+
+        // 実績トースト「おまかせカリカリ」が表示されること
+        expect(screen.getByText('おまかせカリカリ')).toBeInTheDocument();
+
+        // 実績一覧モーダルを開き、「おまかせカリカリ」が達成！状態になっていること
+        const achievementButton = screen.getByRole('button', { name: '実績一覧を開く' });
+        fireEvent.click(achievementButton);
+
+        expect(screen.getByTestId('achievement-badge-first-auto-feed')).toHaveTextContent('達成！');
+        expect(screen.getByTestId('achievement-title-first-auto-feed')).toHaveTextContent('おまかせカリカリ');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 
   describe('設定画面からのセーブデータバックアップ・引き継ぎ', () => {

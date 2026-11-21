@@ -383,8 +383,11 @@ export default function App() {
           }
 
           // なつき度満タン（おくりもの獲得）
+          let nextInventory = inventory;
+          let currentGift: GiftItem | null = null;
           if (affRes.isLevelUp) {
             const gift = receiveGift(catId);
+            currentGift = gift;
             const catDisplayName = getCatDisplayName(catId, catNames);
 
             // 自動ごはん稼働中は画面中央の大きな演出は出さず、控えめなミニトースト通知を表示
@@ -395,39 +398,40 @@ export default function App() {
             });
 
             // 最新のおくりものインベントリを計算
-            const nextInventory = addGiftToInventory(inventory, gift.id, catId);
-            const isRareOrAbove = (r?: string) => r === 'rare' || r === 'super-rare' || r === 'ultra-rare';
-
-            // 実績判定
-            checkAchievements({
-              action: 'feed',
-              isAutoFeed: true,
-              moodScore: getMoodScore(catId),
-              moodLevel: getMoodLevelForCat(catId),
-              fullnessScore: nextFullness,
-              fullnessLevel: nextFullnessLevel,
-              affectionLevel: affRes.nextLevel,
-              maxAffectionLevel: getMaxAffectionLevel(catId, affRes.nextLevel),
-              minAffectionLevel: getMinAffectionLevel(catId, affRes.nextLevel),
-              totalGifts: getTotalGiftCount(nextInventory),
-              receivedGift: gift,
-              hasRareGift:
-                isRareOrAbove(gift.rarity) ||
-                Object.keys(nextInventory).some((id) => isRareOrAbove(CAT_GIFTS.find((g) => g.id === id)?.rarity)),
-              hasSuperRareGift:
-                gift.rarity === 'super-rare' ||
-                gift.rarity === 'ultra-rare' ||
-                Object.keys(nextInventory).some((id) => {
-                  const r = CAT_GIFTS.find((g) => g.id === id)?.rarity;
-                  return r === 'super-rare' || r === 'ultra-rare';
-                }),
-              hasUltraRareGift:
-                gift.rarity === 'ultra-rare' ||
-                Object.keys(nextInventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare'),
-              giftInventory: nextInventory,
-              careStats: updatedStats,
-            });
+            nextInventory = addGiftToInventory(inventory, gift.id, catId);
           }
+
+          const isRareOrAbove = (r?: string) => r === 'rare' || r === 'super-rare' || r === 'ultra-rare';
+
+          // 実績判定（給餌発生時はなつき度レベルアップの有無に関わらず必ず判定する）
+          checkAchievements({
+            action: 'feed',
+            isAutoFeed: true,
+            moodScore: getMoodScore(catId),
+            moodLevel: getMoodLevelForCat(catId),
+            fullnessScore: nextFullness,
+            fullnessLevel: nextFullnessLevel,
+            affectionLevel: affRes.nextLevel,
+            maxAffectionLevel: getMaxAffectionLevel(catId, affRes.nextLevel),
+            minAffectionLevel: getMinAffectionLevel(catId, affRes.nextLevel),
+            totalGifts: getTotalGiftCount(nextInventory),
+            receivedGift: currentGift,
+            hasRareGift:
+              isRareOrAbove(currentGift?.rarity) ||
+              Object.keys(nextInventory).some((id) => isRareOrAbove(CAT_GIFTS.find((g) => g.id === id)?.rarity)),
+            hasSuperRareGift:
+              currentGift?.rarity === 'super-rare' ||
+              currentGift?.rarity === 'ultra-rare' ||
+              Object.keys(nextInventory).some((id) => {
+                const r = CAT_GIFTS.find((g) => g.id === id)?.rarity;
+                return r === 'super-rare' || r === 'ultra-rare';
+              }),
+            hasUltraRareGift:
+              currentGift?.rarity === 'ultra-rare' ||
+              Object.keys(nextInventory).some((id) => CAT_GIFTS.find((g) => g.id === id)?.rarity === 'ultra-rare'),
+            giftInventory: nextInventory,
+            careStats: updatedStats,
+          });
         }
       }
     }, 3000);
