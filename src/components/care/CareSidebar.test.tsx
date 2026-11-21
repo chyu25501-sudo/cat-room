@@ -10,17 +10,17 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     const openButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
     expect(openButton).toBeInTheDocument();
 
-    const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
-    expect(sidebar).toHaveClass('translate-x-full');
+    // 初期状態ではモーダルは非表示
+    expect(screen.queryByRole('dialog', { name: /お世話メニュー/ })).not.toBeInTheDocument();
 
     // 開く
     fireEvent.click(openButton);
-    expect(sidebar).toHaveClass('translate-x-0');
+    expect(screen.getByRole('dialog', { name: /お世話メニュー/ })).toBeInTheDocument();
 
     // 閉じるボタンで閉じる
     const closeButton = screen.getByRole('button', { name: 'お世話メニューを閉じる' });
     fireEvent.click(closeButton);
-    expect(sidebar).toHaveClass('translate-x-full');
+    expect(screen.queryByRole('dialog', { name: /お世話メニュー/ })).not.toBeInTheDocument();
   });
 
   it('背景オーバーレイをクリックするとサイドバーが閉じること', () => {
@@ -29,12 +29,11 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     const openButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
     fireEvent.click(openButton);
 
-    const backdrop = screen.getByTestId('care-sidebar-backdrop');
+    const backdrop = screen.getByTestId('care-modal-backdrop');
     expect(backdrop).toBeInTheDocument();
 
     fireEvent.click(backdrop);
-    const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
-    expect(sidebar).toHaveClass('translate-x-full');
+    expect(screen.queryByRole('dialog', { name: /お世話メニュー/ })).not.toBeInTheDocument();
   });
 
   it('ごはんサブメニューをアコーディオン開閉できること', () => {
@@ -111,19 +110,18 @@ describe('CareSidebar コンポーネント (第6週: お世話サイドバー�
     const openButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
     fireEvent.click(openButton);
 
-    const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
-    expect(sidebar).toHaveClass('translate-x-0');
+    expect(screen.getByRole('dialog', { name: /お世話メニュー/ })).toBeInTheDocument();
 
     // ごはんをあげる
     const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
     fireEvent.click(feedKibbleBtn);
 
     // 即座に閉じる
-    expect(sidebar).toHaveClass('translate-x-full');
+    expect(screen.queryByRole('dialog', { name: /お世話メニュー/ })).not.toBeInTheDocument();
 
     // 再度サイドバーを開く
     fireEvent.click(openButton);
-    expect(sidebar).toHaveClass('translate-x-0');
+    expect(screen.getByRole('dialog', { name: /お世話メニュー/ })).toBeInTheDocument();
 
     // 引き続き「あげる」ボタンが表示されていること
     expect(screen.getByRole('button', { name: 'カリカリをあげる' })).toBeInTheDocument();

@@ -231,9 +231,8 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const feedKibbleBtn = screen.getByRole('button', { name: 'カリカリをあげる' });
       fireEvent.click(feedKibbleBtn);
 
-      // サイドバーが即座に閉じ、猫の様子が見えること
-      const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
-      expect(sidebar).toHaveClass('translate-x-full');
+      // お世話メニューが即座に閉じ、猫の様子が見えること
+      expect(screen.queryByRole('dialog', { name: /お世話メニュー/ })).not.toBeInTheDocument();
 
       // スコアが 20 + 18 = 38% に上昇
       expect(within(indicator).getByText('38%')).toBeInTheDocument();
@@ -315,9 +314,8 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       const playTeaserBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
       fireEvent.click(playTeaserBtn);
 
-      // サイドバーが即座に閉じる
-      const sidebar = screen.getByRole('complementary', { name: 'お世話サイドバー' });
-      expect(sidebar).toHaveClass('translate-x-full');
+      // お世話メニューが即座に閉じる
+      expect(screen.queryByRole('dialog', { name: /お世話メニュー/ })).not.toBeInTheDocument();
 
       // スコアが 20 + 16 = 36% に上昇
       expect(within(indicator).getByText('36%')).toBeInTheDocument();
@@ -732,6 +730,7 @@ describe('App コンポーネント (猫切り替え機能)', () => {
         });
 
         // 3. おもちゃ（ねこじゃらし: +20pt -> 55pt / 240pt = 23%）
+        fireEvent.click(careButton);
         const playFeatherBtn = screen.getByRole('button', { name: 'ねこじゃらしであそぶ' });
         act(() => {
           fireEvent.click(playFeatherBtn);
@@ -1233,27 +1232,30 @@ describe('App コンポーネント (猫切り替え機能)', () => {
       expect(restoredIndicator).not.toHaveAttribute('data-layout', 'side');
     });
 
-    it('画面左上にあそびかた・おくりもの・実績・手帳・設定の順にボタンが並び、あそびかた・実績モーダルが開閉できること', () => {
+    it('画面左上にあそびかた・お世話・おくりもの・実績・手帳・設定の順にボタンが並び、あそびかた・実績モーダルが開閉できること', () => {
       render(<App />);
 
       const howToPlayButton = screen.getByRole('button', { name: 'あそびかたを開く' });
+      const careButton = screen.getByRole('button', { name: 'お世話メニューを開く' });
       const giftButton = screen.getByRole('button', { name: /これまでに受け取ったおくりもの一覧/ });
       const achievementButton = screen.getByRole('button', { name: '実績一覧を開く' });
       const journalButton = screen.getByRole('button', { name: 'ふり返り手帳を開く' });
       const settingsButton = screen.getByRole('button', { name: '設定を開く' });
 
       expect(howToPlayButton).toBeInTheDocument();
+      expect(careButton).toBeInTheDocument();
       expect(giftButton).toBeInTheDocument();
       expect(achievementButton).toBeInTheDocument();
       expect(journalButton).toBeInTheDocument();
       expect(settingsButton).toBeInTheDocument();
 
-      // 各ボタンがあそびかた・おくりもの・実績・手帳・設定の順に等間隔で配置されていること
+      // 各ボタンがあそびかた・お世話・おくりもの・実績・手帳・設定の順に等間隔で配置されていること
       expect(howToPlayButton).toHaveClass('left-4');
-      expect(giftButton).toHaveClass('left-[4.25rem]');
-      expect(achievementButton).toHaveClass('left-[7.5rem]');
-      expect(journalButton).toHaveClass('left-[10.75rem]');
-      expect(settingsButton).toHaveClass('left-[14rem]');
+      expect(careButton).toHaveClass('left-[4.25rem]');
+      expect(giftButton).toHaveClass('left-[7.5rem]');
+      expect(achievementButton).toHaveClass('left-[10.75rem]');
+      expect(journalButton).toHaveClass('left-[14rem]');
+      expect(settingsButton).toHaveClass('left-[17.25rem]');
 
       // あそびかたボタンをクリックすると、あそびかたモーダルが開き楽しみ方のテキストが閲覧できること
       fireEvent.click(howToPlayButton);

@@ -38,7 +38,7 @@ export const TreasureChestIcon: React.FC<{ className?: string }> = ({
 );
 
 /**
- * 画面左上（あそびかたボタンの右横）に配置する「おくりもの一覧」を開く正方形ボタン
+ * 画面左上（お世話メニューボタンの右横）に配置する「おくりもの一覧」を開く正方形ボタン
  * 宝箱のアイコンのみを描いた角丸正方形のシンプルな見た目
  */
 export const TreasureChestButton: React.FC<TreasureChestButtonProps> = ({
@@ -53,7 +53,7 @@ export const TreasureChestButton: React.FC<TreasureChestButtonProps> = ({
       aria-label={ariaLabel}
       title="おくりもの一覧"
       data-testid="treasure-chest-button"
-      className={`fixed top-4 left-[4.25rem] sm:top-5 sm:left-[4.875rem] z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/90 backdrop-blur-xs border border-orange-200/90 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center text-amber-600 hover:text-amber-700 hover:border-orange-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 cursor-pointer ${className}`}
+      className={`fixed top-4 left-[7.5rem] sm:top-5 sm:left-[8.75rem] z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/90 backdrop-blur-xs border border-orange-200/90 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center text-amber-600 hover:text-amber-700 hover:border-orange-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 cursor-pointer ${className}`}
     >
       <TreasureChestIcon className="w-5 h-5 sm:w-6 sm:h-6" />
     </button>

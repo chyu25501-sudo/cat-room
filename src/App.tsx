@@ -20,7 +20,8 @@ import { useCloudSync } from './hooks/useCloudSync.ts';
 import { CatSilhouette } from './components/CatSilhouette.tsx';
 import { CatSelector } from './components/CatSelector.tsx';
 import { CatMoodIndicator } from './components/CatMoodIndicator.tsx';
-import { CareSidebar } from './components/care/CareSidebar.tsx';
+import { CareButton } from './components/care/CareButton.tsx';
+import { CareModal } from './components/care/CareModal.tsx';
 import { OfflineCareReportModal } from './components/care/OfflineCareReportModal.tsx';
 import { AffectionLevelUpOverlay } from './components/AffectionLevelUpOverlay.tsx';
 import { HowToPlayButton } from './components/guide/HowToPlayButton.tsx';
@@ -152,6 +153,9 @@ export default function App() {
     openHowToPlayModal,
     closeHowToPlayModal,
   } = useFirstVisitGuide();
+
+  // お世話メニューモーダルの開閉ステート
+  const [isCareModalOpen, setIsCareModalOpen] = useState(false);
 
   // おくりもの一覧モーダルの開閉ステート
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
@@ -1111,8 +1115,9 @@ export default function App() {
       {/* メイン画面上部の実績獲得トースト通知（複数同時獲得時は縦並び表示） */}
       <AchievementToastOverlay toasts={achievementToasts} onDismiss={dismissAchievementToast} />
 
-      {/* 画面左上：あそびかたボタン・おくりもの一覧ボタン・実績ボタン・ふり返り手帳ボタン・設定ボタン */}
+      {/* 画面左上：あそびかたボタン・お世話メニューボタン・おくりもの一覧ボタン・実績ボタン・ふり返り手帳ボタン・設定ボタン */}
       <HowToPlayButton onClick={openHowToPlayModal} />
+      <CareButton onClick={() => setIsCareModalOpen(true)} />
       <TreasureChestButton onClick={() => setIsGiftModalOpen(true)} />
       <AchievementButton onClick={() => setIsAchievementModalOpen(true)} />
       <JournalButton onClick={() => setIsJournalModalOpen(true)} />
@@ -1235,8 +1240,10 @@ export default function App() {
         </p>
       </footer>
 
-      {/* お世話サイドバー（画面端のお世話ボタン・ごはん・おもちゃサブメニュー） */}
-      <CareSidebar
+      {/* お世話メニュー（画面中央モーダル・ごはん・おもちゃ・自動化） */}
+      <CareModal
+        isOpen={isCareModalOpen}
+        onClose={() => setIsCareModalOpen(false)}
         currentCatName={currentPreset.name}
         isEating={isEating}
         isPlayingToy={isPlayingToy}

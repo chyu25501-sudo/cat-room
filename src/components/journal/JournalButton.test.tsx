@@ -11,9 +11,9 @@ describe('JournalButton コンポーネント', () => {
     expect(button).toBeInTheDocument();
     expect(button).toHaveAttribute('data-testid', 'journal-button');
 
-    // 実績ボタンと設定ボタンの間（left-[10.75rem] sm:left-[12.625rem]）に配置されていること
-    expect(button).toHaveClass('left-[10.75rem]');
-    expect(button).toHaveClass('sm:left-[12.625rem]');
+    // 実績ボタンと設定ボタンの間（left-[14rem] sm:left-[16.5rem]）に配置されていること
+    expect(button).toHaveClass('left-[14rem]');
+    expect(button).toHaveClass('sm:left-[16.5rem]');
 
     const icon = screen.getByTestId('journal-icon');
     expect(icon).toBeInTheDocument();
